@@ -6,7 +6,7 @@
     using System.Windows.Data;
     using System.Windows.Media.Imaging;
 
-    public class ResouceToImageConverter : IValueConverter
+    public class ResourceToImageConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {

@@ -203,7 +203,7 @@
         {
             var saveResource = new WorldResource
             {
-                GroupDescription = $"{new EnumToResouceConverter().Convert(saveType, typeof (string), null, CultureInfo.CurrentUICulture)}: {userName}",
+                GroupDescription = $"{new EnumToResourceConverter().Convert(saveType, typeof (string), null, CultureInfo.CurrentUICulture)}: {userName}",
                 SaveType = saveType,
                 Savename = Path.GetFileName(savePath),
                 UserName = userName,

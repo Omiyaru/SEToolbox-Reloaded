@@ -12,7 +12,7 @@
 
         public ToolboxException(ExceptionState state, params object[] arguments)
         {
-            var converter = new EnumToResouceConverter();
+            var converter = new EnumToResourceConverter();
             Arguments = arguments;
             _friendlyMessage = string.Format((string)converter.Convert(state, typeof(string), null, CultureInfo.CurrentUICulture), Arguments);
         }

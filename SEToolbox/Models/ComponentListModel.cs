@@ -341,13 +341,13 @@ td.right { text-align: right; }");
                     writer.RenderElement(HtmlTextWriterTag.Td, asset.SubtypeId);
                     writer.RenderElement(HtmlTextWriterTag.Td, asset.CubeSize);
                     writer.RenderElement(HtmlTextWriterTag.Td, asset.PCU);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResouceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
                     writer.RenderElement(HtmlTextWriterTag.Td, "{0}×{1}×{2}", asset.Size.Width, asset.Size.Height, asset.Size.Depth);
                     writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
                     writer.RenderElement(HtmlTextWriterTag.Td, "{0:#,##0.00}", asset.Mass);
                     writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
                     writer.RenderElement(HtmlTextWriterTag.Td, "{0:hh\\:mm\\:ss\\.ff}", asset.Time);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResouceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
 
                     writer.RenderEndTag(); // Tr
                 }
@@ -384,14 +384,14 @@ td.right { text-align: right; }");
                     writer.RenderElement(HtmlTextWriterTag.Td, asset.FriendlyName);
                     writer.RenderElement(HtmlTextWriterTag.Td, asset.TypeId);
                     writer.RenderElement(HtmlTextWriterTag.Td, asset.SubtypeId);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResouceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
                     writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
                     writer.RenderElement(HtmlTextWriterTag.Td, "{0:#,##0.00}", asset.Mass);
                     writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
                     writer.RenderElement(HtmlTextWriterTag.Td, "{0:#,##0.00}", asset.Volume);
                     writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
                     writer.RenderElement(HtmlTextWriterTag.Td, "{0:hh\\:mm\\:ss\\.ff}", asset.Time);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResouceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
 
                     writer.RenderEndTag(); // Tr
                 }
@@ -428,14 +428,14 @@ td.right { text-align: right; }");
                     writer.RenderElement(HtmlTextWriterTag.Td, asset.FriendlyName);
                     writer.RenderElement(HtmlTextWriterTag.Td, asset.TypeId);
                     writer.RenderElement(HtmlTextWriterTag.Td, asset.SubtypeId);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResouceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
                     writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
                     writer.RenderElement(HtmlTextWriterTag.Td, "{0:#,##0.00}", asset.Mass);
                     writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
                     writer.RenderElement(HtmlTextWriterTag.Td, "{0:#,##0.00}", asset.Volume);
                     writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
                     writer.RenderElement(HtmlTextWriterTag.Td, "{0:hh\\:mm\\:ss\\.ff}", asset.Time);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResouceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
 
                     writer.RenderEndTag(); // Tr
                 }
@@ -471,9 +471,9 @@ td.right { text-align: right; }");
 
                     writer.RenderElement(HtmlTextWriterTag.Td, asset.Name);
                     writer.RenderElement(HtmlTextWriterTag.Td, asset.OreName);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResouceConverter().Convert(asset.IsRare, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.IsRare, typeof(string), null, CultureInfo.CurrentUICulture));
                     writer.RenderElement(HtmlTextWriterTag.Td, "{0:#,##0.00}", asset.MineOreRatio);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResouceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
 
                     writer.RenderEndTag(); // Tr
                 }

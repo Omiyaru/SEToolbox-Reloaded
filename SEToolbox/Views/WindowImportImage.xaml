@@ -15,8 +15,8 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:NullImageConverter x:Key="NullImageConverter"/>
-        <converters:ResouceToImageConverter x:Key="ResouceToImageConverter"/>
-        <converters:EnumToResouceConverter x:Key="EnumToResouceConverter"/>
+        <converters:ResourceToImageConverter x:Key="ResourceToImageConverter"/>
+        <converters:EnumToResourceConverter x:Key="EnumToResourceConverter"/>
         <converters:BusyMouseConverter x:Key="BusyMouseConverter" />
     </Window.Resources>
     <Window.Cursor>
@@ -49,14 +49,14 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <TextBox Width="180" Text="{Binding Filename, Mode=TwoWay}" VerticalAlignment="Center" Name="uxInitialElement"/>
                     <Button ToolTip="{lex:Loc WnImportImageBtnBrowseImageTooltip}" Command="{Binding BrowseImageCommand}" VerticalAlignment="Center">
-                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResouceToImageConverter}, ConverterParameter=folder}" />
+                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=folder}" />
                     </Button>
                 </StackPanel>
                 <Label Content="{lex:Loc WnImportImageLabelType}" Grid.Row="1" />
                 <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="200" ItemsSource="{Binding Source={StaticResource ImportImageTypeEnum}}" SelectedValue="{Binding ClassType}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=., Converter={StaticResource EnumToResouceConverter}}" />
+                            <TextBlock Text="{Binding Path=., Converter={StaticResource EnumToResourceConverter}}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
@@ -64,7 +64,7 @@
                 <ComboBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="200" ItemsSource="{Binding Source={StaticResource ArmorTypeEnum}}" SelectedValue="{Binding ArmorType}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=., Converter={StaticResource EnumToResouceConverter}}" />
+                            <TextBlock Text="{Binding Path=., Converter={StaticResource EnumToResourceConverter}}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>

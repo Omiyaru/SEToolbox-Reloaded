@@ -16,7 +16,7 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:BusyMouseConverter x:Key="BusyMouseConverter" />
         <converters:DistanceConverter x:Key="DistanceConverter"/>
-        <converters:EnumToResouceConverter x:Key="EnumToResouceConverter"/>
+        <converters:EnumToResourceConverter x:Key="EnumToResourceConverter"/>
     </Window.Resources>
     <Window.Cursor>
         <Binding Path="IsBusy" Converter="{StaticResource BusyMouseConverter}"/>
@@ -101,7 +101,7 @@
                 </ListView.ItemContainerStyle>
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnGroupMoveColType}" Width="70" DisplayMemberBinding="{Binding Item.DataModel.ClassType, Converter={StaticResource EnumToResouceConverter}}"/>
+                        <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnGroupMoveColType}" Width="70" DisplayMemberBinding="{Binding Item.DataModel.ClassType, Converter={StaticResource EnumToResourceConverter}}"/>
                         <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnGroupMoveColPosition}" Width="210" SortBinding="{Binding Item.DataModel.PlayerDistance}">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>

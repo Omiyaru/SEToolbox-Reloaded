@@ -3,7 +3,7 @@
     using System;
     using System.Windows.Data;
 
-    public class EnumToResouceConverter : IValueConverter
+    public class EnumToResourceConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {

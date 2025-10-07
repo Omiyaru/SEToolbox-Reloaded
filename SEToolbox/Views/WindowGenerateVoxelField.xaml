@@ -13,7 +13,7 @@
         commands:DialogCloser.DialogResult="{Binding CloseResult}" FocusManager.FocusedElement="{Binding ElementName=UxInitialElement}">
     <Window.Resources>
         <converters:BusyMouseConverter x:Key="BusyMouseConverter" />
-        <converters:EnumToResouceConverter x:Key="EnumToResouceConverter"/>
+        <converters:EnumToResourceConverter x:Key="EnumToResourceConverter"/>
     </Window.Resources>
     <Window.Cursor>
         <Binding Path="IsBusy" Converter="{StaticResource BusyMouseConverter}"/>
@@ -96,7 +96,7 @@
                 <ComboBox Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="200" ItemsSource="{Binding Source={StaticResource AsteroidFillTypeEnum}}" SelectedValue="{Binding AsteroidFillType}" ToolTip="">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=., Converter={StaticResource EnumToResouceConverter}}" />
+                            <TextBlock Text="{Binding Path=., Converter={StaticResource EnumToResourceConverter}}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>

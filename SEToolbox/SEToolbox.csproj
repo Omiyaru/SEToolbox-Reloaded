@@ -37,8 +37,8 @@
   </ImportGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SEToolbox.Image.Library\SEToolbox.ImageLibrary.csproj" />
-    <ProjectReference Include="..\SEToolbox.Image.Shaders\SEToolbox.ImageShaders.csproj" />
+    <ProjectReference Include="..\SEToolbox.ImageLibrary\SEToolbox.ImageLibrary.csproj" />
+    <ProjectReference Include="..\SEToolbox.ImageShaders\SEToolbox.ImageShaders.csproj" />
   </ItemGroup>
 
   <ItemGroup>

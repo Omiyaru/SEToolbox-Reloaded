@@ -13,7 +13,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
-        <converters:ResouceToImageConverter x:Key="ResouceToImageConverter"/>
+        <converters:ResourceToImageConverter x:Key="ResourceToImageConverter"/>
         <converters:I18NFormatterConverter x:Key="I18NFormatter"  />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:DDSConverter x:Key="DDSConverter"/>
@@ -95,7 +95,7 @@
                 </MenuItem>
                 <MenuItem Header="{lex:Loc CtlVoxelMnuRotate}" Style="{StaticResource ToolBarTopMenuitem}">
                     <MenuItem.Icon>
-                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResouceToImageConverter}, ConverterParameter=replace2}" />
+                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=replace2}" />
                     </MenuItem.Icon>
                     <MenuItem Header="{lex:Loc CtlVoxelMnuRotatePitchPositive}" Command="{Binding RotateAsteroidPitchPositiveCommand}"/>
                     <MenuItem Header="{lex:Loc CtlVoxelMnuRotatePitchNegative}" Command="{Binding RotateAsteroidPitchNegativeCommand}"/>
@@ -106,7 +106,7 @@
                 </MenuItem>
                 <MenuItem HorizontalAlignment="Right" Style="{StaticResource ToolBarTopMenuitem}" ToolTip="{lex:Loc CtlVoxelMnuCopyDetail}" Command="{Binding CopyDetailCommand}">
                     <MenuItem.Icon>
-                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResouceToImageConverter}, ConverterParameter=copy}" />
+                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=copy}" />
                     </MenuItem.Icon>
                 </MenuItem>
             </Menu>
