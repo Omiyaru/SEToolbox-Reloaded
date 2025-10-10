@@ -16,7 +16,7 @@ I lack the time for active development of SE Toolbox and so I am only providing 
 
 The original author [midspace](https://github.com/midspace) has retired from working on [the original SE Toolbox](https://github.com/midspace/SEToolbox) as of 2019-08-23 and put it into maintainance mode as described [here](https://forum.keenswh.com/threads/7402115/).
 
-Omis note - todos implenmented -overhauled.
+Omis note - todos implenmented -and general overhauled. currently nonfunctional
 ---
 
 **[Space Engineers](http://www.spaceengineersgame.com/)** is copyright of Keen Software House.
