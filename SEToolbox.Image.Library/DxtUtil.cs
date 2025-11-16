@@ -1,35 +1,35 @@
-﻿// #region License
+﻿//#region License
 // /*
 // Microsoft Public License (Ms-PL)
 // MonoGame - Copyright © 2009 The MonoGame Team
-// 
+//
 // All rights reserved.
-// 
+//
 // This license governs use of the accompanying software. If you use the software, you accept this license. If you do not
 // accept the license, do not use the software.
-// 
+//
 // 1. Definitions
-// The terms "reproduce," "reproduction," "derivative works," and "distribution" have the same meaning here as under 
+// The terms "reproduce," "reproduction," "derivative works," and "distribution" have the same meaning here as under
 // U.S. copyright law.
-// 
+//
 // A "contribution" is the original software, or any additions or changes to the software.
 // A "contributor" is any person that distributes its contribution under this license.
 // "Licensed patents" are a contributor's patent claims that read directly on its contribution.
-// 
+//
 // 2. Grant of Rights
-// (A) Copyright Grant- Subject to the terms of this license, including the license conditions and limitations in section 3, 
+// (A) Copyright Grant- Subject to the terms of this license, including the license conditions and limitations in section 3,
 // each contributor grants you a non-exclusive, worldwide, royalty-free copyright license to reproduce its contribution, prepare derivative works of its contribution, and distribute its contribution or any derivative works that you create.
-// (B) Patent Grant- Subject to the terms of this license, including the license conditions and limitations in section 3, 
+// (B) Patent Grant- Subject to the terms of this license, including the license conditions and limitations in section 3,
 // each contributor grants you a non-exclusive, worldwide, royalty-free license under its licensed patents to make, have made, use, sell, offer for sale, import, and/or otherwise dispose of its contribution in the software or derivative works of the contribution in the software.
-// 
+//
 // 3. Conditions and Limitations
 // (A) No Trademark License- This license does not grant you rights to use any contributors' name, logo, or trademarks.
-// (B) If you bring a patent claim against any contributor over patents that you claim are infringed by the software, 
+// (B) If you bring a patent claim against any contributor over patents that you claim are infringed by the software,
 // your patent license from such contributor to the software ends automatically.
-// (C) If you distribute any portion of the software, you must retain all copyright, patent, trademark, and attribution 
+// (C) If you distribute any portion of the software, you must retain all copyright, patent, trademark, and attribution
 // notices that are present in the software.
-// (D) If you distribute any portion of the software in source code form, you may do so only under this license by including 
-// a complete copy of this license with your distribution. If you distribute any portion of the software in compiled or object 
+// (D) If you distribute any portion of the software in source code form, you may do so only under this license by including
+// a complete copy of this license with your distribution. If you distribute any portion of the software in compiled or object
 // code form, you may only do so under a license that complies with this license.
 // (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees
 // or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent
@@ -39,31 +39,31 @@
 // #endregion License
 //
 // https://github.com/mono/MonoGame/blob/develop/MonoGame.Framework/Graphics/DxtUtil.cs
-// 
+//
+using System;
+using System.Collections;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+
 namespace SEToolbox.ImageLibrary
 {
-    using System;
-    using System.Collections;
-    using System.Diagnostics;
-    using System.IO;
 
-    public static class DxtUtil
+    internal static class DxtUtil
     {
         #region Internal Static Methods
 
         internal static byte[] DecompressDxt1(byte[] imageData, int width, int height)
         {
-            using (MemoryStream imageStream = new MemoryStream(imageData))
-            {
-                return DecompressDxt1(imageStream, width, height);
-            }
+            using MemoryStream imageStream = new(imageData);
+            return DecompressDxt1(imageStream, width, height);
         }
 
         internal static byte[] DecompressDxt1(Stream imageStream, int width, int height)
         {
             byte[] imageData = new byte[width * height * 4];
 
-            using (BinaryReader imageReader = new BinaryReader(imageStream))
+            using (BinaryReader imageReader = new(imageStream))
             {
                 int blockCountX = (width + 3) / 4;
                 int blockCountY = (height + 3) / 4;
@@ -82,17 +82,15 @@ namespace SEToolbox.ImageLibrary
 
         internal static byte[] DecompressDxt3(byte[] imageData, int width, int height)
         {
-            using (MemoryStream imageStream = new MemoryStream(imageData))
-            {
-                return DecompressDxt3(imageStream, width, height);
-            }
+            using MemoryStream imageStream = new(imageData);
+            return DecompressDxt3(imageStream, width, height);
         }
 
         internal static byte[] DecompressDxt3(Stream imageStream, int width, int height)
         {
             byte[] imageData = new byte[width * height * 4];
 
-            using (BinaryReader imageReader = new BinaryReader(imageStream))
+            using (BinaryReader imageReader = new(imageStream))
             {
                 int blockCountX = (width + 3) / 4;
                 int blockCountY = (height + 3) / 4;
@@ -111,17 +109,15 @@ namespace SEToolbox.ImageLibrary
 
         internal static byte[] DecompressDxt5(byte[] imageData, int width, int height, ImageTextureUtil.DXGI_FORMAT dxgiFormat)
         {
-            using (MemoryStream imageStream = new MemoryStream(imageData))
-            {
-                return DecompressDxt5(imageStream, width, height, dxgiFormat);
-            }
+            using MemoryStream imageStream = new(imageData);
+            return DecompressDxt5(imageStream, width, height, dxgiFormat);
         }
 
         internal static byte[] DecompressDxt5(Stream imageStream, int width, int height, ImageTextureUtil.DXGI_FORMAT dxgiFormat)
         {
             byte[] imageData = new byte[width * height * 4];
 
-            using (BinaryReader imageReader = new BinaryReader(imageStream))
+            using (BinaryReader imageReader = new(imageStream))
             {
                 int blockCountX = (width + 3) / 4;
                 int blockCountY = (height + 3) / 4;
@@ -157,10 +153,8 @@ namespace SEToolbox.ImageLibrary
             ushort c0 = imageReader.ReadUInt16();
             ushort c1 = imageReader.ReadUInt16();
 
-            byte r0, g0, b0;
-            byte r1, g1, b1;
-            ConvertRgb565ToRgb888(c0, out r0, out g0, out b0);
-            ConvertRgb565ToRgb888(c1, out r1, out g1, out b1);
+            ConvertRgb565ToRgb888(c0, out byte r0, out byte g0, out byte b0);
+            ConvertRgb565ToRgb888(c1, out byte r1, out byte g1, out byte b1);
 
             uint lookupTable = imageReader.ReadUInt32();
 
@@ -253,10 +247,8 @@ namespace SEToolbox.ImageLibrary
             ushort c0 = imageReader.ReadUInt16();
             ushort c1 = imageReader.ReadUInt16();
 
-            byte r0, g0, b0;
-            byte r1, g1, b1;
-            ConvertRgb565ToRgb888(c0, out r0, out g0, out b0);
-            ConvertRgb565ToRgb888(c1, out r1, out g1, out b1);
+            ConvertRgb565ToRgb888(c0, out byte r0, out byte g0, out byte b0);
+            ConvertRgb565ToRgb888(c1, out byte r1, out byte g1, out byte b1);
 
             uint lookupTable = imageReader.ReadUInt32();
 
@@ -265,61 +257,29 @@ namespace SEToolbox.ImageLibrary
             {
                 for (int blockX = 0; blockX < 4; blockX++)
                 {
-                    byte r = 0, g = 0, b = 0, a = 0;
+                    byte r = 0, g = 0, b = 0;
 
                     uint index = (lookupTable >> 2 * (4 * blockY + blockX)) & 0x03;
-
-                    switch (alphaIndex)
+                    byte a = new[]
                     {
-                        case 0:
-                            a = (byte)((a0 & 0x0F) | ((a0 & 0x0F) << 4));
-                            break;
-                        case 1:
-                            a = (byte)((a0 & 0xF0) | ((a0 & 0xF0) >> 4));
-                            break;
-                        case 2:
-                            a = (byte)((a1 & 0x0F) | ((a1 & 0x0F) << 4));
-                            break;
-                        case 3:
-                            a = (byte)((a1 & 0xF0) | ((a1 & 0xF0) >> 4));
-                            break;
-                        case 4:
-                            a = (byte)((a2 & 0x0F) | ((a2 & 0x0F) << 4));
-                            break;
-                        case 5:
-                            a = (byte)((a2 & 0xF0) | ((a2 & 0xF0) >> 4));
-                            break;
-                        case 6:
-                            a = (byte)((a3 & 0x0F) | ((a3 & 0x0F) << 4));
-                            break;
-                        case 7:
-                            a = (byte)((a3 & 0xF0) | ((a3 & 0xF0) >> 4));
-                            break;
-                        case 8:
-                            a = (byte)((a4 & 0x0F) | ((a4 & 0x0F) << 4));
-                            break;
-                        case 9:
-                            a = (byte)((a4 & 0xF0) | ((a4 & 0xF0) >> 4));
-                            break;
-                        case 10:
-                            a = (byte)((a5 & 0x0F) | ((a5 & 0x0F) << 4));
-                            break;
-                        case 11:
-                            a = (byte)((a5 & 0xF0) | ((a5 & 0xF0) >> 4));
-                            break;
-                        case 12:
-                            a = (byte)((a6 & 0x0F) | ((a6 & 0x0F) << 4));
-                            break;
-                        case 13:
-                            a = (byte)((a6 & 0xF0) | ((a6 & 0xF0) >> 4));
-                            break;
-                        case 14:
-                            a = (byte)((a7 & 0x0F) | ((a7 & 0x0F) << 4));
-                            break;
-                        case 15:
-                            a = (byte)((a7 & 0xF0) | ((a7 & 0xF0) >> 4));
-                            break;
-                    }
+                        (byte)((a0 & 0x0F) | ((a0 & 0xF0) >> 4)),
+                        (byte)((a0 & 0xF0) | ((a0 & 0x0F) << 4)),
+                        (byte)((a1 & 0x0F) | ((a1 & 0xF0) >> 4)),
+                        (byte)((a1 & 0xF0) | ((a1 & 0x0F) << 4)),
+                        (byte)((a2 & 0x0F) | ((a2 & 0xF0) >> 4)),
+                        (byte)((a2 & 0xF0) | ((a2 & 0x0F) << 4)),
+                        (byte)((a3 & 0x0F) | ((a3 & 0xF0) >> 4)),
+                        (byte)((a3 & 0xF0) | ((a3 & 0x0F) << 4)),
+                        (byte)((a4 & 0x0F) | ((a4 & 0xF0) >> 4)),
+                        (byte)((a4 & 0xF0) | ((a4 & 0x0F) << 4)),
+                        (byte)((a5 & 0x0F) | ((a5 & 0xF0) >> 4)),
+                        (byte)((a5 & 0xF0) | ((a5 & 0x0F) << 4)),
+                        (byte)((a6 & 0x0F) | ((a6 & 0xF0) >> 4)),
+                        (byte)((a6 & 0xF0) | ((a6 & 0x0F) << 4)),
+                        (byte)((a7 & 0x0F) | ((a7 & 0xF0) >> 4)),
+                        (byte)((a7 & 0xF0) | ((a7 & 0x0F) << 4))
+                    }[alphaIndex];
+
                     ++alphaIndex;
 
                     switch (index)
@@ -360,26 +320,56 @@ namespace SEToolbox.ImageLibrary
             }
         }
 
+        internal static byte[] DecompressDxt5(byte[] imageData, int width, int height)
+        {
+            using MemoryStream imageStream = new(imageData);
+            return DecompressDxt5(imageStream, width, height);
+        }
+
+        internal static byte[] DecompressDxt5(Stream imageStream, int width, int height)
+        {
+            byte[] imageData = new byte[width * height * 4];
+
+            using (BinaryReader imageReader = new(imageStream))
+            {
+                int blockCountX = (width + 3) / 4;
+                int blockCountY = (height + 3) / 4;
+
+                for (int y = 0; y < blockCountY; y++)
+                {
+                    for (int x = 0; x < blockCountX; x++)
+                    {
+                        DecompressDxt5Block(imageReader, x, y, blockCountX, width, height, imageData);
+                    }
+                }
+            }
+
+            return imageData;
+        }
+
         private static void DecompressDxt5Block(BinaryReader imageReader, int x, int y, int blockCountX, int width, int height, byte[] imageData)
         {
             byte alpha0 = imageReader.ReadByte();
             byte alpha1 = imageReader.ReadByte();
 
             ulong alphaMask = imageReader.ReadByte();
-            alphaMask += (ulong)imageReader.ReadByte() << 8;
-            alphaMask += (ulong)imageReader.ReadByte() << 16;
-            alphaMask += (ulong)imageReader.ReadByte() << 24;
-            alphaMask += (ulong)imageReader.ReadByte() << 32;
-            alphaMask += (ulong)imageReader.ReadByte() << 40;
+            int[] alphaShift = [0, 8, 16, 24, 32, 40];
+
+            for (int shift = 0; shift < 6; shift++)
+            {
+                alphaMask += (ulong)imageReader.ReadByte() << alphaShift[shift];
+            }
+            // alphaMask += (ulong)imageReader.ReadByte() << 8;
+            // alphaMask += (ulong)imageReader.ReadByte() << 16;
+            // alphaMask += (ulong)imageReader.ReadByte() << 24;
+            // alphaMask += (ulong)imageReader.ReadByte() << 32;
+            // alphaMask += (ulong)imageReader.ReadByte() << 40;
 
             ushort c0 = imageReader.ReadUInt16();
             ushort c1 = imageReader.ReadUInt16();
 
-            byte r0, g0, b0;
-            byte r1, g1, b1;
-
-            ConvertRgb565ToRgb888(c0, out r0, out g0, out b0);
-            ConvertRgb565ToRgb888(c1, out r1, out g1, out b1);
+            ConvertRgb565ToRgb888(c0, out byte r0, out byte g0, out byte b0);
+            ConvertRgb565ToRgb888(c1, out byte r1, out byte g1, out byte b1);
 
             uint lookupTable = imageReader.ReadUInt32();
 
@@ -387,46 +377,28 @@ namespace SEToolbox.ImageLibrary
             {
                 for (int blockX = 0; blockX < 4; blockX++)
                 {
-                    byte r = 0, g = 0, b = 0, a = 255;
+                    byte r = 0, g = 0, b = 0;
                     uint index = (lookupTable >> 2 * (4 * blockY + blockX)) & 0x03;
 
-                    uint alphaIndex = (uint)((alphaMask >> 3 * (4 * blockY + blockX)) & 0x07);
-                    if (alphaIndex == 0)
-                    {
-                        a = alpha0;
-                    }
-                    else if (alphaIndex == 1)
-                    {
-                        a = alpha1;
-                    }
-                    else if (alpha0 > alpha1)
-                    {
-                        a = (byte)(((8 - alphaIndex) * alpha0 + (alphaIndex - 1) * alpha1) / 7);
-                    }
-                    else if (alphaIndex == 6)
-                    {
-                        a = 0;
-                    }
-                    else if (alphaIndex == 7)
-                    {
-                        a = 0xff;
-                    }
-                    else
-                    {
-                        a = (byte)(((6 - alphaIndex) * alpha0 + (alphaIndex - 1) * alpha1) / 5);
-                    }
+
+                    uint alphaIndex = (uint)((alphaMask >> (3 * (4 * blockY + blockX))) & 0x07);
+                    byte a = (byte)new[]
+                          {
+                            alpha0,
+                            alpha1,
+                            (byte)(((8 - alphaIndex) * alpha0 + (alphaIndex - 1) * alpha1) / 7),
+                            0,
+                            0xff,
+                            (byte)(((6 - alphaIndex) * alpha0 + (alphaIndex - 1) * alpha1) / 5)
+                        }[alphaIndex];
 
                     switch (index)
                     {
                         case 0:
-                            r = r0;
-                            g = g0;
-                            b = b0;
+                            r = r0; g = g0; b = b0;
                             break;
                         case 1:
-                            r = r1;
-                            g = g1;
-                            b = b1;
+                            r = r1; g = g1; b = b1;
                             break;
                         case 2:
                             r = (byte)((2 * r0 + r1) / 3);
@@ -456,7 +428,8 @@ namespace SEToolbox.ImageLibrary
 
         private static void ConvertRgb565ToRgb888(ushort color, out byte r, out byte g, out byte b)
         {
-            int temp = (color >> 11) * 255 + 16;
+            int temp;
+            temp = (color >> 11) * 255 + 16;
             r = (byte)((temp / 32 + temp) / 32);
             temp = ((color & 0x07E0) >> 5) * 255 + 32;
             g = (byte)((temp / 64 + temp) / 64);
@@ -464,7 +437,7 @@ namespace SEToolbox.ImageLibrary
             b = (byte)((temp / 32 + temp) / 32);
         }
 
-        #region BC7 helpers
+        #region BC7 Helpers
 
         // Converted from the DirectXTex code.
         // Licensed under the MIT License.
@@ -476,12 +449,12 @@ namespace SEToolbox.ImageLibrary
 
         private static void DecompressBc7Block(BinaryReader imageReader, int x, int y, int blockCountX, int width, int height, byte[] imageData, ImageTextureUtil.DXGI_FORMAT dxgiFormat)
         {
-            assert(imageReader != null);
+            Assert(imageReader != null);
 
             byte[] buffer = imageReader.ReadBytes(16);
             m_uBits = new BitArray(buffer);
 
-            assert(buffer.Length > 0);
+            Assert(buffer.Length > 0);
 
             uint uFirst = 0;
             while (uFirst < 128 && !GetBit(ref uFirst)) { }
@@ -490,7 +463,7 @@ namespace SEToolbox.ImageLibrary
             if (uMode < 8)
             {
                 byte uPartitions = ms_aInfo[uMode].uPartitions;
-                assert(uPartitions < BC7_MAX_REGIONS);
+                Assert(uPartitions < BC7_MAX_REGIONS);
 
                 byte uNumEndPts = (byte)((uPartitions + 1) << 1);
                 byte uIndexPrec = ms_aInfo[uMode].uIndexPrec;
@@ -499,13 +472,13 @@ namespace SEToolbox.ImageLibrary
                 int uStartBit = uMode + 1;
                 byte[] P = new byte[6];
                 byte uShape = GetBits<byte>(ref uStartBit, ms_aInfo[uMode].uPartitionBits);
-                assert(uShape < BC7_MAX_SHAPES);
+                Assert(uShape < BC7_MAX_SHAPES);
 
                 byte uRotation = GetBits<byte>(ref uStartBit, ms_aInfo[uMode].uRotationBits);
-                assert(uRotation < 4);
+                Assert(uRotation < 4);
 
                 byte uIndexMode = GetBits<byte>(ref uStartBit, ms_aInfo[uMode].uIndexModeBits);
-                assert(uIndexMode < 2);
+                Assert(uIndexMode < 2);
 
                 LDRColorA[] c = new LDRColorA[BC7_MAX_REGIONS << 1];
                 for (int i = 0; i < BC7_MAX_REGIONS << 1; i++)
@@ -513,24 +486,23 @@ namespace SEToolbox.ImageLibrary
                 LDRColorA RGBAPrec = ms_aInfo[uMode].RGBAPrec;
                 LDRColorA RGBAPrecWithP = ms_aInfo[uMode].RGBAPrecWithP;
 
-                assert(uNumEndPts <= (BC7_MAX_REGIONS << 1));
+                Assert(uNumEndPts <= (BC7_MAX_REGIONS << 1));
 
                 // Red channel
                 for (int i = 0; i < uNumEndPts; i++)
                 {
                     if (uStartBit + RGBAPrec.r > 128)
                     {
-                        throw new Exception("BC7: Invalid block encountered during decoding");
+                        throw new Exception("BC7: Invalid block encountered during decoding - Red channel overflow");
                     }
                     c[i].r = GetBits<byte>(ref uStartBit, RGBAPrec.r);
                 }
-
                 // Green channel
                 for (int i = 0; i < uNumEndPts; i++)
                 {
                     if (uStartBit + RGBAPrec.g > 128)
                     {
-                        throw new Exception("BC7: Invalid block encountered during decoding");
+                        throw new Exception("BC7: Invalid block encountered during decoding - Green channel overflow");
                     }
                     c[i].g = GetBits<byte>(ref uStartBit, RGBAPrec.g);
                 }
@@ -540,9 +512,8 @@ namespace SEToolbox.ImageLibrary
                 {
                     if (uStartBit + RGBAPrec.b > 128)
                     {
-                        throw new Exception("BC7: Invalid block encountered during decoding");
+                        throw new Exception("BC7: Invalid block encountered during decoding - Blue channel overflow");
                     }
-
                     c[i].b = GetBits<byte>(ref uStartBit, RGBAPrec.b);
                 }
 
@@ -551,14 +522,13 @@ namespace SEToolbox.ImageLibrary
                 {
                     if (uStartBit + RGBAPrec.a > 128)
                     {
-                        throw new Exception("BC7: Invalid block encountered during decoding");
+                        throw new Exception("BC7: Invalid block encountered during decoding - Alpha channel overflow");
                     }
-
                     c[i].a = RGBAPrec.a != 0 ? GetBits<byte>(ref uStartBit, RGBAPrec.a) : (byte)255;
                 }
 
                 // P-bits
-                assert(ms_aInfo[uMode].uPBits <= 6);
+                Assert(ms_aInfo[uMode].uPBits <= 6);
                 for (int i = 0; i < ms_aInfo[uMode].uPBits; i++)
                 {
                     if (uStartBit > 127)
@@ -574,7 +544,7 @@ namespace SEToolbox.ImageLibrary
                 {
                     for (int i = 0; i < uNumEndPts; i++)
                     {
-                        int pi = (i * ms_aInfo[uMode].uPBits) / uNumEndPts;
+                        int pi = i * ms_aInfo[uMode].uPBits / uNumEndPts;
                         for (uint ch = 0; ch < BC7_NUM_CHANNELS; ch++)
                         {
                             if (RGBAPrec[ch] != RGBAPrecWithP[ch])
@@ -642,9 +612,9 @@ namespace SEToolbox.ImageLibrary
 
                     switch (uRotation)
                     {
-                        case 1: { byte t = outPixel.r; outPixel.r = outPixel.a; outPixel.a = t; } break;
-                        case 2: { byte t = outPixel.g; outPixel.g = outPixel.a; outPixel.a = t; } break;
-                        case 3: { byte t = outPixel.b; outPixel.b = outPixel.a; outPixel.a = t; } break;
+                        case 1: { (outPixel.a, outPixel.r) = (outPixel.r, outPixel.a); } break;
+                        case 2: { (outPixel.a, outPixel.g) = (outPixel.g, outPixel.a); } break;
+                        case 3: { (outPixel.a, outPixel.b) = (outPixel.b, outPixel.a); } break;
                     }
 
                     int dataX = (x * blockSize) + (i % blockSize);
@@ -654,14 +624,14 @@ namespace SEToolbox.ImageLibrary
                     if (outPixel.a != 0)
                     {
                         // final texture uses premultiplied alpha ????
-                        //outPixel.r = (byte)((float)outPixel.r / outPixel.a * 255f);
-                        //outPixel.g = (byte)((float)outPixel.g / outPixel.a * 255f);
-                        //outPixel.b = (byte)((float)outPixel.b / outPixel.a * 255f);
+                        outPixel.r = (byte)((float)outPixel.r * 255f / outPixel.a);
+                        outPixel.g = (byte)((float)outPixel.g * 255f / outPixel.a);
+                        outPixel.b = (byte)((float)outPixel.b * 255f / outPixel.a);
 
                         // linear to pm
-                        //outPixel.r = (byte)((float)outPixel.r * outPixel.a / 255f);
-                        //outPixel.g = (byte)((float)outPixel.g * outPixel.a / 255f);
-                        //outPixel.b = (byte)((float)outPixel.b * outPixel.a / 255f);
+                        outPixel.r = (byte)((float)outPixel.r * outPixel.a / 255f);
+                        outPixel.g = (byte)((float)outPixel.g * outPixel.a / 255f);
+                        outPixel.b = (byte)((float)outPixel.b * outPixel.a / 255f);
                     }
 
                     // TODO: SRGB check probably should be somewhere else.
@@ -675,9 +645,9 @@ namespace SEToolbox.ImageLibrary
                         outPixel.g = (byte)Math.Round(D3DX_SRGB_to_FLOAT_inexact(g) * 255f, 0);
                         outPixel.b = (byte)Math.Round(D3DX_SRGB_to_FLOAT_inexact(b) * 255f, 0);
 
-                        //outPixel.r = (byte)Math.Round(255f * D3DX_SRGB_to_FLOAT(outPixel.r), 0);
-                        //outPixel.g = (byte)Math.Round(255f * D3DX_SRGB_to_FLOAT(outPixel.g), 0);
-                        //outPixel.b = (byte)Math.Round(255f * D3DX_SRGB_to_FLOAT(outPixel.b), 0);
+                        outPixel.r = (byte)Math.Round(255f * D3DX_SRGB_to_FLOAT(outPixel.r), 0);
+                        outPixel.g = (byte)Math.Round(255f * D3DX_SRGB_to_FLOAT(outPixel.g), 0);
+                        outPixel.b = (byte)Math.Round(255f * D3DX_SRGB_to_FLOAT(outPixel.b), 0);
                     }
 
                     imageData[dataOffset] = outPixel.r;
@@ -686,6 +656,7 @@ namespace SEToolbox.ImageLibrary
                     imageData[dataOffset + 3] = outPixel.a;
 
                     //pOut[i] = HDRColorA(outPixel);
+                    //outPixels[i]= new HDRColorA(outPixel.r, outPixel.g, outPixel.b, outPixel.a);
                 }
             }
             else
@@ -707,308 +678,255 @@ namespace SEToolbox.ImageLibrary
         // Because these are used in SAL annotations, they need to remain macros rather than const values
         const int NUM_PIXELS_PER_BLOCK = 16;
 
-        private static readonly ModeInfo[] ms_aInfo = new ModeInfo[]
+        class ModeInfo
         {
-            /// Mode 0: Color only, 3 Subsets, RGBP 4441 (unique P-bit), 3-bit indecies, 16 partitions
-            new ModeInfo (2, 4, 6, 0, 0, 3, 0, new LDRColorA(4,4,4,0), new LDRColorA(5,5,5,0)),
-            
-            /// Mode 1: Color only, 2 Subsets, RGBP 6661 (shared P-bit), 3-bit indecies, 64 partitions
-            new ModeInfo (1, 6, 2, 0, 0, 3, 0, new LDRColorA(6,6,6,0), new LDRColorA(7,7,7,0)),
 
-            /// Mode 2: Color only, 3 Subsets, RGB 555, 2-bit indecies, 64 partitions
-            new ModeInfo(2, 6, 0, 0, 0, 2, 0, new LDRColorA(5,5,5,0), new LDRColorA(5,5,5,0)),
-
-            /// Mode 3: Color only, 2 Subsets, RGBP 7771 (unique P-bit), 2-bits indecies, 64 partitions
-            new ModeInfo(1, 6, 4, 0, 0, 2, 0, new LDRColorA(7,7,7,0), new LDRColorA(8,8,8,0)),
-
-            /// Mode 4: Color w/ Separate Alpha, 1 Subset, RGB 555, A6, 16x2/16x3-bit indices, 2-bit rotation, 1-bit index selector
-            new ModeInfo(0, 0, 0, 2, 1, 2, 3, new LDRColorA(5,5,5,6), new LDRColorA(5,5,5,6)),
-
-            /// Mode 5: Color w/ Separate Alpha, 1 Subset, RGB 777, A8, 16x2/16x2-bit indices, 2-bit rotation
-            new ModeInfo(0, 0, 0, 2, 0, 2, 2, new LDRColorA(7,7,7,8), new LDRColorA(7,7,7,8)),
-
-            /// Mode 6: Color+Alpha, 1 Subset, RGBAP 77771 (unique P-bit), 16x4-bit indecies
-            new ModeInfo(0, 0, 2, 0, 0, 4, 0, new LDRColorA(7,7,7,7), new LDRColorA(8,8,8,8)),
-
-            /// Mode 7: Color+Alpha, 2 Subsets, RGBAP 55551 (unique P-bit), 2-bit indices, 64 partitions
-            new ModeInfo(1, 6, 4, 0, 0, 2, 0, new LDRColorA(5,5,5,5), new LDRColorA(6,6,6,6))
+            public byte uPartitions;
+            public byte uPartitionBits;
+            public byte uPBits;
+            public byte uRotationBits;
+            public byte uIndexModeBits;
+            public byte uIndexPrec;
+            public byte uIndexPrec2;
+            public LDRColorA RGBAPrec;
+            public LDRColorA RGBAPrecWithP;
         };
+
+        /// <summary>
+
+        /// Mode 1: Color only, 2 Subsets, RGBP 6661 (shared P-bit), 3-bit indecies, 64 partitions
+        /// Mode 2: Color only, 3 Subsets, RGB 555, 2-bit indecies, 64 partitions 
+        /// Mode 3: Color only, 2 Subsets, RGBP 7771 (unique P-bit), 2-bits indecies, 64 partitions
+        /// Mode 4: Color w/ Separate Alpha, 1 Subset, RGB 555, A6, 16x2/16x3-bit indices, 2-bit rotation, 1-bit index selector
+        /// Mode 5: Color w/ Separate Alpha, 1 Subset, RGB 777, A8, 16x2/16x2-bit indices, 2-bit rotation 
+        /// Mode 6: Color+Alpha, 1 Subset, RGBAP 77771 (unique P-bit), 16x4-bit indecies
+        /// Mode 7: Color+Alpha, 2 Subsets, RGBAP 55551 (unique P-bit), 2-bit indices, 64 partitions 
+        /// </summary>
+        private static readonly ModeInfo[] ms_aInfo =
+        [
+            //Mode0
+            new ModeInfo { uPartitions = 2, uPartitionBits = 4, uPBits = 6,uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 3, uIndexPrec2 = 0,
+                            RGBAPrec = new LDRColorA(4, 4, 4, 0), RGBAPrecWithP = new LDRColorA(5, 5, 5, 0) },
+            //Mode1
+            new ModeInfo { uPartitions = 1, uPartitionBits = 6, uPBits = 2, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 3, uIndexPrec2 = 0,
+                            RGBAPrec = new LDRColorA(6, 6, 6, 0), RGBAPrecWithP = new LDRColorA(7, 7, 7, 0) },
+            //Mode2
+            new ModeInfo { uPartitions = 2, uPartitionBits = 6, uPBits = 0, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 2, uIndexPrec2 = 0,
+                            RGBAPrec = new LDRColorA(5, 5, 5, 0), RGBAPrecWithP = new LDRColorA(5, 5, 5, 0) },
+            //Mode3
+            new ModeInfo { uPartitions = 1, uPartitionBits = 6, uPBits = 4, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 2, uIndexPrec2 = 0,
+                            RGBAPrec = new LDRColorA(7, 7, 7, 0), RGBAPrecWithP = new LDRColorA(8, 8, 8, 0) },
+            //Mode4
+            new ModeInfo { uPartitions = 0, uPartitionBits = 0, uPBits = 0, uRotationBits = 2, uIndexModeBits = 1, uIndexPrec = 2, uIndexPrec2 = 3,
+                            RGBAPrec = new LDRColorA(5, 5, 5, 6), RGBAPrecWithP = new LDRColorA(5, 5, 5, 6) },
+            //Mode5
+            new ModeInfo { uPartitions = 0, uPartitionBits = 0, uPBits = 0, uRotationBits = 2, uIndexModeBits = 0, uIndexPrec = 2, uIndexPrec2 = 2,
+                            RGBAPrec = new LDRColorA(7, 7, 7, 8), RGBAPrecWithP = new LDRColorA(7, 7, 7, 8) },
+            //Mode6
+            new ModeInfo { uPartitions = 0, uPartitionBits = 0, uPBits = 2, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 4, uIndexPrec2 = 0,
+                            RGBAPrec = new LDRColorA(7, 7, 7, 7), RGBAPrecWithP = new LDRColorA(8, 8, 8, 8) },
+            //Mode7
+            new ModeInfo { uPartitions = 1, uPartitionBits = 6, uPBits = 4, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 2, uIndexPrec2 = 0,
+                            RGBAPrec = new LDRColorA(5, 5, 5, 5), RGBAPrecWithP = new LDRColorA(6, 6, 6, 6) },
+        ];
 
         // Partition, Shape, Fixup
-        static readonly uint[][][] g_aFixUp = new uint[][][]
-        {
-            new uint[][]{   // No fix-ups for 1st subset for BC6H or BC7
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },
-                new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 },new uint[]{ 0, 0, 0 }
-            },
+        static readonly uint[][][] g_aFixUp =
+        [
+            // No fix-ups for 1st subset for BC6H or BC7
 
-            new uint[][]{   // BC6H/BC7 Partition Set Fixups for 2 Subsets
-                new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },
-                new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },
-                new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },
-                new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },
-                new uint[]{ 0,15, 0 },new uint[]{ 0, 2, 0 },new uint[]{ 0, 8, 0 },new uint[]{ 0, 2, 0 },
-                new uint[]{ 0, 2, 0 },new uint[]{ 0, 8, 0 },new uint[]{ 0, 8, 0 },new uint[]{ 0,15, 0 },
-                new uint[]{ 0, 2, 0 },new uint[]{ 0, 8, 0 },new uint[]{ 0, 2, 0 },new uint[]{ 0, 2, 0 },
-                new uint[]{ 0, 8, 0 },new uint[]{ 0, 8, 0 },new uint[]{ 0, 2, 0 },new uint[]{ 0, 2, 0 },
+        //[Enumerable.Repeat(0u, BC67_WEIGHT_MAX).SelectMany(_ => new uint[]{ 0, 0, 0 }).ToArray()],
+        
+            [.. Enumerable.Repeat(new uint[4],69)],
+            
+            [   // BC6H/BC7 Partition Set Fixup[s for 2 Subsets
+                [0,15, 0],[0,15, 0],[0,15, 0],[0,15, 0],
+                [0,15, 0],[0,15, 0],[0,15, 0],[0,15, 0],
+                [0,15, 0],[0,15, 0],[0,15, 0],[0,15, 0],
+                [0,15, 0],[0,15, 0],[0,15, 0],[0,15, 0],
+                [0,15, 0],[0, 2, 0],[0, 8, 0],[0, 2, 0],
+                [0, 2, 0],[0, 8, 0],[0, 8, 0],[0,15, 0],
+                [0, 2, 0],[0, 8, 0],[0, 2, 0],[0, 2, 0],
+                [0, 8, 0],[0, 8, 0],[0, 2, 0],[0, 2, 0],
 
                 // BC7 Partition Set Fixups for 2 Subsets (second-half)
-                new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },new uint[]{ 0, 6, 0 },new uint[]{ 0, 8, 0 },
-                new uint[]{ 0, 2, 0 },new uint[]{ 0, 8, 0 },new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },
-                new uint[]{ 0, 2, 0 },new uint[]{ 0, 8, 0 },new uint[]{ 0, 2, 0 },new uint[]{ 0, 2, 0 },
-                new uint[]{ 0, 2, 0 },new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },new uint[]{ 0, 6, 0 },
-                new uint[]{ 0, 6, 0 },new uint[]{ 0, 2, 0 },new uint[]{ 0, 6, 0 },new uint[]{ 0, 8, 0 },
-                new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },new uint[]{ 0, 2, 0 },new uint[]{ 0, 2, 0 },
-                new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },new uint[]{ 0,15, 0 },
-                new uint[]{ 0,15, 0 },new uint[]{ 0, 2, 0 },new uint[]{ 0, 2, 0 },new uint[]{ 0,15, 0 }
-            },
+                [0,15, 0],[0,15, 0],[0, 6, 0],[0, 8, 0],
+                [0, 2, 0],[0, 8, 0],[0,15, 0],[0,15, 0],
+                [0, 2, 0],[0, 8, 0],[0, 2, 0],[0, 2, 0],
+                [0, 2, 0],[0,15, 0],[0,15, 0],[0, 6, 0],
+                [0, 6, 0],[0, 2, 0],[0, 6, 0],[0, 8, 0],
+                [0,15, 0],[0,15, 0],[0, 2, 0],[0, 2, 0],
+                [0,15, 0],[0,15, 0],[0,15, 0],[0,15, 0],
+                [0,15, 0],[0, 2, 0],[0, 2, 0],[0,15, 0]
+            ],
 
-            new uint[][]{   // BC7 Partition Set Fixups for 3 Subsets
-                new uint[]{ 0, 3,15 },new uint[]{ 0, 3, 8 },new uint[]{ 0,15, 8 },new uint[]{ 0,15, 3 },
-                new uint[]{ 0, 8,15 },new uint[]{ 0, 3,15 },new uint[]{ 0,15, 3 },new uint[]{ 0,15, 8 },
-                new uint[]{ 0, 8,15 },new uint[]{ 0, 8,15 },new uint[]{ 0, 6,15 },new uint[]{ 0, 6,15 },
-                new uint[]{ 0, 6,15 },new uint[]{ 0, 5,15 },new uint[]{ 0, 3,15 },new uint[]{ 0, 3, 8 },
-                new uint[]{ 0, 3,15 },new uint[]{ 0, 3, 8 },new uint[]{ 0, 8,15 },new uint[]{ 0,15, 3 },
-                new uint[]{ 0, 3,15 },new uint[]{ 0, 3, 8 },new uint[]{ 0, 6,15 },new uint[]{ 0,10, 8 },
-                new uint[]{ 0, 5, 3 },new uint[]{ 0, 8,15 },new uint[]{ 0, 8, 6 },new uint[]{ 0, 6,10 },
-                new uint[]{ 0, 8,15 },new uint[]{ 0, 5,15 },new uint[]{ 0,15,10 },new uint[]{ 0,15, 8 },
-                new uint[]{ 0, 8,15 },new uint[]{ 0,15, 3 },new uint[]{ 0, 3,15 },new uint[]{ 0, 5,10 },
-                new uint[]{ 0, 6,10 },new uint[]{ 0,10, 8 },new uint[]{ 0, 8, 9 },new uint[]{ 0,15,10 },
-                new uint[]{ 0,15, 6 },new uint[]{ 0, 3,15 },new uint[]{ 0,15, 8 },new uint[]{ 0, 5,15 },
-                new uint[]{ 0,15, 3 },new uint[]{ 0,15, 6 },new uint[]{ 0,15, 6 },new uint[]{ 0,15, 8 },
-                new uint[]{ 0, 3,15 },new uint[]{ 0,15, 3 },new uint[]{ 0, 5,15 },new uint[]{ 0, 5,15 },
-                new uint[]{ 0, 5,15 },new uint[]{ 0, 8,15 },new uint[]{ 0, 5,15 },new uint[]{ 0,10,15 },
-                new uint[]{ 0, 5,15 },new uint[]{ 0,10,15 },new uint[]{ 0, 8,15 },new uint[]{ 0,13,15 },
-                new uint[]{ 0,15, 3 },new uint[]{ 0,12,15 },new uint[]{ 0, 3,15 },new uint[]{ 0, 3, 8 }
-            }
-        };
+            [   // BC7 Partition Set Fixups for 3 Subsets
+                [0, 3,15],[0, 3, 8],[0,15, 8],[0,15, 3],
+                [0, 8,15],[0, 3,15],[0,15, 3],[0,15, 8],
+                [0, 8,15],[0, 8,15],[0, 6,15],[0, 6,15],
+                [0, 6,15],[0, 5,15],[0, 3,15],[0, 3, 8],
+                [0, 3,15],[0, 3, 8],[0, 8,15],[0,15, 3],
+                [0, 3,15],[0, 3, 8],[0, 6,15],[0,10, 8],
+                [0, 5, 3],[0, 8,15],[0, 8, 6],[0, 6,10],
+                [0, 8,15],[0, 5,15],[0,15,10],[0,15, 8],
+                [0, 8,15],[0,15, 3],[0, 3,15],[0, 5,10],
+                [0, 6,10],[0,10, 8],[0, 8, 9],[0,15,10],
+                [0,15, 6],[0, 3,15],[0,15, 8],[0, 5,15],
+                [0,15, 3],[0,15, 6],[0,15, 6],[0,15, 8],
+                [0, 3,15],[0,15, 3],[0, 5,15],[0, 5,15],
+                [0, 5,15],[0, 8,15],[0, 5,15],[0,10,15],
+                [0, 5,15],[0,10,15],[0, 8,15],[0,13,15],
+                [0,15, 3],[0,12,15],[0, 3,15],[0, 3, 8],
+            ]
+        ];
 
         // Partition, Shape, Pixel (index into 4x4 block)
-        static readonly uint[][][] g_aPartitionTable = new uint[][][]
-        {
-            new uint[][]{   // 1 Region case has no subsets (all 0)
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
-            },
+        static readonly uint[][][] g_aPartitionTable =
+        [
+             [.. Enumerable.Repeat(new uint[16], 69)],
 
-            new uint[][]{   // BC6H/BC7 Partition Set for 2 Subsets
-                new uint[]{ 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1 }, // Shape 0
-                new uint[]{ 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 }, // Shape 1
-                new uint[]{ 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1 }, // Shape 2
-                new uint[]{ 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1 }, // Shape 3
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1 }, // Shape 4
-                new uint[]{ 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 }, // Shape 5
-                new uint[]{ 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 }, // Shape 6
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1 }, // Shape 7
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1 }, // Shape 8
-                new uint[]{ 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, // Shape 9
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1 }, // Shape 10
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1 }, // Shape 11
-                new uint[]{ 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, // Shape 12
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1 }, // Shape 13
-                new uint[]{ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, // Shape 14
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1 }, // Shape 15
-                new uint[]{ 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1 }, // Shape 16
-                new uint[]{ 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 }, // Shape 17
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0 }, // Shape 18
-                new uint[]{ 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0 }, // Shape 19
-                new uint[]{ 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 }, // Shape 20
-                new uint[]{ 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0 }, // Shape 21
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0 }, // Shape 22
-                new uint[]{ 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1 }, // Shape 23
-                new uint[]{ 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0 }, // Shape 24
-                new uint[]{ 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0 }, // Shape 25
-                new uint[]{ 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0 }, // Shape 26
-                new uint[]{ 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0 }, // Shape 27
-                new uint[]{ 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0 }, // Shape 28
-                new uint[]{ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 }, // Shape 29
-                new uint[]{ 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0 }, // Shape 30
-                new uint[]{ 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0 }, // Shape 31
+            [   // BC6H/BC7 Partition Set for 2 Subsets
+                [0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1], // Shape 0
+                [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1], // Shape 1
+                [0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1], // Shape 2
+                [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1], // Shape 3
+                [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1], // Shape 4
+                [0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1], // Shape 5
+                [0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1], // Shape 6
+                [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1], // Shape 7
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1], // Shape 8
+                [0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Shape 9
+                [0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1], // Shape 10
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1], // Shape 11
+                [0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Shape 12
+                [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1], // Shape 13
+                [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Shape 14
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1], // Shape 15
+                [0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1], // Shape 16
+                [0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], // Shape 17
+                [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0], // Shape 18
+                [0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0], // Shape 19
+                [0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], // Shape 20
+                [0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0], // Shape 21
+                [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0], // Shape 22
+                [0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1], // Shape 23
+                [0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0], // Shape 24
+                [0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0], // Shape 25
+                [0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0], // Shape 26
+                [0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0], // Shape 27
+                [0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0], // Shape 28
+                [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], // Shape 29
+                [0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0], // Shape 30
+                [0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0], // Shape 31
 
                             // BC7 Partition Set for 2 Subsets (second-half)
-                new uint[]{ 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 }, // Shape 32
-                new uint[]{ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1 }, // Shape 33
-                new uint[]{ 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0 }, // Shape 34
-                new uint[]{ 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0 }, // Shape 35
-                new uint[]{ 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0 }, // Shape 36
-                new uint[]{ 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0 }, // Shape 37
-                new uint[]{ 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1 }, // Shape 38
-                new uint[]{ 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1 }, // Shape 39
-                new uint[]{ 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0 }, // Shape 40
-                new uint[]{ 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0 }, // Shape 41
-                new uint[]{ 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0 }, // Shape 42
-                new uint[]{ 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0 }, // Shape 43
-                new uint[]{ 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0 }, // Shape 44
-                new uint[]{ 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1 }, // Shape 45
-                new uint[]{ 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1 }, // Shape 46
-                new uint[]{ 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0 }, // Shape 47
-                new uint[]{ 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 }, // Shape 48
-                new uint[]{ 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0 }, // Shape 49
-                new uint[]{ 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0 }, // Shape 50
-                new uint[]{ 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0 }, // Shape 51
-                new uint[]{ 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1 }, // Shape 52
-                new uint[]{ 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1 }, // Shape 53
-                new uint[]{ 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0 }, // Shape 54
-                new uint[]{ 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0 }, // Shape 55
-                new uint[]{ 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1 }, // Shape 56
-                new uint[]{ 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1 }, // Shape 57
-                new uint[]{ 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1 }, // Shape 58
-                new uint[]{ 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1 }, // Shape 59
-                new uint[]{ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1 }, // Shape 60
-                new uint[]{ 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 }, // Shape 61
-                new uint[]{ 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0 }, // Shape 62
-                new uint[]{ 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1 }  // Shape 63
-            },
+                [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1], // Shape 32
+                [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1], // Shape 33
+                [0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0], // Shape 34
+                [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0], // Shape 35
+                [0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0], // Shape 36
+                [0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0], // Shape 37
+                [0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1], // Shape 38
+                [0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1], // Shape 39
+                [0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0], // Shape 40
+                [0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0], // Shape 41
+                [0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0], // Shape 42
+                [0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0], // Shape 43
+                [0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0], // Shape 44
+                [0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1], // Shape 45
+                [0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1], // Shape 46
+                [0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0], // Shape 47
+                [0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0], // Shape 48
+                [0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0], // Shape 49
+                [0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0], // Shape 50
+                [0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0], // Shape 51
+                [0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1], // Shape 52
+                [0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1], // Shape 53
+                [0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0], // Shape 54
+                [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0], // Shape 55
+                [0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1], // Shape 56
+                [0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1], // Shape 57
+                [0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1], // Shape 58
+                [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1], // Shape 59
+                [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1], // Shape 60
+                [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], // Shape 61
+                [0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0], // Shape 62
+                [0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1]  // Shape 63
+            ],
 
-            new uint[][]{   // BC7 Partition Set for 3 Subsets
-                new uint[]{ 0, 0, 1, 1, 0, 0, 1, 1, 0, 2, 2, 1, 2, 2, 2, 2 }, // Shape 0
-                new uint[]{ 0, 0, 0, 1, 0, 0, 1, 1, 2, 2, 1, 1, 2, 2, 2, 1 }, // Shape 1
-                new uint[]{ 0, 0, 0, 0, 2, 0, 0, 1, 2, 2, 1, 1, 2, 2, 1, 1 }, // Shape 2
-                new uint[]{ 0, 2, 2, 2, 0, 0, 2, 2, 0, 0, 1, 1, 0, 1, 1, 1 }, // Shape 3
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 2, 2 }, // Shape 4
-                new uint[]{ 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 2, 2, 0, 0, 2, 2 }, // Shape 5
-                new uint[]{ 0, 0, 2, 2, 0, 0, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1 }, // Shape 6
-                new uint[]{ 0, 0, 1, 1, 0, 0, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1 }, // Shape 7
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2 }, // Shape 8
-                new uint[]{ 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2 }, // Shape 9
-                new uint[]{ 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2 }, // Shape 10
-                new uint[]{ 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2 }, // Shape 11
-                new uint[]{ 0, 1, 1, 2, 0, 1, 1, 2, 0, 1, 1, 2, 0, 1, 1, 2 }, // Shape 12
-                new uint[]{ 0, 1, 2, 2, 0, 1, 2, 2, 0, 1, 2, 2, 0, 1, 2, 2 }, // Shape 13
-                new uint[]{ 0, 0, 1, 1, 0, 1, 1, 2, 1, 1, 2, 2, 1, 2, 2, 2 }, // Shape 14
-                new uint[]{ 0, 0, 1, 1, 2, 0, 0, 1, 2, 2, 0, 0, 2, 2, 2, 0 }, // Shape 15
-                new uint[]{ 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 2, 1, 1, 2, 2 }, // Shape 16
-                new uint[]{ 0, 1, 1, 1, 0, 0, 1, 1, 2, 0, 0, 1, 2, 2, 0, 0 }, // Shape 17
-                new uint[]{ 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2 }, // Shape 18
-                new uint[]{ 0, 0, 2, 2, 0, 0, 2, 2, 0, 0, 2, 2, 1, 1, 1, 1 }, // Shape 19
-                new uint[]{ 0, 1, 1, 1, 0, 1, 1, 1, 0, 2, 2, 2, 0, 2, 2, 2 }, // Shape 20
-                new uint[]{ 0, 0, 0, 1, 0, 0, 0, 1, 2, 2, 2, 1, 2, 2, 2, 1 }, // Shape 21
-                new uint[]{ 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 2, 2, 0, 1, 2, 2 }, // Shape 22
-                new uint[]{ 0, 0, 0, 0, 1, 1, 0, 0, 2, 2, 1, 0, 2, 2, 1, 0 }, // Shape 23
-                new uint[]{ 0, 1, 2, 2, 0, 1, 2, 2, 0, 0, 1, 1, 0, 0, 0, 0 }, // Shape 24
-                new uint[]{ 0, 0, 1, 2, 0, 0, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2 }, // Shape 25
-                new uint[]{ 0, 1, 1, 0, 1, 2, 2, 1, 1, 2, 2, 1, 0, 1, 1, 0 }, // Shape 26
-                new uint[]{ 0, 0, 0, 0, 0, 1, 1, 0, 1, 2, 2, 1, 1, 2, 2, 1 }, // Shape 27
-                new uint[]{ 0, 0, 2, 2, 1, 1, 0, 2, 1, 1, 0, 2, 0, 0, 2, 2 }, // Shape 28
-                new uint[]{ 0, 1, 1, 0, 0, 1, 1, 0, 2, 0, 0, 2, 2, 2, 2, 2 }, // Shape 29
-                new uint[]{ 0, 0, 1, 1, 0, 1, 2, 2, 0, 1, 2, 2, 0, 0, 1, 1 }, // Shape 30
-                new uint[]{ 0, 0, 0, 0, 2, 0, 0, 0, 2, 2, 1, 1, 2, 2, 2, 1 }, // Shape 31
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 2, 2, 1, 2, 2, 2 }, // Shape 32
-                new uint[]{ 0, 2, 2, 2, 0, 0, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1 }, // Shape 33
-                new uint[]{ 0, 0, 1, 1, 0, 0, 1, 2, 0, 0, 2, 2, 0, 2, 2, 2 }, // Shape 34
-                new uint[]{ 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0 }, // Shape 35
-                new uint[]{ 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0 }, // Shape 36
-                new uint[]{ 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0 }, // Shape 37
-                new uint[]{ 0, 1, 2, 0, 2, 0, 1, 2, 1, 2, 0, 1, 0, 1, 2, 0 }, // Shape 38
-                new uint[]{ 0, 0, 1, 1, 2, 2, 0, 0, 1, 1, 2, 2, 0, 0, 1, 1 }, // Shape 39
-                new uint[]{ 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0, 1, 1 }, // Shape 40
-                new uint[]{ 0, 1, 0, 1, 0, 1, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2 }, // Shape 41
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 2, 1, 2, 1, 2, 1 }, // Shape 42
-                new uint[]{ 0, 0, 2, 2, 1, 1, 2, 2, 0, 0, 2, 2, 1, 1, 2, 2 }, // Shape 43
-                new uint[]{ 0, 0, 2, 2, 0, 0, 1, 1, 0, 0, 2, 2, 0, 0, 1, 1 }, // Shape 44
-                new uint[]{ 0, 2, 2, 0, 1, 2, 2, 1, 0, 2, 2, 0, 1, 2, 2, 1 }, // Shape 45
-                new uint[]{ 0, 1, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 0, 1, 0, 1 }, // Shape 46
-                new uint[]{ 0, 0, 0, 0, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1 }, // Shape 47
-                new uint[]{ 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 2, 2, 2, 2 }, // Shape 48
-                new uint[]{ 0, 2, 2, 2, 0, 1, 1, 1, 0, 2, 2, 2, 0, 1, 1, 1 }, // Shape 49
-                new uint[]{ 0, 0, 0, 2, 1, 1, 1, 2, 0, 0, 0, 2, 1, 1, 1, 2 }, // Shape 50
-                new uint[]{ 0, 0, 0, 0, 2, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2 }, // Shape 51
-                new uint[]{ 0, 2, 2, 2, 0, 1, 1, 1, 0, 1, 1, 1, 0, 2, 2, 2 }, // Shape 52
-                new uint[]{ 0, 0, 0, 2, 1, 1, 1, 2, 1, 1, 1, 2, 0, 0, 0, 2 }, // Shape 53
-                new uint[]{ 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 2, 2, 2, 2 }, // Shape 54
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 2, 2, 1, 1, 2 }, // Shape 55
-                new uint[]{ 0, 1, 1, 0, 0, 1, 1, 0, 2, 2, 2, 2, 2, 2, 2, 2 }, // Shape 56
-                new uint[]{ 0, 0, 2, 2, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 2, 2 }, // Shape 57
-                new uint[]{ 0, 0, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2, 0, 0, 2, 2 }, // Shape 58
-                new uint[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 2 }, // Shape 59
-                new uint[]{ 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 1 }, // Shape 60
-                new uint[]{ 0, 2, 2, 2, 1, 2, 2, 2, 0, 2, 2, 2, 1, 2, 2, 2 }, // Shape 61
-                new uint[]{ 0, 1, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 }, // Shape 62
-                new uint[]{ 0, 1, 1, 1, 2, 0, 1, 1, 2, 2, 0, 1, 2, 2, 2, 0 }  // Shape 63
-            }
-        };
+            [   // BC7 Partition Set for 3 Subsets
+                [0, 0, 1, 1, 0, 0, 1, 1, 0, 2, 2, 1, 2, 2, 2, 2], // Shape 0
+                [0, 0, 0, 1, 0, 0, 1, 1, 2, 2, 1, 1, 2, 2, 2, 1], // Shape 1
+                [0, 0, 0, 0, 2, 0, 0, 1, 2, 2, 1, 1, 2, 2, 1, 1], // Shape 2
+                [0, 2, 2, 2, 0, 0, 2, 2, 0, 0, 1, 1, 0, 1, 1, 1], // Shape 3
+                [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 2, 2], // Shape 4
+                [0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 2, 2, 0, 0, 2, 2], // Shape 5
+                [0, 0, 2, 2, 0, 0, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1], // Shape 6
+                [0, 0, 1, 1, 0, 0, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1], // Shape 7
+                [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2], // Shape 8
+                [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2], // Shape 9
+                [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2], // Shape 10
+                [0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2], // Shape 11
+                [0, 1, 1, 2, 0, 1, 1, 2, 0, 1, 1, 2, 0, 1, 1, 2], // Shape 12
+                [0, 1, 2, 2, 0, 1, 2, 2, 0, 1, 2, 2, 0, 1, 2, 2], // Shape 13
+                [0, 0, 1, 1, 0, 1, 1, 2, 1, 1, 2, 2, 1, 2, 2, 2], // Shape 14
+                [0, 0, 1, 1, 2, 0, 0, 1, 2, 2, 0, 0, 2, 2, 2, 0], // Shape 15
+                [0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 2, 1, 1, 2, 2], // Shape 16
+                [0, 1, 1, 1, 0, 0, 1, 1, 2, 0, 0, 1, 2, 2, 0, 0], // Shape 17
+                [0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2], // Shape 18
+                [0, 0, 2, 2, 0, 0, 2, 2, 0, 0, 2, 2, 1, 1, 1, 1], // Shape 19
+                [0, 1, 1, 1, 0, 1, 1, 1, 0, 2, 2, 2, 0, 2, 2, 2], // Shape 20
+                [0, 0, 0, 1, 0, 0, 0, 1, 2, 2, 2, 1, 2, 2, 2, 1], // Shape 21
+                [0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 2, 2, 0, 1, 2, 2], // Shape 22
+                [0, 0, 0, 0, 1, 1, 0, 0, 2, 2, 1, 0, 2, 2, 1, 0], // Shape 23
+                [0, 1, 2, 2, 0, 1, 2, 2, 0, 0, 1, 1, 0, 0, 0, 0], // Shape 24
+                [0, 0, 1, 2, 0, 0, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2], // Shape 25
+                [0, 1, 1, 0, 1, 2, 2, 1, 1, 2, 2, 1, 0, 1, 1, 0], // Shape 26
+                [0, 0, 0, 0, 0, 1, 1, 0, 1, 2, 2, 1, 1, 2, 2, 1], // Shape 27
+                [0, 0, 2, 2, 1, 1, 0, 2, 1, 1, 0, 2, 0, 0, 2, 2], // Shape 28
+                [0, 1, 1, 0, 0, 1, 1, 0, 2, 0, 0, 2, 2, 2, 2, 2], // Shape 29
+                [0, 0, 1, 1, 0, 1, 2, 2, 0, 1, 2, 2, 0, 0, 1, 1], // Shape 30
+                [0, 0, 0, 0, 2, 0, 0, 0, 2, 2, 1, 1, 2, 2, 2, 1], // Shape 31
+                [0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 2, 2, 1, 2, 2, 2], // Shape 32
+                [0, 2, 2, 2, 0, 0, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1], // Shape 33
+                [0, 0, 1, 1, 0, 0, 1, 2, 0, 0, 2, 2, 0, 2, 2, 2], // Shape 34
+                [0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0], // Shape 35
+                [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0], // Shape 36
+                [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0], // Shape 37
+                [0, 1, 2, 0, 2, 0, 1, 2, 1, 2, 0, 1, 0, 1, 2, 0], // Shape 38
+                [0, 0, 1, 1, 2, 2, 0, 0, 1, 1, 2, 2, 0, 0, 1, 1], // Shape 39
+                [0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0, 1, 1], // Shape 40
+                [0, 1, 0, 1, 0, 1, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2], // Shape 41
+                [0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 2, 1, 2, 1, 2, 1], // Shape 42
+                [0, 0, 2, 2, 1, 1, 2, 2, 0, 0, 2, 2, 1, 1, 2, 2], // Shape 43
+                [0, 0, 2, 2, 0, 0, 1, 1, 0, 0, 2, 2, 0, 0, 1, 1], // Shape 44
+                [0, 2, 2, 0, 1, 2, 2, 1, 0, 2, 2, 0, 1, 2, 2, 1], // Shape 45
+                [0, 1, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 0, 1, 0, 1], // Shape 46
+                [0, 0, 0, 0, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1], // Shape 47
+                [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 2, 2, 2, 2], // Shape 48
+                [0, 2, 2, 2, 0, 1, 1, 1, 0, 2, 2, 2, 0, 1, 1, 1], // Shape 49
+                [0, 0, 0, 2, 1, 1, 1, 2, 0, 0, 0, 2, 1, 1, 1, 2], // Shape 50
+                [0, 0, 0, 0, 2, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2], // Shape 51
+                [0, 2, 2, 2, 0, 1, 1, 1, 0, 1, 1, 1, 0, 2, 2, 2], // Shape 52
+                [0, 0, 0, 2, 1, 1, 1, 2, 1, 1, 1, 2, 0, 0, 0, 2], // Shape 53
+                [0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 2, 2, 2, 2], // Shape 54
+                [0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 2, 2, 1, 1, 2], // Shape 55
+                [0, 1, 1, 0, 0, 1, 1, 0, 2, 2, 2, 2, 2, 2, 2, 2], // Shape 56
+                [0, 0, 2, 2, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 2, 2], // Shape 57
+                [0, 0, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2, 0, 0, 2, 2], // Shape 58
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 2], // Shape 59
+                [0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 1], // Shape 60
+                [0, 2, 2, 2, 1, 2, 2, 2, 0, 2, 2, 2, 1, 2, 2, 2], // Shape 61
+                [0, 1, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], // Shape 62
+                [0, 1, 1, 1, 2, 0, 1, 1, 2, 2, 0, 1, 2, 2, 2, 0]  // Shape 63
+            ]
+        ];
 
-        static readonly int[] g_aWeights2 = { 0, 21, 43, 64 };
-        static readonly int[] g_aWeights3 = { 0, 9, 18, 27, 37, 46, 55, 64 };
-        static readonly int[] g_aWeights4 = { 0, 4, 9, 13, 17, 21, 26, 30, 34, 38, 43, 47, 51, 55, 60, 64 };
+        static readonly int[] g_aWeights2 = [0, 21, 43, 64];
+        static readonly int[] g_aWeights3 = [0, 9, 18, 27, 37, 46, 55, 64];
+        static readonly int[] g_aWeights4 = [0, 4, 9, 13, 17, 21, 26, 30, 34, 38, 43, 47, 51, 55, 60, 64];
 
-        private static void assert(bool condition)
+        private static void Assert(bool condition)
         {
             if (!condition)
             {
@@ -1019,6 +937,7 @@ namespace SEToolbox.ImageLibrary
 
         private static bool GetBit(ref uint uStartBit)
         {
+            Assert(uStartBit < m_uBits.Length); // Added bounds check
             bool ret = m_uBits[(int)uStartBit];
             uStartBit++;
             return ret;
@@ -1026,6 +945,7 @@ namespace SEToolbox.ImageLibrary
 
         private static bool GetBit(ref int uStartBit)
         {
+            Assert(uStartBit < m_uBits.Length); // Added bounds check
             bool ret = m_uBits[uStartBit];
             uStartBit++;
             return ret;
@@ -1034,9 +954,8 @@ namespace SEToolbox.ImageLibrary
         private static T GetBits<T>(ref int uStartBit, int uNumBits)
         {
             if (uNumBits == 0)
-                return default(T);
-
-            BitArray newBits = new BitArray(uNumBits);
+                return default;
+            BitArray newBits = new(uNumBits);
 
             for (int i = 0; i < uNumBits; i++)
             {
@@ -1047,21 +966,40 @@ namespace SEToolbox.ImageLibrary
             if (uNumBits > 32)
             {
                 Debugger.Break();
-                // TODO: this exceeds the size of the uint
+                throw new ArgumentOutOfRangeException(nameof(uNumBits), "Number of bits exceeds 32");
             }
 
-            int[] theIntArray = new int[(newBits.Length + 31) / 32];
-            new BitArray(newBits).CopyTo(theIntArray, 0);
-
-            if (theIntArray[0] > 255)
+            if (!(typeof(T) == typeof(byte) || typeof(T) == typeof(int) || typeof(T) == typeof(uint)))
             {
                 Debugger.Break();
-                // TODO: might be a converstion issue with int>uint
+                throw new NotSupportedException("Unsupported type");
+            }
+
+
+            int[] theIntArray = new int[(newBits.Length + 31) / 32];
+            newBits.CopyTo(theIntArray, 0);
+
+            if (theIntArray[0] > 255 && typeof(T) == typeof(byte))
+            {
+                Debugger.Break();
+                throw new InvalidCastException("Cannot convert to byte due to overflow");
             }
 
             return (T)Convert.ChangeType(theIntArray[0], typeof(T));
         }
 
+        // internal class HDRColorA
+        // {
+        //     public byte r, g, b, a;
+
+        //     public HDRColorA(byte rColor, byte gColor, byte bColor, byte aColor)
+        //     {
+        //         r = rColor;
+        //         g = gColor;
+        //         b = bColor;
+        //         a = aColor;
+        //     }
+        // }
         class LDRColorA
         {
             public byte r, g, b, a;
@@ -1084,7 +1022,7 @@ namespace SEToolbox.ImageLibrary
                         case 1: return g;
                         case 2: return b;
                         case 3: return a;
-                        default: assert(false); return r;
+                        default: Assert(false); return r;
                     }
                 }
                 set
@@ -1106,19 +1044,19 @@ namespace SEToolbox.ImageLibrary
                 int[] aWeights;
                 switch (wcprec)
                 {
-                    case 2: aWeights = g_aWeights2; assert(wc < 4); break;
-                    case 3: aWeights = g_aWeights3; assert(wc < 8); break;
-                    case 4: aWeights = g_aWeights4; assert(wc < 16); break;
-                    default: assert(false); outVal.r = outVal.g = outVal.b = 0; return;
+                    case 2: aWeights = g_aWeights2; Assert(wc < 4); break;
+                    case 3: aWeights = g_aWeights3; Assert(wc < 8); break;
+                    case 4: aWeights = g_aWeights4; Assert(wc < 16); break;
+                    default: Assert(false); outVal.r = outVal.g = outVal.b = 0; return;
                 }
 
                 if (c1.r > 60)
                 {
                 }
 
-                outVal.r = (byte)((c0.r * (BC67_WEIGHT_MAX - aWeights[wc]) + (c1.r) * (aWeights[wc]) + BC67_WEIGHT_ROUND) >> BC67_WEIGHT_SHIFT);
-                outVal.g = (byte)((c0.g * (BC67_WEIGHT_MAX - aWeights[wc]) + (c1.g) * (aWeights[wc]) + BC67_WEIGHT_ROUND) >> BC67_WEIGHT_SHIFT);
-                outVal.b = (byte)((c0.b * (BC67_WEIGHT_MAX - aWeights[wc]) + (c1.b) * (aWeights[wc]) + BC67_WEIGHT_ROUND) >> BC67_WEIGHT_SHIFT);
+                outVal.r = (byte)((c0.r * (BC67_WEIGHT_MAX - aWeights[wc]) + c1.r * aWeights[wc] + BC67_WEIGHT_ROUND) >> BC67_WEIGHT_SHIFT);
+                outVal.g = (byte)((c0.g * (BC67_WEIGHT_MAX - aWeights[wc]) + c1.g * aWeights[wc] + BC67_WEIGHT_ROUND) >> BC67_WEIGHT_SHIFT);
+                outVal.b = (byte)((c0.b * (BC67_WEIGHT_MAX - aWeights[wc]) + c1.b * aWeights[wc] + BC67_WEIGHT_ROUND) >> BC67_WEIGHT_SHIFT);
             }
 
             // static void InterpolateA(_In_ const LDRColorA& c0, _In_ const LDRColorA& c1, _In_ size_t wa, _In_range_(2, 4) _In_ size_t waprec, _Out_ LDRColorA& out)
@@ -1127,12 +1065,12 @@ namespace SEToolbox.ImageLibrary
                 int[] aWeights;
                 switch (waprec)
                 {
-                    case 2: aWeights = g_aWeights2; assert(wa < 4); break;
-                    case 3: aWeights = g_aWeights3; assert(wa < 8); break;
-                    case 4: aWeights = g_aWeights4; assert(wa < 16); break;
-                    default: assert(false); outVal.a = 0; return;
+                    case 2: aWeights = g_aWeights2; Assert(wa < 4); break;
+                    case 3: aWeights = g_aWeights3; Assert(wa < 8); break;
+                    case 4: aWeights = g_aWeights4; Assert(wa < 16); break;
+                    default: Assert(false); outVal.a = 0; return;
                 }
-                outVal.a = (byte)((c0.a * (BC67_WEIGHT_MAX - aWeights[wa]) + (c1.a) * (aWeights[wa]) + BC67_WEIGHT_ROUND) >> BC67_WEIGHT_SHIFT);
+                outVal.a = (byte)((c0.a * (BC67_WEIGHT_MAX - aWeights[wa]) + c1.a * aWeights[wa] + BC67_WEIGHT_ROUND) >> BC67_WEIGHT_SHIFT);
             }
 
 
@@ -1145,54 +1083,30 @@ namespace SEToolbox.ImageLibrary
             }
         }
 
-        class ModeInfo
-        {
-            public byte uPartitions;
-            public byte uPartitionBits;
-            public byte uPBits;
-            public byte uRotationBits;
-            public byte uIndexModeBits;
-            public byte uIndexPrec;
-            public byte uIndexPrec2;
-            public LDRColorA RGBAPrec;
-            public LDRColorA RGBAPrecWithP;
-
-            public ModeInfo(byte partitions, byte partitionBits, byte pBits, byte rotationBits, byte indexModeBits, byte indexPrec, byte indexPrec2, LDRColorA rgbaPrec, LDRColorA rgbaPrecWithP)
-            {
-                uPartitions = partitions;
-                uPartitionBits = partitionBits;
-                uPBits = pBits;
-                uRotationBits = rotationBits;
-                uIndexModeBits = indexModeBits;
-                uIndexPrec = indexPrec;
-                uIndexPrec2 = indexPrec2;
-                RGBAPrec = rgbaPrec;
-                RGBAPrecWithP = rgbaPrecWithP;
-            }
-        };
-
 
         static byte Unquantize(byte comp, int uPrec)
         {
-            assert(0 < uPrec && uPrec <= 8);
+            Assert(0 < uPrec && uPrec <= 8);
             comp = (byte)(comp << (8 - uPrec));
             return (byte)(comp | (comp >> uPrec));
         }
 
         static LDRColorA Unquantize(LDRColorA c, LDRColorA RGBAPrec)
         {
-            LDRColorA q = new LDRColorA();
-            q.r = Unquantize(c.r, RGBAPrec.r);
-            q.g = Unquantize(c.g, RGBAPrec.g);
-            q.b = Unquantize(c.b, RGBAPrec.b);
-            q.a = RGBAPrec.a > 0 ? Unquantize(c.a, RGBAPrec.a) : (byte)255;
+            LDRColorA q = new()
+            {
+                r = Unquantize(c.r, RGBAPrec.r),
+                g = Unquantize(c.g, RGBAPrec.g),
+                b = Unquantize(c.b, RGBAPrec.b),
+                a = RGBAPrec.a > 0 ? Unquantize(c.a, RGBAPrec.a) : (byte)255
+            };
             return q;
         }
 
         // inline bool IsFixUpOffset(_In_range_(0, 2) size_t uPartitions, _In_range_(0, 63) size_t uShape, _In_range_(0, 15) size_t uOffset)
         static bool IsFixUpOffset(uint uPartitions, uint uShape, int uOffset)
         {
-            assert(uPartitions < 3 && uShape < 64 && uOffset < 16);
+            Assert(uPartitions < 3 && uShape < 64 && uOffset < 16);
             for (int p = 0; p <= uPartitions; p++)
             {
                 if (uOffset == g_aFixUp[uPartitions][uShape][p])
@@ -1229,7 +1143,7 @@ namespace SEToolbox.ImageLibrary
         }
 
         static readonly uint[] D3DX_SRGBTable =
-        {
+        [
             0x00000000,0x399f22b4,0x3a1f22b4,0x3a6eb40e,0x3a9f22b4,0x3ac6eb61,0x3aeeb40e,0x3b0b3e5d,
             0x3b1f22b4,0x3b33070b,0x3b46eb61,0x3b5b518d,0x3b70f18d,0x3b83e1c6,0x3b8fe616,0x3b9c87fd,
             0x3ba9c9b7,0x3bb7ad6f,0x3bc63549,0x3bd56361,0x3be539c1,0x3bf5ba70,0x3c0373b5,0x3c0c6152,
@@ -1262,7 +1176,7 @@ namespace SEToolbox.ImageLibrary
             0x3f4e946e,0x3f5099cb,0x3f52a218,0x3f54ad57,0x3f56bb8a,0x3f58ccb0,0x3f5ae0cd,0x3f5cf7e0,
             0x3f5f11ec,0x3f612eee,0x3f634eef,0x3f6571e9,0x3f6797e3,0x3f69c0d6,0x3f6beccd,0x3f6e1bbf,
             0x3f704db8,0x3f7282af,0x3f74baae,0x3f76f5ae,0x3f7933b9,0x3f7b74c6,0x3f7db8e0,0x3f800000
-        };
+        ];
 
         static float D3DX_SRGB_to_FLOAT(uint val)
         {

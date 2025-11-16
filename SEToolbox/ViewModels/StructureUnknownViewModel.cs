@@ -1,10 +1,10 @@
-﻿namespace SEToolbox.ViewModels
-{
-    using SEToolbox.Models;
+﻿using SEToolbox.Models;
 
+namespace SEToolbox.ViewModels
+{
     public class StructureUnknownViewModel : StructureBaseViewModel<StructureUnknownModel>
     {
-        #region ctor
+        #region Ctor
 
         public StructureUnknownViewModel(BaseViewModel parentViewModel, StructureUnknownModel dataModel)
             : base(parentViewModel, dataModel)
@@ -19,7 +19,7 @@
 
         protected new StructureUnknownModel DataModel
         {
-            get { return base.DataModel as StructureUnknownModel; }
+            get => base.DataModel as StructureUnknownModel; 
         }
 
         #endregion

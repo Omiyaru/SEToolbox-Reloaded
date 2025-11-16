@@ -1,8 +1,16 @@
-﻿namespace SEToolbox.Models
-{
-    using System;
-    using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
 
+using System.ComponentModel;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
+using SEToolbox.Support;
+
+namespace SEToolbox.Models
+{
     [Serializable]
     public class BaseModel : INotifyPropertyChanged
     {
@@ -16,12 +24,47 @@
         /// <param name="propertyNames">The name of the property that changed.</param>
         protected void OnPropertyChanged(params string[] propertyNames)
         {
-            if (_propertyChanged != null)
+            PropertyChangedEventHandler handler = _propertyChanged;
+            if (handler != null)
             {
-                foreach (var propertyName in propertyNames)
-                    _propertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                foreach (string propertyName in propertyNames)
+                {
+                    handler(this, new PropertyChangedEventArgs(propertyName));
+                }
             }
         }
+
+        public void SetProperty<T>(ref T field, T value, params object[] parameters) => SetProperty(field, value, parameters);
+
+        public void SetProperty<T>(T field, T value, params object[] parameters)
+        {
+            var propertyName = parameters.FirstOrDefault() as string ?? parameters.LastOrDefault() as string ?? string.Empty;
+
+            if (ReferenceEquals(value, field) || EqualityComparer<T>.Default.Equals(value, field))
+                return;
+
+            if (string.IsNullOrEmpty(propertyName) || parameters.Length < 1)
+            {
+                field = value;
+                OnPropertyChanged(propertyName);
+                return;
+            }
+            var actionToInvokeBefore = parameters.OfType<Action>().FirstOrDefault();
+            var actionToInvokeAfter = parameters.OfType<Action>().LastOrDefault();
+            var expressionToCompileBefore = parameters.OfType<Expression<Action>>().FirstOrDefault();
+            var expressionToCompileAfter = parameters.OfType<Expression<Action>>().LastOrDefault();
+
+            actionToInvokeBefore?.Invoke();
+            expressionToCompileBefore?.Compile().Invoke();
+
+            field = value;
+            OnPropertyChanged(propertyName);
+
+            actionToInvokeAfter?.Invoke();
+            expressionToCompileAfter?.Compile().Invoke();
+        }
+
+
 
         #endregion
 
@@ -35,10 +78,11 @@
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged
         {
-            add { _propertyChanged += value; }
+            add => _propertyChanged += value;
             remove { if (_propertyChanged != null) _propertyChanged -= value; }
         }
 
         #endregion
     }
 }
+

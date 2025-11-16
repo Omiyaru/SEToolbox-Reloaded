@@ -18,16 +18,17 @@
 // places, or events is intended or should be inferred.
 //===================================================================================
 
+using System;
+using System.Collections;
+using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
+using System.Windows;
+using System.Windows.Controls;
+using Microsoft.Xaml.Behaviors;
+
+
 namespace SEToolbox.Services
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Specialized;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Windows;
-    using System.Windows.Controls;
-    using Microsoft.Xaml.Behaviors;
-
     /// <summary>
     /// Custom behavior that synchronizes the list in <see cref="ListBox.SelectedItems"/> with a collection.
     /// </summary>
@@ -46,11 +47,10 @@ namespace SEToolbox.Services
         private bool _updating;
         private WeakEventHandler<SynchronizeSelectedItems, object, NotifyCollectionChangedEventArgs> _currentWeakHandler;
 
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Dependency property")]
         public IList Selections
         {
-            get { return (IList)GetValue(SelectionsProperty); }
-            set { SetValue(SelectionsProperty, value); }
+            get => (IList)GetValue(SelectionsProperty);
+            set => SetValue(SelectionsProperty, value);
         }
 
         protected override void OnAttached()
@@ -70,7 +70,7 @@ namespace SEToolbox.Services
 
         private static void OnSelectionsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var behavior = d as SynchronizeSelectedItems;
+            var behavior = (SynchronizeSelectedItems)d;
 
             if (behavior != null)
             {
@@ -82,8 +82,7 @@ namespace SEToolbox.Services
 
                 if (e.NewValue != null)
                 {
-                    var notifyCollectionChanged = e.NewValue as INotifyCollectionChanged;
-                    if (notifyCollectionChanged != null)
+                    if (e.NewValue is INotifyCollectionChanged notifyCollectionChanged)
                     {
                         behavior._currentWeakHandler =
                             new WeakEventHandler<SynchronizeSelectedItems, object, NotifyCollectionChangedEventArgs>(
@@ -110,12 +109,12 @@ namespace SEToolbox.Services
                 {
                     if (Selections != null)
                     {
-                        foreach (var item in e.AddedItems)
+                        foreach (object item in e.AddedItems)
                         {
                             Selections.Add(item);
                         }
 
-                        foreach (var item in e.RemovedItems)
+                        foreach (object item in e.RemovedItems)
                         {
                             Selections.Remove(item);
                         }
@@ -136,7 +135,7 @@ namespace SEToolbox.Services
                     if (AssociatedObject != null)
                     {
                         AssociatedObject.SelectedItems.Clear();
-                        foreach (var item in Selections ?? new object[0])
+                        foreach (object item in Selections ?? new object[0])
                         {
                             AssociatedObject.SelectedItems.Add(item);
                         }

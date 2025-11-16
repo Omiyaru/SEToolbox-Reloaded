@@ -1,16 +1,16 @@
-﻿namespace SEToolbox.Models
+﻿using System;
+using System.ComponentModel;
+
+using SEToolbox.Interop;
+using VRage.Game;
+using VRage.ObjectBuilders;
+
+namespace SEToolbox.Models
 {
-    using System;
-    using System.ComponentModel;
-
-    using SEToolbox.Interop;
-    using VRage.Game;
-    using VRage.ObjectBuilders;
-
     [Serializable]
     public class InventoryModel : BaseModel, IDataErrorInfo
     {
-        #region fields
+        #region Fields
 
         [NonSerialized]
         private readonly MyObjectBuilder_InventoryItem _item;
@@ -18,9 +18,9 @@
         private string _name;
         private decimal _amount;
         private double _mass;
-        private double _massMultiplyer;
+        private double _massMultiplier;
         private double _volume;
-        private double _volumeMultiplyer;
+        private double _volumeMultiplier;
 
         #endregion
 
@@ -33,104 +33,52 @@
 
         public string Name
         {
-            get { return _name; }
-            set
-            {
-                if (value != _name)
-                {
-                    _name = value;
-                    FriendlyName = SpaceEngineersApi.GetResourceName(Name);
-                    OnPropertyChanged(nameof(Name));
-                }
-            }
+            get => _name;
+            set => SetProperty(ref _name, value, nameof(Name),  FriendlyName == SpaceEngineersApi.GetResourceName(Name), nameof(FriendlyName));
         }
 
         public MyObjectBuilderType TypeId { get; set; }
-
         public string SubtypeId { get; set; }
 
-        public Decimal Amount
+        public decimal Amount
         {
-            get { return _amount; }
+            get => _amount;
             set
             {
-                if (value != _amount)
-                {
-                    _amount = value;
-                    OnPropertyChanged(nameof(Amount));
-                    UpdateMassVolume();
-                }
+                SetProperty(ref _amount, value, nameof(Amount), () => UpdateMassVolume());
             }
         }
 
         public double Mass
         {
-            get { return _mass; }
-
-            private set
-            {
-                if (value != _mass)
-                {
-                    _mass = value;
-                    OnPropertyChanged(nameof(Mass));
-                }
-            }
+            get => _mass;
+            private set => SetProperty(ref _mass, value, nameof(Mass));
         }
 
-        public double MassMultiplyer
+        public double MassMultiplier
         {
-            get { return _massMultiplyer; }
-            set
-            {
-                if (value != _massMultiplyer)
-                {
-                    _massMultiplyer = value;
-                    OnPropertyChanged(nameof(MassMultiplyer));
-                    UpdateMassVolume();
-                }
-            }
+            get => _massMultiplier;
+            set  => SetProperty(ref _massMultiplier, value, nameof(MassMultiplier), () => UpdateMassVolume());
         }
 
         public double Volume
         {
-            get { return _volume; }
-
-            private set
-            {
-                if (value != _volume)
-                {
-                    _volume = value;
-                    OnPropertyChanged(nameof(Volume));
-                }
-            }
+            get => _volume;
+            private set => SetProperty(ref _volume, value, nameof(Volume));
         }
 
-        public double VolumeMultiplyer
+        public double VolumeMultiplier
         {
-            get { return _volumeMultiplyer; }
-            set
-            {
-                if (value != _volumeMultiplyer)
-                {
-                    _volumeMultiplyer = value;
-                    OnPropertyChanged(nameof(VolumeMultiplyer));
-                    UpdateMassVolume();
-                }
-            }
+            get => _volumeMultiplier;
+            set => SetProperty(ref _volumeMultiplier, value, nameof(VolumeMultiplier), () => UpdateMassVolume());
         }
 
         public string TextureFile { get; set; }
-
         public MyCubeSize? CubeSize { get; set; }
-
         public bool Exists { get; set; }
-
         public string FriendlyName { get; set; }
-
         public bool IsUnique { get; set; }
-
         public bool IsDecimal { get; set; }
-
         public bool IsInteger { get; set; }
 
         public override string ToString()
@@ -142,16 +90,27 @@
 
         private void UpdateMassVolume()
         {
-            Mass = MassMultiplyer * (double)Amount;
-            Volume = VolumeMultiplyer * (double)Amount;
+            Mass = MassMultiplier * (double)Amount;
+            Volume = VolumeMultiplier * (double)Amount;
             _item.Amount = Amount.ToFixedPoint();
         }
 
-        #region IDataErrorInfo interfacing
+        #region Volume Change Notification
+
+        public event Action VolumeChanged;
+
+        protected virtual void OnVolumeChanged()
+        {
+            VolumeChanged.Invoke();
+        }
+
+        #endregion
+
+        #region IDataErrorInfo Implementation
 
         public string Error
         {
-            get { return null; }
+            get => null;
         }
 
         public string this[string columnName]
@@ -160,7 +119,7 @@
             {
                 switch (columnName)
                 {
-                    case "Amount":
+                    case nameof(Amount):
                         if (IsUnique && Amount != 1)
                             return "The Amount must be 1 for Unique items";
 
@@ -177,5 +136,22 @@
         //  TODO: need to bubble volume change up to InventoryEditor for updating TotalVolume, and up to MainViewModel.IsModified = true;
 
         #endregion
+
+
+        public InventoryModel(MyObjectBuilder_InventoryItem item, string name, string subtypeId)
+        {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
+
+            if (string.IsNullOrEmpty(subtypeId))
+                throw new ArgumentNullException(nameof(subtypeId));
+
+            _item = item ?? throw new ArgumentNullException(nameof(item));
+            _name = name;
+            SubtypeId = subtypeId;
+            FriendlyName = SpaceEngineersApi.GetResourceName(Name.ToString());
+            TextureFile = string.Empty;
+            VolumeChanged = () => { };
+        }
     }
 }

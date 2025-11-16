@@ -1,8 +1,8 @@
-﻿ namespace SEToolbox.Services
-{
-    using System;
-    using System.Windows;
+﻿using System;
+using System.Windows;
 
+namespace SEToolbox.Services
+{
     public static class DialogCloser
     {
         public static readonly DependencyProperty DialogResultProperty =
@@ -16,9 +16,7 @@
             DependencyObject d,
             DependencyPropertyChangedEventArgs e)
         {
-            var window = d as Window;
-
-            if (window != null)
+            if (d is Window window)
             {
                 try
                 {

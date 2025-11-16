@@ -4,17 +4,18 @@
 // All other rights reserved.
 
 
+using System;
+using System.Reflection;
+using System.Text;
+
+
 namespace SEToolbox.ImageShaders
 {
-    using System;
-    using System.Reflection;
-    using System.Text;
-
     internal static class Global
     {
         public static Uri MakePackUri(string relativeFile)
         {
-            var uriString = new StringBuilder();
+            StringBuilder uriString = new();
 #if !SILVERLIGHT
             uriString.Append("pack://application:,,,");
 #endif

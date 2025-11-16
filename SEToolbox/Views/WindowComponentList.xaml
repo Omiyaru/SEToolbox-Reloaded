@@ -48,18 +48,18 @@
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </controls:SortableGridViewColumn>
-                                    <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColCubeName}" DisplayMemberBinding="{Binding FriendlyName}"/>
-                                    <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColCubeType}" DisplayMemberBinding="{Binding TypeIdString}"/>
-                                    <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColCubeSubType}" DisplayMemberBinding="{Binding SubtypeId}"/>
-                                    <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColCubeSize}" DisplayMemberBinding="{Binding CubeSize, Converter={StaticResource EnumToResourceConverter}}" Width="85"/>
-                                    <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColCubePCU}" Width="50" DisplayMemberBinding="{Binding PCU}" />
-                                    <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColCubeAccessible}" Width="80" DisplayMemberBinding="{Binding Accessible, Converter={StaticResource EnumToResourceConverter}}" />
-                                    <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColCubeDimention}" Width="80">
+                                    <GridViewColumn Header="{lex:Loc WnComponentsColCubeName}" DisplayMemberBinding="{Binding FriendlyName}"/>
+                                    <GridViewColumn Header="{lex:Loc WnComponentsColCubeType}" DisplayMemberBinding="{Binding TypeIdString}"/>
+                                    <GridViewColumn Header="{lex:Loc WnComponentsColCubeSubType}" DisplayMemberBinding="{Binding SubtypeId}"/>
+                                    <GridViewColumn Header="{lex:Loc WnComponentsColCubeSize}" DisplayMemberBinding="{Binding CubeSize, Converter={StaticResource EnumToResourceConverter}}" Width="85"/>
+                                    <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColCubePCU}" Width="50" DisplayMemberBinding="{Binding PCU}" />
+                                    <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColCubeAccessible}" Width="80" DisplayMemberBinding="{Binding Accessible, Converter={StaticResource EnumToResourceConverter}}" />
+                                    <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColCubeDimention}" Width="80">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock>
                                                     <TextBlock.Text>
-                                                        <MultiBinding StringFormat="{}{0}×{1}×{2}">
+                                                        <MultiBinding StringFormat="{}{0}x{1}x{2}">
                                                             <Binding Path="Size.Width" />
                                                             <Binding Path="Size.Height" />
                                                             <Binding Path="Size.Depth" />
@@ -69,21 +69,21 @@
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </controls:SortableGridViewColumn>
-                                    <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColCubeMass}" Width="100" SortBinding="{Binding Mass}">
+                                    <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColCubeMass}" Width="100" SortBinding="{Binding Mass}">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock TextAlignment="Right" Text="{Binding Path=Mass, StringFormat='{}{0:#,##0.00}'}" />
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </controls:SortableGridViewColumn>
-                                    <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColCubeBuildTime}" Width="90" SortBinding="{Binding Time}">
+                                    <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColCubeBuildTime}" Width="90" SortBinding="{Binding Time}">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock TextAlignment="Right" Text="{Binding Path=Time, StringFormat='{}{0:hh\\:mm\\:ss\\.ff}'}" />
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </controls:SortableGridViewColumn>
-                                    <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColCubeMod}" Width="50" DisplayMemberBinding="{Binding IsMod, Converter={StaticResource EnumToResourceConverter}}" />
+                                    <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColCubeMod}" Width="50" DisplayMemberBinding="{Binding IsMod, Converter={StaticResource EnumToResourceConverter}}" />
                                 </GridView>
                             </ListView.View>
                         </controls:SortableListView>
@@ -99,8 +99,8 @@
                             <ListView Grid.Column="1" ItemsSource="{Binding SelectedCubeAsset.CustomProperties}">
                                 <ListView.View>
                                     <GridView>
-                                        <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColProperty}" DisplayMemberBinding="{Binding Key}" Width="160" />
-                                        <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColValue}" DisplayMemberBinding="{Binding Value}" Width="290" />
+                                        <GridViewColumn Header="{lex:Loc WnComponentsColProperty}" DisplayMemberBinding="{Binding Key}" Width="160" />
+                                        <GridViewColumn Header="{lex:Loc WnComponentsColValue}" DisplayMemberBinding="{Binding Value}" Width="290" />
                                     </GridView>
                                 </ListView.View>
                             </ListView>
@@ -119,33 +119,33 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </controls:SortableGridViewColumn>
-                                <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColComponentName}" DisplayMemberBinding="{Binding FriendlyName}"/>
+                                <GridViewColumn Header="{lex:Loc WnComponentsColComponentName}" DisplayMemberBinding="{Binding FriendlyName}"/>
                                 <!--<GridViewColumn Header="Internal Name" DisplayMemberBinding="{Binding Name}"/>-->
-                                <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColComponentType}" DisplayMemberBinding="{Binding TypeIdString}"/>
-                                <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColComponentSubType}" DisplayMemberBinding="{Binding SubtypeId}"/>
-                                <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColComponentAccessible}" Width="80" DisplayMemberBinding="{Binding Accessible, Converter={StaticResource EnumToResourceConverter}}" />
-                                <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColComponentMass}" Width="100" SortBinding="{Binding Mass}">
+                                <GridViewColumn Header="{lex:Loc WnComponentsColComponentType}" DisplayMemberBinding="{Binding TypeIdString}"/>
+                                <GridViewColumn Header="{lex:Loc WnComponentsColComponentSubType}" DisplayMemberBinding="{Binding SubtypeId}"/>
+                                <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColComponentAccessible}" Width="80" DisplayMemberBinding="{Binding Accessible, Converter={StaticResource EnumToResourceConverter}}" />
+                                <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColComponentMass}" Width="100" SortBinding="{Binding Mass}">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock TextAlignment="Right" Text="{Binding Path=Mass, StringFormat='{}{0:#,##0.00} Kg'}" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </controls:SortableGridViewColumn>
-                                <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColComponentVolume}" Width="90" SortBinding="{Binding Volume}">
+                                <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColComponentVolume}" Width="90" SortBinding="{Binding Volume}">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock TextAlignment="Right" Text="{Binding Path=Volume, StringFormat='{}{0:#,##0.00} L'}" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </controls:SortableGridViewColumn>
-                                <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColComponentBuildTime}" Width="90" SortBinding="{Binding Time}">
+                                <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColComponentBuildTime}" Width="90" SortBinding="{Binding Time}">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock TextAlignment="Right" Text="{Binding Path=Time, StringFormat='{}{0:hh\\:mm\\:ss\\.ff}'}" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </controls:SortableGridViewColumn>
-                                <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColComponentMod}" Width="50" DisplayMemberBinding="{Binding IsMod, Converter={StaticResource EnumToResourceConverter}}" />
+                                <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColComponentMod}" Width="50" DisplayMemberBinding="{Binding IsMod, Converter={StaticResource EnumToResourceConverter}}" />
                             </GridView>
                         </ListView.View>
                     </controls:SortableListView>
@@ -162,33 +162,33 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </controls:SortableGridViewColumn>
-                                <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColItemName}" DisplayMemberBinding="{Binding FriendlyName}"/>
+                                <GridViewColumn Header="{lex:Loc WnComponentsColItemName}" DisplayMemberBinding="{Binding FriendlyName}"/>
                                 <!--<GridViewColumn Header="Internal Name" DisplayMemberBinding="{Binding Name}"/>-->
-                                <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColItemType}" DisplayMemberBinding="{Binding TypeIdString}"/>
-                                <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColItemSubType}" DisplayMemberBinding="{Binding SubtypeId}"/>
-                                <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColItemAccessible}" Width="80" DisplayMemberBinding="{Binding Accessible, Converter={StaticResource EnumToResourceConverter}}" />
-                                <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColItemMass}" Width="100" SortBinding="{Binding Mass}">
+                                <GridViewColumn Header="{lex:Loc WnComponentsColItemType}" DisplayMemberBinding="{Binding TypeIdString}"/>
+                                <GridViewColumn Header="{lex:Loc WnComponentsColItemSubType}" DisplayMemberBinding="{Binding SubtypeId}"/>
+                                <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColItemAccessible}" Width="80" DisplayMemberBinding="{Binding Accessible, Converter={StaticResource EnumToResourceConverter}}" />
+                                <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColItemMass}" Width="100" SortBinding="{Binding Mass}">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock TextAlignment="Right" Text="{Binding Path=Mass, StringFormat='{}{0:#,##0.00} Kg'}" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </controls:SortableGridViewColumn>
-                                <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColItemVolume}" Width="90" SortBinding="{Binding Volume}">
+                                <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColItemVolume}" Width="90" SortBinding="{Binding Volume}">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock TextAlignment="Right" Text="{Binding Path=Volume, StringFormat='{}{0:#,##0.00} L'}" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </controls:SortableGridViewColumn>
-                                <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColItemBuildTime}" Width="90" SortBinding="{Binding Time}">
+                                <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColItemBuildTime}" Width="90" SortBinding="{Binding Time}">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock TextAlignment="Right" Text="{Binding Path=Time, StringFormat='{}{0:hh\\:mm\\:ss\\.ff}'}" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </controls:SortableGridViewColumn>
-                                <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColItemMod}" Width="50" DisplayMemberBinding="{Binding IsMod, Converter={StaticResource EnumToResourceConverter}}" />
+                                <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColItemMod}" Width="50" DisplayMemberBinding="{Binding IsMod, Converter={StaticResource EnumToResourceConverter}}" />
                             </GridView>
                         </ListView.View>
                     </controls:SortableListView>
@@ -205,17 +205,17 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </controls:SortableGridViewColumn>
-                                <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColMaterialName}" DisplayMemberBinding="{Binding Name}" Width="125"/>
-                                <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColMaterialOreName}" DisplayMemberBinding="{Binding FriendlyOreName}" Width="125"/>
-                                <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColMaterialRare}" DisplayMemberBinding="{Binding IsRare, Converter={StaticResource EnumToResourceConverter}}" Width="50"/>
-                                <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColMaterialMineRate}"  Width="100" SortBinding="{Binding MineOreRatio}">
+                                <GridViewColumn Header="{lex:Loc WnComponentsColMaterialName}" DisplayMemberBinding="{Binding Name}" Width="125"/>
+                                <GridViewColumn Header="{lex:Loc WnComponentsColMaterialOreName}" DisplayMemberBinding="{Binding FriendlyOreName}" Width="125"/>
+                                <GridViewColumn Header="{lex:Loc WnComponentsColMaterialRare}" DisplayMemberBinding="{Binding IsRare, Converter={StaticResource EnumToResourceConverter}}" Width="50"/>
+                                <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColMaterialMineRate}"  Width="100" SortBinding="{Binding MineOreRatio}">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock TextAlignment="Right" Text="{Binding Path=MineOreRatio, StringFormat='{}{0:#,##0.00}'}" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </controls:SortableGridViewColumn>
-                                <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnComponentsColMaterialMod}" Width="50" DisplayMemberBinding="{Binding IsMod, Converter={StaticResource EnumToResourceConverter}}" />
+                                <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColMaterialMod}" Width="50" DisplayMemberBinding="{Binding IsMod, Converter={StaticResource EnumToResourceConverter}}" />
                             </GridView>
                         </ListView.View>
                     </controls:SortableListView>
@@ -230,6 +230,9 @@
                 </StackPanel>
             </Grid>
         </Grid>
-        <controls:BusyIndicator Visibility="{Binding IsBusy, FallbackValue=Hidden, Converter={StaticResource BooleanToVisibilityConverter}}" />
+       <controls:BusyIndicator Mode="Spinner"
+                         Visibility="{Binding IsBusy,
+             Converter={StaticResource BooleanToVisibilityConverter},
+             FallbackValue=Collapsed}"/>
     </Grid>
 </Window>

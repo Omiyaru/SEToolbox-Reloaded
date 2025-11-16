@@ -1,11 +1,11 @@
-﻿namespace SEToolbox.ViewModels
+﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
+
+using SEToolbox.Models;
+using SEToolbox.Services;
+
+namespace SEToolbox.ViewModels
 {
-    using System.Collections.ObjectModel;
-    using System.Windows.Input;
-
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-
     public class ChangeOwnerViewModel : BaseViewModel
     {
         #region Fields
@@ -16,7 +16,7 @@
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public ChangeOwnerViewModel(BaseViewModel parentViewModel, ChangeOwnerModel dataModel)
             : base(parentViewModel)
@@ -29,16 +29,16 @@
 
         #endregion
 
-        #region command properties
+        #region Command Properties
 
         public ICommand ChangeCommand
         {
-            get { return new DelegateCommand(ChangeExecuted, ChangeCanExecute); }
+            get => new DelegateCommand(ChangeExecuted, ChangeCanExecute);
         }
 
         public ICommand CancelCommand
         {
-            get { return new DelegateCommand(CancelExecuted, CancelCanExecute); }
+            get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         #endregion
@@ -50,7 +50,7 @@
         /// </summary>
         public bool? CloseResult
         {
-            get { return _closeResult; }
+            get => _closeResult;
 
             set
             {
@@ -64,7 +64,7 @@
         /// </summary>
         public bool IsBusy
         {
-            get { return _isBusy; }
+            get => _isBusy;
 
             set
             {
@@ -82,25 +82,25 @@
 
         public ObservableCollection<OwnerModel> PlayerList
         {
-            get { return _dataModel.PlayerList; }
+            get => _dataModel.PlayerList;
         }
 
         public OwnerModel SelectedPlayer
         {
-            get { return _dataModel.SelectedPlayer; }
-            set { _dataModel.SelectedPlayer = value; }
+            get => _dataModel.SelectedPlayer;
+            set => _dataModel.SelectedPlayer = value;
         }
 
         public string Title
         {
-            get { return _dataModel.Title; }
+            get => _dataModel.Title;
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
-        #region commands
+        #region Commands
 
         public bool ChangeCanExecute()
         {

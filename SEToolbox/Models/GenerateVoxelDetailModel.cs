@@ -1,14 +1,14 @@
-﻿namespace SEToolbox.Models
-{
-    using VRageMath;
+﻿using VRageMath;
 
+namespace SEToolbox.Models
+{
     public class GenerateVoxelDetailModel : BaseModel
     {
         #region Fields
 
         private string _name;
-        private string _sourceFilename;
-        private string _voxelFilename;
+        private string _sourceFileName;
+        private string _voxelFileName;
         private Vector3I _size;
 
         #endregion
@@ -17,73 +17,41 @@
 
         public string Name
         {
-            get { return _name; }
-
-            set
-            {
-                if (value != _name)
-                {
-                    _name = value;
-                    OnPropertyChanged(nameof(Name));
-                }
-            }
+            get => _name;
+            set => SetProperty(ref _name, value, nameof(Name));
         }
 
-        public string SourceFilename
+        public string SourceFileName
         {
-            get { return _sourceFilename; }
-
-            set
-            {
-                if (value != _sourceFilename)
-                {
-                    _sourceFilename = value;
-                    OnPropertyChanged(nameof(SourceFilename));
-                }
-            }
+            get => _sourceFileName;
+            set => SetProperty(ref _sourceFileName, value, nameof(SourceFileName));
         }
 
-        public string VoxelFilename
+        public string VoxelFileName
         {
-            get { return _voxelFilename; }
-
-            set
-            {
-                if (value != _voxelFilename)
-                {
-                    _voxelFilename = value;
-                    OnPropertyChanged(nameof(VoxelFilename));
-                }
-            }
+            get => _voxelFileName;
+            set => SetProperty(ref _voxelFileName, value, nameof(VoxelFileName));
         }
 
         public Vector3I Size
         {
-            get { return _size; }
-
-            set
-            {
-                if (value != _size)
-                {
-                    _size = value;
-                    OnPropertyChanged(nameof(Size));
-                }
-            }
+            get => _size;
+            set => SetProperty(ref _size, value, nameof(Size));
         }
 
         public int SizeX
         {
-            get { return _size.X; }
+            get => _size.X; 
         }
 
         public int SizeY
         {
-            get { return _size.Y; }
+            get => _size.Y; 
         }
 
         public int SizeZ
         {
-            get { return _size.Z; }
+            get => _size.Z; 
         }
 
         public long FileSize { get; set; }
@@ -94,6 +62,11 @@
         public override string ToString()
         {
             return _name;
+        }
+
+        internal GenerateVoxelDetailModel Clone()
+        {
+            return new GenerateVoxelDetailModel();
         }
     }
 }

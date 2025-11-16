@@ -1,13 +1,13 @@
-﻿namespace SEToolbox.Models
+﻿using System.Drawing;
+using System.Windows.Media.Media3D;
+
+using VRageMath;
+
+namespace SEToolbox.Models
 {
-    using System.Drawing;
-    using System.Windows.Media.Media3D;
-
-    using VRageMath;
-
     public class BindableSize3DIModel : BaseModel
     {
-        #region fields
+        #region Fields
 
         private int _width;
         private int _height;
@@ -48,61 +48,28 @@
 
         public int Width
         {
-            get
-            {
-                return _width;
-            }
+            get => _width;
 
-            set
-            {
-                if (value != _width)
-                {
-                    _width = value;
-                    OnPropertyChanged(nameof(Width));
-                }
-            }
+            set => SetProperty(ref _width, value, nameof(Width));
         }
 
         public int Height
         {
-            get
-            {
-                return _height;
-            }
+            get => _height;
 
-            set
-            {
-                if (value != _height)
-                {
-                    _height = value;
-                    OnPropertyChanged(nameof(Height));
-                }
-            }
+            set => SetProperty(ref _height, value, nameof(Height));
         }
 
         public int Depth
         {
-            get
-            {
-                return _depth;
-            }
+            get => _depth;
 
-            set
-            {
-                if (value != _depth)
-                {
-                    _depth = value;
-                    OnPropertyChanged(nameof(Depth));
-                }
-            }
+            set => SetProperty(ref _depth, value, nameof(Depth));
         }
 
         public Size3D ToSize3D
         {
-            get
-            {
-                return new Size3D(Width, Height, Depth);
-            }
+            get => new(Width, Height, Depth);
         }
 
         #endregion
@@ -114,7 +81,8 @@
 
         public override string ToString()
         {
-            return string.Format("{0},{1},{2}", Width, Height, Depth);
+            return string.Format($"{Width},{Height},{Depth}");
         }
     }
 }
+

@@ -14,19 +14,8 @@
 
         public double? BuildPercent
         {
-            get
-            {
-                return _buildPercent;
-            }
-
-            set
-            {
-                if (value != _buildPercent)
-                {
-                    _buildPercent = value;
-                    OnPropertyChanged(nameof(BuildPercent));
-                }
-            }
+            get => _buildPercent;
+            set => SetProperty(ref _buildPercent, value, nameof(BuildPercent));
         }
 
         #endregion

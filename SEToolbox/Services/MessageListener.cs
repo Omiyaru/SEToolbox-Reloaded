@@ -1,8 +1,10 @@
-﻿namespace SEToolbox.Services
-{
-    using System.Diagnostics;
-    using System.Windows;
+﻿using SEToolbox.Support;
 
+using System.Diagnostics;
+using System.Windows;
+
+namespace SEToolbox.Services
+{
     /// <summary>
     /// Message listener, singlton pattern.
     /// Inherit from DependencyObject to implement DataBinding.
@@ -10,12 +12,12 @@
     public class MessageListener : DependencyObject
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private static MessageListener mInstance;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private MessageListener()
         {
@@ -29,14 +31,13 @@
         {
             get
             {
-                if (mInstance == null)
-                    mInstance = new MessageListener();
+                mInstance ??= new MessageListener();
                 return mInstance;
             }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="message"></param>
         public void ReceiveMessage(string message)
@@ -51,12 +52,12 @@
         /// </summary>
         public string Message
         {
-            get { return (string)GetValue(MessageProperty); }
-            set { SetValue(MessageProperty, value); }
+            get => (string)GetValue(MessageProperty);
+            set => SetValue(MessageProperty, value);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public static readonly DependencyProperty MessageProperty =
             DependencyProperty.Register("Message", typeof(string), typeof(MessageListener), new UIPropertyMetadata(null));

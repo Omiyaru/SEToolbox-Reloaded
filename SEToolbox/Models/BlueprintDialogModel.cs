@@ -1,4 +1,6 @@
-﻿namespace SEToolbox.Models
+﻿using System.Security.Permissions;
+
+namespace SEToolbox.Models
 {
     public class BlueprintDialogModel : BaseModel
     {
@@ -15,63 +17,31 @@
 
         public string BlueprintName
         {
-            get { return _blueprintName; }
-
-            set
-            {
-                if (value != _blueprintName)
-                {
-                    _blueprintName = value;
-                    OnPropertyChanged(nameof(BlueprintName));
-                }
-            }
+            get => _blueprintName;
+            set => SetProperty(ref _blueprintName, value, nameof(BlueprintName));
         }
 
         public string DialogTitle
         {
-            get { return _dialogTitle; }
-
-            set
-            {
-                if (value != _dialogTitle)
-                {
-                    _dialogTitle = value;
-                    OnPropertyChanged(nameof(DialogTitle));
-                }
-            }
+            get => _dialogTitle;
+            set => SetProperty(ref _dialogTitle, value, nameof(DialogTitle));
         }
 
         public bool CheckForExisting
         {
-            get { return _checkForExisting; }
-
-            set
-            {
-                if (value != _checkForExisting)
-                {
-                    _checkForExisting = value;
-                    OnPropertyChanged(nameof(CheckForExisting));
-                }
-            }
+            get => _checkForExisting;
+            set => SetProperty( ref _checkForExisting, value, nameof(CheckForExisting));
         }
 
         public string LocalBlueprintsFolder
         {
-            get { return _localBlueprintsFolder; }
-
-            set
-            {
-                if (value != _localBlueprintsFolder)
-                {
-                    _localBlueprintsFolder = value;
-                    OnPropertyChanged(nameof(LocalBlueprintsFolder));
-                }
-            }
+            get => _localBlueprintsFolder;
+            set => SetProperty(ref _localBlueprintsFolder, value, nameof(LocalBlueprintsFolder));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public void Load(string dialogText, bool checkForExisting, string localBlueprintsFolder)
         {

@@ -1,33 +1,29 @@
-﻿namespace SEToolbox.Converters
-{
-    using System;
-    using System.Globalization;
-    using System.Windows;
-    using System.Windows.Data;
+﻿using System;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Data;
 
+namespace SEToolbox.Converters
+{
     public class BooleanConverter : IValueConverter
     {
         private bool _isInverse;
 
         public bool IsInverse
         {
-            get { return _isInverse; }
-            set { _isInverse = value; }
+            get => _isInverse;
+            set => _isInverse = value;
         }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            bool finalValue;
-
-            if (value == null)
-                finalValue = false;
-            else if (value is bool)
-                finalValue = (bool)value;
-            else if (value is string)
-                finalValue = !string.IsNullOrEmpty((string)value);
-            else
-                finalValue = true;
-
+            bool finalValue = value switch
+            {
+                null => false,
+                bool boolValue => boolValue,
+                string stringValue => !string.IsNullOrEmpty(stringValue),
+                _ => true,
+            };
             finalValue ^= _isInverse;
 
             if (targetType == typeof(Visibility))
@@ -38,17 +34,13 @@
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            bool finalValue;
-
-            if (value == null)
-                finalValue = false;
-            else if (value is Visibility)
-                finalValue = (Visibility)value == Visibility.Visible;
-            else if (value is bool)
-                finalValue = (bool)value;
-            else
-                finalValue = true;
-
+            bool finalValue = value switch
+            {
+                null => false,
+                Visibility vis => vis == Visibility.Visible,
+                bool b => b,
+                _ => true,
+            };
             return finalValue ^ _isInverse;
         }
     }

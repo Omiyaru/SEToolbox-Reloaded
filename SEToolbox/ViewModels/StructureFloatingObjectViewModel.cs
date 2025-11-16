@@ -1,11 +1,11 @@
-﻿namespace SEToolbox.ViewModels
-{
-    using SEToolbox.Models;
-    using VRage.Game;
+﻿using SEToolbox.Models;
+using VRage.Game;
 
+namespace SEToolbox.ViewModels
+{
     public class StructureFloatingObjectViewModel : StructureBaseViewModel<StructureFloatingObjectModel>
     {
-        #region ctor
+        #region Ctor
 
         public StructureFloatingObjectViewModel(BaseViewModel parentViewModel, StructureFloatingObjectModel dataModel)
             : base(parentViewModel, dataModel)
@@ -20,30 +20,30 @@
 
         protected new StructureFloatingObjectModel DataModel
         {
-            get { return base.DataModel as StructureFloatingObjectModel; }
+            get => base.DataModel as StructureFloatingObjectModel;
         }
 
         public MyObjectBuilder_InventoryItem Item
         {
-            get { return DataModel.Item; }
-            set { DataModel.Item = value; }
+            get => DataModel.Item;
+            set => DataModel.Item = value;
         }
 
         public string SubTypeName
         {
-            get { return DataModel.Item.PhysicalContent.SubtypeName; }
+            get  => DataModel.Item.PhysicalContent.SubtypeName; 
         }
 
         public double? Volume
         {
-            get { return DataModel.Volume; }
-            set { DataModel.Volume = value; }
+            get => DataModel.Volume;
+            set => DataModel.Volume = value;
         }
 
         public decimal? Units
         {
-            get { return DataModel.Units; }
-            set { DataModel.Units = value; }
+            get => DataModel.Units;
+            set => DataModel.Units = value;
         }
 
         #endregion

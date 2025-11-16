@@ -1,13 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+
+using System.Linq;
 using System.Management;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using ParallelTasks;
 using ProtoBuf.Meta;
+using SEToolbox.Support;
 using VRage;
 using VRage.Analytics;
 using VRage.Audio;
+using VRage.FileSystem;
 using VRage.Http;
 using VRage.Input;
 using VRage.Library.Threading;
@@ -16,6 +24,7 @@ using VRage.Serialization;
 using VRage.Utils;
 using VRageRender;
 
+//implemented generic dummy  implementations to satisfy the interface requirements 
 namespace SEToolbox.Interop
 {
     public class ToolboxPlatform : IVRagePlatform
@@ -23,7 +32,9 @@ namespace SEToolbox.Interop
         public bool SessionReady { get; set; }
 
         public IVRageWindows Windows => throw new NotImplementedException();
+        //public IVRageWindows Windows => new VRageWindowsImpl();
         public IVRageHttp Http => throw new NotImplementedException();
+        //public IVRageHttp Http => new VRageHttpImpl();
 
         public IVRageSystem System { get; } = new VRageSystemImpl();
         public IVRageRender Render { get; } = new VRageRenderImpl();
@@ -61,6 +72,9 @@ namespace SEToolbox.Interop
 
     class VRageSystemImpl : IVRageSystem
     {
+        private static Action _onSuspending;
+        private static Action<string> _onSystemProtocolActivated;
+        private static float? _forcedUiRatio;
         public float CPUCounter => throw new NotImplementedException();
         public float RAMCounter => throw new NotImplementedException();
         public float GCMemory => throw new NotImplementedException();
@@ -70,16 +84,23 @@ namespace SEToolbox.Interop
         public bool IsUsingGeforceNow => false;
 
         public bool IsScriptCompilationSupported => throw new NotImplementedException();
-        public string Clipboard { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public bool IsAllocationProfilingReady => throw new NotImplementedException();
-        public bool IsSingleInstance => throw new NotImplementedException();
-        public bool IsRemoteDebuggingSupported => throw new NotImplementedException();
-        public SimulationQuality SimulationQuality => throw new NotImplementedException();
-        public bool IsDeprecatedOS => throw new NotImplementedException();
-        public bool IsMemoryLimited => throw new NotImplementedException();
-        public bool HasSwappedMouseButtons => throw new NotImplementedException();
-        public string ThreeLetterISORegionName => throw new NotImplementedException();
-        public string TwoLetterISORegionName => throw new NotImplementedException();
+
+        string IVRageSystem.Clipboard
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+
+        public bool IsAllocationProfilingReady => throw new NotImplementedException(); //false;
+        public bool IsSingleInstance => throw new NotImplementedException(); // false;
+        public bool IsRemoteDebuggingSupported => throw new NotImplementedException(); //false;
+        public SimulationQuality SimulationQuality => throw new NotImplementedException(); //SimulationQuality.VeryLow | SimulationQuality.Low | SimulationQuality.Normal;
+
+        public bool IsDeprecatedOS => throw new NotImplementedException(); // false;
+        public bool IsMemoryLimited => throw new NotImplementedException(); // false;
+        public bool HasSwappedMouseButtons => false;
+        public string ThreeLetterISORegionName => RegionInfo.CurrentRegion.ThreeLetterISORegionName;
+        public string TwoLetterISORegionName => RegionInfo.CurrentRegion.TwoLetterISORegionName;
         public string RegionLatitude => throw new NotImplementedException();
         public string RegionLongitude => throw new NotImplementedException();
         public string TempPath => throw new NotImplementedException();
@@ -89,18 +110,58 @@ namespace SEToolbox.Interop
 
         public bool AreEnterBackButtonsSwapped => false;
 
-        public float? ForcedUiRatio => throw new NotImplementedException();
+        public float? ForcedUiRatio
+        {
+            get
+            {
+                if (_forcedUiRatio == null)
+                {
+                    var primaryMonitorSize = System.Windows.Forms.SystemInformation.PrimaryMonitorSize;
+                    _forcedUiRatio = primaryMonitorSize.Width / (float)primaryMonitorSize.Height;
+                }
 
-        public event Action<string> OnSystemProtocolActivated;
+                return _forcedUiRatio;
+            }
+        }
 
-        public event Action OnResuming;
-        public event Action LeaveSession;
-        public event Action OnSuspending;
+        public event Action<string> OnSystemProtocolActivated
+        {
+            add => _onSystemProtocolActivated += value;
+            remove => _onSystemProtocolActivated -= value;
+        }
+
+
+        public event Action LeaveSession
+        {
+            add => throw new NotImplementedException();
+            remove => throw new NotImplementedException();
+        }
+
+        public event Action OnResuming
+        {
+            add => OnResuming += value;
+            remove => OnResuming -= value;
+        }
+
+
+        public event Action OnSuspending
+        {
+            add => _onSuspending += value;
+            remove => _onSuspending -= value;
+        }
 
         (string Name, uint MaxClock, uint Cores) m_cpuInfo;
 
-        public string GetRootPath() => throw new NotImplementedException();
-        public string GetAppDataPath() => throw new NotImplementedException();
+        public string GetRootPath() => null;
+        // {
+        //     return AppDomain.CurrentDomain.BaseDirectory; // Returns the root path of the application
+        // }
+
+        public string GetAppDataPath()
+        {
+            return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData); // Returns the AppData path
+        }
+
         public ulong GetGlobalAllocationsStamp() => throw new NotImplementedException();
 
         public string GetInfoCPU(out uint frequency, out uint physicalCores)
@@ -109,17 +170,15 @@ namespace SEToolbox.Interop
             {
                 try
                 {
-                    using (var managementObjectSearcher = new ManagementObjectSearcher("select Name, MaxClockSpeed, NumberOfCores from Win32_Processor"))
+                    using var managementObjectSearcher = new ManagementObjectSearcher("select Name, MaxClockSpeed, NumberOfCores from Win32_Processor");
+                    foreach (var item in managementObjectSearcher.Get().Cast<ManagementObject>())
                     {
-                        foreach (ManagementObject item in managementObjectSearcher.Get())
-                        {
-                            m_cpuInfo.Name = item["Name"].ToString();
-                            m_cpuInfo.Cores = (uint)item["NumberOfCores"];
-                            m_cpuInfo.MaxClock = (uint)item["MaxClockSpeed"];
-                        }
+                        m_cpuInfo.Name = $"{item["Name"]}";
+                        m_cpuInfo.Cores = (uint)item["NumberOfCores"];
+                        m_cpuInfo.MaxClock = (uint)item["MaxClockSpeed"];
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     //m_log.WriteLine("Couldn't get cpu info: " + ex);
                     m_cpuInfo.Name = "UnknownCPU";
@@ -134,12 +193,53 @@ namespace SEToolbox.Interop
             return m_cpuInfo.Name;
         }
 
-        public string GetOsName() => throw new NotImplementedException();
-        public List<string> GetProcessesLockingFile(string path) => throw new NotImplementedException();
-        public ulong GetThreadAllocationStamp() => throw new NotImplementedException();
-        public ulong GetTotalPhysicalMemory() => throw new NotImplementedException();
-        public void LogEnvironmentInformation() => throw new NotImplementedException();
-        public void LogToExternalDebugger(string message) => throw new NotImplementedException();
+        public string GetOsName() => Environment.OSVersion.ToString();
+
+        public List<string> GetProcessesLockingFile(string path)
+        {
+            var processes = new List<string>();
+            var searchQuery = string.Format($"SELECT ProcessId, ExecutablePath FROM Win32_Process WHERE Handle = '{path.Replace(@"\", @"\\")}'");
+            var search = new ManagementObjectSearcher(searchQuery);
+            var results = search.Get();
+            foreach (ManagementObject result in results.Cast<ManagementObject>())
+            {
+                try
+                {
+                    var processId = result["ProcessId"];
+                    var executablePath = result["ExecutablePath"];
+                    processes.Add($"{processId} - {executablePath}");
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+            }
+            return processes;
+        }
+
+        public ulong GetThreadAllocationStamp()
+        {
+            return (ulong)GC.CollectionCount(0);
+        }
+
+        public ulong GetTotalPhysicalMemory()
+        {
+            return (ulong)Process.GetCurrentProcess().WorkingSet64;
+        }
+        public void LogEnvironmentInformation()
+        {
+            //Log relevant environment information
+            Console.WriteLine($"OS: {GetOsName()}, CPU: {GetInfoCPU(out uint freq, out uint cores)}");
+            Debugger.Log(0, null, $"OS: {GetOsName()}, CPU: {GetInfoCPU(out freq, out cores)}"); // Log to external debugger.
+
+        }
+        public void LogToExternalDebugger(string message)
+        {
+            if (Debugger.IsAttached)
+            {
+                Debugger.Log(0, null, message + Environment.NewLine);
+            }
+        }
         public bool OpenUrl(string url) => throw new NotImplementedException();
         public void ResetColdStartRegister() => throw new NotImplementedException();
 
@@ -148,14 +248,45 @@ namespace SEToolbox.Interop
             Console.WriteLine(msg);
         }
 
-        public void GetGCMemory(out float allocated, out float used) => throw new NotImplementedException();
-        public void OnThreadpoolInitialized() => throw new NotImplementedException();
-        public void LogRuntimeInfo(Action<string> log) => throw new NotImplementedException();
+        public void GetGCMemory(out float allocated, out float used)
+        {
+            allocated = GC.GetTotalMemory(false) / (1024f * 1024f);
+            used = GC.GetTotalMemory(true) / (1024f * 1024f);
+        }
+
+
+        public void OnThreadpoolInitialized()
+        {
+            ThreadPool.GetMinThreads(out int minWorkerThreads, out int minCompletionPortThreads);
+            ThreadPool.GetMaxThreads(out int maxWorkerThreads, out int maxCompletionPortThreads);
+
+
+            minWorkerThreads = Environment.ProcessorCount * 2;
+            maxWorkerThreads = Environment.ProcessorCount * 4;
+
+            ThreadPool.SetMinThreads(minWorkerThreads, minCompletionPortThreads);
+            ThreadPool.SetMaxThreads(maxWorkerThreads, maxCompletionPortThreads);
+
+            SConsole.WriteLine($"ThreadPool Min/Max Worker Threads: {minWorkerThreads}/{maxWorkerThreads}");
+            SConsole.WriteLine($"ThreadPool Min/Max Completion Port Threads: {minCompletionPortThreads}/{maxCompletionPortThreads}");
+        }
+        public void LogRuntimeInfo(Action<string> log)
+        {
+            var runtime = typeof(string).Assembly.GetName();
+            log($"Runtime: {runtime.Name} {runtime.Version}");
+        }
+
         public void OnSessionStarted(SessionType sessionType) => throw new NotImplementedException();
         public void OnSessionUnloaded() => throw new NotImplementedException();
-        public int? GetExperimentalPCULimit(int safePCULimit) => throw new NotImplementedException();
-        public void DebuggerBreak() => throw new NotImplementedException();
 
+        public int? GetExperimentalPCULimit(int safePCULimit) => throw new NotImplementedException();
+
+
+        public void DebuggerBreak()
+        {
+            if (Debugger.IsAttached)
+                Debugger.Break();
+        }
         public void CollectGC(int generation, GCCollectionMode mode)
         {
             generation = Math.Min(generation, GC.MaxGeneration);
@@ -168,31 +299,41 @@ namespace SEToolbox.Interop
             GC.Collect(generation, mode, blocking, compacting);
         }
 
-        public bool OpenUrl(string url, bool predetermined = true) => throw new NotImplementedException();
+        public bool OpenUrl(string url, bool predetermined = true) => throw new NotImplementedException(); //potential use: opening a mods url? or not?
 
         public ISharedCriticalSection CreateSharedCriticalSection(bool spinLock)
-        {
-            if (spinLock)
-                return new MyCriticalSection_SpinLock();
-            else
-                return new MyCriticalSection_Mutex();
-        }
+            => spinLock ? new MyCriticalSection_SpinLock() : new MyCriticalSection_Mutex();
+
 
         public DateTime GetNetworkTimeUTC() => throw new NotImplementedException();
 
         public string GetPlatformSpecificCrashReport() => null;
 
-        public string GetModsCachePath() => null;
+        public string GetModsCachePath() => MyFileSystem.ModsCachePath ?? null;
     }
 
     class VRageRenderImpl : IVRageRender
     {
-        public bool UseParallelRenderInit => throw new NotImplementedException();
-        public bool IsRenderOutputDebugSupported => throw new NotImplementedException();
-        public bool ForceClearGBuffer => throw new NotImplementedException();
+        public bool UseParallelRenderInit => throw new NotImplementedException(); // true;
+        public bool IsRenderOutputDebugSupported => throw new NotImplementedException(); // false;
+        public bool ForceClearGBuffer => throw new NotImplementedException(); // false;
 
-        public event Action OnResuming;
-        public event Action OnSuspending;
+
+
+        public event Action OnResuming
+        {
+            add => throw new NotImplementedException();
+            remove => throw new NotImplementedException();
+        }
+
+        public event Action OnSuspending
+        {
+            add => throw new NotImplementedException();
+            remove => throw new NotImplementedException();
+        }
+
+
+        
 
         public void ApplyRenderSettings(MyRenderDeviceSettings? settings) => throw new NotImplementedException();
         public object CreateRenderAnnotation(object deviceContext) => throw new NotImplementedException();
@@ -221,7 +362,6 @@ namespace SEToolbox.Interop
         public void SetDepthTextureHint(VRageRender_DepthTextureHintType hint, object deviceContext = null, object texture = null) => throw new NotImplementedException();
         public bool IsExclusiveTextureLoadRequired() => throw new NotImplementedException();
     }
-
     // Internal class copied from VRage.Platform.Windows
     class DynamicTypeModel : IProtoTypeModel
     {
@@ -240,11 +380,10 @@ namespace SEToolbox.Interop
             m_typeModel.AutoAddMissingTypes = true;
             m_typeModel.UseImplicitZeroDefaults = false;
         }
-
         private static ushort Get16BitHash(string s)
         {
-            using (MD5 mD = MD5.Create())
-                return BitConverter.ToUInt16(mD.ComputeHash(Encoding.UTF8.GetBytes(s)), 0);
+            using MD5 mD = MD5.Create();
+            return BitConverter.ToUInt16(mD.ComputeHash(Encoding.UTF8.GetBytes(s)), 0);
         }
 
         public void RegisterTypes(IEnumerable<Type> types)
@@ -277,9 +416,7 @@ namespace SEToolbox.Interop
             }
         }
 
-        public void FlushCaches()
-        {
-            CreateTypeModel();
-        }
+        public void FlushCaches() => CreateTypeModel();
+
     }
 }

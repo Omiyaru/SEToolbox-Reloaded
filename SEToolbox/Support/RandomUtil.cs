@@ -1,16 +1,45 @@
-﻿namespace SEToolbox.Support
+﻿using System;
+using System.Text;
+using System.Threading;
+
+namespace SEToolbox.Support
 {
-    using System;
-
-    public class RandomUtil
+    public static class RandomUtil
     {
-        [ThreadStatic]
-        static Random _mSecretRandom;
+        static readonly Guid _guid = Guid.NewGuid();
 
-        static Random MyRandom
+        static readonly int _seed = BitConverter.ToInt32(BitConverter.GetBytes(DateTime.Now.Ticks), 0) ^ BitConverter.ToInt32(Encoding.UTF8.GetBytes(_guid.ToString()), 0);
+
+        static readonly ThreadLocal<Random> _threadLocalRandom = new(() => new Random(_seed));
+
+        public static Random MyRandom
         {
-            get { return _mSecretRandom ?? (_mSecretRandom = new Random((int) DateTime.Now.Ticks)); }
+            get => _threadLocalRandom.Value;
+            set => _threadLocalRandom.Value = value;
         }
+
+        public static bool EnableSecretRandom
+        {
+            get { return _threadLocalRandom.IsValueCreated; }
+            set
+            {
+                if (value)
+                {
+                    _threadLocalRandom.Value = new Random(_seed);
+                }
+                else
+                {
+                    _threadLocalRandom.Value = null;
+                }
+            }
+        }
+        public static void SetSeed(double seed) => SetSecretRandom(Convert.ToInt32(seed));
+        public static void SetSecretRandom(int seed)
+        {
+            _threadLocalRandom.Value = new Random(seed ^ _seed);
+        }
+      
+
 
         /// <summary>
         /// Returns a nonnegative random number less than the specified maximum.

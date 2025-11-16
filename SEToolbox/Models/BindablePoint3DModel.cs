@@ -1,17 +1,17 @@
-﻿namespace SEToolbox.Models
-{
-    using System;
-    using System.Windows.Media.Media3D;
+﻿using System;
+using System.Windows.Media.Media3D;
 
+namespace SEToolbox.Models
+{
     public class BindablePoint3DModel : BaseModel
     {
-        #region fields
+        #region Fields
 
         private Point3D _point;
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public BindablePoint3DModel()
         {
@@ -64,89 +64,49 @@
 
         public double X
         {
-            get
-            {
-                return _point.X;
-            }
+            get => _point.X;
 
-            set
-            {
-                if (value != _point.X)
-                {
-                    _point.X = value;
-                    OnPropertyChanged(nameof(X));
-                }
-            }
+            set => SetProperty(_point.X, value, nameof(X));
         }
 
         public double Y
         {
-            get
-            {
-                return _point.Y;
-            }
+            get => _point.Y;
 
-            set
-            {
-                if (value != _point.Y)
-                {
-                    _point.Y = value;
-                    OnPropertyChanged(nameof(Y));
-                }
-            }
+            set => SetProperty(_point.Y, value, nameof(Y));
         }
 
         public double Z
         {
-            get
-            {
-                return _point.Z;
-            }
+            get => _point.Z;
 
-            set
-            {
-                if (value != _point.Z)
-                {
-                    _point.Z = value;
-                    OnPropertyChanged(nameof(Z));
-                }
-            }
+            set => SetProperty(_point.Z, value, nameof(Z));
         }
 
         public Point3D Point3D
         {
-            get
-            {
-                return _point;
-            }
+            get => _point;
 
-            set
-            {
-                if (value != _point)
-                {
-                    _point = value;
-                    OnPropertyChanged(nameof(Point3D), nameof(X), nameof(Y), nameof(Z));
-                }
-            }
+            set => SetProperty(_point, value, nameof(Point3D));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public VRageMath.Vector3 ToVector3()
         {
-            return new VRageMath.Vector3(ToFloat(X), ToFloat(Y), ToFloat(Z));
+            return new(ToFloat(X), ToFloat(Y), ToFloat(Z));
         }
 
         public VRageMath.Vector3D ToVector3D()
         {
-            return new VRageMath.Vector3D(X, Y, Z);
+            return new(X, Y, Z);
         }
 
-        private float ToFloat(double value)
+        private static float ToFloat(double value)
         {
-            var result = (float)value;
+            float result = (float)value;
             if (float.IsPositiveInfinity(result))
             {
                 result = float.MaxValue;
@@ -160,14 +120,17 @@
 
         public BindablePoint3DModel RoundOff(double roundTo)
         {
-            var v = new Point3D(Math.Round(_point.X / roundTo, 0, MidpointRounding.ToEven) * roundTo, Math.Round(_point.Y / roundTo, 0, MidpointRounding.ToEven) * roundTo, Math.Round(_point.Z / roundTo, 0, MidpointRounding.ToEven) * roundTo);
+            Point3D v = new(Math.Round(_point.X / roundTo, 0,MidpointRounding.ToEven) * roundTo,
+                    Math.Round(_point.Y / roundTo, 0, MidpointRounding.ToEven) * roundTo,
+                    Math.Round(_point.Z / roundTo, 0, MidpointRounding.ToEven) * roundTo);
             return new BindablePoint3DModel(v);
         }
 
         public override string ToString()
         {
-            return string.Format("{0},{1},{2}", X, Y, Z);
+            return string.Format($"{X},{Y},{Z}");
         }
+        
 
         #endregion
     }

@@ -1,21 +1,25 @@
-﻿namespace SEToolbox.ViewModels
-{
-    using SEToolbox.Interop;
-    using SEToolbox.Interop.Asteroids;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-    using SEToolbox.Support;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Windows.Input;
-    using VRage;
-    using VRage.Game;
-    using VRage.Library.Collections;
-    using VRage.ObjectBuilders;
-    using VRage.Voxels;
-    using VRageMath;
-    using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
+﻿
+using SEToolbox.Interop;
+using SEToolbox.Interop.Asteroids;
+using SEToolbox.Models;
+using SEToolbox.Services;
+using SEToolbox.Support;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Windows.Input;
+using VRage;
+using VRage.Game;
+using VRage.Library.Collections;
+using VRage.ObjectBuilders;
+using VRage.Voxels;
+using VRageMath;
+using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
+using PRange = SEToolbox.Support.PRange;
 
+namespace SEToolbox.ViewModels
+{
     public class MergeVoxelViewModel : BaseViewModel
     {
         #region Fields
@@ -40,16 +44,16 @@
 
         #endregion
 
-        #region command Properties
+        #region Command Properties
 
         public ICommand ApplyCommand
         {
-            get { return new DelegateCommand(ApplyExecuted, ApplyCanExecute); }
+            get => new DelegateCommand(ApplyExecuted, ApplyCanExecute);
         }
 
         public ICommand CancelCommand
         {
-            get { return new DelegateCommand(CancelExecuted, CancelCanExecute); }
+            get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         #endregion
@@ -61,8 +65,7 @@
         /// </summary>
         public bool? CloseResult
         {
-            get { return _closeResult; }
-
+            get => _closeResult;
             set
             {
                 _closeResult = value;
@@ -75,63 +78,62 @@
         /// </summary>
         public bool IsBusy
         {
-            get { return _dataModel.IsBusy; }
-            set { _dataModel.IsBusy = value; }
+            get => _dataModel.IsBusy;
+            set => _dataModel.IsBusy = value;
         }
 
         public bool IsValidMerge
         {
-            get { return _dataModel.IsValidMerge; }
-            set { _dataModel.IsValidMerge = value; }
+            get => _dataModel.IsValidMerge;
+            set => _dataModel.IsValidMerge = value;
         }
 
         public MyObjectBuilder_VoxelMap NewEntity { get; set; }
 
         public StructureVoxelModel SelectionLeft
         {
-            get { return (StructureVoxelModel)_dataModel.SelectionLeft; }
-            set { _dataModel.SelectionLeft = value; }
+            get => (StructureVoxelModel)_dataModel.SelectionLeft;
+            set => _dataModel.SelectionLeft = value;
         }
 
         public StructureVoxelModel SelectionRight
         {
-            get { return (StructureVoxelModel)_dataModel.SelectionRight; }
-            set { _dataModel.SelectionRight = value; }
+            get => (StructureVoxelModel)_dataModel.SelectionRight;
+            set => _dataModel.SelectionRight = value;
         }
 
         public string SourceFile
         {
-            get { return _dataModel.SourceFile; }
-            set { _dataModel.SourceFile = value; }
+            get => _dataModel.SourceFile;
+            set => _dataModel.SourceFile = value;
         }
 
         public VoxelMergeType VoxelMergeType
         {
-            get { return _dataModel.VoxelMergeType; }
-            set { _dataModel.VoxelMergeType = value; }
+            get => _dataModel.VoxelMergeType;
+            set => _dataModel.VoxelMergeType = value;
         }
 
         public string MergeFileName
         {
-            get { return _dataModel.MergeFileName; }
-            set { _dataModel.MergeFileName = value; }
+            get => _dataModel.MergeFileName;
+            set => _dataModel.MergeFileName = value;
         }
 
         public bool RemoveOriginalAsteroids
         {
-            get { return _dataModel.RemoveOriginalAsteroids; }
-            set { _dataModel.RemoveOriginalAsteroids = value; }
+            get => _dataModel.RemoveOriginalAsteroids;
+            set => _dataModel.RemoveOriginalAsteroids = value;
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public bool ApplyCanExecute()
         {
             return IsValidMerge;
         }
-
         public void ApplyExecuted()
         {
             CloseResult = true;
@@ -152,20 +154,20 @@
         public MyObjectBuilder_EntityBase BuildEntity()
         {
             // Realign both asteroids to a common grid, so voxels can be lined up.
-            Vector3I roundedPosLeft = SelectionLeft.WorldAABB.Min.RoundToVector3I();
-            Vector3D offsetPosLeft = SelectionLeft.WorldAABB.Min - (Vector3D)roundedPosLeft; // Use for everything.
-            Vector3I roundedPosRight = (SelectionRight.WorldAABB.Min - offsetPosLeft).RoundToVector3I();
-            Vector3D offsetPosRight = SelectionRight.WorldAABB.Min - (Vector3D)roundedPosRight; // Use for everything.
+            Vector3I roundedPosLeft = SelectionLeft.WorldAabb.Min.RoundToVector3I();
+            Vector3D offsetPosLeft = SelectionLeft.WorldAabb.Min - (Vector3D)roundedPosLeft;
+            Vector3I roundedPosRight = (SelectionRight.WorldAabb.Min - offsetPosLeft).RoundToVector3I();
+            Vector3D offsetPosRight = SelectionRight.WorldAabb.Min - (Vector3D)roundedPosRight;
 
             // calculate smallest allowable size for contents of both.
             const int paddCells = 3;
 
-            // Force a calculation of the ContentBounds, as multi select in the ListView doesn't necessarily make it happen, or make it happen fast enough.
+            // Force a calculation of the ContentBounds.
             SelectionLeft.LoadDetailsSync();
             SelectionRight.LoadDetailsSync();
 
-            var minLeft = SelectionLeft.WorldAABB.Min + SelectionLeft.InflatedContentBounds.Min - offsetPosLeft;
-            var minRight = SelectionRight.WorldAABB.Min + SelectionRight.InflatedContentBounds.Min - offsetPosRight;
+            var minLeft = SelectionLeft.WorldAabb.Min + SelectionLeft.InflatedContentBounds.Min - offsetPosLeft;
+            var minRight = SelectionRight.WorldAabb.Min + SelectionRight.InflatedContentBounds.Min - offsetPosRight;
             var min = Vector3D.Zero;
             var posOffset = Vector3D.Zero;
             var asteroidSize = Vector3I.Zero;
@@ -175,74 +177,46 @@
                 case VoxelMergeType.UnionVolumeLeftToRight:
                 case VoxelMergeType.UnionVolumeRightToLeft:
                     min = Vector3D.Min(minLeft, minRight) - paddCells;
-                    var max = Vector3D.Max(SelectionLeft.WorldAABB.Min + SelectionLeft.InflatedContentBounds.Max - offsetPosLeft, SelectionRight.WorldAABB.Min + SelectionRight.InflatedContentBounds.Max - offsetPosRight) + paddCells;
-                    posOffset = new Vector3D(minLeft.X < minRight.X ? offsetPosLeft.X : offsetPosRight.X, minLeft.Y < minRight.Y ? offsetPosLeft.Y : offsetPosRight.Y, minLeft.Z < minRight.Z ? offsetPosLeft.Z : offsetPosRight.Z);
-                    var size = (max - min).RoundToVector3I();
-                    asteroidSize = MyVoxelBuilder.CalcRequiredSize(size);
+                    Vector3D max = Vector3D.Max(
+                        SelectionLeft.WorldAabb.Min + SelectionLeft.InflatedContentBounds.Max - offsetPosLeft,
+                        SelectionRight.WorldAabb.Min + SelectionRight.InflatedContentBounds.Max - offsetPosRight) + paddCells;
+                    posOffset = GetPosOffset(minLeft, minRight, offsetPosLeft, offsetPosRight);
+                    asteroidSize = MyVoxelBuilder.CalcRequiredSize((max - min).RoundToVector3I());
                     break;
                 case VoxelMergeType.UnionMaterialLeftToRight:
-                    min = SelectionRight.WorldAABB.Min - offsetPosRight;
-                    posOffset = new Vector3D(minLeft.X < minRight.X ? offsetPosLeft.X : offsetPosRight.X, minLeft.Y < minRight.Y ? offsetPosLeft.Y : offsetPosRight.Y, minLeft.Z < minRight.Z ? offsetPosLeft.Z : offsetPosRight.Z);
+                case VoxelMergeType.SubtractVolumeLeftFromRight:
+                    min = SelectionRight.WorldAabb.Min - offsetPosRight;
+                    posOffset = GetPosOffset(minLeft, minRight, offsetPosLeft, offsetPosRight);
                     asteroidSize = SelectionRight.Size;
                     break;
                 case VoxelMergeType.UnionMaterialRightToLeft:
-                    min = SelectionLeft.WorldAABB.Min - offsetPosLeft;
-                    posOffset = new Vector3D(minLeft.X < minRight.X ? offsetPosLeft.X : offsetPosRight.X, minLeft.Y < minRight.Y ? offsetPosLeft.Y : offsetPosRight.Y, minLeft.Z < minRight.Z ? offsetPosLeft.Z : offsetPosRight.Z);
-                    asteroidSize = SelectionLeft.Size;
-                    break;
-                case VoxelMergeType.SubtractVolumeLeftFromRight:
-                    min = SelectionRight.WorldAABB.Min - offsetPosRight;
-                    posOffset = new Vector3D(minLeft.X < minRight.X ? offsetPosLeft.X : offsetPosRight.X, minLeft.Y < minRight.Y ? offsetPosLeft.Y : offsetPosRight.Y, minLeft.Z < minRight.Z ? offsetPosLeft.Z : offsetPosRight.Z);
-                    asteroidSize = SelectionRight.Size;
-                    break;
                 case VoxelMergeType.SubtractVolumeRightFromLeft:
-                    min = SelectionLeft.WorldAABB.Min - offsetPosLeft;
-                    posOffset = new Vector3D(minLeft.X < minRight.X ? offsetPosLeft.X : offsetPosRight.X, minLeft.Y < minRight.Y ? offsetPosLeft.Y : offsetPosRight.Y, minLeft.Z < minRight.Z ? offsetPosLeft.Z : offsetPosRight.Z);
+                    min = SelectionLeft.WorldAabb.Min - offsetPosLeft;
+                    posOffset = GetPosOffset(minLeft, minRight, offsetPosLeft, offsetPosRight);
                     asteroidSize = SelectionLeft.Size;
                     break;
             }
 
             // Prepare new asteroid.
-            var newAsteroid = new MyVoxelMap();
-            newAsteroid.Create(asteroidSize, SpaceEngineersCore.Resources.GetDefaultMaterialIndex());
-            if (string.IsNullOrEmpty(MergeFileName))
-                MergeFileName = "merge";
-            var filename = MainViewModel.CreateUniqueVoxelStorageName(MergeFileName);
+            MyVoxelMapBase newAsteroid = new();
+            newAsteroid.Create(asteroidSize, SpaceEngineersResources.GetDefaultMaterialIndex());
+            MergeFileName = string.IsNullOrEmpty(MergeFileName) ? "merge" : MergeFileName;
+            string fileName = MainViewModel.CreateUniqueVoxelStorageName(MergeFileName);
 
-            // merge.
-            switch (VoxelMergeType)
-            {
-                case VoxelMergeType.UnionVolumeLeftToRight:
-                    MergeAsteroidVolumeInto(ref newAsteroid, min, SelectionRight, SelectionLeft, minRight, minLeft);
-                    break;
-                case VoxelMergeType.UnionVolumeRightToLeft:
-                    MergeAsteroidVolumeInto(ref newAsteroid, min, SelectionLeft, SelectionRight, minLeft, minRight);
-                    break;
-                case VoxelMergeType.UnionMaterialLeftToRight:
-                    MergeAsteroidMaterialFrom(ref newAsteroid, min, SelectionRight, SelectionLeft, minRight, minLeft);
-                    break;
-                case VoxelMergeType.UnionMaterialRightToLeft:
-                    MergeAsteroidMaterialFrom(ref newAsteroid, min, SelectionLeft, SelectionRight, minLeft, minRight);
-                    break;
-                case VoxelMergeType.SubtractVolumeLeftFromRight:
-                    SubtractAsteroidVolumeFrom(ref newAsteroid, min, SelectionRight, SelectionLeft, minRight, minLeft);
-                    break;
-                case VoxelMergeType.SubtractVolumeRightFromLeft:
-                    SubtractAsteroidVolumeFrom(ref newAsteroid, min, SelectionLeft, SelectionRight, minLeft, minRight);
-                    break;
-            }
+            // Merge operations.
+            PerformMerge(ref newAsteroid, min, minLeft, minRight);
 
             // Generate Entity
-            var tempfilename = TempfileUtil.NewFilename(MyVoxelMap.V2FileExtension);
-            newAsteroid.Save(tempfilename);
-            SourceFile = tempfilename;
+            var tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
+            newAsteroid.Save(tempFileName);
+            SourceFile = tempFileName;
 
-            var position = min + posOffset;
-            var entity = new MyObjectBuilder_VoxelMap(position, filename)
+            Vector3D position = min + posOffset;
+            MyObjectBuilder_VoxelMap entity = new(position, fileName)
             {
                 EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ASTEROID),
                 PersistentFlags = MyPersistentEntityFlags2.CastShadows | MyPersistentEntityFlags2.InScene,
-                StorageName = Path.GetFileNameWithoutExtension(filename),
+                StorageName = Path.GetFileNameWithoutExtension(fileName),
                 PositionAndOrientation = new MyPositionAndOrientation
                 {
                     Position = position,
@@ -254,353 +228,345 @@
             return entity;
         }
 
+        private static Vector3D GetPosOffset(Vector3D minLeft, Vector3D minRight, Vector3D offsetPosLeft, Vector3D offsetPosRight)
+        {
+            return new Vector3D(
+                minLeft.X < minRight.X ? offsetPosLeft.X : offsetPosRight.X,
+                minLeft.Y < minRight.Y ? offsetPosLeft.Y : offsetPosRight.Y,
+                minLeft.Z < minRight.Z ? offsetPosLeft.Z : offsetPosRight.Z
+            );
+        }
+
+        private void PerformMerge(ref MyVoxelMapBase newAsteroid, Vector3D min, Vector3D minLeft, Vector3D minRight)
+        {
+            switch (VoxelMergeType)
+            {
+                case VoxelMergeType.UnionVolumeLeftToRight:
+                case VoxelMergeType.UnionVolumeRightToLeft:
+                    MergeAsteroidVolumeInto(
+                        ref newAsteroid,
+                        min,
+                        VoxelMergeType == VoxelMergeType.UnionVolumeRightToLeft ? SelectionRight : SelectionLeft,
+                        VoxelMergeType == VoxelMergeType.UnionVolumeLeftToRight ? SelectionLeft : SelectionRight,
+                        VoxelMergeType == VoxelMergeType.UnionVolumeRightToLeft ? minRight : minLeft,
+                        VoxelMergeType == VoxelMergeType.UnionVolumeLeftToRight ? minLeft : minRight
+                    );
+                    break;
+                case VoxelMergeType.UnionMaterialLeftToRight:
+                case VoxelMergeType.UnionMaterialRightToLeft:
+                    MergeAsteroidMaterialFrom(
+                        ref newAsteroid,
+                        min,
+                        VoxelMergeType == VoxelMergeType.UnionMaterialRightToLeft ? SelectionRight : SelectionLeft,
+                        VoxelMergeType == VoxelMergeType.UnionMaterialLeftToRight ? SelectionLeft : SelectionRight,
+                        VoxelMergeType == VoxelMergeType.UnionMaterialRightToLeft ? minRight : minLeft,
+                        VoxelMergeType == VoxelMergeType.UnionMaterialLeftToRight ? minLeft : minRight
+                    );
+                    break;
+                case VoxelMergeType.SubtractVolumeLeftFromRight:
+                case VoxelMergeType.SubtractVolumeRightFromLeft:
+                    SubtractAsteroidVolumeFrom(
+                        ref newAsteroid,
+                        min,
+                        VoxelMergeType == VoxelMergeType.SubtractVolumeRightFromLeft ? SelectionRight : SelectionLeft,
+                        VoxelMergeType == VoxelMergeType.SubtractVolumeLeftFromRight ? SelectionLeft : SelectionRight,
+                        VoxelMergeType == VoxelMergeType.SubtractVolumeRightFromLeft ? minRight : minLeft,
+                        VoxelMergeType == VoxelMergeType.SubtractVolumeLeftFromRight ? minLeft : minRight
+                    );
+                    break;
+            }
+        }
+
+      
         #region MergeAsteroidVolumeInto
 
-        private void MergeAsteroidVolumeInto(ref MyVoxelMap newAsteroid, Vector3D min, StructureVoxelModel modelPrimary,
+        private void MergeAsteroidVolumeInto(ref MyVoxelMapBase newAsteroid, Vector3D min, StructureVoxelModel modelPrimary,
             StructureVoxelModel modelSecondary, Vector3D minPrimary, Vector3D minSecondary)
         {
-            var filenameSecondary = modelSecondary.SourceVoxelFilepath ?? modelSecondary.VoxelFilepath;
-            var filenamePrimary = modelPrimary.SourceVoxelFilepath ?? modelPrimary.VoxelFilepath;
-
-            Vector3I block;
+            string fileNameSecondary = modelSecondary.SourceVoxelFilePath ?? modelSecondary.VoxelFilePath;
+            string fileNamePrimary = modelPrimary.SourceVoxelFilePath ?? modelPrimary.VoxelFilePath;
+            
             Vector3I newBlock;
             Vector3I cacheSize;
 
-            using var asteroid = new MyVoxelMap();
-            asteroid.Load(filenameSecondary);
+            using MyVoxelMapBase asteroid = new();
+            asteroid.Load(fileNameSecondary);
 
             BoundingBoxI content = modelSecondary.InflatedContentBounds;
 
-            for (block.Z = content.Min.Z; block.Z <= content.Max.Z; block.Z += 64)
-            {
-                for (block.Y = content.Min.Y; block.Y <= content.Max.Y; block.Y += 64)
-                {
-                    for (block.X = content.Min.X; block.X <= content.Max.X; block.X += 64)
-                    {
-                        var cache = new MyStorageData();
+            Vector3I block = content.Min;
 
-                        cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
-                            MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
-                            MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
+            PRange.ProcessRange(block, (content.Max - content.Min + 1) / 64);
+            MyStorageData cache = new();
 
-                        cache.Resize(cacheSize);
+            cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
+                MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
+                MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
 
-                        asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, block, block + cacheSize - 1);
+            cache.Resize(cacheSize);
 
-                        newBlock = ((minSecondary - min) + (Vector3D)(block - content.Min)).RoundToVector3I();
+            asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, block, block + cacheSize - 1);
 
-                        newAsteroid.Storage.WriteRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
-                    }
-                }
-            }
+            newBlock = (minSecondary - min + (Vector3D)(block - content.Min)).RoundToVector3I();
 
-            asteroid.Load(filenamePrimary);
+            newAsteroid.Storage.WriteRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
+
+            asteroid.Load(fileNamePrimary);
             content = modelPrimary.InflatedContentBounds;
 
-            for (block.Z = content.Min.Z; block.Z <= content.Max.Z; block.Z += 64)
+            PRange.ProcessRange(block, (content.Max - content.Min + 1) / 64);
+
+            cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
+                MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
+                MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
+
+            cache.Resize(cacheSize);
+            asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, block, block + cacheSize - 1);
+
+            newBlock = (minPrimary - min + (Vector3D)(block - content.Min)).RoundToVector3I();
+
+            MyStorageData newCache = new();
+            newCache.Resize(cacheSize);
+
+            newAsteroid.Storage.ReadRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, 0, newBlock, newBlock + cacheSize - 1);
+
+            var p = Vector3I.Zero;
+        PRange.ProcessRange(p, cacheSize);
+
+            byte volume = cache.Content(ref p);
+            byte material = cache.Material(ref p);
+
+            if (volume > 0)
             {
-                for (block.Y = content.Min.Y; block.Y <= content.Max.Y; block.Y += 64)
+                byte existingVolume = newCache.Content(ref p);
+
+                if (volume > existingVolume)
+                    newCache.Content(ref p, volume);
+
+                // Overwrites secondary material with primary.
+                newCache.Material(ref p, material);
+            }
+            else
+            {
+                // try to find cover material.
+                Vector3I[] points = CreateTestPoints(p, cacheSize - 1);
+
+                for (int i = 0; i < points.Length; i++)
                 {
-                    for (block.X = content.Min.X; block.X <= content.Max.X; block.X += 64)
-                    {
-                        var cache = new MyStorageData();
+                    byte testVolume = cache.Content(ref points[i]);
 
-                        cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
-                            MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
-                            MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
-
-                        cache.Resize(cacheSize);
-                        asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, block, block + cacheSize - 1);
-
-                        newBlock = ((minPrimary - min) + (Vector3D)(block - content.Min)).RoundToVector3I();
-
-                        var newCache = new MyStorageData();
-                        newCache.Resize(cacheSize);
-
-                        newAsteroid.Storage.ReadRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, 0, newBlock, newBlock + cacheSize - 1);
-
-                        Vector3I p;
-
-                        for (p.Z = 0; p.Z < cacheSize.Z; p.Z++)
+                        if (testVolume > 0)
                         {
-                            for (p.Y = 0; p.Y < cacheSize.Y; p.Y++)
-                            {
-                                for (p.X = 0; p.X < cacheSize.X; p.X++)
-                                {
-                                    byte volume = cache.Content(ref p);
-                                    byte material = cache.Material(ref p);
-
-                                    if (volume > 0)
-                                    {
-                                        byte existingVolume = newCache.Content(ref p);
-
-                                        if (volume > existingVolume)
-                                            newCache.Content(ref p, volume);
-
-                                        // Overwrites secondary material with primary.
-                                        newCache.Material(ref p, material);
-                                    }
-                                    else
-                                    {
-                                        // try to find cover material.
-                                        Vector3I[] points = CreateTestPoints(p, cacheSize - 1);
-
-                                        for (int i = 0 ; i < points.Length;i++)
-                                        {
-                                            byte testVolume = cache.Content(ref points[i]);
-
-                                            if (testVolume > 0)
-                                            {
-                                                material = cache.Material(ref points[i]);
-                                                newCache.Material(ref p, material);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            material = cache.Material(ref points[i]);
+                            newCache.Material(ref p, material);
+                            break;
                         }
-
-                        newAsteroid.Storage.WriteRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
                     }
+
+
+                    newAsteroid.Storage.WriteRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
                 }
             }
-        }
+        
 
         #endregion
 
         #region SubtractAsteroidVolumeFrom
 
-        private void SubtractAsteroidVolumeFrom(ref MyVoxelMap newAsteroid, Vector3D min, StructureVoxelModel modelPrimary,
+        private static void SubtractAsteroidVolumeFrom(ref MyVoxelMapBase newAsteroid, Vector3D min, StructureVoxelModel modelPrimary,
             StructureVoxelModel modelSecondary, Vector3D minPrimary, Vector3D minSecondary)
         {
-            var filenameSecondary = modelSecondary.SourceVoxelFilepath ?? modelSecondary.VoxelFilepath;
-            var filenamePrimary = modelPrimary.SourceVoxelFilepath ?? modelPrimary.VoxelFilepath;
+            string fileNameSecondary = modelSecondary.SourceVoxelFilePath ?? modelSecondary.VoxelFilePath;
+            string fileNamePrimary = modelPrimary.SourceVoxelFilePath ?? modelPrimary.VoxelFilePath;
 
-            Vector3I block;
+
             Vector3I newBlock;
             Vector3I cacheSize;
 
-            using var asteroid = new MyVoxelMap();
-            asteroid.Load(filenamePrimary);
+            using MyVoxelMapBase  asteroid =new();
+            asteroid.Load(fileNamePrimary);
 
             BoundingBoxI content = modelPrimary.InflatedContentBounds;
+            Vector3I block = content.Min;
 
-            for (block.Z = content.Min.Z; block.Z <= content.Max.Z; block.Z += 64)
-            {
-                for (block.Y = content.Min.Y; block.Y <= content.Max.Y; block.Y += 64)
-                {
-                    for (block.X = content.Min.X; block.X <= content.Max.X; block.X += 64)
-                    {
-                        var cache = new MyStorageData();
+            PRange.ProcessRange(block, (content.Max - content.Min + 1) / 64);
+            MyStorageData cache = new();
 
-                        cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
-                            MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
-                            MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
+            cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
+                MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
+                MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
 
-                        cache.Resize(cacheSize);
+            cache.Resize(cacheSize);
 
-                        asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, block, block + cacheSize - 1);
+            asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, block, block + cacheSize - 1);
 
-                        newBlock = ((minPrimary - min) + (Vector3D)(block - content.Min)).RoundToVector3I();
+            newBlock = (minPrimary - min + (Vector3D)(block - content.Min)).RoundToVector3I();
 
-                        newAsteroid.Storage.WriteRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
-                    }
-                }
-            }
+            newAsteroid.Storage.WriteRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
 
-            asteroid.Load(filenameSecondary);
+
+            asteroid.Load(fileNameSecondary);
 
             content = modelSecondary.InflatedContentBounds;
 
-            for (block.Z = content.Min.Z; block.Z <= content.Max.Z; block.Z += 64)
+            PRange.ProcessRange(block, (content.Max - content.Min + 1) / 64);
+
+
+            cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
+                MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
+                MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
+
+            cache.Resize(cacheSize);
+
+            asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.Content, 0, block, block + cacheSize - 1);
+
+            newBlock = (minSecondary - min + (Vector3D)(block - content.Min)).RoundToVector3I();
+
+            MyStorageData newCache = new();
+            newCache.Resize(cacheSize);
+
+            newAsteroid.Storage.ReadRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, 0, newBlock, newBlock + cacheSize - 1);
+
+            Vector3I p = Vector3I.Zero;
+            PRange.ProcessRange(p, cacheSize);
+
+
+            byte volume = cache.Content(ref p);
+
+            if (volume > 0)
             {
-                for (block.Y = content.Min.Y; block.Y <= content.Max.Y; block.Y += 64)
-                {
-                    for (block.X = content.Min.X; block.X <= content.Max.X; block.X += 64)
-                    {
-                        var cache = new MyStorageData();
+                byte existingVolume = newCache.Content(ref p);
 
-                        cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
-                            MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
-                            MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
+                if (existingVolume - volume < 0)
+                    volume = 0;
+                else
+                    volume = (byte)(existingVolume - volume);
 
-                        cache.Resize(cacheSize);
-
-                        asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.Content, 0, block, block + cacheSize - 1);
-
-                        newBlock = ((minSecondary - min) + (Vector3D)(block - content.Min)).RoundToVector3I();
-
-                        var newCache = new MyStorageData();
-                        newCache.Resize(cacheSize);
-
-                        newAsteroid.Storage.ReadRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, 0, newBlock, newBlock + cacheSize - 1);
-
-                        Vector3I p;
-
-                        for (p.Z = 0; p.Z < cacheSize.Z; p.Z++)
-                        {
-                            for (p.Y = 0; p.Y < cacheSize.Y; p.Y++)
-                            {
-                                for (p.X = 0; p.X < cacheSize.X; p.X++)
-                                {
-                                    byte volume = cache.Content(ref p);
-
-                                    if (volume > 0)
-                                    {
-                                        byte existingVolume = newCache.Content(ref p);
-
-                                        if (existingVolume - volume < 0)
-                                            volume = 0;
-                                        else
-                                            volume = (byte)(existingVolume - volume);
-
-                                        newCache.Content(ref p, volume);
-                                    }
-                                }
-                            }
-                        }
-
-                        newAsteroid.Storage.WriteRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
-                    }
-                }
+                newCache.Content(ref p, volume);
             }
+
+            newAsteroid.Storage.WriteRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
         }
 
         #endregion
 
         #region MergeAsteroidMaterialFrom
 
-        private void MergeAsteroidMaterialFrom(ref MyVoxelMap newAsteroid, Vector3 min, StructureVoxelModel modelPrimary,
-            StructureVoxelModel modelSecondary, Vector3 minPrimary, Vector3 minSecondary)
+        private static void MergeAsteroidMaterialFrom(ref MyVoxelMapBase newAsteroid, Vector3 min, StructureVoxelModel modelPrimary,
+                                                          StructureVoxelModel modelSecondary, Vector3 minPrimary, Vector3 minSecondary)
         {
-            var filenameSecondary = modelSecondary.SourceVoxelFilepath ?? modelSecondary.VoxelFilepath;
-            var filenamePrimary = modelPrimary.SourceVoxelFilepath ?? modelPrimary.VoxelFilepath;
+            string fileNameSecondary = modelSecondary.SourceVoxelFilePath ?? modelSecondary.VoxelFilePath;
+            string fileNamePrimary = modelPrimary.SourceVoxelFilePath ?? modelPrimary.VoxelFilePath;
 
-            Vector3I block;
             Vector3I newBlock;
             Vector3I cacheSize;
 
-            using var asteroid = new MyVoxelMap();
-            asteroid.Load(filenamePrimary);
+            using MyVoxelMapBase asteroid = new();
+            asteroid.Load(fileNamePrimary);
 
             BoundingBoxI content = modelPrimary.InflatedContentBounds;
 
-            for (block.Z = content.Min.Z; block.Z <= content.Max.Z; block.Z += 64)
-            {
-                for (block.Y = content.Min.Y; block.Y <= content.Max.Y; block.Y += 64)
-                {
-                    for (block.X = content.Min.X; block.X <= content.Max.X; block.X += 64)
-                    {
-                        var cache = new MyStorageData();
+            Vector3I block = content.Min;
+            
+            PRange.ProcessRange(block, (content.Max - content.Min + 1) / 64);
+            MyStorageData cache = new();
 
-                        cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
-                            MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
-                            MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
+            cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
+                MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
+                MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
 
-                        cache.Resize(cacheSize);
+            cache.Resize(cacheSize);
 
-                        asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, block, block + cacheSize - 1);
+            asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, block, block + cacheSize - 1);
 
-                        newBlock = ((minPrimary - min) + (Vector3D)(block - content.Min)).RoundToVector3I();
+            newBlock = (minPrimary - min + (Vector3D)(block - content.Min)).RoundToVector3I();
 
-                        newAsteroid.Storage.WriteRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
-                    }
-                }
-            }
+            newAsteroid.Storage.WriteRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
 
-            asteroid.Load(filenameSecondary);
+            asteroid.Load(fileNameSecondary);
 
             content = modelSecondary.InflatedContentBounds;
 
-            for (block.Z = content.Min.Z; block.Z <= content.Max.Z; block.Z += 64)
+            PRange.ProcessRange(block, (content.Max - content.Min + 1) / 64);
+            cache = new();
+            cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
+                MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
+                MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
+
+            cache.Resize(cacheSize);
+
+            asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, block, block + cacheSize - 1);
+
+            newBlock = (minSecondary - min + (Vector3D)(block - content.Min)).RoundToVector3I();
+
+            MyStorageData newCache = new();
+            newCache.Resize(cacheSize);
+
+            newAsteroid.Storage.ReadRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, 0, newBlock, newBlock + cacheSize - 1);
+
+
+            Vector3I p = Vector3I.Zero;
+            PRange.ProcessRange(p, cacheSize);
+            byte volume = cache.Content(ref p);
+            byte material = cache.Material(ref p);
+
+            if (volume > 0)
             {
-                for (block.Y = content.Min.Y; block.Y <= content.Max.Y; block.Y += 64)
-                {
-                    for (block.X = content.Min.X; block.X <= content.Max.X; block.X += 64)
-                    {
-                        var cache = new MyStorageData();
-
-                        cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
-                            MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
-                            MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
-
-                        cache.Resize(cacheSize);
-
-                        asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, block, block + cacheSize - 1);
-
-                        newBlock = ((minSecondary - min) + (Vector3D)(block - content.Min)).RoundToVector3I();
-
-                        var newCache = new MyStorageData();
-                        newCache.Resize(cacheSize);
-
-                        newAsteroid.Storage.ReadRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, 0, newBlock, newBlock + cacheSize - 1);
-
-                        Vector3I p;
-
-                        for (p.Z = 0; p.Z < cacheSize.Z; p.Z++)
-                        {
-                            for (p.Y = 0; p.Y < cacheSize.Y; p.Y++)
-                            {
-                                for (p.X = 0; p.X < cacheSize.X; p.X++)
-                                {
-                                    byte volume = cache.Content(ref p);
-                                    byte material = cache.Material(ref p);
-
-                                    if (volume > 0)
-                                    {
-                                        newCache.Material(ref p, material);
-                                    }
-                                }
-                            }
-                        }
-
-                        newAsteroid.Storage.WriteRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
-                    }
-                }
+                newCache.Material(ref p, material);
             }
+
+            newAsteroid.Storage.WriteRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
         }
 
         #endregion
 
+        #region CreateTestPoints
         /// <summary>
         /// Creates a list of points around the specified point (within a 3x3x3 grid), but only when they are within the bounds.
         /// </summary>
-        private Vector3I[] CreateTestPoints(Vector3I point, Vector3I max)
+        private static Vector3I[] CreateTestPoints(Vector3I point, Vector3I max)
         {
-            List<Vector3I> points = new CacheList<Vector3I>();
+            List<Vector3I> points = [];
+            Vector3I newPoint;
+            // Define the possible directions for movement
+            Vector3I[] directions =
+            [
+                new(-1, 0, 0), new(1, 0, 0),
+                new(0, -1, 0), new(0, 1, 0),
+                new(0, 0, -1), new(0, 0, 1)
+            ];
 
-            if (point.X > 0) points.Add(new Vector3I(point.X - 1, point.Y, point.Z));
-            if (point.Y > 0) points.Add(new Vector3I(point.X, point.Y - 1, point.Z));
-            if (point.Z > 0) points.Add(new Vector3I(point.X, point.Y, point.Z - 1));
-            if (point.X < max.X) points.Add(new Vector3I(point.X + 1, point.Y, point.Z));
-            if (point.Y < max.Y) points.Add(new Vector3I(point.X, point.Y + 1, point.Z));
-            if (point.Z < max.Z) points.Add(new Vector3I(point.X, point.Y, point.Z + 1));
+            // Add single step points
+            foreach (Vector3I direction in directions)
+            {
+                newPoint = point + direction;
+                if (IsWithinBounds(newPoint, max))
+                {
+                    points.Add(newPoint);
+                }
+            }
 
-            if (point.X > 0 && point.Y > 0) points.Add(new Vector3I(point.X - 1, point.Y - 1, point.Z));
-            if (point.Y > 0 && point.Z > 0) points.Add(new Vector3I(point.X, point.Y - 1, point.Z - 1));
-            if (point.X > 0 && point.Z > 0) points.Add(new Vector3I(point.X - 1, point.Y, point.Z - 1));
-            if (point.X < max.X && point.Y < max.Y) points.Add(new Vector3I(point.X + 1, point.Y + 1, point.Z));
-            if (point.Y < max.Y && point.Z < max.Z) points.Add(new Vector3I(point.X, point.Y + 1, point.Z + 1));
-            if (point.X < max.X && point.Z < max.Z) points.Add(new Vector3I(point.X + 1, point.Y, point.Z + 1));
+            // Add points for the 3x3x3 grid
+            int x = 0, y = 0, z = 0;
+           PRange.ProcessRange(point, x, y, z, -1, 3);
 
-            if (point.X > 0 && point.Y < max.Y) points.Add(new Vector3I(point.X - 1, point.Y + 1, point.Z));
-            if (point.X < max.X && point.Y > 0) points.Add(new Vector3I(point.X + 1, point.Y - 1, point.Z));
-            if (point.Y > 0 && point.Z < max.Z) points.Add(new Vector3I(point.X, point.Y - 1, point.Z + 1));
-            if (point.Y < max.Y && point.Z > 0) points.Add(new Vector3I(point.X, point.Y + 1, point.Z - 1));
-            if (point.X > 0 && point.Z < max.Z) points.Add(new Vector3I(point.X - 1, point.Y, point.Z + 1));
-            if (point.X < max.X && point.Z > 0) points.Add(new Vector3I(point.X + 1, point.Y, point.Z - 1));
+            newPoint = new(point.X + x, point.Y + y, point.Z + z);
+            if (IsWithinBounds(newPoint, max))
+            {
+                points.Add(newPoint);
+            }
 
-            if (point.X > 0 && point.Y > 0 && point.Z > 0) points.Add(new Vector3I(point.X - 1, point.Y - 1, point.Z - 1));
-            if (point.X > 0 && point.Y > 0 && point.Z < max.Z) points.Add(new Vector3I(point.X - 1, point.Y - 1, point.Z + 1));
-            if (point.X > 0 && point.Y < max.Y && point.Z > 0) points.Add(new Vector3I(point.X - 1, point.Y + 1, point.Z - 1));
-            if (point.X > 0 && point.Y < max.Y && point.Z < max.Z) points.Add(new Vector3I(point.X - 1, point.Y + 1, point.Z + 1));
-            if (point.X < max.X && point.Y > 0 && point.Z > 0) points.Add(new Vector3I(point.X + 1, point.Y - 1, point.Z - 1));
-            if (point.X < max.X && point.Y > 0 && point.Z < max.Z) points.Add(new Vector3I(point.X + 1, point.Y - 1, point.Z + 1));
-            if (point.X < max.X && point.Y < max.Y && point.Z > 0) points.Add(new Vector3I(point.X + 1, point.Y + 1, point.Z - 1));
-            if (point.X < max.X && point.Y < max.Y && point.Z < max.Z) points.Add(new Vector3I(point.X + 1, point.Y + 1, point.Z + 1));
 
-            return points.ToArray();
+            return [.. points];
+        }
+        #endregion
+        #region IsWithinBounds
+        private static bool IsWithinBounds(Vector3I point, Vector3I max)
+        {
+            return point.X >= 0 && point.X <= max.X &&
+                   point.Y >= 0 && point.Y <= max.Y &&
+                   point.Z >= 0 && point.Z <= max.Z;
         }
     }
 }
+    #endregion

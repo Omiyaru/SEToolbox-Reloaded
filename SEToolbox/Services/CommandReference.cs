@@ -1,9 +1,9 @@
-﻿namespace SEToolbox.Services
-{
-    using System;
-    using System.Windows;
-    using System.Windows.Input;
+﻿using System;
+using System.Windows;
+using System.Windows.Input;
 
+namespace SEToolbox.Services
+{
     /// <summary>
     /// This class facilitates associating a key binding in XAML markup to a command
     /// defined in a View Model by exposing a Command dependency property.
@@ -20,8 +20,8 @@
 
         public ICommand Command
         {
-            get { return (ICommand)GetValue(CommandProperty); }
-            set { SetValue(CommandProperty, value); }
+            get => (ICommand)GetValue(CommandProperty);
+            set => SetValue(CommandProperty, value);
         }
 
         #region ICommand Members
@@ -43,14 +43,12 @@
         private static void OnCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             CommandReference commandReference = d as CommandReference;
-            ICommand oldCommand = e.OldValue as ICommand;
-            ICommand newCommand = e.NewValue as ICommand;
 
-            if (oldCommand != null)
+            if (e.OldValue is ICommand oldCommand)
             {
                 oldCommand.CanExecuteChanged -= commandReference.CanExecuteChanged;
             }
-            if (newCommand != null)
+            if (e.NewValue is ICommand newCommand)
             {
                 newCommand.CanExecuteChanged += commandReference.CanExecuteChanged;
             }

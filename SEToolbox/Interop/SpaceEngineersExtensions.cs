@@ -1,23 +1,26 @@
-﻿namespace SEToolbox.Interop
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Globalization;
-    using System.IO;
-    using System.Linq;
-    using Sandbox.Common.ObjectBuilders;
-    using Sandbox.Definitions;
-    using SEToolbox.Models;
-    using SEToolbox.Support;
-    using VRage;
-    using VRage.Game;
-    using VRage.Game.ObjectBuilders.Components;
-    using VRage.Game.ObjectBuilders.ComponentSystem;
-    using VRage.Voxels;
-    using VRage.ObjectBuilders;
-    using VRageMath;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.Definitions;
+using SEToolbox.Models;
+using SEToolbox.Support;
+using VRage;
+using VRage.Game;
+using VRage.Game.ObjectBuilders.Components;
+using VRage.Game.ObjectBuilders.ComponentSystem;
+using VRage.Voxels;
+using VRage.ObjectBuilders;
+using VRageMath;
+using MOBTypeIds = SEToolbox.Interop.SpaceEngineersTypes.MOBTypeIds;
+using Point3D = System.Windows.Media.Media3D.Point3D;
+using Media3D = System.Windows.Media.Media3D;
 
+namespace SEToolbox.Interop
+{
     /// <summary>
     /// Contains Extension methods specifically for Keen classes and structures.
     /// </summary>
@@ -25,25 +28,22 @@
     {
         internal static SerializableVector3I Mirror(this SerializableVector3I vector, Mirror xMirror, int xAxis, Mirror yMirror, int yAxis, Mirror zMirror, int zAxis)
         {
-            var newVector = new Vector3I(vector.X, vector.Y, vector.Z);
-            switch (xMirror)
-            {
-                case Support.Mirror.Odd: newVector.X = xAxis - (vector.X - xAxis); break;
-                case Support.Mirror.EvenUp: newVector.X = xAxis - (vector.X - xAxis) + 1; break;
-                case Support.Mirror.EvenDown: newVector.X = xAxis - (vector.X - xAxis) - 1; break;
-            }
-            switch (yMirror)
-            {
-                case Support.Mirror.Odd: newVector.Y = yAxis - (vector.Y - yAxis); break;
-                case Support.Mirror.EvenUp: newVector.Y = yAxis - (vector.Y - yAxis) + 1; break;
-                case Support.Mirror.EvenDown: newVector.Y = yAxis - (vector.Y - yAxis) - 1; break;
-            }
-            switch (zMirror)
-            {
-                case Support.Mirror.Odd: newVector.Z = zAxis - (vector.Z - zAxis); break;
-                case Support.Mirror.EvenUp: newVector.Z = zAxis - (vector.Z - zAxis) + 1; break;
-                case Support.Mirror.EvenDown: newVector.Z = zAxis - (vector.Z - zAxis) - 1; break;
-            }
+            int vecAxisX = vector.X - xAxis;
+            int vecAxisY = vector.Y - yAxis;
+            int vecAxisZ = vector.Z - zAxis;
+            int offsetX =  xMirror == Support.Mirror.Odd ? -vecAxisX : 0;
+                offsetX += xMirror == Support.Mirror.EvenUp ? 1 :
+                          (xMirror == Support.Mirror.EvenDown ? -1 : 0);
+            int offsetY =  yMirror == Support.Mirror.Odd ? -vecAxisY : 0;
+                offsetY += yMirror == Support.Mirror.EvenUp ? 1 :
+                          (yMirror == Support.Mirror.EvenDown ? -1 : 0);
+            int offsetZ =  zMirror == Support.Mirror.Odd ? -vecAxisZ : 0;
+            offsetZ += zMirror == Support.Mirror.EvenUp ? 1 :
+                      (zMirror == Support.Mirror.EvenDown ? -1 : 0);  
+                
+                Vector3I newVector = new(vector.X + offsetX,
+                                     vector.Y + offsetY,
+                                     vector.Z + offsetZ);
             return newVector;
         }
 
@@ -54,69 +54,77 @@
 
         public static Vector3I ToVector3I(this SerializableVector3I vector)
         {
-            return new Vector3I(vector.X, vector.Y, vector.Z);
+            return new(vector.X, vector.Y, vector.Z);
         }
 
         public static Vector3I RoundToVector3I(this Vector3 vector)
         {
-            return new Vector3I((int)Math.Round(vector.X, 0, MidpointRounding.ToEven), (int)Math.Round(vector.Y, 0, MidpointRounding.ToEven), (int)Math.Round(vector.Z, 0, MidpointRounding.ToEven));
+             return new((int)Math.Round(vector.X, 0, MidpointRounding.ToEven),
+                        (int)Math.Round(vector.Y, 0, MidpointRounding.ToEven),
+                        (int)Math.Round(vector.Z, 0, MidpointRounding.ToEven));
         }
 
         public static Vector3I RoundToVector3I(this Vector3D vector)
-        {
-            return new Vector3I((int)Math.Round(vector.X, 0, MidpointRounding.ToEven), (int)Math.Round(vector.Y, 0, MidpointRounding.ToEven), (int)Math.Round(vector.Z, 0, MidpointRounding.ToEven));
+        {    
+            return new((int)Math.Round(vector.X, 0, MidpointRounding.ToEven),
+                       (int)Math.Round(vector.Y, 0, MidpointRounding.ToEven),
+                       (int)Math.Round(vector.Z, 0, MidpointRounding.ToEven));
         }
 
         public static Vector3 ToVector3(this SerializableVector3I vector)
         {
-            return new Vector3(vector.X, vector.Y, vector.Z);
+            return new(vector.X, vector.Y, vector.Z);
         }
-
+        
         public static Vector3D ToVector3D(this SerializableVector3I vector)
-        {
-            return new Vector3D(vector.X, vector.Y, vector.Z);
+        {    
+            return new(vector.X, vector.Y, vector.Z);
         }
 
         public static Vector3 ToVector3(this SerializableVector3 vector)
         {
-            return new Vector3(vector.X, vector.Y, vector.Z);
+            return new(vector.X, vector.Y, vector.Z);
         }
 
         public static Vector3I SizeInt(this BoundingBox box)
         {
             var size = box.Size;
-            return new Vector3I((int)size.X, (int)size.Y, (int)size.Z);
+            return new((int)size.X,
+                       (int)size.Y,
+                       (int)size.Z);
         }
 
         public static Vector3I SizeInt(this BoundingBoxD box)
         {
             var size = box.Size;
-            return new Vector3I((int)size.X, (int)size.Y, (int)size.Z);
+            return new((int)size.X,
+                       (int)size.Y,
+                       (int)size.Z);
         }
 
-        public static System.Windows.Media.Media3D.Vector3D ToVector3D(this SerializableVector3 vector)
+        public static Media3D.Vector3D ToVector3D(this SerializableVector3 vector)
         {
-            return new System.Windows.Media.Media3D.Vector3D(vector.X, vector.Y, vector.Z);
+            return new Media3D.Vector3D(vector.X, vector.Y, vector.Z);
         }
 
-        public static System.Windows.Media.Media3D.Vector3D ToVector3D(this Vector3 vector)
+        public static Media3D.Vector3D ToVector3D(this Vector3 vector)
         {
-            return new System.Windows.Media.Media3D.Vector3D(vector.X, vector.Y, vector.Z);
+            return new Media3D.Vector3D(vector.X, vector.Y, vector.Z);
         }
 
-        public static System.Windows.Media.Media3D.Point3D ToPoint3D(this Vector3D vector)
+        public static Point3D ToPoint3D(this Vector3D vector)
         {
-            return new System.Windows.Media.Media3D.Point3D(vector.X, vector.Y, vector.Z);
+            return new Point3D(vector.X, vector.Y, vector.Z);
         }
 
-        public static System.Windows.Media.Media3D.Point3D ToPoint3D(this SerializableVector3 point)
+        public static Point3D ToPoint3D(this SerializableVector3 point)
         {
-            return new System.Windows.Media.Media3D.Point3D(point.X, point.Y, point.Z);
+            return new Point3D(point.X, point.Y, point.Z);
         }
 
-        public static System.Windows.Media.Media3D.Point3D ToPoint3D(this SerializableVector3D point)
+        public static Point3D ToPoint3D(this SerializableVector3D point)
         {
-            return new System.Windows.Media.Media3D.Point3D(point.X, point.Y, point.Z);
+            return new Point3D(point.X, point.Y, point.Z);
         }
 
         public static System.Windows.Point ToPoint(this Vector2 vector)
@@ -124,34 +132,41 @@
             return new System.Windows.Point(vector.X, vector.Y);
         }
 
-        public static Vector3 ToVector3(this System.Windows.Media.Media3D.Point3D point)
+        public static Vector3 ToVector3(this Point3D point)
         {
-            return new Vector3((float)point.X, (float)point.Y, (float)point.Z);
+            return new((float)point.X,
+                       (float)point.Y,
+                       (float)point.Z);
         }
 
-        public static Vector3D ToVector3D(this System.Windows.Media.Media3D.Point3D point)
+        public static Vector3D ToVector3D(this Point3D point)
         {
-            return new Vector3D(point.X, point.Y, point.Z);
+            return new(point.X, point.Y, point.Z);
         }
 
-        public static Vector3 ToVector3(this System.Windows.Media.Media3D.Size3D size3D)
+        public static Vector3 ToVector3(this Media3D.Size3D size3D)
         {
-            return new Vector3((float)size3D.X, (float)size3D.Y, (float)size3D.Z);
+            return new((float)size3D.X,
+                       (float)size3D.Y,
+                       (float)size3D.Z);
         }
 
-        public static Vector3D ToVector3D(this System.Windows.Media.Media3D.Size3D size3D)
+
+        public static Vector3D ToVector3D(this Media3D.Size3D size3D)
         {
-            return new Vector3D(size3D.X, size3D.Y, size3D.Z);
+            return new(size3D.X, size3D.Y, size3D.Z);
         }
 
-        public static Vector3 ToVector3(this System.Windows.Media.Media3D.Vector3D size3D)
+        public static Vector3 ToVector3(this Media3D.Vector3D size3D)
         {
-            return new Vector3((float)size3D.X, (float)size3D.Y, (float)size3D.Z);
+            return new((float)size3D.X,
+                       (float)size3D.Y,
+                       (float)size3D.Z);
         }
 
-        public static Vector3D ToVector3D(this System.Windows.Media.Media3D.Vector3D size3D)
+        public static Vector3D ToVector3D(this Media3D.Vector3D size3D)
         {
-            return new Vector3D(size3D.X, size3D.Y, size3D.Z);
+            return new(size3D.X, size3D.Y, size3D.Z);
         }
 
         public static Quaternion ToQuaternion(this SerializableBlockOrientation blockOrientation)
@@ -167,7 +182,8 @@
 
         public static QuaternionD ToQuaternionD(this MyPositionAndOrientation positionOrientation)
         {
-            return QuaternionD.CreateFromForwardUp(new Vector3D(positionOrientation.Forward), new Vector3D(positionOrientation.Up));
+            return QuaternionD.CreateFromForwardUp(new(positionOrientation.Forward),
+                                                   new(positionOrientation.Up));
         }
 
         public static Matrix ToMatrix(this MyPositionAndOrientation positionOrientation)
@@ -182,93 +198,100 @@
 
         public static Vector3 Transform(this Vector3 vector, SerializableBlockOrientation orientation)
         {
-            var matrix = Matrix.CreateFromDir(Base6Directions.GetVector(orientation.Forward), Base6Directions.GetVector(orientation.Up));
+            var matrix = Matrix.CreateFromDir(Base6Directions.GetVector(orientation.Forward),
+                                              Base6Directions.GetVector(orientation.Up));
             return Vector3.Transform(vector, matrix);
         }
 
         public static Vector3D Transform(this Vector3D vector, SerializableBlockOrientation orientation)
         {
-            var matrix = MatrixD.CreateFromDir(Base6Directions.GetVector(orientation.Forward), Base6Directions.GetVector(orientation.Up));
+            var matrix = MatrixD.CreateFromDir(Base6Directions.GetVector(orientation.Forward),
+                                               Base6Directions.GetVector(orientation.Up));
             return Vector3D.Transform(vector, matrix);
         }
 
         public static Vector3I Transform(this SerializableVector3I size, SerializableBlockOrientation orientation)
         {
-            var matrix = Matrix.CreateFromDir(Base6Directions.GetVector(orientation.Forward), Base6Directions.GetVector(orientation.Up));
+            var matrix = Matrix.CreateFromDir(Base6Directions.GetVector(orientation.Forward),
+                                              Base6Directions.GetVector(orientation.Up));
             var rotation = Quaternion.CreateFromRotationMatrix(matrix);
             return Vector3I.Transform(size.ToVector3I(), rotation);
         }
 
         public static Vector3I Transform(this Vector3I size, SerializableBlockOrientation orientation)
         {
-            var matrix = Matrix.CreateFromDir(Base6Directions.GetVector(orientation.Forward), Base6Directions.GetVector(orientation.Up));
+            var matrix = Matrix.CreateFromDir(Base6Directions.GetVector(orientation.Forward),
+                                              Base6Directions.GetVector(orientation.Up));
             var rotation = Quaternion.CreateFromRotationMatrix(matrix);
             return Vector3I.Transform(size, rotation);
         }
 
         public static SerializableVector3I Add(this SerializableVector3I size, int value)
         {
-            return new SerializableVector3I(size.X + value, size.Y + value, size.Z + value);
+            return new(size.X + value, size.Y + value, size.Z + value);
         }
 
         public static Vector3I Add(this Vector3I size, int value)
         {
-            return new Vector3I(size.X + value, size.Y + value, size.Z + value);
+            return new(size.X + value, size.Y + value, size.Z + value);
         }
 
         public static Vector3I Abs(this Vector3I size)
         {
-            return new Vector3I(Math.Abs(size.X), Math.Abs(size.Y), Math.Abs(size.Z));
+            return new(Math.Abs(size.X),
+                       Math.Abs(size.Y),
+                       Math.Abs(size.Z));
         }
 
         public static Vector3D ToVector3D(this Vector3I vector)
         {
-            return new Vector3D(vector.X, vector.Y, vector.Z);
+            return new(vector.X, vector.Y, vector.Z);
         }
 
         public static BoundingBoxD ToBoundingBoxD(this BoundingBoxI box)
         {
-            return new BoundingBoxD(box.Min, box.Max);
+            return new(box.Min, box.Max);
         }
 
         public static SerializableVector3 RoundOff(this SerializableVector3 vector, float roundTo)
         {
-            return new SerializableVector3((float)Math.Round(vector.X / roundTo, 0, MidpointRounding.ToEven) * roundTo, (float)Math.Round(vector.Y / roundTo, 0, MidpointRounding.ToEven) * roundTo, (float)Math.Round(vector.Z / roundTo, 0, MidpointRounding.ToEven) * roundTo);
+            return new((float)Math.Round(vector.X / roundTo, 0, MidpointRounding.ToEven) * roundTo,
+                       (float)Math.Round(vector.Y / roundTo, 0, MidpointRounding.ToEven) * roundTo,
+                       (float)Math.Round(vector.Z / roundTo, 0, MidpointRounding.ToEven) * roundTo);
         }
 
         public static SerializableVector3D RoundOff(this SerializableVector3D vector, float roundTo)
         {
-            return new SerializableVector3D(Math.Round(vector.X / roundTo, 0, MidpointRounding.ToEven) * roundTo, Math.Round(vector.Y / roundTo, 0, MidpointRounding.ToEven) * roundTo, Math.Round(vector.Z / roundTo, 0, MidpointRounding.ToEven) * roundTo);
+            return  new(Math.Round(vector.X / roundTo, 0, MidpointRounding.ToEven) * roundTo,
+                        Math.Round(vector.Y / roundTo, 0, MidpointRounding.ToEven) * roundTo,
+                        Math.Round(vector.Z / roundTo, 0, MidpointRounding.ToEven) * roundTo);
         }
 
         public static MatrixD ToMatrixD(this QuaternionD value)
         {
-            double num = value.X * value.X;
-            double num2 = value.Y * value.Y;
-            double num3 = value.Z * value.Z;
-            double num4 = value.X * value.Y;
-            double num5 = value.Z * value.W;
-            double num6 = value.Z * value.X;
-            double num7 = value.Y * value.W;
-            double num8 = value.Y * value.Z;
-            double num9 = value.X * value.W;
-            MatrixD result = new MatrixD(
-                (1.0d - 2.0d * (num2 + num3)),
-                (2.0d * (num4 + num5)),
-                (2.0d * (num6 - num7)),
+            double xx = value.X * value.X;
+            double yy = value.Y * value.Y;
+            double zz = value.Z * value.Z;
+            double xy = value.X * value.Y;
+            double xz = value.X * value.Z;
+            double yz = value.Y * value.Z;
+            double wx = value.X * value.W;
+            double wy = value.Y * value.W;
+            double wz = value.Z * value.W;
+
+            MatrixD result = new(
+                1.0d - 2.0d * (yy + zz),
+                2.0d * (xy + wz),
+                2.0d * (xz - wy),
                 0d,
-                (2.0d * (num4 - num5)),
-                (1.0d - 2.0d * (num3 + num)),
-                (2.0d * (num8 + num9)),
+                2.0d * (xy - wz),
+                1.0d - 2.0d * (xx + zz),
+                2.0d * (yz + wx),
                 0d,
-                (2.0d * (num6 + num7)),
-                (2.0d * (num8 - num9)),
-                (1.0d - 2.0d * (num2 + num)),
-                0d,
-                0d,
-                0d,
-                0d,
-                1d);
+                2.0d * (xz + wy),
+                2.0d * (yz - wx),
+                1.0d - 2.0d * (xx + yy),
+                0d, 0d, 0d, 0d, 1d);
             return result;
         }
 
@@ -305,7 +328,7 @@
         {
             // I've used decimal because of floating point aberation during calculations.
             // This needs to maintain the color accuracy as much as possible.
-            // I'm still not happy with this, as the game color palette picker is not exactly representative of the in game colors, 
+            // I'm still not happy with this, as the game color palette picker is not exactly representative of the in game colors,
             // and looking through the calculations, the picker is actually ignoring part of the saturation and value.
             decimal hue = (decimal)hsv.X * 360;
             decimal saturation = Clamp((decimal)hsv.Y + (decimal)MyColorPickerConstants.SATURATION_DELTA, 0, 1);
@@ -314,48 +337,39 @@
             decimal chroma = value * saturation;
             decimal hue1 = hue / 60;
             decimal x = chroma * (1 - Math.Abs(hue1 % 2 - 1));
-            decimal r1 = 0;
-            decimal g1 = 0;
-            decimal b1 = 0;
 
-            if (hue1 < 0)
+            decimal r1 = 0, g1 = 0, b1 = 0;
+
+            switch ((int)hue)
             {
-                // nothing. Need to ignore values less than zero.
-            }
-            else if (hue1 <= 1)
-            {
-                r1 = chroma;
-                g1 = x;
-            }
-            else if (hue1 <= 2)
-            {
-                r1 = x;
-                g1 = chroma;
-            }
-            else if (hue1 <= 3)
-            {
-                g1 = chroma;
-                b1 = x;
-            }
-            else if (hue1 <= 4)
-            {
-                g1 = x;
-                b1 = chroma;
-            }
-            else if (hue1 <= 5)
-            {
-                r1 = x;
-                b1 = chroma;
-            }
-            else if (hue1 <= 6)
-            {
-                r1 = chroma;
-                b1 = x;
+                case 0:
+                    r1 = chroma; g1 = x;
+                    break;
+                case 1:
+                    r1 = x; g1 = chroma;
+                    break;
+                case 2:
+                    g1 = chroma; b1 = x;
+                    break;
+                case 3:
+                    g1 = x; b1 = chroma;
+                    break;
+                case 4:
+                    r1 = x; b1 = chroma;
+                    break;
+                case 5:
+                    r1 = chroma; b1 = x;
+                    break;
+                default:
+                    if (chroma != 0)
+                        throw new InvalidOperationException("Unexpected value");
+                    r1 = 0; g1 = 0; b1 = 0;
+                    break;
             }
 
             decimal m = value - chroma;
 
-            // Need to round off (not up or truncate down) values to correct for aberration.
+            // round off (not up or truncate down) values to correct for aberration.
             red = (int)Math.Round((r1 + m) * 255);
             green = (int)Math.Round((g1 + m) * 255);
             blue = (int)Math.Round((b1 + m) * 255);
@@ -363,15 +377,13 @@
 
         public static System.Drawing.Color FromHsvMaskToPaletteColor(this SerializableVector3 hsv)
         {
-            int r, g, b;
-            FromHsvMaskToPaletteColor(hsv, out r, out g, out b);
+            FromHsvMaskToPaletteColor(hsv, out int r, out int g, out int b);
             return System.Drawing.Color.FromArgb(r, g, b);
         }
 
         public static System.Windows.Media.Color FromHsvMaskToPaletteMediaColor(this SerializableVector3 hsv)
         {
-            int r, g, b;
-            FromHsvMaskToPaletteColor(hsv, out r, out g, out b);
+            FromHsvMaskToPaletteColor(hsv, out int r, out int g, out int b);
             return System.Windows.Media.Color.FromArgb(255, (byte)r, (byte)g, (byte)b);
         }
 
@@ -388,37 +400,34 @@
             decimal max = Math.Max(r, Math.Max(g, b));
             decimal min = Math.Min(r, Math.Min(g, b));
             decimal chroma = max - min;
-
-            decimal hue1 = 0;
-
-            if (chroma == 0)
-                hue1 = 0;
-            else if (max == r)
-                hue1 = ((g - b) / chroma) % 6;
-            else if (max == g)
-                hue1 = ((b - r) / chroma) + 2;
-            else if (max == b)
-                hue1 = ((r - g) / chroma) + 4;
+            decimal hue1 = chroma == 0 ? 0 :
+                           max == r ? (g - b) / chroma % 6 :
+                           max == g ? (b - r) / chroma + 2 :
+                           ((r - g) / chroma) + 4;
 
             decimal hue = 60 * hue1;
             decimal value = max;
-
             decimal saturation = 0;
 
             if (value != 0)
                 saturation = chroma / value;
 
-            return new SerializableVector3((float)hue / 360, (float)saturation - MyColorPickerConstants.SATURATION_DELTA, (float)value - MyColorPickerConstants.VALUE_DELTA + MyColorPickerConstants.VALUE_COLORIZE_DELTA);
+            return new((float)hue / 360, (float)saturation - MyColorPickerConstants.SATURATION_DELTA,
+                       (float)value - MyColorPickerConstants.VALUE_DELTA + MyColorPickerConstants.VALUE_COLORIZE_DELTA);
         }
 
         public static SerializableVector3 FromPaletteColorToHsvMask(this System.Drawing.Color color)
         {
-            return FromPaletteColorToHsvMask((decimal)color.R / 255, (decimal)color.G / 255, (decimal)color.B / 255);
+            return FromPaletteColorToHsvMask((decimal)color.R / 255,
+                                             (decimal)color.G / 255,
+                                             (decimal)color.B / 255);
         }
 
         public static SerializableVector3 FromPaletteColorToHsvMask(this System.Windows.Media.Color color)
         {
-            return FromPaletteColorToHsvMask((decimal)color.R / 255, (decimal)color.G / 255, (decimal)color.B / 255);
+            return FromPaletteColorToHsvMask((decimal)color.R / 255,
+                                             (decimal)color.G / 255,
+                                             (decimal)color.B / 255);
         }
 
         /// <summary>
@@ -456,62 +465,66 @@
 
         public static Vector3D? IntersectsRayAt(this BoundingBoxD boundingBox, Vector3D position, Vector3D rayTo)
         {
-            var triangles = new int[][] {
-                new [] {2,1,0},
-                new [] {3,2,0},
-                new [] {4,5,6},
-                new [] {4,6,7},
-                new [] {0,1,5},
-                new [] {0,5,4},
-                new [] {7,6,2},
-                new [] {7,2,3},
-                new [] {0,4,7},
-                new [] {0,7,3},
-                new [] {5,1,2},
-                new [] {5,2,6}};
+            int[][] triangles = [
+                [2,1,0],
+                [3,2,0],
+                [4,5,6],
+                [4,6,7],
+                [0,1,5],
+                [0,5,4],
+                [7,6,2],
+                [7,2,3],
+                [0,4,7],
+                [0,7,3],
+                [5,1,2],
+                [5,2,6]];
 
-            foreach (var triangle in triangles)
+            foreach (int[] triangle in triangles)
             {
-                System.Windows.Media.Media3D.Point3D intersection;
-                int norm;
 
-                var c0 = boundingBox.GetCorner(triangle[0]);
-                var c1 = boundingBox.GetCorner(triangle[1]);
-                var c2 = boundingBox.GetCorner(triangle[2]);
+                Vector3D c0 = boundingBox.GetCorner(triangle[0]);
+                Vector3D c1 = boundingBox.GetCorner(triangle[1]);
+                Vector3D c2 = boundingBox.GetCorner(triangle[2]);
+                Media3D.Point3DCollection vectors = [];
+                foreach (var vector in new Vector3D[] { c0, c1, c2 })
+                {
+                    vectors.Add(new(vector.X, vector.Y, vector.Z));
+                }
 
-                if (MeshHelper.RayIntersectTriangleRound(c0.ToPoint3D(), c1.ToPoint3D(), c2.ToPoint3D(), position.ToPoint3D(), rayTo.ToPoint3D(), out intersection, out norm))
+                if (MeshHelper.RayIntersectTriangleRound(vectors, position.ToPoint3D(), rayTo.ToPoint3D(), out Point3D intersection, out int normal))
                 {
                     return intersection.ToVector3D();
                 }
             }
-
             return null;
         }
 
         public static SerializableVector3UByte Transform(this SerializableVector3UByte value, Quaternion rotation)
         {
-            var vector = Vector3I.Transform(new Vector3I(value.X - 127, value.Y - 127, value.Z - 127), rotation);
-            return new SerializableVector3UByte((byte)(vector.X + 127), (byte)(vector.Y + 127), (byte)(vector.Z + 127));
+            Vector3I vector = Vector3I.Transform(new (value.X - 127, value.Y - 127, value.Z - 127), rotation);
+            return new SerializableVector3UByte((byte)(vector.X + 127),
+                                                (byte)(vector.Y + 127),
+                                                (byte)(vector.Z + 127));
         }
 
         public static Vector3D Transform(this Vector3D value, QuaternionD rotation)
         {
-            double num = (rotation.X + rotation.X);
-            double num2 = (rotation.Y + rotation.Y);
-            double num3 = (rotation.Z + rotation.Z);
-            double num4 = rotation.W * num;
-            double num5 = rotation.W * num2;
-            double num6 = rotation.W * num3;
-            double num7 = rotation.X * num;
-            double num8 = rotation.X * num2;
-            double num9 = rotation.X * num3;
-            double num10 = rotation.Y * num2;
-            double num11 = rotation.Y * num3;
-            double num12 = rotation.Z * num3;
-            double x = value.X * (1.0 - num10 - num12) + value.Y * (num8 - num6) + value.Z * (num9 + num5);
-            double y = value.X * (num8 + num6) + value.Y * (1.0 - num7 - num12) + value.Z * (num11 - num4);
-            double z = value.X * (num9 - num5) + value.Y * (num11 + num4) + value.Z * (1.0 - num7 - num10);
-            Vector3D result = new Vector3D(x, y, z);
+            double x2 = rotation.X * 2;
+            double y2 = rotation.Y * 2;
+            double z2 = rotation.Z * 2;
+            double xx = rotation.X * x2;
+            double xy = rotation.X * y2;
+            double xz = rotation.X * z2;
+            double yy = rotation.Y * y2;
+            double yz = rotation.Y * z2;
+            double zz = rotation.Z * z2;
+            double wx = rotation.W * x2;
+            double wy = rotation.W * y2;
+            double wz = rotation.W * z2;
+            double x = value.X * (1.0 - yy - zz) + value.Y * (xy - wz) + value.Z * (xz + wy);
+            double y = value.X * (xy + wz) + value.Y * (1.0 - xx - zz) + value.Z * (yz - wx);
+            double z = value.X * (xz - wy) + value.Y * (yz + wx) + value.Z * (1.0 - xx - yy);
+            Vector3D result = new(x, y, z);
             return result;
         }
 
@@ -522,7 +535,7 @@
             while (num2 != 35)
             {
                 byte b = reader.ReadByte();
-                num |= (int)(b & 127) << num2;
+                num |= (b & 127) << num2;
                 num2 += 7;
                 if ((b & 128) == 0)
                 {
@@ -532,36 +545,34 @@
             return -1;
         }
 
-        //public static ObservableCollection<InventoryEditorModel> GetInventory(this MyObjectBuilder_EntityBase objectBuilderBase)
-        //{
-        //    var inventoryEditors = new ObservableCollection<InventoryEditorModel>();
-
-        //    if (objectBuilderBase.ComponentContainer != null)
-        //    {
-        //        var inventoryBase = objectBuilderBase.ComponentContainer.Components.FirstOrDefault(e => e.TypeId == "MyInventoryBase");
-
-        //        if (inventoryBase != null)
-        //        {
-        //            var singleInventory = inventoryBase.Component as MyObjectBuilder_Inventory;
-        //            if (singleInventory != null)
-        //            {
-        //                var iem = ParseInventory(singleInventory);
-        //                if (iem != null)
-        //                    inventoryEditors.Add(iem);
-        //            }
-
-        //            var aggregate = inventoryBase.Component as MyObjectBuilder_InventoryAggregate;
-        //            if (aggregate != null)
-        //                foreach (var field in aggregate.Inventories)
-        //                {
-        //                    var iem = ParseInventory(field as MyObjectBuilder_Inventory);
-        //                    if (iem != null)
-        //                        inventoryEditors.Add(iem);
-        //                }
-        //        }
-        //    }
-        //    return inventoryEditors;
-        //}
+        public static ObservableCollection<InventoryEditorModel> GetInventory(this MyObjectBuilder_EntityBase objectBuilderBase, MyCubeBlockDefinition definition = null)
+        {
+            ObservableCollection<InventoryEditorModel> inventoryEditors = [];
+            var inventoryBase = objectBuilderBase.ComponentContainer.Components.FirstOrDefault(e => e.TypeId == "MyInventoryBase");
+            var inventoryBaseComponent = inventoryBase.Component;
+            if (objectBuilderBase.ComponentContainer == null || inventoryBaseComponent == null)
+            {
+                return inventoryEditors;
+            }
+            if (inventoryBaseComponent is MyObjectBuilder_Inventory singleInventory)
+            {
+                if (ParseInventory(singleInventory, definition) is InventoryEditorModel iem)
+                {
+                    inventoryEditors.Add(iem);
+                }
+            }
+            if (inventoryBaseComponent is MyObjectBuilder_InventoryAggregate aggregate)
+            {
+                foreach (var field in aggregate.Inventories.OfType<MyObjectBuilder_Inventory>())
+                {
+                    if (ParseInventory(field, definition) is InventoryEditorModel iem)
+                    {
+                        inventoryEditors.Add(iem);
+                    }
+                }
+            }
+            return inventoryEditors;
+        }
 
         public static List<MyObjectBuilder_Character> GetHierarchyCharacters(this MyObjectBuilder_CubeBlock cube)
         {
@@ -570,14 +581,11 @@
             if (cube is not MyObjectBuilder_Cockpit cockpit)
                 return list;
 
-            var hierarchyBase = cockpit.ComponentContainer?.Components
-                .FirstOrDefault(e => e.TypeId == "MyHierarchyComponentBase")?.Component as MyObjectBuilder_HierarchyComponentBase;
-
-            if (hierarchyBase != null)
+            if (cockpit.ComponentContainer?.Components
+                       .FirstOrDefault(e => e.TypeId == "MyHierarchyComponentBase")?.Component is MyObjectBuilder_HierarchyComponentBase hierarchyBase)
             {
                 list.AddRange(hierarchyBase.Children.Where(e => e is MyObjectBuilder_Character).Cast<MyObjectBuilder_Character>());
             }
-
             return list;
         }
 
@@ -592,40 +600,30 @@
             bool retValue = false;
 
             MyObjectBuilder_ComponentContainer.ComponentData hierarchyComponentBase = cockpit.ComponentContainer?.Components?.FirstOrDefault(e => e.TypeId == "MyHierarchyComponentBase");
-            var hierarchyBase = hierarchyComponentBase?.Component as MyObjectBuilder_HierarchyComponentBase;
-            if (hierarchyBase != null && hierarchyBase.Children.Count > 0)
+            if (hierarchyComponentBase?.Component is MyObjectBuilder_HierarchyComponentBase hierarchyBase && hierarchyBase.Children.Count > 0)
             {
                 for (int i = 0; i < hierarchyBase.Children.Count; i++)
                 {
-                    if (character != null && hierarchyBase.Children[i] == character)
-                    {
-                        retValue = true;
-                        hierarchyBase.Children.RemoveAt(i);
-                        i--;
-                        break;
-                    }
+                    var charHierarchy = hierarchyBase.Children[i];
+                    int index = hierarchyBase.Children.IndexOf(character ?? charHierarchy as MyObjectBuilder_Character);
 
-                    if (character == null && hierarchyBase.Children[i] is MyObjectBuilder_Character)
+                    if (index != -1)
                     {
                         retValue = true;
-                        hierarchyBase.Children.RemoveAt(i);
-                        i--;
+                        hierarchyBase.Children.RemoveAt(index);
                     }
                 }
-
                 if (hierarchyBase.Children.Count == 0)
                 {
                     cockpit.ComponentContainer.Components.Remove(hierarchyComponentBase);
                 }
             }
-
-            if (retValue)
+            if (retValue && cockpit != null)
             {
                 cockpit.ClearPilotAndAutopilot();
                 cockpit.PilotRelativeWorld = null; // This should also clear Pilot.
                 cockpit.Pilot = null;
             }
-
             return retValue;
         }
 
@@ -634,7 +632,7 @@
         /// </summary>
         public static void RemoveHierarchyCharacter(this MyObjectBuilder_CubeGrid cubeGrid)
         {
-            cubeGrid.CubeBlocks.Where(c => c.TypeId == SpaceEngineersTypes.Cockpit).Select(c =>
+            cubeGrid.CubeBlocks.Where(c => c.TypeId == MOBTypeIds.Cockpit).Select(c => // Cockpit
             {
                 ((MyObjectBuilder_Cockpit)c).RemoveHierarchyCharacter();
                 return c;
@@ -651,28 +649,28 @@
 
                 if (inventoryBase != null)
                 {
-                    var singleInventory = inventoryBase.Component as MyObjectBuilder_Inventory;
-                    if (singleInventory != null)
+                    if (inventoryBase.Component is MyObjectBuilder_Inventory singleInventory && singleInventory != null)
                     {
-                        var iem = ParseInventory(singleInventory, definition);
+                        InventoryEditorModel iem = ParseInventory(singleInventory, definition);
                         if (iem != null)
                             inventoryEditors.Add(iem);
                     }
 
-                    var aggregate = inventoryBase.Component as MyObjectBuilder_InventoryAggregate;
-                    if (aggregate != null)
-                        foreach (var field in aggregate.Inventories)
+                    if (inventoryBase.Component is MyObjectBuilder_InventoryAggregate aggregate)
+                    {
+                        foreach (var inventory in aggregate.Inventories)
                         {
-                            var iem = ParseInventory(field as MyObjectBuilder_Inventory, definition);
+                            var iem = ParseInventory(inventory as MyObjectBuilder_Inventory, definition);
                             if (iem != null)
                                 inventoryEditors.Add(iem);
                         }
+                    }
                 }
             }
             return inventoryEditors;
         }
 
-        private static InventoryEditorModel ParseInventory(MyObjectBuilder_Inventory inventory, MyCubeBlockDefinition definition = null)
+        private static InventoryEditorModel ParseInventory(MyObjectBuilder_Inventory inventory, MyCubeBlockDefinition definition, MyObjectBuilder_Character character = null)
         {
             if (inventory == null)
                 return null;
@@ -698,14 +696,13 @@
             }
 
             var settings = SpaceEngineersCore.WorldResource.Checkpoint.Settings;
-            return new InventoryEditorModel(inventory, volumeMultiplier * 1000 * settings.InventorySizeMultiplier, null) { Name = inventory.InventoryFlags.ToString(), IsValid = true };
+            return new(inventory, volumeMultiplier * 1000 * settings.InventorySizeMultiplier, character ?? throw new ArgumentNullException(nameof(character)));
         }
 
-        public static List<MyGasProperties> GetGasDefinitions(this MyDefinitionManager definitionManager)
+        public static List<MyGasProperties> GetGasDefinitions(this MyDefinitionManager definitionManager) 
         {
-            return definitionManager.GetAllDefinitions().Where(e => e.Id.TypeId == typeof(VRage.Game.ObjectBuilders.Definitions.MyObjectBuilder_GasProperties)).Cast<MyGasProperties>().ToList();
+         return [.. definitionManager.GetAllDefinitions().Where(e => e.Id.TypeId == typeof(VRage.Game.ObjectBuilders.Definitions.MyObjectBuilder_GasProperties)).Cast<MyGasProperties>()];
         }
-
         public static MyDefinitionBase GetDefinition(this MyDefinitionManager definitionManager, MyObjectBuilderType typeId, string subTypeId)
         {
             return definitionManager.GetAllDefinitions().FirstOrDefault(e => e.Id.TypeId == typeId && e.Id.SubtypeName == subTypeId);
@@ -713,24 +710,19 @@
 
         public static string GetVoxelDisplayTexture(this MyVoxelMaterialDefinition voxelMaterialDefinition)
         {
-            string texture = null;
+            string texture = voxelMaterialDefinition.RenderParams.TextureSets[0].ColorMetalXZnY ?? null;
 
-            texture = voxelMaterialDefinition.RenderParams.TextureSets[0].ColorMetalXZnY;
-
-            if (texture == null)
-                texture = voxelMaterialDefinition.RenderParams.TextureSets[0].NormalGlossXZnY;
-
-            if (texture == null)
-                // The VoxelHandPreview texture is oddly shaped, and not suitable for SEToolbox.
-                // It is a texture of last resort.
-                texture = voxelMaterialDefinition.VoxelHandPreview;
+            texture ??= voxelMaterialDefinition.RenderParams.TextureSets[0].NormalGlossXZnY;
+            // The VoxelHandPreview texture is oddly shaped, and not suitable for SEToolbox.
+            // It is a texture of last resort.
+            texture ??= voxelMaterialDefinition.VoxelHandPreview;
 
             return texture;
         }
 
         public static void GetMaterialContent(this VRage.Game.Voxels.IMyStorage self, ref Vector3I voxelCoords, out byte material, out byte content)
         {
-            MyStorageData myStorageData = new MyStorageData(MyStorageDataTypeFlags.ContentAndMaterial);
+            MyStorageData myStorageData = new(MyStorageDataTypeFlags.ContentAndMaterial);
             myStorageData.Resize(Vector3I.One);
             myStorageData.ClearMaterials(0);
             self.ReadRange(myStorageData, MyStorageDataTypeFlags.ContentAndMaterial, 0, voxelCoords, voxelCoords);

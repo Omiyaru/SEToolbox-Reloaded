@@ -1,12 +1,12 @@
-﻿namespace SEToolbox.Services
-{
-    using System.Windows;
-    using System.Windows.Documents;
-    using System.Windows.Media;
+﻿using System.Windows;
+using System.Windows.Documents;
+using System.Windows.Media;
 
+namespace SEToolbox.Services
+{
     internal class ListBoxDropAdorner : Adorner
     {
-        private AdornerLayer adornerLayer;
+        private readonly AdornerLayer adornerLayer;
 
         public bool IsAboveElement { get; set; }
 
@@ -14,7 +14,7 @@
             : base(adornedElement)
         {
             this.adornerLayer = adornerLayer;
-            this.adornerLayer.Add(this);
+            adornerLayer.Add(this);
         }
 
         /// <summary>
@@ -22,28 +22,30 @@
         /// </summary>
         internal void Update()
         {
-            this.adornerLayer.Update(this.AdornedElement);
-            this.Visibility = System.Windows.Visibility.Visible;
+            adornerLayer.Update(AdornedElement);
+            Visibility = Visibility.Visible;
         }
 
         public void Remove()
         {
-            this.Visibility = System.Windows.Visibility.Collapsed;
+            Visibility = Visibility.Collapsed;
         }
 
-        protected override void OnRender(System.Windows.Media.DrawingContext drawingContext)
+        protected override void OnRender(DrawingContext drawingContext)
         {
-            //double width = this.AdornedElement.DesiredSize.Width;
-            //double height = this.AdornedElement.DesiredSize.Height;
+            //double width = AdornedElement.DesiredSize.Width;
+            //double height = AdornedElement.DesiredSize.Height;
 
-            Rect adornedElementRect = new Rect(this.AdornedElement.DesiredSize);
+            Rect adornedElementRect = new(AdornedElement.DesiredSize);
 
-            SolidColorBrush renderBrush = new SolidColorBrush(Colors.Red);
-            renderBrush.Opacity = 0.5;
-            Pen renderPen = new Pen(new SolidColorBrush(Colors.White), 1.5);
+            SolidColorBrush renderBrush = new(Colors.Red) 
+            {
+                Opacity = 0.5
+            };
+            Pen renderPen = new(new SolidColorBrush(Colors.White), 1.5);
             double renderRadius = 5.0;
 
-            if (this.IsAboveElement)
+            if (IsAboveElement)
             {
                 drawingContext.DrawEllipse(renderBrush, renderPen, adornedElementRect.TopLeft, renderRadius, renderRadius);
                 drawingContext.DrawEllipse(renderBrush, renderPen, adornedElementRect.TopRight, renderRadius, renderRadius);

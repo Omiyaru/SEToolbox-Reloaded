@@ -2,7 +2,7 @@
 {
     public class LanguageModel : BaseModel
     {
-        #region fields
+        #region Fields
 
         private string _ietfLanguageTag;
         private string _imageName;
@@ -15,35 +15,20 @@
 
         public string IetfLanguageTag
         {
-            get { return _ietfLanguageTag; }
-
-            set
-            {
-                if (value != _ietfLanguageTag)
-                {
-                    _ietfLanguageTag = value;
-                    OnPropertyChanged(nameof(IetfLanguageTag));
-                }
-            }
+            get => _ietfLanguageTag;
+            set => SetProperty(ref _ietfLanguageTag,value, nameof(IetfLanguageTag));
         }
 
         public string ImageName
         {
-            get { return _imageName; }
+            get => _imageName;
+            set => SetProperty(ref _imageName, value, nameof(ImageName));
 
-            set
-            {
-                if (value != _imageName)
-                {
-                    _imageName = value;
-                    OnPropertyChanged(nameof(ImageName));
-                }
-            }
         }
 
         public string Name
         {
-            get { return NativeName == LanguageName ? NativeName : string.Format("{0} / {1}", NativeName, LanguageName); }
+            get => NativeName == LanguageName ? NativeName : string.Format($"{NativeName} / {LanguageName}"); 
         }
 
         /// <summary>
@@ -51,38 +36,16 @@
         /// </summary>
         public string LanguageName
         {
-            get
-            {
-                return _languageName;
-            }
+            get => _languageName;
 
-            set
-            {
-                if (value != _languageName)
-                {
-                    _languageName = value;
-                    OnPropertyChanged(nameof(LanguageName));
-                    OnPropertyChanged(nameof(Name));
-                }
-            }
+            set => SetProperty(ref _languageName, value, nameof(LanguageName), nameof(Name));
         }
 
         public string NativeName
         {
-            get
-            {
-                return _nativeName;
-            }
+            get => _nativeName;
 
-            set
-            {
-                if (value != _nativeName)
-                {
-                    _nativeName = value;
-                    OnPropertyChanged(nameof(NativeName));
-                    OnPropertyChanged(nameof(Name));
-                }
-            }
+            set => SetProperty(ref _nativeName, value, nameof(NativeName), nameof(Name));
         }
 
         #endregion

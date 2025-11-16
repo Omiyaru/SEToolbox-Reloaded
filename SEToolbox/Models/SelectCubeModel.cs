@@ -1,15 +1,15 @@
-﻿namespace SEToolbox.Models
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.IO;
-    using System.Linq;
-    using SEToolbox.Interop;
-    using SEToolbox.Support;
-    using VRage.Game;
-    using VRage.ObjectBuilders;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using SEToolbox.Interop;
+using SEToolbox.Support;
+using VRage.Game;
+using VRage.ObjectBuilders;
 
+namespace SEToolbox.Models
+{
     public class SelectCubeModel : BaseModel
     {
         #region Fields
@@ -19,12 +19,13 @@
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public SelectCubeModel()
-        {
-            _cubeList = new ObservableCollection<ComponentItemModel>();
-        }
+	{
+        _cubeList = [];
+    
+	}
 
         #endregion
 
@@ -32,49 +33,29 @@
 
         public ObservableCollection<ComponentItemModel> CubeList
         {
-            get
-            {
-                return _cubeList;
-            }
+            get => _cubeList;
 
-            set
-            {
-                if (value != _cubeList)
-                {
-                    _cubeList = value;
-                    OnPropertyChanged(nameof(CubeList));
-                }
-            }
+            set => SetProperty(ref _cubeList, value, nameof(CubeList));
         }
 
         public ComponentItemModel CubeItem
         {
-            get
-            {
-                return _cubeItem;
-            }
+            get => _cubeItem;
 
-            set
-            {
-                if (value != _cubeItem)
-                {
-                    _cubeItem = value;
-                    OnPropertyChanged(nameof(CubeItem));
-                }
-            }
+            set => SetProperty(ref _cubeItem, value, nameof(CubeItem));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public void Load(MyCubeSize cubeSize, MyObjectBuilderType typeId, string subTypeId)
         {
             CubeList.Clear();
 
-            var list = new SortedList<string, ComponentItemModel>();
-            var contentPath = ToolboxUpdater.GetApplicationContentPath();
-            var cubeDefinitions = SpaceEngineersCore.Resources.CubeBlockDefinitions.Where(c => c.CubeSize == cubeSize);
+            SortedList<string, ComponentItemModel> list = [];
+            string contentPath = ToolboxUpdater.GetApplicationContentPath();
+            var cubeDefinitions = SpaceEngineersResources.CubeBlockDefinitions.Where(c => c.CubeSize == cubeSize);
 
             foreach (var cubeDefinition in cubeDefinitions)
             {
@@ -88,7 +69,7 @@
                         textureFile = SpaceEngineersCore.GetDataPathOrDefault(icon, Path.Combine(contentPath, icon));
                 }
 
-                var buildTime = TimeSpan.Zero;
+                TimeSpan buildTime = TimeSpan.Zero;
 
                 if (cubeDefinition.IntegrityPointsPerSec != 0)
                 {
@@ -98,7 +79,8 @@
                         buildTime = TimeSpan.FromSeconds(buildTimeSeconds);
                 }
 
-                var c = new ComponentItemModel {
+                ComponentItemModel c = new()
+                {
                     Name = cubeDefinition.DisplayNameText,
                     TypeId = cubeDefinition.Id.TypeId,
                     TypeIdString = cubeDefinition.Id.TypeId.ToString(),
@@ -126,7 +108,7 @@
                     cubeItem = cube;
             }
 
-            CubeItem = cubeItem;
+            CubeItem = cubeItem ?? new ComponentItemModel(); 
         }
 
         #endregion

@@ -1,11 +1,11 @@
-﻿namespace SEToolbox.Services
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Collections.Specialized;
-    using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Linq;
 
+namespace SEToolbox.Services
+{
     // http://social.msdn.microsoft.com/Forums/vstudio/en-US/10713000-8069-4277-bab2-249f2f0af131/mvvm-question-syncing-a-collection-between-the-model-and-the-viewmodel?forum=wpf
 
     /// <summary>
@@ -40,25 +40,22 @@
 
         /// <summary>
         /// Creates a collection of VM objects
-        /// 
-        /// Note that the IModelWrapper constraint on TViewModel, combined with the 
-        /// ViewModelFactory member, we get bidirectionality: we can both create a VM 
+        ///
+        /// Note that the IModelWrapper constraint on TViewModel, combined with the
+        /// ViewModelFactory member, we get bidirectionality: we can both create a VM
         /// from model, and also get the model from a VM.
         /// </summary>
         /// <param name="modelCollection">Reference to the collection in the model</param>
         /// <param name="viewModelCreator">A method to create a VM object from a Model object (possibly VM constructor)</param>
         public ViewModelCollection(ObservableCollection<TModel> modelCollection, Func<TModel, TViewModel> viewModelCreator)
         {
-            if (modelCollection == null) throw new ArgumentNullException("modelCollection");
-            if (viewModelCreator == null) throw new ArgumentNullException("viewModelCreator");
+            _model = modelCollection ?? throw new ArgumentNullException(nameof(modelCollection));
+            _model.CollectionChanged += new(Model_CollectionChanged);
 
-            _model = modelCollection;
-            _model.CollectionChanged += new NotifyCollectionChangedEventHandler(model_CollectionChanged);
-
-            _createViewModel = viewModelCreator;
+            _createViewModel = viewModelCreator ?? throw new ArgumentNullException(nameof(viewModelCreator));
 
             //inits the list to reflect initial state of model collection
-            _list = new List<TViewModel>(from m in _model select viewModelCreator(m));
+            _list = [.. from m in _model select viewModelCreator(m)];
         }
 
         /// <summary>
@@ -68,15 +65,15 @@
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void model_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        void Model_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
                     //create a VM object to wrap each new model object
-                    foreach (var item in e.NewItems)
+                    foreach (object item in e.NewItems)
                     {
-                        var vmItem = _createViewModel((TModel)item);
+                        TViewModel vmItem = _createViewModel((TModel)item);
 
                         //the operation could have been either Insert or Add
                         if (e.NewStartingIndex != _list.Count)
@@ -94,14 +91,14 @@
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     //remove instances of VM objects that wrap a removed model object
-                    foreach (var item in e.OldItems)
+                    foreach (object item in e.OldItems)
                     {
                         //find VM objects that wrap the relevant model object and remove them
                         IEnumerable<TViewModel> query;
                         while ((query = from vm in _list where vm.GetModel() == item select vm).Count() > 0)
                         {
-                            var vmItem = query.First();
-                            var index = _list.IndexOf(vmItem);
+                            TViewModel vmItem = query.First();
+                            int index = _list.IndexOf(vmItem);
                             _list.Remove(vmItem);
                             //notify the change
                             OnCollectionChanged(e.Action, vmItem, index);
@@ -113,11 +110,9 @@
                     //notify the change
                     OnCollectionChanged(e.Action, null, e.NewStartingIndex);
                     break;
-                
-                //default:
-                //    break;
+                default:
+                    break;
             }
-
         }
 
         #region IList<T> Implementation
@@ -139,14 +134,8 @@
 
         public TViewModel this[int index]
         {
-            get
-            {
-                return _list[index];
-            }
-            set
-            {
-                _list[index] = value;
-            }
+            get => _list[index];
+            set => _list[index] = value;
         }
 
         public void Add(TViewModel item)
@@ -172,12 +161,12 @@
 
         public int Count
         {
-            get { return _list.Count; }
+            get => _list.Count;
         }
 
         public bool IsReadOnly
         {
-            get { return false; }
+            get => false;
         }
 
         public bool Remove(TViewModel item)

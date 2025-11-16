@@ -1,9 +1,9 @@
-﻿namespace SEToolbox.Interop
-{
-    using System.Runtime.InteropServices;
-    using System.Windows.Forms;
-    using System.Windows.Input;
+﻿using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using System.Windows.Input;
 
+namespace SEToolbox.Interop
+{
     internal static class NativeMethods
     {
         private const string User32Library = "user32.dll";

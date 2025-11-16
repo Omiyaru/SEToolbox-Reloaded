@@ -34,5 +34,28 @@
         InverseCornerRightFrontBottom,
         InverseCornerLeftBackBottom,
         InverseCornerRightBackBottom,
+
+        // CornerSquare,
+        // CornerSquareInverted,
+        // HalfCorner,
+        // HalfSlopeCorner,
+        // HalfSlopeCornerInverted,
+        // HalfSlopedCorner,
+        // HalfSlopedCornerBase,
+        // HalfSlopeInverted,
+        // SlopedCorner,
+        // SlopedCornerBase,
+        // SlopedCornerTip,
+        // RaisedSlopedCorner,
+        // SlopeTransition,
+        // SlopeTransitionBase,
+        // SlopeTransitionBaseMirrored,
+        // SlopeTransitionMirrored,
+        // SlopeTransitionTip,
+        // SlopeTransitionTipMirrored,
+        // SquareSlopedCornerBase,
+        // SquareSlopedCornerTip,
+        // SquareSlopedCornerTipInv,
+
     };
 }

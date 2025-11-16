@@ -1,15 +1,15 @@
-﻿namespace SEToolbox.Services
-{
-    using System;
-    using System.Collections.Generic;
-    using Support;
+﻿using System;
+using System.Collections.Generic;
+using SEToolbox.Support;
 
+namespace SEToolbox.Services
+{
     /// <summary>
     /// A very simple service locator.
     /// </summary>
     internal static class ServiceLocator
     {
-        private static readonly Dictionary<Type, ServiceInfo> services = new Dictionary<Type, ServiceInfo>();
+        private static readonly Dictionary<Type, ServiceInfo> services = [];
 
         /// <summary>
         /// Registers a service.
@@ -45,24 +45,16 @@
         }
 
         /// <summary>
-        /// Class holding service information.
+        /// Class holding service information. Initializes a new instance of the <see cref="ServiceInfo"/> class.
         /// </summary>
-        private class ServiceInfo
+        /// <param name="serviceImplementationType">Type of the service implementation.</param>
+        /// <param name="isSingleton">Whether the service is a Singleton.</param>
+        /// </summary>
+        private class ServiceInfo(Type serviceImplementationType, bool isSingleton)
         {
-            private readonly Type _serviceImplementationType;
+            private readonly Type _serviceImplementationType = serviceImplementationType;
             private object _serviceImplementation;
-            private readonly bool _isSingleton;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="ServiceInfo"/> class.
-            /// </summary>
-            /// <param name="serviceImplementationType">Type of the service implementation.</param>
-            /// <param name="isSingleton">Whether the service is a Singleton.</param>
-            public ServiceInfo(Type serviceImplementationType, bool isSingleton)
-            {
-                this._serviceImplementationType = serviceImplementationType;
-                this._isSingleton = isSingleton;
-            }
+            private readonly bool _isSingleton = isSingleton;
 
             /// <summary>
             /// Gets the service implementation.
@@ -73,12 +65,7 @@
                 {
                     if (_isSingleton)
                     {
-                        if (_serviceImplementation == null)
-                        {
-                            _serviceImplementation = CreateInstance(_serviceImplementationType);
-                        }
-
-                        return _serviceImplementation;
+                        return _serviceImplementation ??= CreateInstance(_serviceImplementationType);
                     }
                     else
                     {

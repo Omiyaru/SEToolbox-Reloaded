@@ -1,25 +1,27 @@
-﻿namespace SEToolbox.ViewModels
-{
-    using SEToolbox.Interop;
-    using SEToolbox.Interop.Asteroids;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-    using SEToolbox.Support;
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.IO;
-    using System.Text;
-    using System.Windows;
-    using System.Windows.Input;
-    using VRage;
-    using VRage.Game;
-    using VRage.ObjectBuilders;
-    using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
+﻿using SEToolbox.Interop;
+using SEToolbox.Interop.Asteroids;
+using SEToolbox.Models;
+using SEToolbox.Models.Asteroids;
+using SEToolbox.Services;
+using SEToolbox.Support;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Windows;
+using System.Windows.Input;
+using VRage;
+using VRage.Game;
+using VRage.ObjectBuilders;
+using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
 
+namespace SEToolbox.ViewModels
+{
     public class StructureVoxelViewModel : StructureBaseViewModel<StructureVoxelModel>
     {
-        #region ctor
+        #region Ctor
 
         public StructureVoxelViewModel(BaseViewModel parentViewModel, StructureVoxelModel dataModel)
             : base(parentViewModel, dataModel)
@@ -33,86 +35,86 @@
 
         #endregion
 
-        #region command properties
+        #region Command Properties
 
         public ICommand CopyDetailCommand
         {
-            get { return new DelegateCommand(CopyDetailExecuted, CopyDetailCanExecute); }
+            get => new DelegateCommand(CopyDetailExecuted, CopyDetailCanExecute);
         }
 
         public ICommand ReseedCommand
         {
-            get { return new DelegateCommand(ReseedExecuted, ReseedCanExecute); }
+            get => new DelegateCommand(ReseedExecuted, ReseedCanExecute);
         }
 
         public ICommand ReplaceSurfaceCommand
         {
-            get { return new DelegateCommand<string>(ReplaceSurfaceExecuted, ReplaceSurfaceCanExecute); }
+            get => new DelegateCommand<string>(ReplaceSurfaceExecuted, ReplaceSurfaceCanExecute);
         }
 
         public ICommand ReplaceAllCommand
         {
-            get { return new DelegateCommand<string>(ReplaceAllExecuted, ReplaceAllCanExecute); }
+            get => new DelegateCommand<string>(ReplaceAllExecuted, ReplaceAllCanExecute);
         }
 
         public ICommand ReplaceSelectedMenuCommand
         {
-            get { return new DelegateCommand<string>(new Func<string, bool>(ReplaceSelectedMenuCanExecute)); }
+            get => new DelegateCommand<string>(new Func<string, bool>(ReplaceSelectedMenuCanExecute));
         }
 
         public ICommand ReplaceSelectedCommand
         {
-            get { return new DelegateCommand<string>(ReplaceSelectedExecuted, ReplaceSelectedCanExecute); }
+            get => new DelegateCommand<string>(ReplaceSelectedExecuted, ReplaceSelectedCanExecute);
         }
 
         public ICommand SliceQuarterCommand
         {
-            get { return new DelegateCommand(SliceQuarterExecuted, SliceQuarterCanExecute); }
+            get => new DelegateCommand(SliceQuarterExecuted, SliceQuarterCanExecute);
         }
 
         public ICommand SliceHalfCommand
         {
-            get { return new DelegateCommand(SliceHalfExecuted, SliceHalfCanExecute); }
+            get => new DelegateCommand(SliceHalfExecuted, SliceHalfCanExecute);
         }
 
         public ICommand ExtractStationIntersectLooseCommand
         {
-            get { return new DelegateCommand(ExtractStationIntersectLooseExecuted, ExtractStationIntersectLooseCanExecute); }
+            get => new DelegateCommand(ExtractStationIntersectLooseExecuted, ExtractStationIntersectLooseCanExecute);
         }
 
         public ICommand ExtractStationIntersectTightCommand
         {
-            get { return new DelegateCommand(ExtractStationIntersectTightExecuted, ExtractStationIntersectTightCanExecute); }
+            get => new DelegateCommand(ExtractStationIntersectTightExecuted, ExtractStationIntersectTightCanExecute);
         }
 
         public ICommand RotateAsteroidYawPositiveCommand
         {
-            get { return new DelegateCommand(RotateAsteroidYawPositiveExecuted, RotateAsteroidYawPositiveCanExecute); }
+            get => new DelegateCommand(RotateAsteroidYawPositiveExecuted, RotateAsteroidYawPositiveCanExecute);
         }
 
         public ICommand RotateAsteroidYawNegativeCommand
         {
-            get { return new DelegateCommand(RotateAsteroidYawNegativeExecuted, RotateAsteroidYawNegativeCanExecute); }
+            get => new DelegateCommand(RotateAsteroidYawNegativeExecuted, RotateAsteroidYawNegativeCanExecute);
         }
 
         public ICommand RotateAsteroidPitchPositiveCommand
         {
-            get { return new DelegateCommand(RotateAsteroidPitchPositiveExecuted, RotateAsteroidPitchPositiveCanExecute); }
+            get => new DelegateCommand(RotateAsteroidPitchPositiveExecuted, RotateAsteroidPitchPositiveCanExecute);
         }
 
         public ICommand RotateAsteroidPitchNegativeCommand
         {
-            get { return new DelegateCommand(RotateAsteroidPitchNegativeExecuted, RotateAsteroidPitchNegativeCanExecute); }
+            get => new DelegateCommand(RotateAsteroidPitchNegativeExecuted, RotateAsteroidPitchNegativeCanExecute);
         }
 
         public ICommand RotateAsteroidRollPositiveCommand
         {
-            get { return new DelegateCommand(RotateAsteroidRollPositiveExecuted, RotateAsteroidRollPositiveCanExecute); }
+            get => new DelegateCommand(RotateAsteroidRollPositiveExecuted, RotateAsteroidRollPositiveCanExecute);
         }
 
         public ICommand RotateAsteroidRollNegativeCommand
         {
-            get { return new DelegateCommand(RotateAsteroidRollNegativeExecuted, RotateAsteroidRollNegativeCanExecute); }
+            get => new DelegateCommand(RotateAsteroidRollNegativeExecuted, RotateAsteroidRollNegativeCanExecute);
         }
 
         #endregion
@@ -121,70 +123,70 @@
 
         protected new StructureVoxelModel DataModel
         {
-            get { return base.DataModel as StructureVoxelModel; }
+            get => base.DataModel as StructureVoxelModel;
         }
 
         public string Name
         {
-            get { return DataModel.Name; }
-            set { DataModel.Name = value; }
+            get => DataModel.Name;
+            set => DataModel.Name = value;
         }
 
         public BindableSize3DIModel Size
         {
-            get { return new BindableSize3DIModel(DataModel.Size); }
-            set { DataModel.Size = value.ToVector3I(); }
+            get => new(DataModel.Size); 
+            set => DataModel.Size = value.ToVector3I();
         }
 
         public BindableSize3DIModel ContentSize
         {
-            get { return new BindableSize3DIModel(DataModel.ContentSize); }
+            get => new(DataModel.ContentSize); 
         }
 
         public BindableVector3DModel Center
         {
-            get { return new BindableVector3DModel(DataModel.Center); }
-            set { DataModel.Center = value.ToVector3(); }
+            get => new(DataModel.Center); 
+            set => DataModel.Center = value.ToVector3D();
         }
 
         public long VoxCells
         {
-            get { return DataModel.VoxCells; }
-            set { DataModel.VoxCells = value; }
+            get => DataModel.VoxCells; 
+            set => DataModel.VoxCells = value;
         }
 
         public double Volume
         {
-            get { return DataModel.Volume; }
+            get => DataModel.Volume;
         }
 
         public List<VoxelMaterialAssetModel> MaterialAssets
         {
-            get { return DataModel.MaterialAssets; }
-            set { DataModel.MaterialAssets = value; }
+            get => DataModel.MaterialAssets; 
+            set => DataModel.MaterialAssets = value;
         }
 
         public VoxelMaterialAssetModel SelectedMaterialAsset
         {
-            get { return DataModel.SelectedMaterialAsset; }
-            set { DataModel.SelectedMaterialAsset = value; }
+            get => DataModel.SelectedMaterialAsset; 
+            set => DataModel.SelectedMaterialAsset = value;
         }
 
         public List<VoxelMaterialAssetModel> GameMaterialList
         {
-            get { return DataModel.GameMaterialList; }
-            set { DataModel.GameMaterialList = value; }
+            get => DataModel.GameMaterialList; 
+            set => DataModel.GameMaterialList = value; 
         }
 
         public List<VoxelMaterialAssetModel> EditMaterialList
         {
-            get { return DataModel.EditMaterialList; }
-            set { DataModel.EditMaterialList = value; }
+            get => DataModel.EditMaterialList; 
+            set => DataModel.EditMaterialList = value; 
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public bool CopyDetailCanExecute()
         {
@@ -193,17 +195,17 @@
 
         public void CopyDetailExecuted()
         {
-            var ore = new StringBuilder();
+            StringBuilder ore = new();
 
             if (MaterialAssets != null)
             {
-                foreach (var mat in MaterialAssets)
+                foreach (VoxelMaterialAssetModel mat in MaterialAssets)
                 {
-                    ore.AppendFormat("{0}\t{1:#,##0.00} m³\t{2:P2}\r\n", mat.MaterialName, mat.Volume, mat.Percent);
+                    ore.AppendFormat($"{mat.MaterialName}\t{mat.Volume:#,##0.00} m³\t{mat.Percent:P2}\r\n");
                 }
             }
 
-            var detail = string.Format(Properties.Resources.CtlVoxelDetail,
+            string detail = string.Format(Properties.Resources.CtlVoxelDetail,
                 Name,
                 Size.Width, Size.Height, Size.Depth,
                 ContentSize.Width, ContentSize.Height, ContentSize.Depth,
@@ -234,19 +236,47 @@
         {
             MainViewModel.IsBusy = true;
 
-            var sourceFile = DataModel.SourceVoxelFilepath ?? DataModel.VoxelFilepath;
+            string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
 
-            var asteroid = new MyVoxelMap();
+            MyVoxelMapBase asteroid = new();
             asteroid.Load(sourceFile);
+            _ = asteroid.VoxCells;
 
-            long cellCount = asteroid.VoxCells;
+            var materials = AsteroidSeedFillProperties.MaterialsData.Select(x => x.Value.Material);
+            var material = materials.Where(m => m.MaterialIndex == 0).FirstOrDefault();
+             var index = AsteroidSeedFillProperties.MaterialsData.First(x => x.Value.Material == material).Key;
+            var rare = materials.Where(m => m.IsRare).ToList();
+            var superRare = rare.Where(m => m.MinedRatio < 2).ToList();
+            var nonRare = materials.Except(rare).ToList();
+            var c = AsteroidSeedFillProperties.MaterialsData[index];
+            var random = new Random();
+            foreach (var m in nonRare)
+            {
+                
+                int idx = random.Next(nonRare.Count) ;
+                var newMaterial = nonRare[idx];
+               AsteroidSeedFillProperties. SetMaterial(index, newMaterial, material.Radius, material.Veins);
+            }
 
-            // TODO: regenerate the materials inside of the asteroid randomly.
+            foreach (var m in rare)
+            {
+                material = m;
+                int idx = random.Next(rare.Count);
+                var newMaterial = rare[idx];
+                AsteroidSeedFillProperties.SetMaterial(index, newMaterial, material.Radius, material.Veins);
+            }
 
-            var tempfilename = TempfileUtil.NewFilename(MyVoxelMap.V2FileExtension);
-            asteroid.Save(tempfilename);
+            foreach (var m in superRare)
+            {
+                int idx = random.Next(superRare.Count);
+                var newMaterial = superRare[idx];
+                AsteroidSeedFillProperties.SetMaterial(index, newMaterial, material.Radius, material.Veins);
+            };
 
-            DataModel.UpdateNewSource(asteroid, tempfilename);
+            string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
+            asteroid.Save(tempFileName);
+
+            DataModel.UpdateNewSource(asteroid, tempFileName);
 
             MainViewModel.IsModified = true;
             MainViewModel.IsBusy = false;
@@ -264,16 +294,16 @@
         {
             MainViewModel.IsBusy = true;
 
-            var sourceFile = DataModel.SourceVoxelFilepath ?? DataModel.VoxelFilepath;
+            string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
 
-            var asteroid = new MyVoxelMap();
+            MyVoxelMapBase asteroid = new();
             asteroid.Load(sourceFile);
             asteroid.ForceShellMaterial(materialName, 2);
 
-            var tempfilename = TempfileUtil.NewFilename(MyVoxelMap.V2FileExtension);
-            asteroid.Save(tempfilename);
+            string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
+            asteroid.Save(tempFileName);
 
-            DataModel.UpdateNewSource(asteroid, tempfilename);
+            DataModel.UpdateNewSource(asteroid, tempFileName);
 
             MainViewModel.IsModified = true;
             MainViewModel.IsBusy = false;
@@ -291,16 +321,16 @@
         {
             MainViewModel.IsBusy = true;
 
-            var sourceFile = DataModel.SourceVoxelFilepath ?? DataModel.VoxelFilepath;
+            string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
 
-            var asteroid = new MyVoxelMap();
+            MyVoxelMapBase asteroid = new();
             asteroid.Load(sourceFile);
             asteroid.ForceBaseMaterial(materialName, materialName);
 
-            var tempfilename = TempfileUtil.NewFilename(MyVoxelMap.V2FileExtension);
-            asteroid.Save(tempfilename);
+            string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
+            asteroid.Save(tempFileName);
 
-            DataModel.UpdateNewSource(asteroid, tempfilename);
+            DataModel.UpdateNewSource(asteroid, tempFileName);
 
             MainViewModel.IsModified = true;
             MainViewModel.IsBusy = false;
@@ -311,21 +341,21 @@
 
         public bool ReplaceSelectedMenuCanExecute(string materialName)
         {
-            return DataModel.IsValid && SelectedMaterialAsset != null;
+            return DataModel is { IsValid: true };
         }
 
         public bool ReplaceSelectedCanExecute(string materialName)
         {
-            return DataModel.IsValid && SelectedMaterialAsset != null;
+            return DataModel is { IsValid: true };
         }
 
         public void ReplaceSelectedExecuted(string materialName)
         {
             MainViewModel.IsBusy = true;
 
-            var sourceFile = DataModel.SourceVoxelFilepath ?? DataModel.VoxelFilepath;
+            string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
 
-            var asteroid = new MyVoxelMap();
+            MyVoxelMapBase asteroid = new();
             asteroid.Load(sourceFile);
 
             if (string.IsNullOrEmpty(materialName))
@@ -338,10 +368,10 @@
                 asteroid.ReplaceMaterial(SelectedMaterialAsset.MaterialName, materialName);
             }
 
-            var tempfilename = TempfileUtil.NewFilename(MyVoxelMap.V2FileExtension);
-            asteroid.Save(tempfilename);
+            string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
+            asteroid.Save(tempFileName);
 
-            DataModel.UpdateNewSource(asteroid, tempfilename);
+            DataModel.UpdateNewSource(asteroid, tempFileName);
 
             MainViewModel.IsModified = true;
             MainViewModel.IsBusy = false;
@@ -360,33 +390,35 @@
         {
             MainViewModel.IsBusy = true;
 
-            var sourceFile = DataModel.SourceVoxelFilepath ?? DataModel.VoxelFilepath;
+            string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
 
-            var asteroid = new MyVoxelMap();
+            MyVoxelMapBase asteroid = new();
             asteroid.Load(sourceFile);
             asteroid.RefreshAssets();
 
             int height = asteroid.BoundingContent.Size.Y + 1;
-            var contentCenter = asteroid.ContentCenter;
-            var asteroidSize = asteroid.Size;
-            var min = (VRageMath.Vector3I)VRageMath.Vector3D.Round(contentCenter, 0);
+            VRageMath.Vector3D contentCenter = asteroid.ContentCenter;
+            VRageMath.Vector3I asteroidSize = asteroid.Size;
+            VRageMath.Vector3I min = (VRageMath.Vector3I)VRageMath.Vector3D.Round(contentCenter, 0);
 
             // remove the Top half.
             asteroid.RemoveMaterial(min.X, asteroidSize.X, min.Y, asteroidSize.Y, 0, min.Z);
 
-            var tempfilename = TempfileUtil.NewFilename(MyVoxelMap.V2FileExtension);
-            asteroid.Save(tempfilename);
+            string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
+            asteroid.Save(tempFileName);
 
-            var newFilename = MainViewModel.CreateUniqueVoxelStorageName(DataModel.Name);
-            var posOrient = DataModel.PositionAndOrientation.HasValue ? DataModel.PositionAndOrientation.Value : new MyPositionAndOrientation();
+            string newFileName = MainViewModel.CreateUniqueVoxelStorageName(DataModel.Name);
+            MyPositionAndOrientation posOrient = DataModel.PositionAndOrientation ?? new MyPositionAndOrientation();
             posOrient.Position.y += height;
 
             // genreate a new Asteroid entry.
-            var newEntity = new MyObjectBuilder_VoxelMap {
+            MyObjectBuilder_VoxelMap newEntity = new()
+            {
                 EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ASTEROID),
                 PersistentFlags = MyPersistentEntityFlags2.CastShadows | MyPersistentEntityFlags2.InScene,
-                StorageName = Path.GetFileNameWithoutExtension(newFilename),
-                PositionAndOrientation = new MyPositionAndOrientation {
+                StorageName = Path.GetFileNameWithoutExtension(newFileName),
+                PositionAndOrientation = new MyPositionAndOrientation
+                {
                     Position = posOrient.Position,
                     Forward = posOrient.Forward,
                     Up = posOrient.Up
@@ -394,7 +426,7 @@
             };
 
             var structure = MainViewModel.AddEntity(newEntity);
-            ((StructureVoxelModel)structure).UpdateNewSource(asteroid, tempfilename); // Set the temporary file location of the Source Voxel, as it hasn't been written yet.
+            ((StructureVoxelModel)structure).UpdateNewSource(asteroid, tempFileName); // Set the temporary file location of the Source Voxel, as it hasn't been written yet.
 
             MainViewModel.IsModified = true;
             MainViewModel.IsBusy = false;
@@ -409,9 +441,9 @@
         {
             MainViewModel.IsBusy = true;
 
-            var sourceFile = DataModel.SourceVoxelFilepath ?? DataModel.VoxelFilepath;
+            string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
 
-            var asteroid = new MyVoxelMap();
+            MyVoxelMapBase asteroid = new();
             asteroid.Load(sourceFile);
             asteroid.RefreshAssets();
 
@@ -420,19 +452,21 @@
             // remove the Top half.
             asteroid.RemoveMaterial(null, null, (int)Math.Round(asteroid.ContentCenter.Y, 0), asteroid.Size.Y, null, null);
 
-            var tempfilename = TempfileUtil.NewFilename(MyVoxelMap.V2FileExtension);
-            asteroid.Save(tempfilename);
+            string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
+            asteroid.Save(tempFileName);
 
-            var newFilename = MainViewModel.CreateUniqueVoxelStorageName(DataModel.Name);
-            var posOrient = DataModel.PositionAndOrientation.HasValue ? DataModel.PositionAndOrientation.Value : new MyPositionAndOrientation();
+            string newFileName = MainViewModel.CreateUniqueVoxelStorageName(DataModel.Name);
+            MyPositionAndOrientation posOrient = DataModel.PositionAndOrientation ?? new MyPositionAndOrientation();
             posOrient.Position.y += height;
 
             // genreate a new Asteroid entry.
-            var newEntity = new MyObjectBuilder_VoxelMap {
+            MyObjectBuilder_VoxelMap newEntity = new()
+            {
                 EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ASTEROID),
                 PersistentFlags = MyPersistentEntityFlags2.CastShadows | MyPersistentEntityFlags2.InScene,
-                StorageName = Path.GetFileNameWithoutExtension(newFilename),
-                PositionAndOrientation = new MyPositionAndOrientation {
+                StorageName = Path.GetFileNameWithoutExtension(newFileName),
+                PositionAndOrientation = new MyPositionAndOrientation
+                {
                     Position = posOrient.Position,
                     Forward = posOrient.Forward,
                     Up = posOrient.Up
@@ -440,7 +474,7 @@
             };
 
             var structure = MainViewModel.AddEntity(newEntity);
-            ((StructureVoxelModel)structure).UpdateNewSource(asteroid, tempfilename); // Set the temporary file location of the Source Voxel, as it hasn't been written yet.
+            ((StructureVoxelModel)structure).UpdateNewSource(asteroid, tempFileName); // Set the temporary file location of the Source Voxel, as it hasn't been written yet.
 
             MainViewModel.IsModified = true;
             MainViewModel.IsBusy = false;
@@ -454,7 +488,7 @@
         public void ExtractStationIntersectLooseExecuted()
         {
             MainViewModel.IsBusy = true;
-            var modified = ExtractStationIntersect(false);
+            bool modified = ExtractStationIntersect(false);
             if (modified)
             {
                 DataModel.InitializeAsync();
@@ -471,7 +505,7 @@
         public void ExtractStationIntersectTightExecuted()
         {
             MainViewModel.IsBusy = true;
-            var modified = ExtractStationIntersect(true);
+            bool modified = ExtractStationIntersect(true);
             if (modified)
             {
                 DataModel.InitializeAsync();

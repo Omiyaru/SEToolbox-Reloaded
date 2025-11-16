@@ -7,10 +7,10 @@
         xmlns:lex="http://wpflocalizeextension.codeplex.com"
         lex:ResxLocalizationProvider.DefaultAssembly="SEToolbox"
         lex:ResxLocalizationProvider.DefaultDictionary="Resources"
-        ResizeMode="CanResize"  ShowInTaskbar="False" WindowStartupLocation="CenterOwner" WindowStyle="ThreeDBorderWindow" 
+        ResizeMode="CanResize"  ShowInTaskbar="False" WindowStartupLocation="CenterOwner" WindowStyle="ThreeDBorderWindow"
         Title="{lex:Loc WnGenAsteroidFieldTitle}" Height="380" Width="600" Icon="/SEToolbox;component/app.ico" Style="{StaticResource DefaultWindowStyle}"
         MinHeight="150" MinWidth="250"
-        commands:DialogCloser.DialogResult="{Binding CloseResult}" FocusManager.FocusedElement="{Binding ElementName=UxInitialElement}">
+        commands:DialogCloser.DialogResult="{Binding CloseResult}" FocusManager.FocusedElement="{Binding ElementName=uxInitialElement}">
     <Window.Resources>
         <converters:BusyMouseConverter x:Key="BusyMouseConverter" />
         <converters:EnumToResourceConverter x:Key="EnumToResourceConverter"/>
@@ -41,7 +41,7 @@
                 </Grid.ColumnDefinitions>
                 <Label Content="{lex:Loc WnGenAsteroidFieldLabelCenter}" Grid.Column="0"/>
                 <Grid Grid.Column="1" Width="80">
-                    <TextBox ToolTip="{lex:Loc WnGenAsteroidFieldTxtCenterXTooltip}" x:Name="UxInitialElement">
+                    <TextBox ToolTip="{lex:Loc WnGenAsteroidFieldTxtCenterXTooltip}" x:Name="uxInitialElement">
                         <TextBox.Text>
                             <Binding Path="CenterPositionX" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
                         </TextBox.Text>
@@ -106,10 +106,10 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding Index}" IsReadOnly="True" />
 
-                    <DataGridTextColumn Header="{lex:Loc SEToolbox:Resources:WnGenAsteroidFieldColPercent}" Binding="{Binding TotalPercent}">
+                    <DataGridTextColumn Header="{lex:Loc WnGenAsteroidFieldColPercent}" Binding="{Binding TotalPercent}">
                     </DataGridTextColumn>
 
-                    <DataGridComboBoxColumn Header="{lex:Loc SEToolbox:Resources:WnGenAsteroidFieldColAsteroid}" SelectedValueBinding="{Binding VoxelFile}" DisplayMemberPath="Name">
+                    <DataGridComboBoxColumn Header="{lex:Loc WnGenAsteroidFieldColAsteroid}" SelectedValueBinding="{Binding VoxelFile}" DisplayMemberPath="Name">
                         <DataGridComboBoxColumn.ElementStyle>
                             <Style TargetType="ComboBox">
                                 <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.VoxelFileList}"/>
@@ -122,7 +122,7 @@
                         </DataGridComboBoxColumn.EditingElementStyle>
                     </DataGridComboBoxColumn>
 
-                    <DataGridComboBoxColumn Header="{lex:Loc SEToolbox:Resources:WnGenAsteroidFieldColMaterial}" SelectedValueBinding="{Binding MainMaterial}" DisplayMemberPath="DisplayName">
+                    <DataGridComboBoxColumn Header="{lex:Loc WnGenAsteroidFieldColMaterial}" SelectedValueBinding="{Binding MainMaterial}" DisplayMemberPath="DisplayName">
                         <DataGridComboBoxColumn.ElementStyle>
                             <Style TargetType="ComboBox">
                                 <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.MaterialsCollection}"/>
@@ -135,7 +135,7 @@
                         </DataGridComboBoxColumn.EditingElementStyle>
                     </DataGridComboBoxColumn>
 
-                    <DataGridComboBoxColumn Header="{lex:Loc SEToolbox:Resources:WnGenAsteroidFieldColMaterial2}" SelectedValueBinding="{Binding SecondMaterial}" DisplayMemberPath="DisplayName">
+                    <DataGridComboBoxColumn Header="{lex:Loc WnGenAsteroidFieldColMaterial2}" SelectedValueBinding="{Binding SecondMaterial}" DisplayMemberPath="DisplayName">
                         <DataGridComboBoxColumn.ElementStyle>
                             <Style TargetType="ComboBox">
                                 <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.MaterialsCollection}"/>
@@ -147,7 +147,7 @@
                             </Style>
                         </DataGridComboBoxColumn.EditingElementStyle>
                     </DataGridComboBoxColumn>
-                    <DataGridComboBoxColumn Header="{lex:Loc SEToolbox:Resources:WnGenAsteroidFieldColPercent2}" SelectedValueBinding="{Binding SecondPercent}">
+                    <DataGridComboBoxColumn Header="{lex:Loc WnGenAsteroidFieldColPercent2}" SelectedValueBinding="{Binding SecondPercent}">
                         <DataGridComboBoxColumn.ElementStyle>
                             <Style TargetType="ComboBox">
                                 <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.PercentList}"/>
@@ -160,7 +160,7 @@
                         </DataGridComboBoxColumn.EditingElementStyle>
                     </DataGridComboBoxColumn>
 
-                    <DataGridComboBoxColumn Header="{lex:Loc SEToolbox:Resources:WnGenAsteroidFieldColMaterial3}" SelectedValueBinding="{Binding ThirdMaterial}" DisplayMemberPath="DisplayName">
+                    <DataGridComboBoxColumn Header="{lex:Loc WnGenAsteroidFieldColMaterial3}" SelectedValueBinding="{Binding ThirdMaterial}" DisplayMemberPath="DisplayName">
                         <DataGridComboBoxColumn.ElementStyle>
                             <Style TargetType="ComboBox">
                                 <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.MaterialsCollection}"/>
@@ -172,7 +172,7 @@
                             </Style>
                         </DataGridComboBoxColumn.EditingElementStyle>
                     </DataGridComboBoxColumn>
-                    <DataGridComboBoxColumn Header="{lex:Loc SEToolbox:Resources:WnGenAsteroidFieldColPercent3}" SelectedValueBinding="{Binding ThirdPercent}">
+                    <DataGridComboBoxColumn Header="{lex:Loc WnGenAsteroidFieldColPercent3}" SelectedValueBinding="{Binding ThirdPercent}">
                         <DataGridComboBoxColumn.ElementStyle>
                             <Style TargetType="ComboBox">
                                 <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.PercentList}"/>
@@ -185,7 +185,7 @@
                         </DataGridComboBoxColumn.EditingElementStyle>
                     </DataGridComboBoxColumn>
 
-                    <DataGridComboBoxColumn Header="{lex:Loc SEToolbox:Resources:WnGenAsteroidFieldColMaterial4}" SelectedValueBinding="{Binding FourthMaterial}" DisplayMemberPath="DisplayName">
+                    <DataGridComboBoxColumn Header="{lex:Loc WnGenAsteroidFieldColMaterial4}" SelectedValueBinding="{Binding FourthMaterial}" DisplayMemberPath="DisplayName">
                         <DataGridComboBoxColumn.ElementStyle>
                             <Style TargetType="ComboBox">
                                 <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.MaterialsCollection}"/>
@@ -197,7 +197,7 @@
                             </Style>
                         </DataGridComboBoxColumn.EditingElementStyle>
                     </DataGridComboBoxColumn>
-                    <DataGridComboBoxColumn Header="{lex:Loc SEToolbox:Resources:WnGenAsteroidFieldColPercent4}" SelectedValueBinding="{Binding FourthPercent}">
+                    <DataGridComboBoxColumn Header="{lex:Loc WnGenAsteroidFieldColPercent4}" SelectedValueBinding="{Binding FourthPercent}">
                         <DataGridComboBoxColumn.ElementStyle>
                             <Style TargetType="ComboBox">
                                 <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.PercentList}"/>
@@ -210,7 +210,7 @@
                         </DataGridComboBoxColumn.EditingElementStyle>
                     </DataGridComboBoxColumn>
 
-                    <DataGridComboBoxColumn Header="{lex:Loc SEToolbox:Resources:WnGenAsteroidFieldColMaterial5}" SelectedValueBinding="{Binding FifthMaterial}" DisplayMemberPath="DisplayName">
+                    <DataGridComboBoxColumn Header="{lex:Loc WnGenAsteroidFieldColMaterial5}" SelectedValueBinding="{Binding FifthMaterial}" DisplayMemberPath="DisplayName">
                         <DataGridComboBoxColumn.ElementStyle>
                             <Style TargetType="ComboBox">
                                 <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.MaterialsCollection}"/>
@@ -222,7 +222,7 @@
                             </Style>
                         </DataGridComboBoxColumn.EditingElementStyle>
                     </DataGridComboBoxColumn>
-                    <DataGridComboBoxColumn Header="{lex:Loc SEToolbox:Resources:WnGenAsteroidFieldColPercent5}" SelectedValueBinding="{Binding FifthPercent}">
+                    <DataGridComboBoxColumn Header="{lex:Loc WnGenAsteroidFieldColPercent5}" SelectedValueBinding="{Binding FifthPercent}">
                         <DataGridComboBoxColumn.ElementStyle>
                             <Style TargetType="ComboBox">
                                 <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.PercentList}"/>
@@ -235,7 +235,7 @@
                         </DataGridComboBoxColumn.EditingElementStyle>
                     </DataGridComboBoxColumn>
 
-                    <DataGridComboBoxColumn Header="{lex:Loc SEToolbox:Resources:WnGenAsteroidFieldColMaterial6}" SelectedValueBinding="{Binding SixthMaterial}" DisplayMemberPath="DisplayName">
+                    <DataGridComboBoxColumn Header="{lex:Loc WnGenAsteroidFieldColMaterial6}" SelectedValueBinding="{Binding SixthMaterial}" DisplayMemberPath="DisplayName">
                         <DataGridComboBoxColumn.ElementStyle>
                             <Style TargetType="ComboBox">
                                 <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.MaterialsCollection}"/>
@@ -247,7 +247,7 @@
                             </Style>
                         </DataGridComboBoxColumn.EditingElementStyle>
                     </DataGridComboBoxColumn>
-                    <DataGridComboBoxColumn Header="{lex:Loc SEToolbox:Resources:WnGenAsteroidFieldColPercent6}" SelectedValueBinding="{Binding SixthPercent}">
+                    <DataGridComboBoxColumn Header="{lex:Loc WnGenAsteroidFieldColPercent6}" SelectedValueBinding="{Binding SixthPercent}">
                         <DataGridComboBoxColumn.ElementStyle>
                             <Style TargetType="ComboBox">
                                 <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.PercentList}"/>
@@ -260,7 +260,7 @@
                         </DataGridComboBoxColumn.EditingElementStyle>
                     </DataGridComboBoxColumn>
 
-                    <DataGridComboBoxColumn Header="{lex:Loc SEToolbox:Resources:WnGenAsteroidFieldColMaterial7}" SelectedValueBinding="{Binding SeventhMaterial}" DisplayMemberPath="DisplayName">
+                    <DataGridComboBoxColumn Header="{lex:Loc WnGenAsteroidFieldColMaterial7}" SelectedValueBinding="{Binding SeventhMaterial}" DisplayMemberPath="DisplayName">
                         <DataGridComboBoxColumn.ElementStyle>
                             <Style TargetType="ComboBox">
                                 <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.MaterialsCollection}"/>
@@ -272,7 +272,7 @@
                             </Style>
                         </DataGridComboBoxColumn.EditingElementStyle>
                     </DataGridComboBoxColumn>
-                    <DataGridComboBoxColumn Header="{lex:Loc SEToolbox:Resources:WnGenAsteroidFieldColPercent7}" SelectedValueBinding="{Binding SeventhPercent}">
+                    <DataGridComboBoxColumn Header="{lex:Loc WnGenAsteroidFieldColPercent7}" SelectedValueBinding="{Binding SeventhPercent}">
                         <DataGridComboBoxColumn.ElementStyle>
                             <Style TargetType="ComboBox">
                                 <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.PercentList}"/>

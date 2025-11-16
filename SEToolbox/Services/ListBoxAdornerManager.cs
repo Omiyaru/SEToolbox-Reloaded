@@ -1,18 +1,18 @@
-﻿namespace SEToolbox.Services
-{
-    using System.Windows;
-    using System.Windows.Documents;
+﻿using System.Windows;
+using System.Windows.Documents;
 
-    internal class ListBoxAdornerManager 
+namespace SEToolbox.Services
+{
+    internal class ListBoxAdornerManager
     {
-        private AdornerLayer adornerLayer;
+        private readonly AdornerLayer adornerLayer;
         private ListBoxDropAdorner adorner;
 
         private bool shouldCreateNewAdorner = false;
 
         internal ListBoxAdornerManager(AdornerLayer layer)
         {
-            this.adornerLayer = layer;
+            adornerLayer = layer;
         }
 
         internal void UpdateDropIndicator(UIElement adornedElement, bool isAboveElement)
@@ -23,23 +23,25 @@
                 if (adorner.AdornedElement == adornedElement && adorner.IsAboveElement == isAboveElement)
                     return;
             }
-            this.Clear();
+            Clear();
             //draw new adorner
-            adorner = new ListBoxDropAdorner(adornedElement, this.adornerLayer);
-            adorner.IsAboveElement = isAboveElement;
+            adorner = new ListBoxDropAdorner(adornedElement, adornerLayer);
+            {
+                adorner.IsAboveElement = isAboveElement;
+            };
             adorner.Update();
-            this.shouldCreateNewAdorner = false;
+            shouldCreateNewAdorner = false;
         }
 
         /// <summary>
-        /// Remove the adorner 
+        /// Remove the adorner
         /// </summary>
         internal void Clear()
         {
-            if (this.adorner != null)
+            if (adorner != null)
             {
-                this.adorner.Remove();
-                this.shouldCreateNewAdorner = true;
+                adorner.Remove();
+                shouldCreateNewAdorner = true;
             }
         }
     }

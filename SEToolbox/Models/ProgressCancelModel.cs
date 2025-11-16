@@ -1,9 +1,9 @@
-﻿namespace SEToolbox.Models
-{
-    using System;
-    using System.Diagnostics;
-    using System.Timers;
+﻿using System;
+using System.Diagnostics;
+using System.Timers;
 
+namespace SEToolbox.Models
+{
     public class ProgressCancelModel : BaseModel, IDisposable
     {
         #region Fields
@@ -42,106 +42,55 @@
 
         public string Title
         {
-            get { return _title; }
-
-            set
-            {
-                if (value != _title)
-                {
-                    _title = value;
-                    OnPropertyChanged(nameof(Title));
-                }
-            }
+            get => _title;
+            set => SetProperty(ref _title, value, nameof(Title));
         }
 
         public string SubTitle
         {
-            get { return _subTitle; }
-
-            set
-            {
-                if (value != _subTitle)
-                {
-                    _subTitle = value;
-                    OnPropertyChanged(nameof(SubTitle));
-                }
-            }
+            get => _subTitle;
+            set => SetProperty(ref _subTitle, value, nameof(SubTitle));
         }
 
         public string DialogText
         {
-            get { return _dialogText; }
-
-            set
-            {
-                if (value != _dialogText)
-                {
-                    _dialogText = value;
-                    OnPropertyChanged(nameof(DialogText));
-                }
-            }
+            get => _dialogText;
+            set => SetProperty(ref _dialogText, value, nameof(DialogText));
         }
 
         public double Progress
         {
-            get
-            {
-                return _progress;
-            }
+            get => _progress;
 
-            set
+            set 
             {
-                if (value != _progress)
+              
+            if (!_progressTimer.IsRunning || _progressTimer.ElapsedMilliseconds > 200)
                 {
-                    _progress = value;
-
-                    if (!_progressTimer.IsRunning || _progressTimer.ElapsedMilliseconds > 200)
-                    {
-                        OnPropertyChanged(nameof(Progress));
-                        System.Windows.Forms.Application.DoEvents();
-                        _progressTimer.Restart();
-                    }
+                    SetProperty(ref _progress, value, nameof(Progress));
+                    System.Windows.Forms.Application.DoEvents();
+                    _progressTimer.Restart();
                 }
             }
         }
 
         public double MaximumProgress
         {
-            get
-            {
-                return _maximumProgress;
-            }
+            get => _maximumProgress;
 
-            set
-            {
-                if (value != _maximumProgress)
-                {
-                    _maximumProgress = value;
-                    OnPropertyChanged(nameof(MaximumProgress));
-                }
-            }
+            set => SetProperty(ref _maximumProgress, value, nameof(MaximumProgress));
         }
 
         public TimeSpan? EstimatedTimeLeft
         {
-            get
-            {
-                return _estimatedTimeLeft;
-            }
+            get => _estimatedTimeLeft;
 
-            set
-            {
-                if (value != _estimatedTimeLeft)
-                {
-                    _estimatedTimeLeft = value;
-                    OnPropertyChanged(nameof(EstimatedTimeLeft));
-                }
-            }
+            set => SetProperty(ref _estimatedTimeLeft, value, nameof(EstimatedTimeLeft)); 
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public void ResetProgress(double initial, double maximumProgress)
         {
@@ -156,7 +105,7 @@
                 TimeSpan estimate = elapsed;
 
                 if (Progress > 0)
-                    estimate = new TimeSpan((long)(elapsed.Ticks / (Progress / _maximumProgress)));
+                    estimate = new TimeSpan((long)(elapsed.Ticks / (Progress / MaximumProgress)));
 
                 EstimatedTimeLeft = estimate - elapsed;
             };
@@ -177,10 +126,12 @@
             if (_updateTimer != null)
             {
                 _updateTimer.Stop();
+                _updateTimer.Dispose();
                 _updateTimer = null;
             }
 
             _elapsedTimer.Stop();
+            _elapsedTimer.Reset();
             Progress = 0;
         }
 
@@ -199,10 +150,7 @@
                     _updateTimer.Stop();
                     _updateTimer.Dispose();
                 }
-                if (_progressTimer != null)
-                {
-                    _progressTimer.Stop();
-                }
+                _progressTimer?.Stop();
             }
         }
 

@@ -1,12 +1,12 @@
-﻿namespace SEToolbox.ViewModels
+﻿using System;
+using System.ComponentModel;
+using System.Windows.Input;
+
+using SEToolbox.Models;
+using SEToolbox.Services;
+
+namespace SEToolbox.ViewModels
 {
-    using System;
-    using System.ComponentModel;
-    using System.Windows.Input;
-
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-
     public class ProgressCancelViewModel : BaseViewModel
     {
         #region Fields
@@ -16,7 +16,7 @@
 
         #endregion
 
-        #region event handlers
+        #region Event Handlers
 
         public event EventHandler CloseRequested;
 
@@ -39,12 +39,12 @@
 
         public ICommand ClosingCommand
         {
-            get { return new DelegateCommand<CancelEventArgs>(ClosingExecuted, ClosingCanExecute); }
+           get => new DelegateCommand<CancelEventArgs>(ClosingExecuted, ClosingCanExecute); 
         }
 
         public ICommand CancelCommand
         {
-            get { return new DelegateCommand(CancelExecuted, CancelCanExecute); }
+           get => new DelegateCommand(CancelExecuted, CancelCanExecute); 
         }
 
         #endregion
@@ -56,10 +56,7 @@
         /// </summary>
         public bool? CloseResult
         {
-            get
-            {
-                return _closeResult;
-            }
+            get => _closeResult;
 
             set
             {
@@ -70,44 +67,44 @@
 
         public string Title
         {
-            get { return _dataModel.Title; }
-            set { _dataModel.Title = value; }
+            get => _dataModel.Title;
+            set => _dataModel.Title = value;
         }
         public string SubTitle
         {
-            get { return _dataModel.SubTitle; }
-            set { _dataModel.SubTitle = value; }
+            get => _dataModel.SubTitle;
+            set => _dataModel.SubTitle = value;
         }
 
         public string DialogText
         {
-            get { return _dataModel.DialogText; }
-            set { _dataModel.DialogText = value; }
+            get => _dataModel.DialogText;
+            set => _dataModel.DialogText = value;
         }
 
         public double Progress
         {
-            get { return _dataModel.Progress; }
-            set { _dataModel.Progress = value; }
+            get => _dataModel.Progress;
+            set => _dataModel.Progress = value;
         }
 
         public double MaximumProgress
         {
-            get { return _dataModel.MaximumProgress; }
-            set { _dataModel.MaximumProgress = value; }
+            get => _dataModel.MaximumProgress;
+            set => _dataModel.MaximumProgress = value;
         }
 
         public TimeSpan? EstimatedTimeLeft
         {
-            get { return _dataModel.EstimatedTimeLeft; }
-            set { _dataModel.EstimatedTimeLeft = value; }
+            get => _dataModel.EstimatedTimeLeft;
+            set => _dataModel.EstimatedTimeLeft = value;
         }
 
         #endregion
 
         #region Command Methods
 
-        public bool ClosingCanExecute(CancelEventArgs e)
+        public static bool ClosingCanExecute(CancelEventArgs e)
         {
             return true;
         }
@@ -116,10 +113,7 @@
         {
             if (CloseResult == null)
             {
-                if (CloseRequested != null)
-                {
-                    CloseRequested(this, EventArgs.Empty);
-                }
+                CloseRequested?.Invoke(this, EventArgs.Empty);
 
                 CloseResult = false;
             }
@@ -134,10 +128,8 @@
 
         public void CancelExecuted()
         {
-            if (CloseRequested != null)
-            {
-                CloseRequested(this, EventArgs.Empty);
-            }
+
+            CloseRequested?.Invoke(this, EventArgs.Empty);
 
             CloseResult = false;
         }

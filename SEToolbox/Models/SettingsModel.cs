@@ -1,7 +1,8 @@
-﻿namespace SEToolbox.Models
-{
-    using SEToolbox.Support;
+﻿using System;
+using SEToolbox.Support;
 
+namespace SEToolbox.Models
+{
     public class SettingsModel : BaseModel
     {
         #region Fields
@@ -18,82 +19,52 @@
 
         public string SEBinPath
         {
-            get { return _seBinPath; }
+        get => _seBinPath;
 
             set
             {
-                if (value != _seBinPath)
-                {
-                    _seBinPath = value;
-                    OnPropertyChanged(nameof(SEBinPath));
-                    Validate();
-                }
+                SetProperty(ref _seBinPath, value, nameof(SEBinPath));
+                Validate();
             }
         }
 
         public string CustomVoxelPath
         {
-            get { return _customVoxelPath; }
+            get => _customVoxelPath ?? string.Empty;
 
-            set
-            {
-                if (value != _customVoxelPath)
-                {
-                    _customVoxelPath = value;
-                    OnPropertyChanged(nameof(CustomVoxelPath));
-                    Validate();
-                }
-            }
+            set => SetProperty(ref _customVoxelPath, value, nameof(CustomVoxelPath), () => Validate());
+
         }
 
         public bool? AlwaysCheckForUpdates
         {
-            get { return _alwaysCheckForUpdates; }
+            get => _alwaysCheckForUpdates;
 
-            set
-            {
-                if (value != _alwaysCheckForUpdates)
-                {
-                    _alwaysCheckForUpdates = value;
-                    OnPropertyChanged(nameof(AlwaysCheckForUpdates));
-                    Validate();
-                }
-            }
-        }
+            set => SetProperty(ref _alwaysCheckForUpdates, value, nameof(AlwaysCheckForUpdates), () => Validate());
 
-        public bool? UseCustomResource
-        {
-            get { return _useCustomResource; }
 
-            set
-            {
-                if (value != _useCustomResource)
-                {
-                    _useCustomResource = value;
-                    OnPropertyChanged(nameof(UseCustomResource));
-                    Validate();
-                }
-            }
         }
         
 
+        public bool? UseCustomResource
+        {
+            get => _useCustomResource;
+
+            set => SetProperty(ref _useCustomResource, value, nameof(UseCustomResource), () => Validate());
+               
+        }
+
+
         public bool IsValid
         {
-            get { return _isValid; }
+            get => _isValid;
 
-            private set
-            {
-                if (value != _isValid)
-                {
-                    _isValid = value;
-                    OnPropertyChanged(nameof(IsValid));
-                }
-            }
+            private set => SetProperty(ref _isValid, value, nameof(IsValid)); 
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public void Load(string seBinPath, string customVoxelPath, bool? alwaysCheckForUpdates, bool? useCustomResource)
         {

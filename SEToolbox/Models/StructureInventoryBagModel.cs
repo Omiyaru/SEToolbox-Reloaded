@@ -1,25 +1,20 @@
-﻿namespace SEToolbox.Models
+﻿using System;
+using System.Runtime.Serialization;
+
+using SEToolbox.Interop;
+using VRage.Game.ObjectBuilders;
+using VRage.ObjectBuilders;
+
+namespace SEToolbox.Models
 {
-    using System;
-    using System.Runtime.Serialization;
-
-    using SEToolbox.Interop;
-    using VRage.Game.ObjectBuilders;
-    using VRage.ObjectBuilders;
-
     [Serializable]
-    public class StructureInventoryBagModel : StructureBaseModel
+    public class StructureInventoryBagModel(MyObjectBuilder_EntityBase entityBase) : StructureBaseModel(entityBase)
     {
-        #region ctor
-
-        public StructureInventoryBagModel(MyObjectBuilder_EntityBase entityBase)
-            : base(entityBase)
-        {
-        }
+        #region Ctor
 
         #endregion
 
-        #region methods
+        #region Methods
 
         [OnSerializing]
         private void OnSerializingMethod(StreamingContext context)

@@ -1,25 +1,27 @@
-﻿namespace SEToolbox.ViewModels
-{
-    using System;
-    using System.Diagnostics.Contracts;
-    using System.Drawing;
-    using System.IO;
-    using System.Windows.Forms;
-    using System.Windows.Input;
-    using System.Windows.Media.Imaging;
-    using System.Windows.Media.Media3D;
-    using SEToolbox.ImageLibrary;
-    using SEToolbox.Interfaces;
-    using SEToolbox.Interop;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-    using SEToolbox.Support;
-    using VRage;
-    using VRage.Game;
-    using VRage.ObjectBuilders;
-    using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
-    using Res = SEToolbox.Properties.Resources;
+﻿using System;
+using System.Diagnostics.Contracts;
+using System.Drawing;
+using System.IO;
+using System.Windows.Forms;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
+using SEToolbox.Interfaces;
+using SEToolbox.Interop;
+using SEToolbox.Models;
+using SEToolbox.Services;
+using SEToolbox.Support;
 
+using VRage;
+using VRage.Game;
+using VRage.ObjectBuilders;
+using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
+using Res = SEToolbox.Properties.Resources;
+using System.Linq;
+using ImageHelper = SEToolbox.ImageLibrary.ImageHelper;
+
+namespace SEToolbox.ViewModels
+{
     public class ImportImageViewModel : BaseViewModel
     {
         #region Fields
@@ -63,27 +65,27 @@
 
         public ICommand BrowseImageCommand
         {
-            get { return new DelegateCommand(BrowseImageExecuted, BrowseImageCanExecute); }
+           get => new DelegateCommand(BrowseImageExecuted, BrowseImageCanExecute);
         }
 
         public ICommand SetToOriginalSizeCommand
         {
-            get { return new DelegateCommand(SetToOriginalSizeExecuted, SetToOriginalSizeCanExecute); }
+           get => new DelegateCommand(SetToOriginalSizeExecuted, SetToOriginalSizeCanExecute); 
         }
 
         public ICommand CreateCommand
         {
-            get { return new DelegateCommand(CreateExecuted, CreateCanExecute); }
+           get => new DelegateCommand(CreateExecuted, CreateCanExecute); 
         }
 
         public ICommand CancelCommand
         {
-            get { return new DelegateCommand(CancelExecuted, CancelCanExecute); }
+           get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         public ICommand ChangeKeyColorCommand
         {
-            get { return new DelegateCommand(ChangeKeyColorExecuted, ChangeKeyColorCanExecute); }
+           get => new DelegateCommand(ChangeKeyColorExecuted, ChangeKeyColorCanExecute); 
         }
 
         #endregion
@@ -95,7 +97,7 @@
         /// </summary>
         public bool? CloseResult
         {
-            get { return _closeResult; }
+            get => _closeResult;
 
             set
             {
@@ -104,32 +106,32 @@
             }
         }
 
-        public string Filename
+        public string FileName
         {
-            get { return _dataModel.Filename; }
+            get => _dataModel.FileName;
 
             set
             {
-                _dataModel.Filename = value;
-                FilenameChanged();
+                _dataModel.FileName = value;
+                FileNameChanged();
             }
         }
 
         public bool IsValidImage
         {
-            get { return _dataModel.IsValidImage; }
-            set { _dataModel.IsValidImage = value; }
+            get => _dataModel.IsValidImage;
+            set => _dataModel.IsValidImage = value;
         }
 
         public Size OriginalImageSize
         {
-            get { return _dataModel.OriginalImageSize; }
-            set { _dataModel.OriginalImageSize = value; }
+            get => _dataModel.OriginalImageSize;
+            set => _dataModel.OriginalImageSize = value;
         }
 
         public BindableSizeModel NewImageSize
         {
-            get { return _dataModel.NewImageSize; }
+            get => _dataModel.NewImageSize;
 
             set
             {
@@ -140,37 +142,35 @@
 
         public BindablePoint3DModel Position
         {
-            get { return _dataModel.Position; }
-            set { _dataModel.Position = value; }
+            get => _dataModel.Position;
+            set => _dataModel.Position = value;
         }
 
         public BindableVector3DModel Forward
         {
-            get { return _dataModel.Forward; }
-            set { _dataModel.Forward = value; }
+            get => _dataModel.Forward; set => _dataModel.Forward = value;
         }
 
         public BindableVector3DModel Up
         {
-            get { return _dataModel.Up; }
-            set { _dataModel.Up = value; }
+            get => _dataModel.Up;
+            set => _dataModel.Up = value;
         }
 
         public ImportImageClassType ClassType
         {
-            get { return _dataModel.ClassType; }
-            set { _dataModel.ClassType = value; }
+            get => _dataModel.ClassType;
+            set => _dataModel.ClassType = value;
         }
 
         public ImportArmorType ArmorType
         {
-            get { return _dataModel.ArmorType; }
-            set { _dataModel.ArmorType = value; }
+            get => _dataModel.ArmorType; set => _dataModel.ArmorType = value;
         }
 
         public BitmapImage NewImage
         {
-            get { return _newImage; }
+            get => _newImage;
 
             set
             {
@@ -187,49 +187,45 @@
         /// </summary>
         public bool IsBusy
         {
-            get { return _isBusy; }
+            get => _isBusy;
 
             set
             {
-                if (value != _isBusy)
-                {
-                    _isBusy = value;
-                    OnPropertyChanged(nameof(IsBusy));
-                    if (_isBusy)
-                    {
-                        Application.DoEvents();
-                    }
-                }
+                 SetProperty(ref _isBusy, value, nameof(IsBusy));
+                 if(_isBusy)
+                 {
+                    Application.DoEvents();
+                 }
             }
         }
 
         public int AlphaLevel
         {
-            get { return _dataModel.AlphaLevel; }
-            set { _dataModel.AlphaLevel = value; }
+            get => _dataModel.AlphaLevel;
+            set => _dataModel.AlphaLevel = value;
         }
 
         public System.Windows.Media.Color KeyColor
         {
-            get { return _dataModel.KeyColor; }
-            set { _dataModel.KeyColor = value; }
+            get => _dataModel.KeyColor;
+            set => _dataModel.KeyColor = value;
         }
 
         public bool IsAlphaLevel
         {
-            get { return _dataModel.IsAlphaLevel; }
-            set { _dataModel.IsAlphaLevel = value; }
+            get => _dataModel.IsAlphaLevel;
+            set => _dataModel.IsAlphaLevel = value;
         }
 
         public bool IsKeyColor
         {
-            get { return _dataModel.IsKeyColor; }
-            set { _dataModel.IsKeyColor = value; }
+            get => _dataModel.IsKeyColor;
+            set => _dataModel.IsKeyColor = value;
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public bool BrowseImageCanExecute()
         {
@@ -240,22 +236,22 @@
         {
             IsValidImage = false;
 
-            var openFileDialog = _openFileDialogFactory();
+            IOpenFileDialog openFileDialog = _openFileDialogFactory();
             openFileDialog.Filter = AppConstants.ImageFilter;
             openFileDialog.Title = Res.DialogImportImageTitle;
 
             // Open the dialog
-            var result = _dialogService.ShowOpenFileDialog(this, openFileDialog);
+            DialogResult result = _dialogService.ShowOpenFileDialog(this, openFileDialog);
 
             if (result == DialogResult.OK)
             {
-                Filename = openFileDialog.FileName;
+                FileName = openFileDialog.FileName;
             }
         }
 
-        private void FilenameChanged()
+        private void FileNameChanged()
         {
-            ProcessFilename(Filename);
+            ProcessFileName(FileName);
         }
 
         public bool SetToOriginalSizeCanExecute()
@@ -296,7 +292,7 @@
 
         public void ChangeKeyColorExecuted()
         {
-            var colorDialog = _colorDialogFactory();
+            IColorDialog colorDialog = _colorDialogFactory();
             colorDialog.FullOpen = true;
             colorDialog.MediaColor = KeyColor;
             colorDialog.CustomColors = MainViewModel.CreativeModeColors;
@@ -311,41 +307,47 @@
 
         #endregion
 
-        #region methods
+        #region Methods
 
-        private void ProcessFilename(string filename)
+        private void ProcessFileName(string fileName)
         {
             IsBusy = true;
 
-            if (File.Exists(filename))
+            if (File.Exists(fileName))
             {
-                // TODO: validate file is a real image.
+                // Validate file is a real image
 
-                // TODO: read image properties.
-
-                if (_sourceImage != null)
+                //  Read image properties
+                if (IsImageFile(fileName) && _sourceImage != null)
                 {
                     _sourceImage.Dispose();
+
+                    _sourceImage = Image.FromFile(fileName);
+                    OriginalImageSize = new Size(_sourceImage.Width, _sourceImage.Height);
+
+                    NewImageSize = new BindableSizeModel(_sourceImage.Width, _sourceImage.Height);
+                    NewImageSize.PropertyChanged += (sender, e) => ProcessImage();
+
+                    // Figure out where the Character is facing, and plant the new construct right in front, by "10" units, facing the Character.
+                    Vector3D vector = new BindableVector3DModel(_dataModel.CharacterPosition.Forward).Vector3D;
+                    vector.Normalize();
+                    vector = Vector3D.Multiply(vector, 10);
+                    Position = new BindablePoint3DModel(Point3D.Add(new BindablePoint3DModel(_dataModel.CharacterPosition.Position).Point3D, vector));
+                    Forward = new BindableVector3DModel(_dataModel.CharacterPosition.Forward).Negate();
+                    Up = new BindableVector3DModel(_dataModel.CharacterPosition.Up);
+
+                    ClassType = ImportImageClassType.SmallShip;
+                    ArmorType = ImportArmorType.Light;
+
+                    IsValidImage = true;
                 }
-
-                _sourceImage = Image.FromFile(filename);
-                OriginalImageSize = new Size(_sourceImage.Width, _sourceImage.Height);
-
-                NewImageSize = new BindableSizeModel(_sourceImage.Width, _sourceImage.Height);
-                NewImageSize.PropertyChanged += (sender, e) => ProcessImage();
-
-                // Figure out where the Character is facing, and plant the new constrcut right in front, by "10" units, facing the Character.
-                var vector = new BindableVector3DModel(_dataModel.CharacterPosition.Forward).Vector3D;
-                vector.Normalize();
-                vector = Vector3D.Multiply(vector, 10);
-                Position = new BindablePoint3DModel(Point3D.Add(new BindablePoint3DModel(_dataModel.CharacterPosition.Position).Point3D, vector));
-                Forward = new BindableVector3DModel(_dataModel.CharacterPosition.Forward).Negate();
-                Up = new BindableVector3DModel(_dataModel.CharacterPosition.Up);
-
-                ClassType = ImportImageClassType.SmallShip;
-                ArmorType = ImportArmorType.Light;
-
-                IsValidImage = true;
+                else
+                {
+                    IsValidImage = false;
+                    Position = new BindablePoint3DModel(0, 0, 0);
+                    OriginalImageSize = new Size(0, 0);
+                    NewImageSize = new BindableSizeModel(0, 0);
+                }
             }
             else
             {
@@ -358,11 +360,19 @@
             IsBusy = false;
         }
 
+        private static bool IsImageFile(string fileName)
+        {
+            string[] validExtensions = [".jpg", ".jpeg", ".png", ".bmp", ".gif"];// ".dds",
+            string fileExtension = Path.GetExtension(fileName).ToLowerInvariant();
+            return validExtensions.Contains(fileExtension);
+        }
+
+
         private void ProcessImage()
         {
             if (_sourceImage != null)
             {
-                var image = ImageHelper.ResizeImage(_sourceImage, NewImageSize.Size);
+                Bitmap image = ImageHelper.ResizeImage(_sourceImage, NewImageSize.Size);
 
                 if (image != null)
                 {
@@ -383,16 +393,16 @@
 
         public MyObjectBuilder_CubeGrid BuildEntity()
         {
-            var entity = new MyObjectBuilder_CubeGrid
+            MyObjectBuilder_CubeGrid entity = new()
             {
                 EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ENTITY),
                 PersistentFlags = MyPersistentEntityFlags2.CastShadows | MyPersistentEntityFlags2.InScene,
-                Skeleton = new System.Collections.Generic.List<BoneInfo>(),
+                Skeleton = [],
                 LinearVelocity = new VRageMath.Vector3(0, 0, 0),
                 AngularVelocity = new VRageMath.Vector3(0, 0, 0)
             };
 
-            var blockPrefix = "";
+            string blockPrefix = "";
             switch (ClassType)
             {
                 case ImportImageClassType.SmallShip:
@@ -430,15 +440,22 @@
             {
                 case ImportArmorType.Heavy: blockPrefix += "HeavyBlockArmor"; break;
                 case ImportArmorType.Light: blockPrefix += "BlockArmor"; break;
+                case ImportArmorType.Round: blockPrefix += "ArmorRound"; break;
+                case ImportArmorType.Corner: blockPrefix += "Corner"; break;
+                case ImportArmorType.Angled: blockPrefix += "Angled"; break;
+                case ImportArmorType.Slope: blockPrefix += "Slope"; break;
+
+
             }
 
             entity.PositionAndOrientation = new MyPositionAndOrientation
             {
-                // TODO: reposition based scale.
-                Position = Position.ToVector3D(),
-                Forward = Forward.ToVector3(),
-                Up = Up.ToVector3()
+                // Reposition based on scale
+                Position = Position?.ToVector3D() * entity.GridSizeEnum.ToLength() ?? new VRageMath.Vector3D(0, 0, 0), // Default to origin if null
+                Forward = Forward?.ToVector3() ?? new VRageMath.Vector3(0, 0, 1), // Default to forward vector if null
+                Up = Up?.ToVector3() ?? new VRageMath.Vector3(0, 1, 0) // Default to up vector if null
             };
+            //see: Import3DModelViewModel for referenceand subtypeids
 
             // Large|BlockArmor|Corner
             // Large|RoundArmor_|Corner
@@ -446,18 +463,18 @@
             // Small|BlockArmor|Slope,
             // Small|HeavyBlockArmor|Corner,
 
-            entity.CubeBlocks = new System.Collections.Generic.List<MyObjectBuilder_CubeBlock>();
-            var image = ImageHelper.ResizeImage(_sourceImage, NewImageSize.Size);
+            entity.CubeBlocks = [];
+            Bitmap image = ImageHelper.ResizeImage(_sourceImage, NewImageSize.Size);
 
-            using (var palatteImage = new Bitmap(image))
+            using (Bitmap palatteImage = new(image))
             {
                 // Optimal order load. from grid coordinate (0,0,0) and up.
-                for (var x = palatteImage.Width - 1; x >= 0; x--)
+                for (int x = palatteImage.Width - 1; x >= 0; x--)
                 {
-                    for (var y = palatteImage.Height - 1; y >= 0; y--)
+                    for (int y = palatteImage.Height - 1; y >= 0; y--)
                     {
                         const int z = 0;
-                        var color = palatteImage.GetPixel(x, y);
+                        Color color = palatteImage.GetPixel(x, y);
 
                         // Specifically ignore anything with less than half "Transparent" Alpha.
                         if (IsAlphaLevel && color.A < AlphaLevel)
@@ -467,15 +484,19 @@
                             continue;
 
                         // Parse the string through the Enumeration to check that the 'subtypeid' is still valid in the game engine.
-                        var armor = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Block");
+                        string armorString = blockPrefix + "Block";
+                        if (Enum.IsDefined(typeof(SubtypeId), armorString))
+                        {
+                            SubtypeId armor = (SubtypeId)Enum.Parse(typeof(SubtypeId), armorString);
+                            MyObjectBuilder_CubeBlock newCube;
+                            entity.CubeBlocks.Add(newCube = new MyObjectBuilder_CubeBlock());
+                            newCube.SubtypeName = armor.ToString();
+                            newCube.EntityId = 0;
+                            newCube.BlockOrientation = Modelling.GetCubeOrientation(CubeType.Cube);
+                            newCube.Min = new VRageMath.Vector3I(palatteImage.Width - x - 1, palatteImage.Height - y - 1, z);
+                            newCube.ColorMaskHSV = color.FromPaletteColorToHsvMask();
+                        }
 
-                        MyObjectBuilder_CubeBlock newCube;
-                        entity.CubeBlocks.Add(newCube = new MyObjectBuilder_CubeBlock());
-                        newCube.SubtypeName = armor.ToString();
-                        newCube.EntityId = 0;
-                        newCube.BlockOrientation = Modelling.GetCubeOrientation(CubeType.Cube);
-                        newCube.Min = new VRageMath.Vector3I(palatteImage.Width - x - 1, palatteImage.Height - y - 1, z);
-                        newCube.ColorMaskHSV = color.FromPaletteColorToHsvMask();
                     }
                 }
             }

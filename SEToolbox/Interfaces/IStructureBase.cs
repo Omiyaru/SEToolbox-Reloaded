@@ -1,10 +1,10 @@
-﻿namespace SEToolbox.Interfaces
-{
-    using SEToolbox.Interop;
-    using VRage;
-    using VRage.ObjectBuilders;
-    using VRageMath;
+﻿using SEToolbox.Interop;
+using VRage;
+using VRage.ObjectBuilders;
+using VRageMath;
 
+namespace SEToolbox.Interfaces
+{
     public interface IStructureBase
     {
         MyObjectBuilder_EntityBase EntityBase { get; set; }
@@ -27,7 +27,7 @@
 
         Vector3D Center { get; set; }
 
-        BoundingBoxD WorldAABB { get; set; }
+        BoundingBoxD WorldAabb { get; set; }
 
         string SerializedEntity { get; set; }
 
@@ -47,7 +47,15 @@
 
         double PositionZ { get; set; }
 
+         Vector3D Position { get; set; }
+
         double LinearVelocity { get; set; }
+        
+        Vector3D PlayerLocation { get; set; }
+        
+        Vector3D PlayerPosition { get; set; }
+        
+        string SourceVoxelFilePath { get; set; }
 
         void RecalcPosition(Vector3D playerPosition);
     }

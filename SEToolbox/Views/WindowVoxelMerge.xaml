@@ -49,7 +49,7 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
-                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{lex:Loc WnVoxelMergeLabelFilenameOutput}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{lex:Loc WnVoxelMergeLabelFileNameOutput}" VerticalAlignment="Center" Margin="0,0,4,0"/>
                     <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="200" Text="{Binding MergeFileName}"/>
                     <CheckBox Grid.Row="4" Grid.Column="1" Content="{lex:Loc WnVoxelMergeChkRemoveOriginals}" VerticalAlignment="Center" HorizontalAlignment="Left" IsChecked="{Binding RemoveOriginalAsteroids}" />
                 </Grid>
@@ -245,6 +245,10 @@
                 </StackPanel>
             </Grid>
         </Grid>
-        <controls:BusyIndicator Visibility="{Binding IsBusy, FallbackValue=Hidden, Converter={StaticResource BooleanToVisibilityConverter}}" />
+       <controls:BusyIndicator Mode="Spinner"
+                         Visibility="{Binding IsBusy,
+             Converter={StaticResource BooleanToVisibilityConverter},
+             FallbackValue=Collapsed}"/>
+
     </Grid>
 </Window>

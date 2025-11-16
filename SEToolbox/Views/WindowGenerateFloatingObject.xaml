@@ -11,7 +11,7 @@
         Title="{lex:Loc WnGenFloatTitle}" Height="260" Width="320" Icon="/SEToolbox;component/app.ico" Style="{StaticResource DefaultWindowStyle}"
         commands:DialogService.IsRegisteredView="True"
         commands:DialogCloser.DialogResult="{Binding CloseResult}"
-        FocusManager.FocusedElement="{Binding ElementName=UxInitialElement}">
+        FocusManager.FocusedElement="{Binding ElementName=uxInitialElement}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:BusyMouseConverter x:Key="BusyMouseConverter" />
@@ -41,13 +41,13 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="{lex:Loc WnGenFloatTxtItem}" VerticalAlignment="Center"/>
-                <ComboBox Grid.Row="0" Grid.Column="1" Name="UxInitialElement" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding StockItemList}" SelectedValue="{Binding StockItem}" IsTextSearchEnabled="True">
+                <ComboBox Grid.Row="0" Grid.Column="1" Name="uxInitialElement" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding StockItemList}" SelectedValue="{Binding StockItem}" IsTextSearchEnabled="True">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
                                 <Image Width="16" Height="16" Source="{Binding Path=TextureFile, Converter={StaticResource DDSConverter}, ConverterParameter='16,16'}" SnapsToDevicePixels="True" Margin="0,0,2,0" />
                                 <TextBlock Text="{Binding FriendlyName}"/>
-                                <!--<TextBlock Text="{Binding CubeSize, StringFormat='{} ({0})'}"/>-->
+                                <TextBlock Text="{Binding CubeSize, StringFormat='{} ({0})'}"/>
                             </StackPanel>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
@@ -107,6 +107,10 @@
                 <Button Margin="8,0,0,0" Width="90" Command="{Binding CancelCommand}" Content="{lex:Loc WnGenFloatBtnCancel}" IsCancel="True"/>
             </StackPanel>
         </Grid>
-        <controls:BusyIndicator Visibility="{Binding IsBusy, FallbackValue=Hidden, Converter={StaticResource BooleanToVisibilityConverter}}" />
+       <controls:BusyIndicator Mode="Spinner"
+                         Visibility="{Binding IsBusy,
+             Converter={StaticResource BooleanToVisibilityConverter},
+             FallbackValue=Collapsed}"/>
+
     </Grid>
 </Window>

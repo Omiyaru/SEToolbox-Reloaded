@@ -1,10 +1,10 @@
-﻿namespace SEToolbox.Models
-{
-    using System.Windows.Media.Media3D;
+﻿using System.Windows.Media.Media3D;
 
+namespace SEToolbox.Models
+{
     public class BindableSize3DModel : BaseModel
     {
-        #region fields
+        #region Fields
 
         private Size3D _size;
 
@@ -29,66 +29,35 @@
         {
             _size = new Size3D(size.X, size.Y, size.Z);
         }
+        
 
         #region Properties
 
         public double Width
         {
-            get
-            {
-                return _size.X;
-            }
+            get => _size.X;
 
-            set
-            {
-                if (value != _size.X)
-                {
-                    _size.X = value;
-                    OnPropertyChanged(nameof(Width));
-                }
-            }
+            set => SetProperty(_size.X , value, nameof(Width));
         }
 
         public double Height
         {
-            get
-            {
-                return _size.Y;
-            }
+            get => _size.Y;
 
-            set
-            {
-                if (value != _size.Y)
-                {
-                    _size.Y = value;
-                    OnPropertyChanged(nameof(Height));
-                }
-            }
+            set => SetProperty(_size.Y = value, value, nameof(Height));
+        
         }
 
         public double Depth
         {
-            get
-            {
-                return _size.Z;
-            }
+            get => _size.Z;
 
-            set
-            {
-                if (value != _size.Z)
-                {
-                    _size.Z = value;
-                    OnPropertyChanged(nameof(Depth));
-                }
-            }
+            set => SetProperty(_size.Z = value, value, nameof(Depth));
         }
 
         public Size3D ToSize3D
         {
-            get
-            {
-                return _size;
-            }
+            get  => _size;
         }
 
         #endregion

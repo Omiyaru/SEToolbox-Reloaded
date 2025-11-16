@@ -1,17 +1,17 @@
-﻿namespace SEToolbox.Interop.Asteroids
+﻿
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Media.Media3D;
+using SEToolbox.Support;
+using VRageMath;
+
+namespace SEToolbox.Interop.Asteroids
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Linq;
-    using System.Runtime.CompilerServices;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Windows.Media.Media3D;
-
-    using SEToolbox.Support;
-    using VRageMath;
-
     public static class MyVoxelRayTracer
     {
         enum MeshFace : byte
@@ -21,22 +21,22 @@
             Farside
         }
 
-        static readonly object Locker = new object();
+        static readonly object Locker = new();
 
-        public static MyVoxelMap GenerateVoxelMapFromModel(Model model, in Matrix3D rotationMatrix, TraceType traceType, TraceCount traceCount, TraceDirection traceDirection,
+        public static MyVoxelMapBase GenerateVoxelMapFromModel(Model model, in Matrix3D rotationMatrix, TraceType traceType, TraceCount traceCount, TraceDirection traceDirection,
             Action<double, double> resetProgress, Action incrementProgress, Action complete, CancellationToken cancellationToken)
         {
-            var materials = new byte[model.MeshCount];
-            var faceMaterials = new byte[model.MeshCount];
+            byte[] materials = new byte[model.MeshCount];
+            byte[] faceMaterials = new byte[model.MeshCount];
 
             for (int i = 0; i < model.Meshes.Length; i++)
             {
-                var mesh = model.Meshes[i];
+                ModelMesh mesh = model.Meshes[i];
                 materials[i] = mesh.MaterialIndex ?? SpaceEngineersConsts.EmptyVoxelMaterial;
                 faceMaterials[i] = mesh.FaceMaterialIndex ?? SpaceEngineersConsts.EmptyVoxelMaterial;
             }
 
-            var tbounds = model.Bounds;
+            Rect3D tbounds = model.Bounds;
 
             // Add 2 to either side, to allow for material padding to expose internal materials.
             const int bufferSize = 2;
@@ -51,27 +51,24 @@
             var min = new Vector3I(xMin, yMin, zMin);
             var max = new Vector3I(xMax, yMax, zMax);
 
-            // Do not rounnd up the array size, as this really isn't required, and it increases the calculation time.
+            // Do not round up the array size, as this really isn't required, and it increases the calculation time.
             int xCount = xMax - xMin;
             int yCount = yMax - yMin;
             int zCount = zMax - zMin;
 
-            Debug.WriteLine("Approximate Size: {0}x{1}x{2}", Math.Ceiling(tbounds.X + tbounds.SizeX) - Math.Floor(tbounds.X), Math.Ceiling(tbounds.Y + tbounds.SizeY) - Math.Floor(tbounds.Y), Math.Ceiling(tbounds.Z + tbounds.SizeZ) - Math.Floor(tbounds.Z));
-            Debug.WriteLine("Bounds Size: {0}x{1}x{2}", xCount, yCount, zCount);
+            SConsole.WriteLine($"Approximate Size: {(double)(Math.Ceiling(tbounds.X + tbounds.SizeX) - Math.Floor(tbounds.X))}x{(double)(Math.Ceiling(tbounds.Y + tbounds.SizeY) - Math.Floor(tbounds.Y))}x{(double)(Math.Ceiling(tbounds.Z + tbounds.SizeZ) - Math.Floor(tbounds.Z))}");
+            SConsole.WriteLine($"Bounds Size: {xCount}x{yCount}x{zCount}");
 
-            var finalCubic = new byte[xCount, yCount, zCount];
-            var finalMats = new byte[xCount, yCount, zCount];
+            byte[,,] finalCubic = new byte[xCount, yCount, zCount];
+            byte[,,] finalMats = new byte[xCount, yCount, zCount];
 
             if (resetProgress != null)
             {
                 long rays = 0;
 
-                if ((traceDirection & TraceDirection.X) == TraceDirection.X)
-                    rays += yCount * zCount;
-                if ((traceDirection & TraceDirection.Y) == TraceDirection.Y)
-                    rays += xCount * zCount;
-                if ((traceDirection & TraceDirection.Z) == TraceDirection.Z)
-                    rays += xCount * yCount;
+                rays += ((traceDirection & TraceDirection.X) == TraceDirection.X ? yCount * zCount : 0) +
+                        ((traceDirection & TraceDirection.Y) == TraceDirection.Y ? xCount * zCount : 0) +
+                        ((traceDirection & TraceDirection.Z) == TraceDirection.Z ? xCount * yCount : 0);
 
                 resetProgress.Invoke(0, rays * model.NumGeometries);
             }
@@ -94,10 +91,10 @@
             // Start from the last mesh, which represents the bottom of the UI stack, and overlay each other mesh on top of it.
             for (int modelIdx = model.Meshes.Length - 1; modelIdx >= 0; modelIdx--)
             {
-                Debug.WriteLine("Model {0}", modelIdx);
+                SConsole.WriteLine($"Model {modelIdx}");
 
-                var modelCubic = new byte[xCount, yCount, zCount];
-                var modelMats = new byte[xCount, yCount, zCount];
+                byte[,,] modelCubic = new byte[xCount, yCount, zCount];
+                byte[,,] modelMats = new byte[xCount, yCount, zCount];
 
                 var mesh = model.Meshes[modelIdx];
                 var geometries = mesh.Geometeries;
@@ -107,16 +104,16 @@
 
                 if ((traceDirection & TraceDirection.X) == TraceDirection.X)
                 {
-                    Debug.WriteLine("X Rays");
+                    SConsole.WriteLine("X Rays");
                     traceDirectionCount++;
 
-                    var rayOffsets = new Vector3[] {
-                        new Vector3(0,     0,     0),
-                        new Vector3(0, -0.5f, -0.5f),
-                        new Vector3(0,  0.5f, -0.5f),
-                        new Vector3(0, -0.5f,  0.5f),
-                        new Vector3(0,  0.5f,  0.5f)
-                    };
+                    Vector3[] rayOffsets = [
+                                new(0, 0, 0),
+                                new(0, -0.5f, -0.5f),
+                                new(0, 0.5f, -0.5f),
+                                new(0, -0.5f, 0.5f),
+                                new(0, 0.5f, 0.5f)
+                        ];
 
                     bool result = TraceRays(geometries, rotateMatrix, traceType, rayOffsets, axis: 0, min, max,
                         modelCubic, modelMats, traceDirectionCount, material, faceMat, incrementProgress, cancellationToken);
@@ -130,16 +127,16 @@
 
                 if ((traceDirection & TraceDirection.Y) == TraceDirection.Y)
                 {
-                    Debug.WriteLine("Y Rays");
+                    SConsole.WriteLine("Y Rays");
                     traceDirectionCount++;
 
-                    var rayOffsets = new Vector3[] {
-                        new Vector3(    0, 0,     0),
-                        new Vector3(-0.5f, 0, -0.5f),
-                        new Vector3( 0.5f, 0, -0.5f),
-                        new Vector3(-0.5f, 0,  0.5f),
-                        new Vector3( 0.5f, 0,  0.5f)
-                    };
+                    Vector3[] rayOffsets = [
+                        new( 0, 0, 0),
+                        new(-0.5f, 0, -0.5f),
+                        new( 0.5f, 0, -0.5f),
+                        new(-0.5f, 0,  0.5f),
+                        new( 0.5f, 0,  0.5f)
+                    ];
 
                     bool result = TraceRays(geometries, rotateMatrix, traceType, rayOffsets, axis: 1, min, max,
                         modelCubic, modelMats, traceDirectionCount, material, faceMat, incrementProgress, cancellationToken);
@@ -153,16 +150,16 @@
 
                 if ((traceDirection & TraceDirection.Z) == TraceDirection.Z)
                 {
-                    Debug.WriteLine("Z Rays");
+                    SConsole.WriteLine("Z Rays");
                     traceDirectionCount++;
 
-                    var rayOffsets = new Vector3[] {
-                        new Vector3(    0,     0, 0),
-                        new Vector3(-0.5f, -0.5f, 0),
-                        new Vector3( 0.5f, -0.5f, 0),
-                        new Vector3(-0.5f,  0.5f, 0),
-                        new Vector3( 0.5f,  0.5f, 0)
-                    };
+                    Vector3[] rayOffsets = [
+                        new( 0, 0, 0),
+                        new(-0.5f, -0.5f, 0),
+                        new( 0.5f, -0.5f, 0),
+                        new(-0.5f,  0.5f, 0),
+                        new( 0.5f,  0.5f, 0)
+                    ];
 
                     bool result = TraceRays(geometries, rotateMatrix, traceType, rayOffsets, axis: 2, min, max,
                         modelCubic, modelMats, traceDirectionCount, material, faceMat, incrementProgress, cancellationToken);
@@ -181,6 +178,7 @@
                 }
 
                 // Merge individual model results into final
+                var fullCount = new byte[xCount, yCount, zCount];
 
                 for (int x = 0; x < xCount; x++)
                 {
@@ -188,6 +186,7 @@
                     {
                         for (int z = 0; z < zCount; z++)
                         {
+                
                             byte content = modelCubic[x, y, z];
                             byte mat = modelMats[x, y, z];
 
@@ -215,11 +214,17 @@
                 complete?.Invoke();
                 return null;
             }
-
-            var size = new Vector3I(xCount, yCount, zCount);
+            //lookintoSurcaceMaterial
+            Vector3I size = new(xCount, yCount, zCount);
             // TODO: At the moment the Mesh list is not complete, so the faceMaterial setting is kind of vague.
-            var defaultMaterial = model.Meshes[0].MaterialIndex; // Use the FaceMaterial from the first Mesh in the object list.
-            var faceMaterial = model.Meshes[0].FaceMaterialIndex; // Use the FaceMaterial from the first Mesh in the object list.
+            byte? defaultMaterial = model.Meshes[0].MaterialIndex; // Use the FaceMaterial from the first Mesh in the object list.
+            byte? faceMaterial = model.Meshes[0].FaceMaterialIndex; // Use the FaceMaterial from the first Mesh in the object list.
+
+            if (model.Meshes.Length > 0)
+            {
+                defaultMaterial = model.Meshes.Min(m => m.MaterialIndex);
+                faceMaterial = model.Meshes.Min(m => m.FaceMaterialIndex);
+            }
 
             void CellAction(ref MyVoxelBuilderArgs args)
             {
@@ -253,7 +258,8 @@
             int yCount = max.Y - min.Y;
             int zCount = max.Z - min.Z;
 
-            int iterCount = axis switch {
+            int iterCount = axis switch
+            {
                 0 => yCount * zCount,
                 1 => xCount * zCount,
                 2 => xCount * yCount,
@@ -264,7 +270,7 @@
 
             try
             {
-                var options = new ParallelOptions { CancellationToken = cancellationToken };
+                ParallelOptions options = new() { CancellationToken = cancellationToken };
                 loopResult = Parallel.For(0, iterCount, options, InitLocalState, IntersectRays, args => { });
             }
             catch (OperationCanceledException)
@@ -290,21 +296,21 @@
 
                 switch (axis)
                 {
-                case 0:
-                    y = loopIndex / zCount + min.Y;
-                    z = loopIndex % zCount + min.Z;
-                    break;
-                case 1:
-                    x = loopIndex / zCount + min.X;
-                    z = loopIndex % zCount + min.Z;
-                    break;
-                case 2:
-                    x = loopIndex / yCount + min.X;
-                    y = loopIndex % yCount + min.Y;
-                    break;
+                    case 0:
+                        y = loopIndex / zCount + min.Y;
+                        z = loopIndex % zCount + min.Z;
+                        break;
+                    case 1:
+                        x = loopIndex / zCount + min.X;
+                        z = loopIndex % zCount + min.Z;
+                        break;
+                    case 2:
+                        x = loopIndex / yCount + min.X;
+                        y = loopIndex % yCount + min.Y;
+                        break;
                 }
 
-                var rayHits = args.RayHits;
+                List<RayHit> rayHits = args.RayHits;
 
                 TestRays(geometries, rotateMatrix, traceType, rayOffsets, rayHits, min, max, new Vector3I(x, y, z), axis, incrementProgress, cancellationToken);
 
@@ -312,18 +318,18 @@
                 {
                     switch (axis)
                     {
-                    case 0:
-                        AccumVolume<XAxisSelector>(rayHits, traceType, rayOffsets.Length, min, max, x, y, z,
-                            modelCubic, modelMats, traceDirectionCount, args.Mat, args.FaceMat);
-                        break;
-                    case 1:
-                        AccumVolume<YAxisSelector>(rayHits, traceType, rayOffsets.Length, min, max, x, y, z,
-                            modelCubic, modelMats, traceDirectionCount, args.Mat, args.FaceMat);
-                        break;
-                    case 2:
-                        AccumVolume<ZAxisSelector>(rayHits, traceType, rayOffsets.Length, min, max, x, y, z,
-                            modelCubic, modelMats, traceDirectionCount, args.Mat, args.FaceMat);
-                        break;
+                        case 0:
+                            AccumVolume<XAxisSelector>(rayHits, traceType, rayOffsets.Length, min, max, x, y, z,
+                                modelCubic, modelMats, traceDirectionCount, args.Mat, args.FaceMat);
+                            break;
+                        case 1:
+                            AccumVolume<YAxisSelector>(rayHits, traceType, rayOffsets.Length, min, max, x, y, z,
+                                modelCubic, modelMats, traceDirectionCount, args.Mat, args.FaceMat);
+                            break;
+                        case 2:
+                            AccumVolume<ZAxisSelector>(rayHits, traceType, rayOffsets.Length, min, max, x, y, z,
+                                modelCubic, modelMats, traceDirectionCount, args.Mat, args.FaceMat);
+                            break;
                     }
                 }
 
@@ -336,7 +342,8 @@
             Vector3[] rayOffsets, List<RayHit> rayHits, Vector3I min, Vector3I max, Vector3I coord, int axis,
             Action incrementProgress, CancellationToken cancellationToken)
         {
-            var axisMask = axis switch {
+            Vector3 axisMask = axis switch
+            {
                 0 => new Vector3(0, 1, 1),
                 1 => new Vector3(1, 0, 1),
                 2 => new Vector3(1, 1, 0),
@@ -352,9 +359,9 @@
                 // But still large enough that it isn't the exact corner.
                 const double edgeOffset = 0.0000045f;
 
-                var ro = rayOffsets[i];
+                Vector3 ro = rayOffsets[i];
 
-                var offset = new VRageMath.Vector3D(
+                VRageMath.Vector3D offset = new(
                     ro.X > 0 ? -edgeOffset : edgeOffset,
                     ro.Y > 0 ? -edgeOffset : edgeOffset,
                     ro.Z > 0 ? -edgeOffset : edgeOffset);
@@ -365,57 +372,56 @@
                 maskedOffsets[i] = offset * axisMask;
             }
 
-            var axisMin = min * (Vector3.One - axisMask);
-            var axisMax = max * (Vector3.One - axisMask);
-            var coordF = (Vector3)coord;
-            var coordMin = axisMin + coordF;
-            var coordMax = axisMax + coordF;
-
-            foreach (var geometry in geometries)
+            Vector3 axisMin = min * (Vector3.One - axisMask);
+            Vector3 axisMax = max * (Vector3.One - axisMask);
+            Vector3 coordF = (Vector3)coord;
+            Vector3 coordMin = axisMin + coordF;
+            Vector3 coordMax = axisMax + coordF;
+            var rayPoints = new Point3DCollection();
+            foreach (MeshGeometery geometry in geometries)
             {
                 for (int t = 0; t < geometry.Triangles.Length; t += 3)
                 {
-                    var p1 = geometry.Positions[geometry.Triangles[t]];
-                    var p2 = geometry.Positions[geometry.Triangles[t + 1]];
-                    var p3 = geometry.Positions[geometry.Triangles[t + 2]];
+                    rayPoints[0] = geometry.Positions[geometry.Triangles[t]];
+                    rayPoints[1] = geometry.Positions[geometry.Triangles[t + 1]];
+                    rayPoints[2] = geometry.Positions[geometry.Triangles[t + 2]];
 
-                    p1 = VRageMath.Vector3D.TransformNormal(p1.ToVector3D(), rotateMatrix).ToPoint3D();
-                    p2 = VRageMath.Vector3D.TransformNormal(p2.ToVector3D(), rotateMatrix).ToPoint3D();
-                    p3 = VRageMath.Vector3D.TransformNormal(p3.ToVector3D(), rotateMatrix).ToPoint3D();
+                    rayPoints[0] = VRageMath.Vector3D.TransformNormal(rayPoints[0].ToVector3D(), rotateMatrix).ToPoint3D();
+                    rayPoints[1] = VRageMath.Vector3D.TransformNormal(rayPoints[1].ToVector3D(), rotateMatrix).ToPoint3D();
+                    rayPoints[2] = VRageMath.Vector3D.TransformNormal(rayPoints[2].ToVector3D(), rotateMatrix).ToPoint3D();
 
                     for (int i = 0; i < rayOffsets.Length; i++)
                     {
-                        var ro = rayOffsets[i];
-                        var o = maskedOffsets[i];
-                        var start = (coordMin + ro) + o;
+                        Vector3 ro = rayOffsets[i];
+                        VRageMath.Vector3D o = maskedOffsets[i];
+                        VRageMath.Vector3D start = coordMin + ro + o;
 
                         if (axis != 0)
                         {
-                            if ((p1.X < start.X && p2.X < start.X && p3.X < start.X) ||
-                                (p1.X > start.X && p2.X > start.X && p3.X > start.X))
+                            if ((rayPoints[0].X < start.X && rayPoints[1].X < start.X && rayPoints[2].X < start.X) ||
+                                (rayPoints[0].X > start.X && rayPoints[1].X > start.X && rayPoints[2].X > start.X))
                                 continue;
                         }
 
                         if (axis != 1)
                         {
-                            if ((p1.Y < start.Y && p2.Y < start.Y && p3.Y < start.Y) ||
-                                (p1.Y > start.Y && p2.Y > start.Y && p3.Y > start.Y))
+                            if ((rayPoints[0].Y < start.Y && rayPoints[1].Y < start.Y && rayPoints[2].Y < start.Y) ||
+                                (rayPoints[0].Y > start.Y && rayPoints[1].Y > start.Y && rayPoints[2].Y > start.Y))
                                 continue;
                         }
 
                         if (axis != 2)
                         {
-                            if ((p1.Z < start.Z && p2.Z < start.Z && p3.Z < start.Z) ||
-                                (p1.Z > start.Z && p2.Z > start.Z && p3.Z > start.Z))
+                            if ((rayPoints[0].Z < start.Z && rayPoints[1].Z < start.Z && rayPoints[2].Z < start.Z) ||
+                                (rayPoints[0].Z > start.Z && rayPoints[1].Z > start.Z && rayPoints[2].Z > start.Z))
                                 continue;
                         }
 
-                        var end = (coordMax + ro) + o;
+                        VRageMath.Vector3D end = (coordMax + ro) + o;
 
-                        Point3D intersect;
-                        int normal;
 
-                        if (MeshHelper.RayIntersectTriangleRound(p1, p2, p3, start.ToPoint3D(), end.ToPoint3D(), out intersect, out normal))
+
+                        if (MeshHelper.RayIntersectTriangleRound(rayPoints, start.ToPoint3D(), end.ToPoint3D(), out Point3D intersect, out int normal))
                             rayHits.Add(new RayHit(intersect, normal, i));
                     }
                 }
@@ -480,8 +486,8 @@
             int traceDirectionCount, byte material, byte faceMaterial)
             where TSelector : struct, IAxisValueSelector
         {
-            var orderedHits = rayHits.Select(t => (Point: default(TSelector).GetValue(t.Point), t.Face, t.TestRayIndex))
-                                     .Distinct().OrderBy(k => k.Point).ToArray();
+            (double Point, MeshFace Face, int TestRayIndex)[] orderedHits = [.. rayHits.Select(t => (Point: default(TSelector).GetValue(t.Point), t.Face, t.TestRayIndex))
+                                     .Distinct().OrderBy(k => k.Point)];
 
             TSelector selector = default;
 
@@ -516,21 +522,21 @@
 
             int axisMin = 0, axisMax = 0;
 
-            switch (selector.Axis)
+            axisMin = selector.Axis switch
             {
-            case 0:
-                axisMin = min.X;
-                axisMax = max.X;
-                break;
-            case 1:
-                axisMin = min.Y;
-                axisMax = max.Y;
-                break;
-            case 2:
-                axisMin = min.Z;
-                axisMax = max.Z;
-                break;
-            }
+                0 => min.X,
+                1 => min.Y,
+                2 => min.Z,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            axisMax = selector.Axis switch
+            {
+                0 => max.X,
+                1 => max.Y,
+                2 => max.Z,
+                _ => throw new ArgumentOutOfRangeException()
+            };
 
             double hitWeight = 1.0 / testRayCount;
             Span<int> surfaceCounts = stackalloc int[testRayCount];
@@ -542,7 +548,7 @@
                 for (int i = 0; i < surfaceCounts.Length; i++)
                     volume += (surfaceCounts[i] > 0 ? 1 : 0) * hitWeight;
 
-                foreach (var hit in orderedHits)
+                foreach ((double Point, MeshFace Face, int TestRayIndex) hit in orderedHits)
                 {
                     double p = hit.Point;
 
@@ -615,7 +621,7 @@
 
             public int MeshCount => Meshes.Length;
 
-            public Model(Model3DGroup model, Size3D scale, Matrix3D rotateMatrix, byte? material)
+            public Model(Model3DGroup model, Size3D scale, Matrix3D rotateMatrix, byte material)
             {
                 if (scale.X > 0 && scale.Y > 0 && scale.Z > 0
                     && scale.X != 1.0 && scale.Y != 1.0 && scale.Z != 1.0)
@@ -623,61 +629,48 @@
                     model.TransformScale(scale.X, scale.Y, scale.Z);
                 }
 
-                var bounds = model.Bounds;
+                Rect3D bounds = model.Bounds;
 
                 // Attempt to offset the model, so it's only caulated from zero (0) and up, instead of using zero (0) as origin.
-                //model.Transform = new TranslateTransform3D(-bounds.X, -bounds.Y, -bounds.Z);
+                model.Transform = new TranslateTransform3D(-bounds.X, -bounds.Y, -bounds.Z);
 
                 if (!rotateMatrix.IsIdentity)
                     bounds = new MatrixTransform3D(rotateMatrix).TransformBounds(bounds);
 
                 Bounds = bounds;
 
-                //model.Transform = new TranslateTransform3D(-bounds.X, -bounds.Y, -bounds.Z);
+                model.Transform = new TranslateTransform3D(-bounds.X, -bounds.Y, -bounds.Z);
 
-                var geometries = new List<MeshGeometery>();
+                List<MeshGeometery> geometries = [];
 
-                foreach (var c in model.Children)
+                foreach (Model3D c in model.Children)
                 {
-                    var gm = (GeometryModel3D)c;
+                    GeometryModel3D gm = (GeometryModel3D)c;
 
                     if (gm.Geometry is MeshGeometry3D g)
                         geometries.Add(new MeshGeometery(g));
                 }
 
                 // TODO: If this is only ever used with one mesh then remove the MeshGeometry concept
-                Meshes = new ModelMesh[] { new ModelMesh(geometries.ToArray(), material, material) };
+                Meshes = [new([.. geometries], material, material)];
                 NumGeometries = geometries.Count;
             }
         }
 
-        public class ModelMesh
+        public class ModelMesh(MeshGeometery[] geometeries, byte? materialIndex, byte? faceMaterialIndex)
         {
-            public MeshGeometery[] Geometeries { get; set; }
-            public byte? MaterialIndex { get; set; }
-            public byte? FaceMaterialIndex { get; set; }
-
-            public ModelMesh(MeshGeometery[] geometeries, byte? materialIndex, byte? faceMaterialIndex)
-            {
-                Geometeries = geometeries;
-                MaterialIndex = materialIndex;
-                FaceMaterialIndex = faceMaterialIndex;
-            }
+            public MeshGeometery[] Geometeries { get; set; } = geometeries;
+            public byte? MaterialIndex { get; set; } = materialIndex;
+            public byte? FaceMaterialIndex { get; set; } = faceMaterialIndex;
         }
 
-        public class MeshGeometery
+        public class MeshGeometery(int[] triangles, Point3D[] positions)
         {
-            public int[] Triangles { get; set; }
-            public Point3D[] Positions { get; set; }
+            public int[] Triangles { get; set; } = triangles;
+            public Point3D[] Positions { get; set; } = positions;
 
             public MeshGeometery(MeshGeometry3D meshGeometry)
-                : this(meshGeometry.TriangleIndices.ToArray(), meshGeometry.Positions.ToArray()) { }
-
-            public MeshGeometery(int[] triangles, Point3D[] positions)
-            {
-                Triangles = triangles;
-                Positions = positions;
-            }
+                : this([.. meshGeometry.TriangleIndices], [.. meshGeometry.Positions]) { }
         }
 
         struct RayHit : IEquatable<RayHit>

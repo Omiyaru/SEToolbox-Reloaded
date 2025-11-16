@@ -1,13 +1,13 @@
-﻿namespace SEToolbox.Models
+﻿using System;
+
+using SEToolbox.Interop;
+
+namespace SEToolbox.Models
 {
-    using System;
-
-    using SEToolbox.Interop;
-
     [Serializable]
     public class CubeAssetModel : BaseModel
     {
-        #region fields
+        #region Fields
 
         private string _name;
 
@@ -29,104 +29,47 @@
 
         public string Name
         {
-            get { return _name; }
-
-            set
-            {
-                if (value != _name)
-                {
-                    _name = value;
-                    FriendlyName = SpaceEngineersApi.GetResourceName(Name);
-                    OnPropertyChanged(nameof(Name));
-                }
-            }
+            get => _name;
+            set => SetProperty(ref _name, value, nameof(Name), FriendlyName == SpaceEngineersApi.GetResourceName(Name), nameof(FriendlyName));
         }
 
         public string FriendlyName { get; set; }
 
         public double Mass
         {
-            get { return _mass; }
-
-            set
-            {
-                if (value != _mass)
-                {
-                    _mass = value;
-                    OnPropertyChanged(nameof(Mass));
-                }
-            }
+            get => _mass;
+            set => SetProperty(ref _mass, value, nameof(Mass));
         }
 
         public double Volume
         {
-            get { return _volume; }
-
-            set
-            {
-                if (value != _volume)
-                {
-                    _volume = value;
-                    OnPropertyChanged(nameof(Volume));
-                }
-            }
+            get => _volume;
+            set => SetProperty(ref _volume, value, nameof(Volume));
         }
 
         public long Count
         {
-            get { return _count; }
-
-            set
-            {
-                if (value != _count)
-                {
-                    _count = value;
-                    OnPropertyChanged(nameof(Count));
-                }
-            }
+            get => _count;
+            set => SetProperty(ref _count, value, nameof(Count));
         }
 
         public TimeSpan Time
         {
-            get { return _time; }
-
-            set
-            {
-                if (value != _time)
-                {
-                    _time = value;
-                    OnPropertyChanged(nameof(Time));
-                }
-            }
+            get => _time;
+            set => SetProperty(ref _time, value, nameof(Time));
         }
 
         public int PCU
         {
-            get { return _pcu; }
-
-            set
-            {
-                if (value != _pcu)
-                {
-                    _pcu = value;
-                    OnPropertyChanged(nameof(PCU));
-                }
-            }
+            get => _pcu;
+            set => SetProperty(ref _pcu, value, nameof(PCU));
         }
 
 
         public string TextureFile
         {
-            get { return _textureFile; }
-
-            set
-            {
-                if (value != _textureFile)
-                {
-                    _textureFile = value;
-                    OnPropertyChanged(nameof(TextureFile));
-                }
-            }
+            get => _textureFile;
+            set => SetProperty(ref _textureFile, value, nameof(TextureFile));
         }
 
         #endregion

@@ -1,10 +1,10 @@
-﻿namespace SEToolbox.ViewModels
-{
-    using SEToolbox.Models;
+﻿using SEToolbox.Models;
 
+namespace SEToolbox.ViewModels
+{
     public class StructureInventoryBagViewModel : StructureBaseViewModel<StructureInventoryBagModel>
     {
-        #region ctor
+        #region Ctor
 
         public StructureInventoryBagViewModel(BaseViewModel parentViewModel, StructureInventoryBagModel dataModel)
             : base(parentViewModel, dataModel)
@@ -19,7 +19,7 @@
 
         protected new StructureInventoryBagModel DataModel
         {
-            get { return base.DataModel as StructureInventoryBagModel; }
+            get => base.DataModel as StructureInventoryBagModel; 
         }
 
         #endregion

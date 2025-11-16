@@ -4,7 +4,7 @@
     <TargetFramework>net48</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <UseWPF>true</UseWPF>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>preview</LangVersion>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Title>SEToolboxUpdate</Title>
@@ -14,6 +14,8 @@
     <Copyright>Copyright © MidSpace 2013-2018</Copyright>
     <Platforms>AnyCPU;x64</Platforms>
     <OutputPath>bin\$(Platform)\$(Configuration)</OutputPath>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,12 +28,18 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="..\SEToolbox\Support\DiagnosticsLogging.cs">
+      <Link>Support\DiagnosticsLogging.cs</Link>
+    </Compile>
     <Compile Include="..\SEToolbox\Support\GlobalSettings.cs">
       <Link>Support\GlobalSettings.cs</Link>
     </Compile>
-    <Compile Include="..\SEToolbox\Support\Log.cs">
-      <Link>Support\Log.cs</Link>
+    <Compile Include="..\SEToolbox\Support\SConsole.cs">
+      <Link>Support\SConsole.cs</Link>
     </Compile>
+	  <Compile Include="..\SEToolbox\Support\Conditional.cs">
+		  <Link>Support\Conditional.cs</Link>
+      </Compile>
     <Compile Include="..\SEToolbox\Support\ToolboxUpdater.cs">
       <Link>Support\ToolboxUpdater.cs</Link>
     </Compile>

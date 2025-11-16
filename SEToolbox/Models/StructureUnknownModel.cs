@@ -1,24 +1,19 @@
-﻿namespace SEToolbox.Models
+﻿using System;
+using System.Runtime.Serialization;
+
+using SEToolbox.Interop;
+using VRage.ObjectBuilders;
+
+namespace SEToolbox.Models
 {
-    using System;
-    using System.Runtime.Serialization;
-
-    using SEToolbox.Interop;
-    using VRage.ObjectBuilders;
-
     [Serializable]
-    public class StructureUnknownModel : StructureBaseModel
+    public class StructureUnknownModel(MyObjectBuilder_EntityBase entityBase) : StructureBaseModel(entityBase)
     {
-        #region ctor
-
-        public StructureUnknownModel(MyObjectBuilder_EntityBase entityBase)
-            : base(entityBase)
-        {
-        }
+        #region Ctor
 
         #endregion
 
-        #region methods
+        #region Methods
 
         [OnSerializing]
         private void OnSerializingMethod(StreamingContext context)

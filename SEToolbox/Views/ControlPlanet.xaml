@@ -81,7 +81,7 @@
             </Grid>
             <TextBlock Grid.Row="5" Grid.Column="1" VerticalAlignment="Center">
                 <TextBlock.Text>
-                    <MultiBinding StringFormat="{}{0:#,##0.0000}, {1:#,##0.0000}, {2:#,##0.0000}">
+                    <MultiBinding StringFormat="{}{0}N2, {1}N2, {2}N2">
                         <Binding Path="Center.X" />
                         <Binding Path="Center.Y" />
                         <Binding Path="Center.Z" />

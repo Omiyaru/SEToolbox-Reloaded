@@ -3,12 +3,13 @@
 //      Copyright © 2009 Mid-Space. All rights reserved.
 //  </copyright>
 // ===============================================================================
-
-namespace SEToolbox.ImageShaders
-{
     using System.Windows;
     using System.Windows.Media;
     using System.Windows.Media.Effects;
+
+namespace SEToolbox.ImageShaders.EffectFiles
+{
+
 
     /// <summary>
     /// This is the implementation of an extensible framework ShaderEffect which loads
@@ -59,11 +60,12 @@ namespace SEToolbox.ImageShaders
         /// <summary>
         /// Gets or sets the input used in the shader.
         /// </summary>
-        [System.ComponentModel.BrowsableAttribute(false)]
+        [System.ComponentModel.Browsable(false)]
         public Brush Input
-        {
-            get { return (Brush)GetValue(InputProperty); }
-            set { SetValue(InputProperty, value); }
+
+{
+     get => (Brush)GetValue(InputProperty);
+set => SetValue(InputProperty, value);
         }
     }
 }

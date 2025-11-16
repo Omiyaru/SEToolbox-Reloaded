@@ -48,7 +48,7 @@
                 </Grid.ColumnDefinitions>
                 <Label Content="{lex:Loc WnImport3dModelLabelModel}" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <TextBox Width="180" Text="{Binding Filename, Mode=TwoWay}" VerticalAlignment="Center" Name="uxInitialElement"/>
+                    <TextBox Width="180" Text="{Binding FileName, Mode=TwoWay}" VerticalAlignment="Center" Name="uxInitialElement"/>
                     <Button ToolTip="{lex:Loc WnImport3dModelBtnBrowseModelTooltip}" Command="{Binding Browse3DModelCommand}" VerticalAlignment="Center">
                         <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=folder}" />
                     </Button>
@@ -221,6 +221,10 @@
                 <Button Margin="8,0,0,0" Width="90" Command="{Binding CancelCommand}" Content="{lex:Loc WnImport3dModelBtnCancel}" IsCancel="True"/>
             </StackPanel>
         </Grid>
-        <controls:BusyIndicator Visibility="{Binding IsBusy, FallbackValue=Hidden, Converter={StaticResource BooleanToVisibilityConverter}}" />
+       <controls:BusyIndicator Mode="Spinner"
+                         Visibility="{Binding IsBusy,
+             Converter={StaticResource BooleanToVisibilityConverter},
+             FallbackValue=Collapsed}"/>
+
     </Grid>
 </Window>

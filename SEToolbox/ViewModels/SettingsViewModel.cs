@@ -1,17 +1,17 @@
-﻿namespace SEToolbox.ViewModels
+﻿using System;
+using System.Diagnostics.Contracts;
+using System.IO;
+using System.Windows.Forms;
+using System.Windows.Input;
+
+using SEToolbox.Interfaces;
+using SEToolbox.Models;
+using SEToolbox.Services;
+using SEToolbox.Support;
+using Res = SEToolbox.Properties.Resources;
+
+namespace SEToolbox.ViewModels
 {
-    using System;
-    using System.Diagnostics.Contracts;
-    using System.IO;
-    using System.Windows.Forms;
-    using System.Windows.Input;
-
-    using SEToolbox.Interfaces;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-    using SEToolbox.Support;
-    using Res = SEToolbox.Properties.Resources;
-
     public class SettingsViewModel : BaseViewModel
     {
         #region Fields
@@ -48,39 +48,40 @@
 
         #endregion
 
-        #region command Properties
+        #region Command Properties
 
         public ICommand BrowseAppPathCommand
         {
-            get { return new DelegateCommand(BrowseAppPathExecuted, BrowseAppPathCanExecute); }
+            get => new DelegateCommand(BrowseAppPathExecuted, BrowseAppPathCanExecute);
         }
 
 
         public ICommand BrowseVoxelPathCommand
         {
-            get { return new DelegateCommand(BrowseVoxelPathExecuted, BrowseVoxelPathCanExecute); }
+            get => new DelegateCommand(BrowseVoxelPathExecuted, BrowseVoxelPathCanExecute);
         }
 
         public ICommand OkayCommand
         {
-            get { return new DelegateCommand(OkayExecuted, OkayCanExecute); }
+            get => new DelegateCommand(OkayExecuted, OkayCanExecute);
         }
+
 
         public ICommand CancelCommand
         {
-            get { return new DelegateCommand(CancelExecuted, CancelCanExecute); }
+            get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         #endregion
 
-        #region properties
+        #region Properties
 
         /// <summary>
         /// Gets or sets the DialogResult of the View.  If True or False is passed, this initiates the Close().
         /// </summary>
         public bool? CloseResult
         {
-            get { return _closeResult; }
+            get => _closeResult;
 
             set
             {
@@ -91,31 +92,31 @@
 
         public string SEBinPath
         {
-            get { return _dataModel.SEBinPath; }
-            set { _dataModel.SEBinPath = value; }
+            get => _dataModel.SEBinPath;
+            set => _dataModel.SEBinPath = value;
         }
 
         public string CustomVoxelPath
         {
-            get { return _dataModel.CustomVoxelPath; }
-            set { _dataModel.CustomVoxelPath = value; }
+            get => _dataModel.CustomVoxelPath;
+            set => _dataModel.CustomVoxelPath = value;
         }
 
         public bool? AlwaysCheckForUpdates
         {
-            get { return _dataModel.AlwaysCheckForUpdates; }
-            set { _dataModel.AlwaysCheckForUpdates = value; }
+            get => _dataModel.AlwaysCheckForUpdates;
+            set => _dataModel.AlwaysCheckForUpdates = value;
         }
 
         public bool? UseCustomResource
         {
-            get { return _dataModel.UseCustomResource; }
-            set { _dataModel.UseCustomResource = value; }
+            get => _dataModel.UseCustomResource;
+            set => _dataModel.UseCustomResource = value;
         }
 
         public bool IsValid
         {
-            get { return _dataModel.IsValid; }
+            get => _dataModel.IsValid;
         }
 
         /// <summary>
@@ -123,25 +124,21 @@
         /// </summary>
         public bool IsBusy
         {
-            get { return _isBusy; }
+            get => _isBusy;
 
             set
             {
-                if (value != _isBusy)
+                SetProperty(ref _isBusy,value, nameof(IsBusy));
+                if (_isBusy)
                 {
-                    _isBusy = value;
-                    OnPropertyChanged(nameof(IsBusy));
-                    if (_isBusy)
-                    {
-                        System.Windows.Forms.Application.DoEvents();
-                    }
+                    Application.DoEvents();
                 }
             }
         }
 
         #endregion
 
-        #region command methods
+        #region Command Methods
 
         public bool BrowseAppPathCanExecute()
         {
@@ -150,7 +147,7 @@
 
         public void BrowseAppPathExecuted()
         {
-            var startPath = SEBinPath;
+            string startPath = SEBinPath;
             if (string.IsNullOrEmpty(startPath))
             {
                 startPath = ToolboxUpdater.GetSteamFilePath();
@@ -160,7 +157,7 @@
                 }
             }
 
-            var openFileDialog = _openFileDialogFactory();
+            IOpenFileDialog openFileDialog = _openFileDialogFactory();
             openFileDialog.CheckFileExists = true;
             openFileDialog.CheckPathExists = true;
             openFileDialog.DefaultExt = "exe";
@@ -173,13 +170,13 @@
             // Open the dialog
             if (_dialogService.ShowOpenFileDialog(this, openFileDialog) == DialogResult.OK)
             {
-                var gameBinPath = openFileDialog.FileName;
+                string gameBinPath = openFileDialog.FileName;
 
                 if (!string.IsNullOrEmpty(gameBinPath))
                 {
                     try
                     {
-                        var fullPath = Path.GetFullPath(gameBinPath);
+                        string fullPath = Path.GetFullPath(gameBinPath);
                         if (File.Exists(fullPath))
                         {
                             gameBinPath = Path.GetDirectoryName(fullPath);
@@ -199,7 +196,7 @@
 
         public void BrowseVoxelPathExecuted()
         {
-            var folderDialog = _folderDialogFactory();
+            IFolderBrowserDialog folderDialog = _folderDialogFactory();
             folderDialog.Description = Res.DialogLocationCustomVoxelFolder;
             folderDialog.SelectedPath = CustomVoxelPath;
             folderDialog.ShowNewFolderButton = true;

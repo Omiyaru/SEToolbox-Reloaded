@@ -1,25 +1,23 @@
-﻿namespace SEToolbox.ViewModels
+﻿using System.Collections.Generic;
+
+using SEToolbox.Interfaces;
+using SEToolbox.Interop;
+using VRage;
+
+
+namespace SEToolbox.ViewModels
 {
-    using System.Collections.Generic;
-
-    using SEToolbox.Interfaces;
-    using SEToolbox.Interop;
-    using VRage;
-
-    public abstract class StructureBaseViewModel<TModel> : DataBaseViewModel, IStructureViewBase where TModel : IStructureBase
+    public abstract class StructureBaseViewModel<TModel>(BaseViewModel parentViewModel,
+                                                         TModel dataModel) : DataBaseViewModel(parentViewModel, dataModel),
+                                                        IStructureViewBase where TModel : IStructureBase
     {
-        #region fields
+        #region Fields
 
         private bool _isSelected;
 
         #endregion
+        #region Ctor
 
-        #region ctor
-
-        protected StructureBaseViewModel(BaseViewModel parentViewModel, TModel dataModel)
-            : base(parentViewModel, dataModel)
-        {
-        }
 
         #endregion
 
@@ -27,8 +25,7 @@
 
         public bool IsSelected
         {
-            get { return _isSelected; }
-
+            get => _isSelected;
             set
             {
                 if (value != _isSelected)
@@ -44,24 +41,13 @@
         /// </summary>
         public bool IsBusy
         {
-            get
-            {
-                return DataModel.IsBusy;
-            }
-
-            set
-            {
-                DataModel.IsBusy = value;
-            }
+            get => DataModel.IsBusy;
+            set => DataModel.IsBusy = value;
         }
 
         public long EntityId
         {
-            get
-            {
-                return DataModel.EntityId;
-            }
-
+            get => DataModel.EntityId;
             set
             {
                 if (value != DataModel.EntityId)
@@ -74,11 +60,7 @@
 
         public MyPositionAndOrientation? PositionAndOrientation
         {
-            get
-            {
-                return DataModel.PositionAndOrientation;
-            }
-
+            get => DataModel.PositionAndOrientation;
             set
             {
                 if (!EqualityComparer<MyPositionAndOrientation?>.Default.Equals(value, DataModel.PositionAndOrientation))
@@ -92,11 +74,7 @@
 
         public ClassType ClassType
         {
-            get
-            {
-                return DataModel.ClassType;
-            }
-
+            get => DataModel.ClassType;
             set
             {
                 if (value != DataModel.ClassType)
@@ -109,11 +87,7 @@
 
         public string DisplayName
         {
-            get
-            {
-                return DataModel.DisplayName;
-            }
-
+            get => DataModel.DisplayName;
             set
             {
                 DataModel.DisplayName = value;
@@ -123,76 +97,37 @@
 
         public string Description
         {
-            get
-            {
-                return DataModel.Description;
-            }
-
-            set
-            {
-                DataModel.Description = value;
-            }
+            get => DataModel.Description;
+            set => DataModel.Description = value;
         }
 
         public double PlayerDistance
         {
-            get
-            {
-                return DataModel.PlayerDistance;
-            }
-
-            set
-            {
-                DataModel.PlayerDistance = value;
-            }
+            get => DataModel.PlayerDistance;
+            set => DataModel.PlayerDistance = value;
         }
 
         public double Mass
         {
-            get
-            {
-                return DataModel.Mass;
-            }
-
-            set
-            {
-                DataModel.Mass = value;
-            }
+            get => DataModel.Mass;
+            set => DataModel.Mass = value;
         }
 
         public int BlockCount
         {
-            get
-            {
-                return DataModel.BlockCount;
-            }
-
-            set
-            {
-                DataModel.BlockCount = value;
-            }
+            get => DataModel.BlockCount;
+            set => DataModel.BlockCount = value;
         }
 
         public virtual double LinearVelocity
         {
-            get
-            {
-                return DataModel.LinearVelocity;
-            }
-
-            set
-            {
-                DataModel.LinearVelocity = value;
-            }
+            get => DataModel.LinearVelocity;
+            set => DataModel.LinearVelocity = value;
         }
 
         public double PositionX
         {
-            get
-            {
-                return DataModel.PositionX;
-            }
-
+            get => DataModel.PositionX;
             set
             {
                 DataModel.PositionX = value;
@@ -203,11 +138,7 @@
 
         public double PositionY
         {
-            get
-            {
-                return DataModel.PositionY;
-            }
-
+            get => DataModel.PositionY;
             set
             {
                 DataModel.PositionY = value;
@@ -218,11 +149,7 @@
 
         public double PositionZ
         {
-            get
-            {
-                return DataModel.PositionZ;
-            }
-
+            get => DataModel.PositionZ;
             set
             {
                 DataModel.PositionZ = value;

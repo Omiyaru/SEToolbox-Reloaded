@@ -1,26 +1,27 @@
-﻿namespace SEToolbox.Support
-{
-    using System;
-    using System.Globalization;
-    using System.Text.RegularExpressions;
-    using System.Windows.Media.Media3D;
-    using System.Xml;
-    using System.Xml.XPath;
+﻿using System;
+using System.Globalization;
+using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Media.Media3D;
+using System.Xml;
+using System.Xml.XPath;
 
+namespace SEToolbox.Support
+{
     internal static class XmlExtension
     {
         #region BuildXmlNamespaceManager
 
         internal static XmlNamespaceManager BuildXmlNamespaceManager(this XmlDocument document)
         {
-            var nav = document.CreateNavigator();
-            var manager = new XmlNamespaceManager(nav.NameTable);
+            XPathNavigator nav = document.CreateNavigator();
+            XmlNamespaceManager manager = new(nav.NameTable);
 
             // Fetch out the namespace from the file. This is hacky approach.
-            var matches = Regex.Matches(document.InnerXml, @"(?:\bxmlns:?(?<schema>[^=]*)=[""](?<key>[^""]*)""[\s>])");
+            MatchCollection matches = Regex.Matches(document.InnerXml, @"(?:\bxmlns:?(?<schema>[^=]*)=[""](?<key>[^""]*)""[\s>])");
             foreach (Match match in matches)
             {
-                var schemaName = match.Groups["schema"].Value;
+                string schemaName = match.Groups["schema"].Value;
                 if (string.IsNullOrEmpty(schemaName))
                 {
                     manager.AddNamespace("", match.Groups["key"].Value);
@@ -47,103 +48,37 @@
         /// <returns></returns>
         internal static T ToValue<T>(this XPathNavigator navRoot, string name)
         {
-            object item = null;
-            var node = navRoot.SelectSingleNode(name);
-            if (node != null)
+            XPathNavigator node = navRoot.SelectSingleNode(name) ?? throw new ArgumentNullException(nameof(name), "Node cannot be null.");
+            object item = node.Value;
+
+            return typeof(T) switch
             {
-                item = node.Value;
-            }
+                Type t when t == typeof(string) => (T)item,
+                Type t when t == typeof(int) => (T)(object)Convert.ToInt32(item),
+                Type t when t == typeof(long) => (T)(object)Convert.ToInt64(item),
+                Type t when t == typeof(IntPtr) => (T)(object)new IntPtr(Convert.ToInt64(item)),
+                Type t when t == typeof(double) => (T)(object)Convert.ToDouble(item, CultureInfo.InvariantCulture),
+                Type t when t == typeof(DateTime) => (T)(object)DateTime.Parse((string)item, null),
+                Type t when t == typeof(DateTimeOffset) => (T)(object)DateTimeOffset.Parse((string)item, null),
+                Type t when t == typeof(bool) => (T)(object)ConvertToBoolean(item),
+                Type t when t == typeof(Guid) => (T)(object)new Guid((string)item),
+                Type t when t.BaseType == typeof(Enum) => (T)Enum.Parse(typeof(T), (string)item),
+                Type t when t == typeof(CultureInfo) => (T)(object)CultureInfo.GetCultureInfoByIetfLanguageTag((string)item),
+                Type t when t == typeof(Point3D) => (T)(object)new Point3D(
+                    Convert.ToDouble(node.SelectSingleNode("X").Value, CultureInfo.InvariantCulture),
+                    Convert.ToDouble(node.SelectSingleNode("Y").Value, CultureInfo.InvariantCulture),
+                    Convert.ToDouble(node.SelectSingleNode("Z").Value, CultureInfo.InvariantCulture)),
+                Type t when t == typeof(Rect) => (T)new RectConverter().ConvertFromString((string)item),
+                Type t when t == typeof(XmlDocument) => (T)item,
+                _ => throw new NotImplementedException($"The datatype [{typeof(T).Name}] has not been catered for.")
+            };
+        }
 
-            if (typeof(T).Equals(typeof(string)))
-            {
-                return (T)item;
-            }
-
-            if (typeof(T).Equals(typeof(int)))
-            {
-                item = Convert.ToInt32(item);
-                return (T)item;
-            }
-
-            if (typeof(T).Equals(typeof(long)))
-            {
-                item = Convert.ToInt64(item);
-                return (T)item;
-            }
-
-            if (typeof(T).Equals(typeof(IntPtr)))
-            {
-                // The Convert must be big enough to convert a pointer from a x64 system.
-                item = new IntPtr(Convert.ToInt64(item));
-                return (T)item;
-            }
-
-            if (typeof(T).Equals(typeof(double)))
-            {
-                item = Convert.ToDouble(item, CultureInfo.InvariantCulture);
-                return (T)item;
-            }
-
-            if (typeof(T).Equals(typeof(DateTime)))
-            {
-                item = DateTime.Parse((string)item, null);
-                return (T)item;
-            }
-
-            if (typeof(T).Equals(typeof(DateTimeOffset)))
-            {
-                item = DateTimeOffset.Parse((string)item, null);
-                return (T)item;
-            }
-
-            if (typeof(T).Equals(typeof(bool)))
-            {
-                int result;
-                if (Int32.TryParse((string)item, out result))
-                {
-                    item = Convert.ToBoolean(result);
-                }
-                else
-                {
-                    item = Convert.ToBoolean((string)item);
-                }
-                return (T)item;
-            }
-
-            if (typeof(T).Equals(typeof(Guid)))
-            {
-                item = new Guid((string)item);
-                return (T)item;
-            }
-
-            if (typeof(T).BaseType.Equals(typeof(Enum)))
-            {
-                item = Enum.Parse(typeof(T), (string)item);
-                return (T)item;
-            }
-
-            if (typeof(T).Equals(typeof(CultureInfo)))
-            {
-                item = CultureInfo.GetCultureInfoByIetfLanguageTag((string)item);
-                return (T)item;
-            }
-
-            if (typeof(T).Equals(typeof(Point3D)))
-            {
-                item = new Point3D(Convert.ToDouble(node.SelectSingleNode("X").Value, CultureInfo.InvariantCulture), Convert.ToDouble(node.SelectSingleNode("Y").Value, CultureInfo.InvariantCulture), Convert.ToDouble(node.SelectSingleNode("Z").Value, CultureInfo.InvariantCulture));
-                return (T)item;
-            }
-
-            //if (typeof(T).Equals(typeof(Rect)))
-            //{
-            //    item = new RectConverter().ConvertFromString((string)item);
-            //    return (T)item;
-            //}
-
-            throw new NotImplementedException(string.Format("The datatype [{0}] has not been catered for.", typeof(T).Name));
-            ////return (T)item;
-            ////object ret = null;
-            ////return (T)ret;
+        private static bool ConvertToBoolean(object item)
+        {
+            return item is string str && int.TryParse(str, out int result)
+                ? Convert.ToBoolean(result)
+                : Convert.ToBoolean(item);
         }
 
         #endregion

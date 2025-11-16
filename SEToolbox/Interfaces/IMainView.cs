@@ -1,11 +1,11 @@
-﻿namespace SEToolbox.Interfaces
-{
-    using System.Collections.Generic;
-    using SEToolbox.Models;
-    using VRage.Game;
-    using VRage.ObjectBuilders;
-    using VRageMath;
+﻿using System.Collections.Generic;
+using SEToolbox.Models;
+using VRage.Game;
+using VRage.ObjectBuilders;
+using VRageMath;
 
+namespace SEToolbox.Interfaces
+{
     public interface IMainView
     {
         bool IsModified { get; set; }
@@ -15,6 +15,16 @@
         void CalcDistances();
 
         void OptimizeModel(params IStructureViewBase[] viewModels);
+
+        void FindOverlappingBlocks(params IStructureViewBase[] viewModels);
+
+        void RemoveOverlappingBlocks(params IStructureViewBase[] viewModels);
+
+        void MoveOverlappingBlocks(params IStructureViewBase[] viewModels);
+
+        bool EnableExcludedBlocks { get; set; }
+
+        bool ToggleExcludedBlocks(params IStructureViewBase[] viewModels);
 
         string CreateUniqueVoxelStorageName(string originalFile, MyObjectBuilder_EntityBase[] additionalList);
 
@@ -37,5 +47,7 @@
         int[] CreativeModeColors { get; set; }
 
         IStructureBase AddEntity(MyObjectBuilder_EntityBase entity);
+        
+        void MirrorModel(bool oddMirror, params IStructureViewBase[] viewModels);
     }
 }

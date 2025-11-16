@@ -1,20 +1,20 @@
-﻿namespace SEToolbox.Converters
-{
-    using System;
-    using System.Globalization;
-    using System.Windows.Data;
-    using Res = SEToolbox.Properties.Resources;
+﻿using System;
+using System.Globalization;
+using System.Windows.Data;
+using Res = SEToolbox.Properties.Resources;
 
+namespace SEToolbox.Converters
+{
     public class DistanceConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var distance = (double)value;
+            double distance = (double)value;
 
             if (distance > 1000)
-                return string.Format("{0:#,###0.0.0} {1}", distance / 1000, Res.GlobalSIDistanceKilometre);
+                return string.Format($"{distance / 1000:#,###0.0.0} {Res.GlobalSIDistanceKilometre}");
 
-            return string.Format("{0:#,###0.0} {1}", distance, Res.GlobalSIDistanceMetre);
+            return string.Format($"{distance:#,###0.0} {Res.GlobalSIDistanceMetre}");
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -165,12 +165,12 @@
                             </i:Interaction.Behaviors>
                             <Button.ContextMenu>
                                 <ContextMenu HorizontalAlignment="Right">
-                                    <MenuItem Header="{lex:Loc SEToolbox:Resources:CtlCharacterMnuResetSpeed}" Command="{Binding ResetVelocityCommand}">
+                                    <MenuItem Header="{lex:Loc CtlCharacterMnuResetSpeed}" Command="{Binding ResetVelocityCommand}">
                                         <MenuItem.Icon>
                                             <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=media_stop}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
-                                    <MenuItem Header="{lex:Loc SEToolbox:Resources:CtlCharacterMnuReverseSpeed}" Command="{Binding ReverseVelocityCommand}">
+                                    <MenuItem Header="{lex:Loc CtlCharacterMnuReverseSpeed}" Command="{Binding ReverseVelocityCommand}">
                                         <MenuItem.Icon>
                                             <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=navigate_left2}" />
                                         </MenuItem.Icon>

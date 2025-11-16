@@ -1,23 +1,20 @@
-﻿namespace SEToolbox.Converters
-{
-    using System;
-    using System.IO;
-    using System.Reflection;
-    using System.Windows.Data;
-    using System.Windows.Media.Imaging;
+﻿using System;
+using System.IO;
+using System.Reflection;
+using System.Windows.Data;
+using System.Windows.Media.Imaging;
 
+namespace SEToolbox.Converters
+{
     public class ResourceToImageConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            var imageParameter = value as string;
-            if (imageParameter == null)
-                imageParameter = parameter as string;
-
+            string imageParameter = value as string ?? parameter as string;
             if (!string.IsNullOrEmpty(imageParameter as string))
             {
                 System.Drawing.Bitmap bitmap = null;
-                var bitmapImage = new BitmapImage();
+                BitmapImage bitmapImage = new();
 
                 // Application Resource - File Build Action is marked as None, but stored in Resources.resx
                 // parameter= myresourceimagename
@@ -29,7 +26,7 @@
 
                 if (bitmap != null)
                 {
-                    using (var ms = new MemoryStream())
+                    using (MemoryStream ms = new())
                     {
                         bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                         bitmapImage.BeginInit();
@@ -42,8 +39,8 @@
 
                 // Embedded Resource - File Build Action is marked as Embedded Resource
                 // parameter= MyWpfApplication.EmbeddedResource.myotherimage.png
-                var asm = Assembly.GetExecutingAssembly();
-                var stream = asm.GetManifestResourceStream(imageParameter);
+                Assembly asm = Assembly.GetExecutingAssembly();
+                Stream stream = asm.GetManifestResourceStream(imageParameter);
                 if (stream != null)
                 {
                     bitmapImage.BeginInit();
@@ -52,17 +49,17 @@
                     return bitmapImage;
                 }
 
-                // This is the standard way of using Image.SourceDependancyProperty.  You shouldn't need to use a converter to to this.
-                //// Resource - File Build Action is marked as Resource
-                //// parameter= pack://application:,,,/MyWpfApplication;component/Images/myfunkyimage.png
-                //Uri imageUriSource = null;
-                //if (Uri.TryCreate(imageParameter, UriKind.RelativeOrAbsolute, out imageUriSource))
-                //{
-                //    bitmapImage.BeginInit();
-                //    bitmapImage.UriSource = imageUriSource;
-                //    bitmapImage.EndInit();
-                //    return bitmapImage;
-                //}
+                //This is the standard way of using Image.SourceDependancyProperty.  You shouldn't need to use a converter to to this.
+                // Resource - File Build Action is marked as Resource
+                // parameter= pack://application:,,,/MyWpfApplication;component/Images/myfunkyimage.png
+ 				
+                if (Uri.TryCreate(imageParameter, UriKind.RelativeOrAbsolute, out Uri imageUriSource))
+                {
+                    bitmapImage.BeginInit();
+                    bitmapImage.UriSource = imageUriSource;
+                    bitmapImage.EndInit();
+                    return bitmapImage;
+                }
             }
             return null;
         }

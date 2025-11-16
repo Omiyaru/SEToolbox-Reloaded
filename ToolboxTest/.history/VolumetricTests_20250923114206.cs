@@ -8,10 +8,10 @@
     using SEToolbox.Support;
 
     [TestClass]
-    public class VolumentricTests
+    public class VolumetricTests
     {
         [TestMethod, TestCategory("UnitTest")]
-        public void GenerateModelComplexVolumentric()
+        public void GenerateModelComplexVolumetric()
         {
             const string modelFile = @".\TestAssets\algos.obj";
 
@@ -43,7 +43,7 @@
         }
 
         [TestMethod, TestCategory("UnitTest")]
-        public void GenerateModelComplexVolumentricHalfScale()
+        public void GenerateModelComplexVolumetricHalfScale()
         {
             const string modelFile = @".\TestAssets\algos.obj";
 
@@ -63,7 +63,7 @@
         }
 
         [TestMethod, TestCategory("UnitTest")]
-        public void GenerateModelSimpleThinVolumentric()
+        public void GenerateModelSimpleThinVolumetric()
         {
             const string modelFile = @".\TestAssets\t25.obj";
 
@@ -83,7 +83,7 @@
         }
 
         [TestMethod, TestCategory("UnitTest")]
-        public void GenerateModelSimpleThinSmoothedVolumentric()
+        public void GenerateModelSimpleThinSmoothedVolumetric()
         {
             const string modelFile = @".\TestAssets\t25.obj";
 
@@ -103,7 +103,7 @@
         }
 
         [TestMethod, TestCategory("UnitTest")]
-        public void GenerateModelSimpleThickVolumentric()
+        public void GenerateModelSimpleThickVolumetric()
         {
             const string modelFile = @".\TestAssets\t25.obj";
 
@@ -139,7 +139,7 @@
         }
 
         [TestMethod, TestCategory("UnitTest")]
-        public void GenerateModelSimpleVolumentricFill()
+        public void GenerateModelSimpleVolumetricFill()
         {
             const string modelFile = @".\TestAssets\t25.obj";
 
@@ -159,7 +159,7 @@
         }
 
         [TestMethod, TestCategory("UnitTest")]
-        public void GenerateModelSimpleVolumentricAltFill()
+        public void GenerateModelSimpleVolumetricAltFill()
         {
             const string modelFile = @".\TestAssets\t25.obj";
 

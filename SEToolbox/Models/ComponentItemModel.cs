@@ -1,15 +1,15 @@
-﻿namespace SEToolbox.Models
-{
-    using System;
-    using System.Collections.Generic;
-    using SEToolbox.Interop;
-    using VRage.Game;
-    using VRage.ObjectBuilders;
+﻿using System;
+using System.Collections.Generic;
+using SEToolbox.Interop;
+using VRage.Game;
+using VRage.ObjectBuilders;
 
+namespace SEToolbox.Models
+{
     [Serializable]
     public class ComponentItemModel : BaseModel
     {
-        #region fields
+        #region Fields
 
         private string _name;
 
@@ -21,17 +21,12 @@
 
         public string Name
         {
-            get { return _name; }
-            set
-            {
-                if (value != _name)
-                {
-                    _name = value;
-                    FriendlyName = SpaceEngineersApi.GetResourceName(_name);
-                    OnPropertyChanged(nameof(Name));
-                    OnPropertyChanged(nameof(FriendlyName));
-                }
-            }
+            get => _name;
+            set => SetProperty( ref _name, value,
+                     () => FriendlyName == SpaceEngineersApi.GetResourceName(Name),
+                     nameof(Name), nameof(FriendlyName));
+
+
         }
 
         public object Definition { get; set; }
@@ -62,16 +57,11 @@
 
         public string OreName
         {
-            get { return _oreName; }
-            set
-            {
-                if (value != _oreName)
-                {
-                    _oreName = value;
-                    FriendlyOreName = SpaceEngineersApi.GetResourceName(OreName);
-                    OnPropertyChanged(nameof(OreName), nameof(FriendlyOreName));
-                }
-            }
+            get => _oreName;
+            set =>  SetProperty(ref _oreName, value,
+                     () => FriendlyOreName == SpaceEngineersApi.GetResourceName(OreName),
+                     nameof(OreName),
+                     nameof(FriendlyOreName));
         }
 
         public string FriendlyOreName { get; set; }

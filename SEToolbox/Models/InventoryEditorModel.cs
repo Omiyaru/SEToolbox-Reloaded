@@ -1,15 +1,16 @@
-﻿namespace SEToolbox.Models
-{
-    using System;
-    using System.Collections.ObjectModel;
-    using System.IO;
-    using System.Linq;
-    using System.Xml.Serialization;
-    using Sandbox.Definitions;
-    using SEToolbox.Interop;
-    using SEToolbox.Support;
-    using VRage.Game;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Xml.Serialization;
+using Sandbox.Definitions;
+using SEToolbox.Interop;
+using SEToolbox.Support;
+using VRage.Game;
+using MOBTypeIds = SEToolbox.Interop.SpaceEngineersTypes.MOBTypeIds;
 
+namespace SEToolbox.Models
+{
     [Serializable]
     public class InventoryEditorModel : BaseModel
     {
@@ -45,25 +46,57 @@
         [NonSerialized]
         private readonly MyObjectBuilder_Character _character;
 
+        [NonSerialized]
+        private MyObjectBuilder_InventoryItem _item;
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public InventoryEditorModel(bool isValid)
         {
             IsValid = isValid;
+		}
+
+
+        public InventoryModel GetInventoryModel(MyObjectBuilder_InventoryItem item, string name, string description)
+        {
+            _name = string.Empty;
+            _items = [];
+
+            _item = new MyObjectBuilder_InventoryItem();
+
+            _selectedRow = new InventoryModel(_item, name, description);
+            _isValid = true;
+
+            _inventory.Items.Add(_item);
+              return new InventoryModel(item, name, description);
         }
 
         public InventoryEditorModel(MyObjectBuilder_Inventory inventory, float maxVolume, MyObjectBuilder_Character character = null)
         {
+
+            _name = string.Empty;
+            _item = new MyObjectBuilder_InventoryItem();
+            _items = [];
+            _selectedRow = null;
             _inventory = inventory;
             _maxVolume = maxVolume;
             _character = character;
             UpdateGeneralFromEntityBase();
 
-            // Cube.InventorySize.X * CUbe.InventorySize.Y * CUbe.InventorySize.Z * 1000 * Sandbox.InventorySizeMultiplier;
+                if (inventory.Items.Any())
+                {
+                    MyObjectBuilder_InventoryItem firstItem = inventory.Items.FirstOrDefault();
+                    if (firstItem != null)
+                    {
+                       _selectedRow = new InventoryModel(firstItem, "Item Name", "Item Description");
+                        _isValid = true;
+                    }
+
+            // Cube.InventorySize.X * Cube.InventorySize.Y * Cube.InventorySize.Z * 1000 * Sandbox.InventorySizeMultiplier;
             // or Cube.InventoryMaxVolume * 1000 * Sandbox.InventorySizeMultiplier;
             //Character.Inventory = 0.4 * 1000 * Sandbox.InventorySizeMultiplier;
+            }
         }
 
         #endregion
@@ -73,134 +106,65 @@
         [XmlIgnore]
         public string Name
         {
-            get
-            {
-                return _name;
-            }
+            get => _name;
 
-            set
-            {
-                if (value != _name)
-                {
-                    _name = value;
-                    OnPropertyChanged(nameof(Name));
-                }
-            }
+            set => SetProperty(ref _name, value, nameof(Name));
         }
 
         [XmlIgnore]
         public bool IsValid
         {
-            get { return _isValid; }
-
-            set
-            {
-                if (value != _isValid)
-                {
-                    _isValid = value;
-                    OnPropertyChanged(nameof(IsValid));
-                }
-            }
+            get => _isValid;
+            set => SetProperty(ref _isValid, value, nameof(IsValid));
         }
 
         [XmlIgnore]
         public ObservableCollection<InventoryModel> Items
         {
-            get
-            {
-                return _items;
-            }
+            get => _items;
 
-            set
-            {
-                if (value != _items)
-                {
-                    _items = value;
-                    OnPropertyChanged(nameof(Items));
-                }
-            }
+            set => SetProperty(ref _items, value, nameof(Items));
         }
 
         [XmlIgnore]
         public InventoryModel SelectedRow
         {
-            get
-            {
-                return _selectedRow;
-            }
-
-            set
-            {
-                if (value != _selectedRow)
-                {
-                    _selectedRow = value;
-                    OnPropertyChanged(nameof(SelectedRow));
-                }
-            }
+            get => _selectedRow;
+            set => SetProperty(ref _selectedRow, value, nameof(SelectedRow));
         }
 
         [XmlIgnore]
         public double TotalVolume
         {
-            get
-            {
-                return _totalVolume;
-            }
+            get => _totalVolume;
 
-            set
-            {
-                if (value != _totalVolume)
-                {
-                    _totalVolume = value;
-                    OnPropertyChanged(nameof(TotalVolume));
-                }
-            }
+            set => SetProperty(ref _totalVolume, value, nameof(TotalVolume));
         }
 
         [XmlIgnore]
         public double TotalMass
         {
-            get
-            {
-                return _totalMass;
-            }
+            get => _totalMass;
 
-            set
-            {
-                if (value != _totalMass)
-                {
-                    _totalMass = value;
-                    OnPropertyChanged(nameof(TotalMass));
-                }
-            }
+            set => SetProperty(ref _totalMass, value, nameof(TotalMass));
         }
 
         [XmlIgnore]
         public float MaxVolume
         {
-            get
-            {
-                return _maxVolume;
-            }
+            get => _maxVolume;
 
-            set
-            {
-                if (value != _maxVolume)
-                {
-                    _maxVolume = value;
-                    OnPropertyChanged(nameof(MaxVolume));
-                }
-            }
+            set => SetProperty(ref _maxVolume, value, nameof(MaxVolume));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         private void UpdateGeneralFromEntityBase()
         {
-            var list = new ObservableCollection<InventoryModel>();
-            var contentPath = ToolboxUpdater.GetApplicationContentPath();
+            ObservableCollection<InventoryModel> list = [];
+            string contentPath = ToolboxUpdater.GetApplicationContentPath();
             TotalVolume = 0;
             TotalMass = 0;
 
@@ -217,7 +181,7 @@
 
         private InventoryModel CreateItem(MyObjectBuilder_InventoryItem item, string contentPath)
         {
-            var definition = MyDefinitionManager.Static.GetDefinition(item.PhysicalContent.TypeId, item.PhysicalContent.SubtypeName) as MyPhysicalItemDefinition;
+            MyPhysicalItemDefinition definition = MyDefinitionManager.Static.GetDefinition(item.PhysicalContent.TypeId, item.PhysicalContent.SubtypeName) as MyPhysicalItemDefinition;
 
             string name;
             string textureFile;
@@ -239,18 +203,18 @@
                 textureFile = (definition.Icons == null || definition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(definition.Icons.First(), Path.Combine(contentPath, definition.Icons.First()));
             }
 
-            var newItem = new InventoryModel(item)
+            InventoryModel newItem = new(item, name, item.PhysicalContent.SubtypeName)
             {
                 Name = name,
                 Amount = (decimal)item.Amount,
                 SubtypeId = item.PhysicalContent.SubtypeName,
                 TypeId = item.PhysicalContent.TypeId,
-                MassMultiplyer = massMultiplyer,
-                VolumeMultiplyer = volumeMultiplyer,
+                MassMultiplier = massMultiplyer,
+                VolumeMultiplier = volumeMultiplyer,
                 TextureFile = textureFile,
-                IsUnique = item.PhysicalContent.TypeId == SpaceEngineersTypes.PhysicalGunObject || item.PhysicalContent.TypeId == SpaceEngineersTypes.OxygenContainerObject,
-                IsInteger = item.PhysicalContent.TypeId == SpaceEngineersTypes.Component || item.PhysicalContent.TypeId == SpaceEngineersTypes.AmmoMagazine,
-                IsDecimal = item.PhysicalContent.TypeId == SpaceEngineersTypes.Ore || item.PhysicalContent.TypeId == SpaceEngineersTypes.Ingot,
+                IsUnique = item.PhysicalContent.TypeId == MOBTypeIds.PhysicalGunObject || item.PhysicalContent.TypeId == MOBTypeIds.OxygenContainerObject,
+                IsInteger = item.PhysicalContent.TypeId == MOBTypeIds.Component || item.PhysicalContent.TypeId == MOBTypeIds.AmmoMagazine,
+                IsDecimal = item.PhysicalContent.TypeId == MOBTypeIds.Ore || item.PhysicalContent.TypeId == MOBTypeIds.Ingot,
                 Exists = definition != null, // item no longer exists in Space Engineers definitions.
             };
 
@@ -262,7 +226,7 @@
 
         internal void Additem(MyObjectBuilder_InventoryItem item)
         {
-            var contentPath = ToolboxUpdater.GetApplicationContentPath();
+            string contentPath = ToolboxUpdater.GetApplicationContentPath();
             item.ItemId = _inventory.nextItemId++;
             _inventory.Items.Add(item);
             Items.Add(CreateItem(item, contentPath));
@@ -273,10 +237,9 @@
             var invItem = _inventory.Items[index];
 
             // Remove HandWeapon if item is HandWeapon.
-            if (_character != null && _character.HandWeapon != null && invItem.PhysicalContent.TypeId == SpaceEngineersTypes.PhysicalGunObject)
+            if (_character != null && _character.HandWeapon != null && invItem.PhysicalContent.TypeId == MOBTypeIds.PhysicalGunObject)
             {
-                if (((MyObjectBuilder_PhysicalGunObject)invItem.PhysicalContent).GunEntity != null &&
-                    ((MyObjectBuilder_PhysicalGunObject)invItem.PhysicalContent).GunEntity.EntityId == _character.HandWeapon.EntityId)
+                if (((MyObjectBuilder_PhysicalGunObject)invItem.PhysicalContent).GunEntity?.EntityId == _character.HandWeapon.EntityId)
                 {
                     _character.HandWeapon = null;
                 }

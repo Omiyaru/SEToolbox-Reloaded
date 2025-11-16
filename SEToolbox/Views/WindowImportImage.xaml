@@ -47,7 +47,7 @@
 
                 <Label Content="{lex:Loc WnImportImageLabelImage}" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <TextBox Width="180" Text="{Binding Filename, Mode=TwoWay}" VerticalAlignment="Center" Name="uxInitialElement"/>
+                    <TextBox Width="180" Text="{Binding FileName, Mode=TwoWay}" VerticalAlignment="Center" Name="uxInitialElement"/>
                     <Button ToolTip="{lex:Loc WnImportImageBtnBrowseImageTooltip}" Command="{Binding BrowseImageCommand}" VerticalAlignment="Center">
                         <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=folder}" />
                     </Button>
@@ -181,7 +181,7 @@
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="2" Grid.RowSpan="8" HorizontalAlignment="Right">
                     <Border BorderBrush="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top">
-                        <Image Width="250" Height="150" Stretch="None" ToolTip="{lex:Loc WnImportImageImgOriginalTooltip}" Source="{Binding Path=Filename, Converter={StaticResource NullImageConverter}}" />
+                        <Image Width="250" Height="150" Stretch="None" ToolTip="{lex:Loc WnImportImageImgOriginalTooltip}" Source="{Binding Path=FileName, Converter={StaticResource NullImageConverter}}" />
                     </Border>
                     <TextBlock Text="\/" VerticalAlignment="Center" HorizontalAlignment="Center" />
                     <Border BorderBrush="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top">
@@ -194,6 +194,10 @@
                 <Button Margin="8,0,0,0" Width="90" Command="{Binding CancelCommand}" Content="{lex:Loc WnImportImageBtnCancel}" IsCancel="True"/>
             </StackPanel>
         </Grid>
-        <controls:BusyIndicator Visibility="{Binding IsBusy, FallbackValue=Hidden, Converter={StaticResource BooleanToVisibilityConverter}}" />
+       <controls:BusyIndicator Mode="Spinner"
+                         Visibility="{Binding IsBusy,
+             Converter={StaticResource BooleanToVisibilityConverter},
+             FallbackValue=Collapsed}"/>
+
     </Grid>
 </Window>

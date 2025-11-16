@@ -1,19 +1,19 @@
-﻿namespace SEToolbox.ViewModels
-{
-    using System.ComponentModel;
-    using System.Windows.Input;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-    using VRage.Game;
+﻿using System.ComponentModel;
+using System.Windows.Input;
+using SEToolbox.Models;
+using SEToolbox.Services;
+using VRage.Game;
 
+namespace SEToolbox.ViewModels
+{
     public class StructureMeteorViewModel : StructureBaseViewModel<StructureMeteorModel>
     {
-        #region ctor
+        #region Ctor
 
         public StructureMeteorViewModel(BaseViewModel parentViewModel, StructureMeteorModel dataModel)
             : base(parentViewModel, dataModel)
         {
-            DataModel.PropertyChanged += delegate(object sender, PropertyChangedEventArgs e)
+            DataModel.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
             {
                 // Will bubble property change events from the Model to the ViewModel.
                 OnPropertyChanged(e.PropertyName);
@@ -22,21 +22,21 @@
 
         #endregion
 
-        #region command Properties
+        #region Command Properties
 
         public ICommand ResetVelocityCommand
         {
-            get { return new DelegateCommand(ResetVelocityExecuted, ResetVelocityCanExecute); }
+            get => new DelegateCommand(ResetVelocityExecuted, ResetVelocityCanExecute); 
         }
 
         public ICommand ReverseVelocityCommand
         {
-            get { return new DelegateCommand(ReverseVelocityExecuted, ReverseVelocityCanExecute); }
+            get => new DelegateCommand(ReverseVelocityExecuted, ReverseVelocityCanExecute); 
         }
 
         public ICommand MaxVelocityAtPlayerCommand
         {
-            get { return new DelegateCommand(MaxVelocityAtPlayerExecuted, MaxVelocityAtPlayerCanExecute); }
+            get => new DelegateCommand(MaxVelocityAtPlayerExecuted, MaxVelocityAtPlayerCanExecute);
         }
 
         #endregion
@@ -45,41 +45,41 @@
 
         protected new StructureMeteorModel DataModel
         {
-            get { return base.DataModel as StructureMeteorModel; }
+            get => base.DataModel as StructureMeteorModel;
         }
 
         public MyObjectBuilder_InventoryItem Item
         {
-            get { return DataModel.Item; }
-            set { DataModel.Item = value; }
+            get => DataModel.Item;
+            set => DataModel.Item = value;
         }
 
         public string SubTypeName
         {
-            get { return DataModel.Item.PhysicalContent.SubtypeName; }
+            get => DataModel.Item.PhysicalContent.SubtypeName; 
         }
 
         public double? Volume
         {
-            get { return DataModel.Volume; }
-            set { DataModel.Volume = value; }
+            get => DataModel.Volume;
+            set => DataModel.Volume = value;
         }
 
         public override double LinearVelocity
         {
-            get { return DataModel.LinearVelocity; }
+            get => DataModel.LinearVelocity; 
         }
 
         public float Integrity
         {
-            get { return DataModel.Integrity; }
+            get => DataModel.Integrity;
         }
 
         #endregion
 
-        #region methods
-
-        public bool ResetVelocityCanExecute()
+        #region Methods
+        
+         public bool ResetVelocityCanExecute()
         {
             return DataModel.LinearVelocity != 0f || DataModel.AngularVelocity != 0f;
         }

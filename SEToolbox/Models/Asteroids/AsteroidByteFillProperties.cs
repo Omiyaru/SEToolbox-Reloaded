@@ -1,8 +1,10 @@
-﻿namespace SEToolbox.Models.Asteroids
+﻿using System.Collections.ObjectModel;
+
+namespace SEToolbox.Models.Asteroids
 {
     public class AsteroidByteFillProperties : BaseModel, IMyVoxelFillProperties
     {
-        #region fields
+        #region Fields
 
         private int _index;
         private int _totalPercent;
@@ -20,239 +22,137 @@
         private int _sixthPercent;
         private MaterialSelectionModel _seventhMaterial;
         private int _seventhPercent;
+        public ObservableCollection<AsteroidByteFillProperties> _voxelCollection;
+        //private ObservableCollection<MaterialSelectionModel> _materialsCollection;
+        
+        public ObservableCollection<AsteroidByteFillProperties> VoxelCollection
+        {
+            get => _voxelCollection;
+
+            set => SetProperty( ref _voxelCollection, value, nameof(VoxelCollection));
+        }
 
         #endregion
 
-        #region properties
+        #region Properties
+
+        public AsteroidByteFillProperties SelectedRow
+        {
+            get => _voxelCollection[Index];
+            
+            set => SetProperty(_voxelCollection[Index], value, nameof(SelectedRow));
+        }
+
 
         public int Index
         {
-            get { return _index; }
+            get => _index;
 
-            set
-            {
-                if (value != _index)
-                {
-                    _index = value;
-                    OnPropertyChanged(nameof(Index));
-                }
-            }
+            set => SetProperty(ref _index, value, nameof(Index));
         }
 
         public int TotalPercent
         {
-            get { return _totalPercent; }
+            get => _totalPercent;
 
-            set
-            {
-                if (value != _totalPercent)
-                {
-                    _totalPercent = value;
-                    OnPropertyChanged(nameof(TotalPercent));
-                }
-            }
+            set => SetProperty(ref _totalPercent, value, nameof(TotalPercent));
         }
 
         public GenerateVoxelDetailModel VoxelFile
         {
-            get { return _voxelFile; }
+            get => _voxelFile;
 
-            set
-            {
-                if (value != _voxelFile)
-                {
-                    _voxelFile = value;
-                    OnPropertyChanged(nameof(VoxelFile));
-                }
-            }
+            set => SetProperty(ref _voxelFile, value, nameof(VoxelFile));
         }
 
         public MaterialSelectionModel MainMaterial
         {
-            get { return _mainMaterial; }
+            get => _mainMaterial;
 
-            set
-            {
-                if (value != _mainMaterial)
-                {
-                    _mainMaterial = value;
-                    OnPropertyChanged(nameof(MainMaterial));
-                }
-            }
+            set => SetProperty(ref _mainMaterial, value, nameof(MainMaterial));
         }
 
         public MaterialSelectionModel SecondMaterial
         {
-            get { return _secondMaterial; }
+            get => _secondMaterial;
 
-            set
-            {
-                if (value != _secondMaterial)
-                {
-                    _secondMaterial = value;
-                    OnPropertyChanged(nameof(SecondMaterial));
-                }
-            }
+            set => SetProperty(ref _secondMaterial, value, nameof(SecondMaterial));
         }
 
         public int SecondPercent
         {
-            get { return _secondPercent; }
+            get => _secondPercent;
 
-            set
-            {
-                if (value != _secondPercent)
-                {
-                    _secondPercent = value;
-                    OnPropertyChanged(nameof(SecondPercent));
-                    UpdateTotal();
-                }
-            }
+            set => SetProperty(ref _secondPercent, value, nameof(SecondPercent), () => UpdateTotal());
         }
 
         public MaterialSelectionModel ThirdMaterial
         {
-            get { return _thirdMaterial; }
+            get => _thirdMaterial;
 
-            set
-            {
-                if (value != _thirdMaterial)
-                {
-                    _thirdMaterial = value;
-                    OnPropertyChanged(nameof(ThirdMaterial));
-                }
-            }
+            set => SetProperty(ref _thirdMaterial, value, nameof(ThirdMaterial));
         }
 
         public int ThirdPercent
         {
-            get { return _thirdPercent; }
+            get => _thirdPercent;
 
-            set
-            {
-                if (value != _thirdPercent)
-                {
-                    _thirdPercent = value;
-                    OnPropertyChanged(nameof(ThirdPercent));
-                    UpdateTotal();
-                }
-            }
+            set => SetProperty(ref _thirdPercent, value, nameof(ThirdPercent), () => UpdateTotal());
         }
 
         public MaterialSelectionModel FourthMaterial
         {
-            get { return _fourthMaterial; }
+            get => _fourthMaterial;
 
-            set
-            {
-                if (value != _fourthMaterial)
-                {
-                    _fourthMaterial = value;
-                    OnPropertyChanged(nameof(FourthMaterial));
-                }
-            }
+            set => SetProperty(ref _fourthMaterial, value, nameof(FourthMaterial));
         }
 
         public int FourthPercent
         {
-            get { return _fourthPercent; }
+            get => _fourthPercent;
 
-            set
-            {
-                if (value != _fourthPercent)
-                {
-                    _fourthPercent = value;
-                    OnPropertyChanged(nameof(FourthPercent));
-                    UpdateTotal();
-                }
-            }
+            set => SetProperty(ref _fourthPercent, value, nameof(FourthPercent), () => UpdateTotal());
         }
 
         public MaterialSelectionModel FifthMaterial
         {
-            get { return _fifthMaterial; }
+            get => _fifthMaterial;
 
-            set
-            {
-                if (value != _fifthMaterial)
-                {
-                    _fifthMaterial = value;
-                    OnPropertyChanged(nameof(FifthMaterial));
-                }
-            }
+            set => SetProperty(ref _fifthMaterial, value, nameof(FifthMaterial));
         }
 
         public int FifthPercent
         {
-            get { return _fifthPercent; }
+            get => _fifthPercent;
 
-            set
-            {
-                if (value != _fifthPercent)
-                {
-                    _fifthPercent = value;
-                    OnPropertyChanged(nameof(FifthPercent));
-                    UpdateTotal();
-                }
-            }
+            set => SetProperty(ref _fifthPercent, value, nameof(FifthPercent), () => UpdateTotal());
         }
 
         public MaterialSelectionModel SixthMaterial
         {
-            get { return _sixthMaterial; }
+            get => _sixthMaterial;
 
-            set
-            {
-                if (value != _sixthMaterial)
-                {
-                    _sixthMaterial = value;
-                    OnPropertyChanged(nameof(SixthMaterial));
-                }
-            }
+            set => SetProperty(ref _sixthMaterial, value, nameof(SixthMaterial));
         }
 
         public int SixthPercent
         {
-            get { return _sixthPercent; }
-
-            set
-            {
-                if (value != _sixthPercent)
-                {
-                    _sixthPercent = value;
-                    OnPropertyChanged(nameof(SixthPercent));
-                    UpdateTotal();
-                }
-            }
+            get => _sixthPercent;
+            set => SetProperty(ref _sixthPercent, value, nameof(SixthPercent), () => UpdateTotal());
         }
 
         public MaterialSelectionModel SeventhMaterial
         {
-            get { return _seventhMaterial; }
+            get => _seventhMaterial;
 
-            set
-            {
-                if (value != _seventhMaterial)
-                {
-                    _seventhMaterial = value;
-                    OnPropertyChanged(nameof(SeventhMaterial));
-                }
-            }
+            set => SetProperty(ref _seventhMaterial, value, nameof(SeventhMaterial));
         }
 
         public int SeventhPercent
         {
-            get { return _seventhPercent; }
+            get => _seventhPercent;
 
-            set
-            {
-                if (value != _seventhPercent)
-                {
-                    _seventhPercent = value;
-                    OnPropertyChanged(nameof(SeventhPercent));
-                    UpdateTotal();
-                }
-            }
+            set => SetProperty(ref _seventhPercent, value, nameof(SeventhPercent), () => UpdateTotal());
         }
 
         #endregion

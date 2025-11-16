@@ -1,7 +1,7 @@
-﻿namespace SEToolbox.Services
-{
-    using SEToolbox.Interfaces;
+﻿using SEToolbox.Interfaces;
 
+namespace SEToolbox.Services
+{
     /// <summary>
     /// ViewModel of the abstract FileDialog.
     /// </summary>
@@ -18,7 +18,7 @@
             CheckPathExists = true;
             DefaultExt = string.Empty;
             FileName = string.Empty;
-            FileNames = new string[] { string.Empty };
+            FileNames = [string.Empty];
             Filter = string.Empty;
             InitialDirectory = string.Empty;
             Title = string.Empty;

@@ -19,7 +19,7 @@ sampler2D  implicitInputSampler : register(S0);
 // Pixel Shader
 //--------------------------------------------------------------------------------------
 
-float4 main(float2 uv : TEXCOORD) : COLOR
+float4 Main(float2 uv : TEXCOORD) : COLOR
 {
 	float2 texuv = uv;
 	float4 finalColor;

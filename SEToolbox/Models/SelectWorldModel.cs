@@ -1,15 +1,16 @@
-﻿namespace SEToolbox.Models
-{
-    using SEToolbox.Converters;
-    using SEToolbox.Interop;
-    using SEToolbox.Support;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Globalization;
-    using System.IO;
-    using System.Linq;
-    using Res = SEToolbox.Properties.Resources;
+﻿using SEToolbox.Converters;
+using SEToolbox.Interop;
+using SEToolbox.Support;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Res = SEToolbox.Properties.Resources;
+using SEConsts = SEToolbox.Interop.SpaceEngineersConsts;
 
+namespace SEToolbox.Models
+{
     public class SelectWorldModel : BaseModel
     {
         #region Fields
@@ -22,12 +23,12 @@
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public SelectWorldModel()
         {
             SelectedWorld = null;
-            Worlds = new ObservableCollection<WorldResource>();
+            Worlds = [];
         }
 
         #endregion
@@ -45,36 +46,16 @@
 
         public WorldResource SelectedWorld
         {
-            get
-            {
-                return _selectedWorld;
-            }
+            get => _selectedWorld;
 
-            set
-            {
-                if (value != _selectedWorld)
-                {
-                    _selectedWorld = value;
-                    OnPropertyChanged(nameof(SelectedWorld));
-                }
-            }
+            set => SetProperty(ref _selectedWorld, value, nameof(SelectedWorld));
         }
 
         public ObservableCollection<WorldResource> Worlds
         {
-            get
-            {
-                return _worlds;
-            }
+            get => _worlds;
 
-            set
-            {
-                if (value != _worlds)
-                {
-                    _worlds = value;
-                    OnPropertyChanged(nameof(Worlds));
-                }
-            }
+            set => SetProperty(ref _worlds, value, nameof(Worlds));
         }
 
         /// <summary>
@@ -82,28 +63,21 @@
         /// </summary>
         public bool IsBusy
         {
-            get
-            {
-                return _isBusy;
-            }
+            get => _isBusy;
 
             set
             {
-                if (value != _isBusy)
-                {
-                    _isBusy = value;
-                    OnPropertyChanged(nameof(IsBusy));
+               SetProperty(ref _isBusy, value, nameof(IsBusy),() =>{
                     if (_isBusy)
                     {
                         System.Windows.Forms.Application.DoEvents();
-                    }
-                }
+                    }});
             }
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public void Load(UserDataPath baseLocalPath, UserDataPath baseDedicatedServerHostPath, UserDataPath baseDedicatedServerServicePath)
         {
@@ -120,22 +94,22 @@
 
         #endregion
 
-        #region helpers
+        #region Helpers
 
         private void LoadSaveList()
         {
             Worlds.Clear();
-            var list = new List<WorldResource>();
+            List<WorldResource> list = [];
 
-            #region local saves
+            #region Local Saves
 
             if (Directory.Exists(BaseLocalPath.SavesPath))
             {
-                var userPaths = Directory.GetDirectories(BaseLocalPath.SavesPath);
+                string[] userPaths = Directory.GetDirectories(BaseLocalPath.SavesPath);
 
-                foreach (var userPath in userPaths)
+                foreach (string userPath in userPaths)
                 {
-                    var userName = Path.GetFileName(userPath);
+                    string userName = Path.GetFileName(userPath);
                     list.AddRange(FindSaveFiles(userPath, userName, SaveWorldType.Local, BaseLocalPath));
                 }
             }
@@ -155,16 +129,16 @@
 
             if (Directory.Exists(BaseDedicatedServerServicePath.SavesPath))
             {
-                var instancePaths = Directory.GetDirectories(BaseDedicatedServerServicePath.SavesPath);
+                string[] instancePaths = Directory.GetDirectories(BaseDedicatedServerServicePath.SavesPath);
 
-                foreach (var instancePath in instancePaths)
+                foreach (string instancePath in instancePaths)
                 {
-                    var lastLoadedPath = Path.Combine(instancePath, SpaceEngineersConsts.SavesFolder);
+                    string lastLoadedPath = Path.Combine(instancePath, SEConsts.Folders.SavesFolder);
 
                     if (Directory.Exists(lastLoadedPath))
                     {
-                        var instanceName = Path.GetFileName(instancePath);
-                        var dataPath = new UserDataPath(instancePath, SpaceEngineersConsts.SavesFolder, SpaceEngineersConsts.ModsFolder, SpaceEngineersConsts.BlueprintsFolder);
+                        string instanceName = Path.GetFileName(instancePath);
+                        UserDataPath dataPath = new(instancePath, SEConsts.Folders.SavesFolder, SEConsts.Folders.ModsFolder, SEConsts.Folders.BlueprintsFolder);
                         list.AddRange(FindSaveFiles(lastLoadedPath, instanceName, SaveWorldType.DedicatedServerService, dataPath));
                     }
                 }
@@ -172,42 +146,46 @@
 
             #endregion
 
-            foreach (var item in list.OrderByDescending(w => w.LastSaveTime))
+            foreach (WorldResource item in list.OrderByDescending(w => w.LastSaveTime))
+            {
                 Worlds.Add(item);
+            }
         }
 
-        private IEnumerable<WorldResource> FindSaveFiles(string lastLoadedPath, string userName, SaveWorldType saveType, UserDataPath dataPath)
+
+        private static IEnumerable<WorldResource> FindSaveFiles(string lastLoadedPath, string userName, SaveWorldType saveType, UserDataPath dataPath)
         {
-            var list = new List<WorldResource>();
+            List<WorldResource> list = [];
 
             // Ignore any other base Save paths without the LastLoaded file.
             if (Directory.Exists(lastLoadedPath))
             {
-                var savePaths = Directory.GetDirectories(lastLoadedPath);
+                string[] savePaths = Directory.GetDirectories(lastLoadedPath);
 
                 // Still check every potential game world path.
-                foreach (var savePath in savePaths)
+                foreach (string savePath in savePaths)
                 {
-                    var saveResource = LoadSaveFromPath(savePath, userName, saveType, dataPath);
-
+                    
                     // This should still allow Games to be copied into the Save path manually.
-                    saveResource.LoadWorldInfo();
-                    list.Add(saveResource);
+                    var saveResource =  LoadSaveFromPath(savePath, userName, saveType, dataPath);
+
+                        saveResource.LoadWorldInfo();
+                        list.Add(saveResource);
+                    }
                 }
-            }
 
             return list;
         }
 
-        internal WorldResource LoadSaveFromPath(string savePath, string userName, SaveWorldType saveType, UserDataPath dataPath)
+        internal static WorldResource LoadSaveFromPath(string savePath, string userName, SaveWorldType saveType, UserDataPath dataPath)
         {
-            var saveResource = new WorldResource
+            WorldResource saveResource = new()
             {
-                GroupDescription = $"{new EnumToResourceConverter().Convert(saveType, typeof (string), null, CultureInfo.CurrentUICulture)}: {userName}",
+                GroupDescription = $"{new EnumToResourceConverter().Convert(saveType, typeof(string), null, CultureInfo.CurrentUICulture)}: {userName}",
                 SaveType = saveType,
-                Savename = Path.GetFileName(savePath),
+                SaveName = Path.GetFileName(savePath),
                 UserName = userName,
-                Savepath = savePath,
+                SavePath = savePath,
                 DataPath = dataPath,
             };
 
@@ -218,30 +196,33 @@
         {
             if (Directory.Exists(baseSavePath))
             {
-                var userPaths = Directory.GetDirectories(baseSavePath);
+                string[] userPaths = Directory.GetDirectories(baseSavePath);
 
-                foreach (var userPath in userPaths)
+                foreach (string userPath in userPaths)
                 {
                     // Ignore any other base Save paths without the LastLoaded file.
                     if (Directory.Exists(userPath))
                     {
-                        var savePaths = Directory.GetDirectories(userPath);
+                        string[] savePaths = Directory.GetDirectories(userPath);
 
                         // Still check every potential game world path.
-                        foreach (var savePath in savePaths)
+                        foreach (string savePath in savePaths)
                         {
-                            saveResource = new WorldResource
-                            {
-                                Savename = Path.GetFileName(savePath),
-                                UserName = Path.GetFileName(userPath),
-                                Savepath = savePath,
-                                DataPath = UserDataPath.FindFromSavePath(savePath)
-                            };
 
-                            saveResource.LoadWorldInfo();
-                            if (saveResource.IsValid && (saveResource.Savename.ToUpper() == findSession || saveResource.SessionName.ToUpper() == findSession))
+                                saveResource = new WorldResource
+                                {
+                                    SaveName = Path.GetFileName(savePath),
+                                    UserName = Path.GetFileName(userPath),
+                                    SavePath = savePath,
+                                    DataPath = UserDataPath.FindFromSavePath(savePath)
+                                };
+
+                                saveResource.LoadWorldInfo();
+
+
+                            if (saveResource != null && saveResource.IsValid && (saveResource.SaveName.Equals(findSession, System.StringComparison.CurrentCultureIgnoreCase) || saveResource.SessionName.Equals(findSession, System.StringComparison.CurrentCultureIgnoreCase)))
                             {
-                                return saveResource.LoadCheckpoint(out errorInformation);
+                                 return saveResource.LoadCheckpoint(out errorInformation);
                             }
                         }
                     }
@@ -257,17 +238,17 @@
         {
             if (Directory.Exists(savePath))
             {
-                var userPath = Path.GetDirectoryName(savePath);
+                string userPath = Path.GetDirectoryName(savePath);
 
-                saveResource = new WorldResource
-                {
-                    Savename = Path.GetFileName(savePath),
-                    UserName = Path.GetFileName(userPath),
-                    Savepath = savePath,
-                    DataPath = UserDataPath.FindFromSavePath(savePath)
-                };
+                    saveResource = new WorldResource
+                    {
+                        SaveName = Path.GetFileName(savePath),
+                        UserName = Path.GetFileName(userPath),
+                        SavePath = savePath,
+                        DataPath = UserDataPath.FindFromSavePath(savePath)
+                    };
 
-                return saveResource.LoadCheckpoint(out errorInformation);
+                        return saveResource.LoadCheckpoint(out errorInformation);
             }
 
             saveResource = null;

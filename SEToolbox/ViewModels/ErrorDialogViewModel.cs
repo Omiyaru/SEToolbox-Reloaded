@@ -1,11 +1,11 @@
-﻿namespace SEToolbox.ViewModels
-{
-    using System;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-    using System.Windows.Forms;
-    using System.Windows.Input;
+﻿using System;
+using SEToolbox.Models;
+using SEToolbox.Services;
+using System.Windows.Forms;
+using System.Windows.Input;
 
+namespace SEToolbox.ViewModels
+{
     public class ErrorDialogViewModel : BaseViewModel
     {
         #region Fields
@@ -16,7 +16,7 @@
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public ErrorDialogViewModel(BaseViewModel parentViewModel, ErrorDialogModel dataModel)
             : base(parentViewModel)
@@ -29,7 +29,7 @@
 
         #endregion
 
-        #region command properties
+        #region Command Properties
 
         public ICommand CopyCommand => new DelegateCommand(CopyExecuted, CopyCanExecute);
 
@@ -46,13 +46,9 @@
         /// </summary>
         public bool? CloseResult
         {
-            get { return _closeResult; }
+           get => _closeResult; 
 
-            set
-            {
-                _closeResult = value;
-                OnPropertyChanged(nameof(CloseResult));
-            }
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         /// <summary>
@@ -60,51 +56,51 @@
         /// </summary>
         public bool IsBusy
         {
-            get { return _isBusy; }
+            get => _isBusy;
 
-            set
-            {
-                if (value != _isBusy)
+            set => SetProperty(ref _isBusy ,value, nameof(IsBusy),() => {
+                if(_isBusy)
                 {
-                    _isBusy = value;
-                    OnPropertyChanged(nameof(IsBusy));
-                    if (_isBusy)
-                    {
-                        Application.DoEvents();
-                    }
+                    Application.DoEvents();
                 }
-            }
+            });
         }
+       
+        
+                
+
+
+
 
         public string ErrorDescription
         {
-            get { return _dataModel.ErrorDescription; }
-            set { _dataModel.ErrorDescription = value; }
+            get => _dataModel.ErrorDescription;
+            set => _dataModel.ErrorDescription = value;
         }
 
         public string ErrorText
         {
-            get { return _dataModel.ErrorText; }
-            set { _dataModel.ErrorText = value; }
+            get => _dataModel.ErrorText;
+            set => _dataModel.ErrorText = value;
         }
 
         public bool IsWarning
         {
-            get { return _dataModel.CanContinue; }
-            set { _dataModel.CanContinue = value; }
+            get => _dataModel.CanContinue;
+            set => _dataModel.CanContinue = value;
         }
 
         public bool IsError
         {
-            get { return !_dataModel.CanContinue; }
-            set { _dataModel.CanContinue = !value; }
+            get => !_dataModel.CanContinue;
+            set => _dataModel.CanContinue = !value;
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
-        #region commands
+        #region Commands
 
         public bool CopyCanExecute()
         {

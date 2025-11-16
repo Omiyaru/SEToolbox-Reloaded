@@ -1,22 +1,27 @@
-﻿namespace SEToolbox.Models
-{
-    using SEToolbox.Converters;
-    using SEToolbox.ImageLibrary;
-    using SEToolbox.Interop;
-    using SEToolbox.Support;
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Globalization;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.Web.UI;
-    using VRage;
-    using VRage.FileSystem;
-    using VRage.Game;
-    using Res = SEToolbox.Properties.Resources;
+﻿
+using SEToolbox.Converters;
+using SEToolbox.ImageLibrary;
+using SEToolbox.Interop;
+using SEToolbox.Support;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using VRage;
+using VRage.FileSystem;
+using VRage.Game;
+using Res = SEToolbox.Properties.Resources;
+using PhysItemDef = Sandbox.Definitions.MyPhysicalItemDefinition;
+using ComponentDef = Sandbox.Definitions.MyComponentDefinition;
+using BlueprintDef = Sandbox.Definitions.MyBlueprintDefinitionBase;
+using Ext = SEToolbox.Support.HtmlExtensions;
+using TexUtil = SEToolbox.ImageLibrary.ImageTextureUtil;
 
+namespace SEToolbox.Models
+{
     public class ComponentListModel : BaseModel
     {
         #region Fields
@@ -42,19 +47,9 @@
         /// </summary>
         public ObservableCollection<ComponentItemModel> CubeAssets
         {
-            get
-            {
-                return _cubeAssets;
-            }
+            get => _cubeAssets;
 
-            set
-            {
-                if (value != _cubeAssets)
-                {
-                    _cubeAssets = value;
-                    OnPropertyChanged(nameof(CubeAssets));
-                }
-            }
+            set => SetProperty(ref _cubeAssets, value, nameof(CubeAssets));
         }
 
         /// <summary>
@@ -62,19 +57,9 @@
         /// </summary>
         public ObservableCollection<ComponentItemModel> ComponentAssets
         {
-            get
-            {
-                return _componentAssets;
-            }
+            get => _componentAssets;
 
-            set
-            {
-                if (value != _componentAssets)
-                {
-                    _componentAssets = value;
-                    OnPropertyChanged(nameof(ComponentAssets));
-                }
-            }
+            set => SetProperty(ref _componentAssets, value, nameof(ComponentAssets));
         }
 
         /// <summary>
@@ -82,19 +67,9 @@
         /// </summary>
         public ObservableCollection<ComponentItemModel> ItemAssets
         {
-            get
-            {
-                return _itemAssets;
-            }
+            get => _itemAssets;
 
-            set
-            {
-                if (value != _itemAssets)
-                {
-                    _itemAssets = value;
-                    OnPropertyChanged(nameof(ItemAssets));
-                }
-            }
+            set => SetProperty(ref _itemAssets, value, nameof(ItemAssets));
         }
 
         /// <summary>
@@ -102,19 +77,9 @@
         /// </summary>
         public ObservableCollection<ComponentItemModel> MaterialAssets
         {
-            get
-            {
-                return _materialAssets;
-            }
+            get => _materialAssets;
 
-            set
-            {
-                if (value != _materialAssets)
-                {
-                    _materialAssets = value;
-                    OnPropertyChanged(nameof(MaterialAssets));
-                }
-            }
+            set => SetProperty(ref _materialAssets, value, nameof(MaterialAssets));
         }
 
         /// <summary>
@@ -122,61 +87,44 @@
         /// </summary>
         public bool IsBusy
         {
-            get
-            {
-                return _isBusy;
-            }
+            get => _isBusy;
 
-            set
+            set   
             {
-                if (value != _isBusy)
-                {
-                    _isBusy = value;
-                    OnPropertyChanged(nameof(IsBusy));
+                SetProperty(ref _isBusy, value, nameof(IsBusy));
                     if (_isBusy)
                     {
                         System.Windows.Forms.Application.DoEvents();
                     }
-                }
-            }
+            }            
         }
 
         public ComponentItemModel SelectedCubeAsset
         {
-            get
-            {
-                return _selectedCubeAsset;
-            }
+            get => _selectedCubeAsset;
 
-            set
-            {
-                if (value != _selectedCubeAsset)
-                {
-                    _selectedCubeAsset = value;
-                    OnPropertyChanged(nameof(SelectedCubeAsset));
-                }
-            }
+            set => SetProperty(ref _selectedCubeAsset, value, nameof(SelectedCubeAsset));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         #region Load
 
         public void Load()
         {
-            CubeAssets = new ObservableCollection<ComponentItemModel>();
-            ComponentAssets = new ObservableCollection<ComponentItemModel>();
-            ItemAssets = new ObservableCollection<ComponentItemModel>();
-            MaterialAssets = new ObservableCollection<ComponentItemModel>();
+            CubeAssets = [];
+            ComponentAssets = [];
+            ItemAssets = [];
+            MaterialAssets = [];
 
-            var contentPath = ToolboxUpdater.GetApplicationContentPath();
+            string contentPath = ToolboxUpdater.GetApplicationContentPath();
 
-            foreach (Sandbox.Definitions.MyCubeBlockDefinition cubeDefinition in SpaceEngineersCore.Resources.CubeBlockDefinitions)
+            foreach (Sandbox.Definitions.MyCubeBlockDefinition cubeDefinition in SpaceEngineersResources.CubeBlockDefinitions)
             {
-                var props = new Dictionary<string, string>();
-                var fields = cubeDefinition.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
+                Dictionary<string, string> props = [];
+               var fields = cubeDefinition.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
 
                 foreach (var field in fields)
                 {
@@ -203,7 +151,8 @@
                         buildTime = TimeSpan.FromSeconds(buildTimeSeconds);
                 }
 
-                CubeAssets.Add(new ComponentItemModel {
+                CubeAssets.Add(new ComponentItemModel
+                {
                     Name = cubeDefinition.DisplayNameText,
                     Definition = cubeDefinition,
                     TypeId = cubeDefinition.Id.TypeId,
@@ -221,14 +170,15 @@
                 });
             }
 
-            foreach (var componentDefinition in SpaceEngineersCore.Resources.ComponentDefinitions)
+            foreach (var componentDefinition in SpaceEngineersResources.ComponentDefinitions)
             {
                 var bp = SpaceEngineersApi.GetBlueprint(componentDefinition.Id.TypeId, componentDefinition.Id.SubtypeName);
                 float amount = 0;
-                if (bp != null && bp.Results.Length > 0)
+                if  (bp?.Results?.Length > 0)
                     amount = (float)bp.Results[0].Amount;
 
-                ComponentAssets.Add(new ComponentItemModel {
+                ComponentAssets.Add(new ComponentItemModel
+                {
                     Name = componentDefinition.DisplayNameText,
                     TypeId = componentDefinition.Id.TypeId,
                     TypeIdString = componentDefinition.Id.TypeId.ToString(),
@@ -237,27 +187,26 @@
                     TextureFile = (componentDefinition.Icons == null || componentDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(componentDefinition.Icons.First(), Path.Combine(contentPath, componentDefinition.Icons.First())),
                     Volume = componentDefinition.Volume * SpaceEngineersConsts.VolumeMultiplyer,
                     Accessible = componentDefinition.Public,
-                    Time = bp != null ? TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds / amount) : (TimeSpan?)null,
+                    Time = bp != null ? TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds / amount) : null,
                     IsMod = !componentDefinition.Context.IsBaseGame,
                 });
             }
 
-            foreach (var physicalItemDefinition in SpaceEngineersCore.Resources.PhysicalItemDefinitions)
+            foreach (var physicalItemDefinition in SpaceEngineersResources.PhysicalItemDefinitions)
             {
                 var bp = SpaceEngineersApi.GetBlueprint(physicalItemDefinition.Id.TypeId, physicalItemDefinition.Id.SubtypeName);
                 float amount = 0;
-                if (bp != null)
-                {
-                    if (bp.Results != null && bp.Results.Length > 0)
+                    if (bp?.Results?.Length > 0)
                         amount = (float)bp.Results[0].Amount;
-                }
+                
 
                 float timeMassMultiplyer = 1f;
                 if (physicalItemDefinition.Id.TypeId == typeof(MyObjectBuilder_Ore)
                     || physicalItemDefinition.Id.TypeId == typeof(MyObjectBuilder_Ingot))
                     timeMassMultiplyer = physicalItemDefinition.Mass;
 
-                ItemAssets.Add(new ComponentItemModel {
+                ItemAssets.Add(new ComponentItemModel
+                {
                     Name = physicalItemDefinition.DisplayNameText,
                     TypeId = physicalItemDefinition.Id.TypeId,
                     TypeIdString = physicalItemDefinition.Id.TypeId.ToString(),
@@ -266,16 +215,17 @@
                     Volume = physicalItemDefinition.Volume * SpaceEngineersConsts.VolumeMultiplyer,
                     TextureFile = physicalItemDefinition.Icons == null ? null : SpaceEngineersCore.GetDataPathOrDefault(physicalItemDefinition.Icons.First(), Path.Combine(contentPath, physicalItemDefinition.Icons.First())),
                     Accessible = physicalItemDefinition.Public,
-                    Time = bp != null ? TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds / amount / timeMassMultiplyer) : (TimeSpan?)null,
+                    Time = bp != null ? TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds / amount / timeMassMultiplyer) : null,
                     IsMod = !physicalItemDefinition.Context.IsBaseGame,
                 });
             }
 
-            foreach (MyVoxelMaterialDefinition voxelMaterialDefinition in SpaceEngineersCore.Resources.VoxelMaterialDefinitions)
+            foreach (MyVoxelMaterialDefinition voxelMaterialDefinition in SpaceEngineersResources.VoxelMaterialDefinitions)
             {
                 string texture = voxelMaterialDefinition.GetVoxelDisplayTexture();
 
-                MaterialAssets.Add(new ComponentItemModel {
+                MaterialAssets.Add(new ComponentItemModel
+                {
                     Name = voxelMaterialDefinition.Id.SubtypeName,
                     TextureFile = texture == null ? null : SpaceEngineersCore.GetDataPathOrDefault(texture, Path.Combine(contentPath, texture)),
                     IsRare = voxelMaterialDefinition.IsRare,
@@ -290,198 +240,197 @@
 
         #region GenerateHtmlReport
 
-        public void GenerateHtmlReport(string filename)
+        public void GenerateHtmlReport(string fileName)
         {
-            var stringWriter = new StringWriter();
+            StringWriter stringWriter = new();
 
             // Put HtmlTextWriter in using block because it needs to call Dispose.
-            using (var writer = new HtmlTextWriter(stringWriter))
+            using (StringWriter writer = new())
             {
-                #region header
+                #region Header
 
                 writer.BeginDocument(Res.CtlComponentTitleReport,
                    @"
-body { background-color: #E6E6FA }
-h1 { font-family: Arial, Helvetica, sans-serif; }
-table { background-color: #FFFFFF; }
-table tr td { font-family: Arial, Helvetica, sans-serif; font-size: small; line-height: normal; color: #000000; }
-table thead td { background-color: #BABDD6; font-weight: bold; Color: #000000; }
-td.right { text-align: right; }");
+                    body { background-color: #E6E6FA }
+                    h1 { font-family: Arial, Helvetica, sans-serif; }
+                    table { background-color: #FFFFFF; }
+                    table tr td { font-family: Arial, Helvetica, sans-serif; font-size: small; line-height: normal; color: #000000; }
+                    table thead td { background-color: #BABDD6; font-weight: bold; Color: #000000; }
+                    td.right { text-align: right; }");
 
                 #endregion
 
                 #region Cubes
 
-                writer.RenderElement(HtmlTextWriterTag.H1, Res.CtlComponentTitleCubes);
+                writer.RenderElement("h1", Res.CtlComponentTitleCubes);
                 writer.BeginTable("1", "3", "0",
-                    new[] { Res.CtlComponentColIcon, Res.CtlComponentColName, Res.CtlComponentColType, Res.CtlComponentColSubType, Res.CtlComponentColCubeSize, Res.CtlComponentColPCU, Res.CtlComponentColAccessible, Res.CtlComponentColSize, Res.CtlComponentColMass, Res.CtlComponentColBuildTime, Res.CtlComponentColMod });
+                    [Res.CtlComponentColIcon, Res.CtlComponentColName, Res.CtlComponentColType, Res.CtlComponentColSubType, Res.CtlComponentColCubeSize, Res.CtlComponentColPCU, Res.CtlComponentColAccessible, Res.CtlComponentColSize, Res.CtlComponentColMass, Res.CtlComponentColBuildTime, Res.CtlComponentColMod]);
 
                 foreach (var asset in CubeAssets)
                 {
-                    writer.RenderBeginTag(HtmlTextWriterTag.Tr);
+                    Ext.RenderTag(writer, "tr", true);
 
-                    writer.RenderBeginTag(HtmlTextWriterTag.Td);
+                    Ext.RenderTag(writer, "td", true);
                     if (asset.TextureFile != null)
                     {
                         string texture = GetTextureToBase64(asset.TextureFile, 32, 32);
                         if (!string.IsNullOrEmpty(texture))
                         {
-                            writer.AddAttribute(HtmlTextWriterAttribute.Src, "data:image/png;base64," + texture);
-                            writer.AddAttribute(HtmlTextWriterAttribute.Width, "32");
-                            writer.AddAttribute(HtmlTextWriterAttribute.Height, "32");
-                            writer.AddAttribute(HtmlTextWriterAttribute.Alt, Path.GetFileNameWithoutExtension(asset.TextureFile));
-                            writer.RenderBeginTag(HtmlTextWriterTag.Img);
-                            writer.RenderEndTag();
+                            writer.AddAttribute("src", "data:image/png;base64," + texture);
+                            writer.AddAttribute("width", "32");
+                            writer.AddAttribute("height", "32");
+                            writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
+                            Ext.RenderTag(writer, "img", true);
+                            Ext.RenderTag(writer, "tr", false);
                         }
                     }
-                    writer.RenderEndTag(); // Td
+                    Ext.RenderTag(writer, "td", false); // Td
 
-                    writer.RenderElement(HtmlTextWriterTag.Td, asset.FriendlyName);
-                    writer.RenderElement(HtmlTextWriterTag.Td, asset.TypeId);
-                    writer.RenderElement(HtmlTextWriterTag.Td, asset.SubtypeId);
-                    writer.RenderElement(HtmlTextWriterTag.Td, asset.CubeSize);
-                    writer.RenderElement(HtmlTextWriterTag.Td, asset.PCU);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
-                    writer.RenderElement(HtmlTextWriterTag.Td, "{0}×{1}×{2}", asset.Size.Width, asset.Size.Height, asset.Size.Depth);
-                    writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
-                    writer.RenderElement(HtmlTextWriterTag.Td, "{0:#,##0.00}", asset.Mass);
-                    writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
-                    writer.RenderElement(HtmlTextWriterTag.Td, "{0:hh\\:mm\\:ss\\.ff}", asset.Time);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.RenderElement("td", asset.FriendlyName);
+                    writer.RenderElement("td", asset.TypeId);
+                    writer.RenderElement("td", asset.SubtypeId);
+                    writer.RenderElement("td", asset.CubeSize);
+                    writer.RenderElement("td", asset.PCU);
+                    writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.RenderElement("td", $"{asset.Size.Width}x{asset.Size.Height}x{asset.Size.Depth}", null);
+                    writer.AddAttribute("class", "right");
+                    writer.RenderElement("td", $"{ asset.Mass:#,##0.00}");
+                    writer.AddAttribute("class", "right");
+                    writer.RenderElement("td", $"{asset.Time:hh\\:mm\\:ss\\.ff}");
+                    writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
 
-                    writer.RenderEndTag(); // Tr
+                    Ext.RenderTag(writer, "tr", false); // Tr
                 }
-                writer.RenderEndTag(); // Table 
+                Ext.RenderTag(writer, "table", false); // Table
 
                 #endregion
 
                 #region Components
 
-                writer.RenderElement(HtmlTextWriterTag.H1, Res.CtlComponentTitleComponents);
+                writer.RenderElement("h1", Res.CtlComponentTitleComponents);
                 writer.BeginTable("1", "3", "0",
-                    new[] { Res.CtlComponentColIcon, Res.CtlComponentColName, Res.CtlComponentColType, Res.CtlComponentColSubType, Res.CtlComponentColAccessible, Res.CtlComponentColMass, Res.CtlComponentColVolume, Res.CtlComponentColBuildTime, Res.CtlComponentColMod });
+                    [Res.CtlComponentColIcon, Res.CtlComponentColName, Res.CtlComponentColType, Res.CtlComponentColSubType, Res.CtlComponentColAccessible, Res.CtlComponentColMass, Res.CtlComponentColVolume, Res.CtlComponentColBuildTime, Res.CtlComponentColMod]);
 
-                foreach (var asset in ComponentAssets)
+                foreach (ComponentItemModel asset in ComponentAssets)
                 {
-                    writer.RenderBeginTag(HtmlTextWriterTag.Tr);
-
-                    writer.RenderBeginTag(HtmlTextWriterTag.Td);
+                    Ext.RenderTag(writer, "tr", true);
+                    Ext.RenderTag(writer, "td", true);
                     if (asset.TextureFile != null)
                     {
                         string texture = GetTextureToBase64(asset.TextureFile, 32, 32);
                         if (!string.IsNullOrEmpty(texture))
                         {
-                            writer.AddAttribute(HtmlTextWriterAttribute.Src, "data:image/png;base64," + texture);
-                            writer.AddAttribute(HtmlTextWriterAttribute.Width, "32");
-                            writer.AddAttribute(HtmlTextWriterAttribute.Height, "32");
-                            writer.AddAttribute(HtmlTextWriterAttribute.Alt, Path.GetFileNameWithoutExtension(asset.TextureFile));
-                            writer.RenderBeginTag(HtmlTextWriterTag.Img);
-                            writer.RenderEndTag();
+                            writer.AddAttribute("src", "data:image/png;base64," + texture);
+                            writer.AddAttribute("width", "32");
+                            writer.AddAttribute("height", "32");
+                            writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
+                            Ext.RenderTag(writer, "img", true);
+                            Ext.RenderTag(writer, "tr", false);
                         }
                     }
-                    writer.RenderEndTag(); // Td
+                    Ext.RenderTag(writer, "td", false); // Td
 
-                    writer.RenderElement(HtmlTextWriterTag.Td, asset.FriendlyName);
-                    writer.RenderElement(HtmlTextWriterTag.Td, asset.TypeId);
-                    writer.RenderElement(HtmlTextWriterTag.Td, asset.SubtypeId);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
-                    writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
-                    writer.RenderElement(HtmlTextWriterTag.Td, "{0:#,##0.00}", asset.Mass);
-                    writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
-                    writer.RenderElement(HtmlTextWriterTag.Td, "{0:#,##0.00}", asset.Volume);
-                    writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
-                    writer.RenderElement(HtmlTextWriterTag.Td, "{0:hh\\:mm\\:ss\\.ff}", asset.Time);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.RenderElement("td", asset.FriendlyName);
+                    writer.RenderElement("td", asset.TypeId);
+                    writer.RenderElement("td", asset.SubtypeId);
+                    writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.AddAttribute("class", "right");
+                 writer.RenderElement("td", $"{asset.Mass:#,##0.00}");
+                    writer.AddAttribute("class", "right");
+                    writer.RenderElement("td", $"{asset.Volume}");
+                    writer.AddAttribute("class", "right");
+                    writer.RenderElement("td", $"{asset.Time:hh\\:mm\\:ss\\.ff}");
+                    writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
 
-                    writer.RenderEndTag(); // Tr
+                    Ext.RenderTag(writer, "tr", false); // Tr
                 }
-                writer.RenderEndTag(); // Table 
+                Ext.RenderTag(writer, "table", false); // Table
 
                 #endregion
 
                 #region Items
 
-                writer.RenderElement(HtmlTextWriterTag.H1, Res.CtlComponentTitleItems);
+                writer.RenderElement("h1", Res.CtlComponentTitleItems);
                 writer.BeginTable("1", "3", "0",
-                    new[] { Res.CtlComponentColIcon, Res.CtlComponentColName, Res.CtlComponentColType, Res.CtlComponentColSubType, Res.CtlComponentColAccessible, Res.CtlComponentColMass, Res.CtlComponentColVolume, Res.CtlComponentColBuildTime, Res.CtlComponentColMod });
+                    [Res.CtlComponentColIcon, Res.CtlComponentColName, Res.CtlComponentColType, Res.CtlComponentColSubType, Res.CtlComponentColAccessible, Res.CtlComponentColMass, Res.CtlComponentColVolume, Res.CtlComponentColBuildTime, Res.CtlComponentColMod]);
 
-                foreach (var asset in ItemAssets)
+                foreach (ComponentItemModel asset in ItemAssets)
                 {
-                    writer.RenderBeginTag(HtmlTextWriterTag.Tr);
+                    Ext.RenderTag(writer, "tr", true);
 
-                    writer.RenderBeginTag(HtmlTextWriterTag.Td);
+                    Ext.RenderTag(writer, "td", true);
                     if (asset.TextureFile != null)
                     {
                         string texture = GetTextureToBase64(asset.TextureFile, 32, 32);
                         if (!string.IsNullOrEmpty(texture))
                         {
-                            writer.AddAttribute(HtmlTextWriterAttribute.Src, "data:image/png;base64," + texture);
-                            writer.AddAttribute(HtmlTextWriterAttribute.Width, "32");
-                            writer.AddAttribute(HtmlTextWriterAttribute.Height, "32");
-                            writer.AddAttribute(HtmlTextWriterAttribute.Alt, Path.GetFileNameWithoutExtension(asset.TextureFile));
-                            writer.RenderBeginTag(HtmlTextWriterTag.Img);
-                            writer.RenderEndTag();
+                            writer.AddAttribute("src", "data:image/png;base64," + texture);
+                            writer.AddAttribute("width", "32");
+                            writer.AddAttribute("height", "32");
+                            writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
+                            Ext.RenderTag(writer, "img", true);
+                            Ext.RenderTag(writer, "tr", false);
                         }
                     }
-                    writer.RenderEndTag(); // Td
+                    Ext.RenderTag(writer, "td", false); // Td
 
-                    writer.RenderElement(HtmlTextWriterTag.Td, asset.FriendlyName);
-                    writer.RenderElement(HtmlTextWriterTag.Td, asset.TypeId);
-                    writer.RenderElement(HtmlTextWriterTag.Td, asset.SubtypeId);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
-                    writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
-                    writer.RenderElement(HtmlTextWriterTag.Td, "{0:#,##0.00}", asset.Mass);
-                    writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
-                    writer.RenderElement(HtmlTextWriterTag.Td, "{0:#,##0.00}", asset.Volume);
-                    writer.AddAttribute(HtmlTextWriterAttribute.Class, "right");
-                    writer.RenderElement(HtmlTextWriterTag.Td, "{0:hh\\:mm\\:ss\\.ff}", asset.Time);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.RenderElement("td", asset.FriendlyName);
+                    writer.RenderElement("td", asset.TypeId);
+                    writer.RenderElement("td", asset.SubtypeId);
+                    writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.AddAttribute("class", "right");
+                    writer.RenderElement("td", $"{asset.Mass:#,##0.00}");
+                    writer.AddAttribute("class", "right");
+                    writer.RenderElement("td", $"{asset.Volume}");
+                    writer.AddAttribute("class", "right");
+                    writer.RenderElement("td", $"{ asset.Time:hh\\:mm\\:ss\\.ff}");
+                    writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
 
-                    writer.RenderEndTag(); // Tr
+                    Ext.RenderTag(writer, "tr", false); // Tr
                 }
-                writer.RenderEndTag(); // Table 
+                Ext.RenderTag(writer, "td", false); // Table
 
                 #endregion
 
                 #region Materials
 
-                writer.RenderElement(HtmlTextWriterTag.H1, Res.CtlComponentTitleMaterials);
+                writer.RenderElement("h1", Res.CtlComponentTitleMaterials);
                 writer.BeginTable("1", "3", "0",
-                    new[] { Res.CtlComponentColTexture, Res.CtlComponentColName, Res.CtlComponentColOreName, Res.CtlComponentColRare, Res.CtlComponentColMinedOreRatio, Res.CtlComponentColMod });
+                    [Res.CtlComponentColTexture, Res.CtlComponentColName, Res.CtlComponentColOreName, Res.CtlComponentColRare, Res.CtlComponentColMinedOreRatio, Res.CtlComponentColMod]);
 
-                foreach (var asset in MaterialAssets)
+                foreach (ComponentItemModel asset in MaterialAssets)
                 {
-                    writer.RenderBeginTag(HtmlTextWriterTag.Tr);
+                    Ext.RenderTag(writer, "tr", true);
 
-                    writer.RenderBeginTag(HtmlTextWriterTag.Td);
+                    Ext.RenderTag(writer, "td", true);
                     if (asset.TextureFile != null)
                     {
                         string texture = GetTextureToBase64(asset.TextureFile, 32, 32, true);
                         if (!string.IsNullOrEmpty(texture))
                         {
-                            writer.AddAttribute(HtmlTextWriterAttribute.Src, "data:image/png;base64," + texture);
-                            writer.AddAttribute(HtmlTextWriterAttribute.Width, "32");
-                            writer.AddAttribute(HtmlTextWriterAttribute.Height, "32");
-                            writer.AddAttribute(HtmlTextWriterAttribute.Alt, Path.GetFileNameWithoutExtension(asset.TextureFile));
-                            writer.RenderBeginTag(HtmlTextWriterTag.Img);
-                            writer.RenderEndTag();
+                            writer.AddAttribute("src", "data:image/png;base64," + texture);
+                            writer.AddAttribute("width", "32");
+                            writer.AddAttribute("height", "32");
+                            writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
+                            Ext.RenderTag(writer, "img", true);
+                            Ext.RenderTag(writer, "tr", false);
                         }
                     }
-                    writer.RenderEndTag(); // Td
+                    Ext.RenderTag(writer, "td", false); // Td
 
-                    writer.RenderElement(HtmlTextWriterTag.Td, asset.Name);
-                    writer.RenderElement(HtmlTextWriterTag.Td, asset.OreName);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.IsRare, typeof(string), null, CultureInfo.CurrentUICulture));
-                    writer.RenderElement(HtmlTextWriterTag.Td, "{0:#,##0.00}", asset.MineOreRatio);
-                    writer.RenderElement(HtmlTextWriterTag.Td, new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.RenderElement("td", asset.Name);
+                    writer.RenderElement("td", asset.OreName);
+                    writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.IsRare, typeof(string), null, CultureInfo.CurrentUICulture));
+                    writer.RenderElement("td", $"{ asset.MineOreRatio:#,##0.00}");
+                    writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
 
-                    writer.RenderEndTag(); // Tr
+                    Ext.RenderTag(writer, "tr", false); // Tr
                 }
-                writer.RenderEndTag(); // Table 
+                Ext.RenderTag(writer, "table", false); // Table
 
                 #endregion
 
-                #region footer
+                #region Footer
 
                 writer.EndDocument();
 
@@ -489,49 +438,47 @@ td.right { text-align: right; }");
             }
 
             // Write to disk.
-            File.WriteAllText(filename, stringWriter.ToString());
+            File.WriteAllText(fileName, stringWriter.ToString());
         }
 
         #endregion
 
-        private static string GetTextureToBase64(string filename, int width, int height, bool ignoreAlpha = false)
+        private static string GetTextureToBase64(string fileName, int width, int height, bool ignoreAlpha = false)
         {
-            using (Stream stream = MyFileSystem.OpenRead(filename))
-            {
-                return ImageTextureUtil.GetTextureToBase64(stream, filename, width, height, ignoreAlpha);
-            }
+            using Stream stream = MyFileSystem.OpenRead(fileName);
+            return TexUtil.GetTextureToBase64(stream, fileName, width, height, ignoreAlpha);
         }
 
         #region GetRowValue
 
         public static string GetValue(FieldInfo field, object objt)
         {
-            var item = field.GetValue(objt);
+            object item = field.GetValue(objt);
 
             if (field.FieldType == typeof(SerializableVector3I))
             {
                 var vector = (SerializableVector3I)item;
-                return string.Format("{0}, {1}, {2}", vector.X, vector.Y, vector.Z);
+                return string.Format($"{vector.X}, {vector.Y}, {vector.Z}");
             }
 
             if (field.FieldType == typeof(SerializableVector3))
             {
-                var vector = (SerializableVector3)item;
-                return string.Format("{0}, {1}, {2}", vector.X, vector.Y, vector.Z);
+                SerializableVector3 vector = (SerializableVector3)item;
+                 return string.Format($"{vector.X}, {vector.Y}, {vector.Z}");
             }
 
             if (field.FieldType == typeof(SerializableBounds))
             {
-                var bounds = (SerializableBounds)item;
-                // TODO: #21 localize
-                return string.Format("Default:{0}, Min:{1}, max:{2}", bounds.Default, bounds.Min, bounds.Max);
+                SerializableBounds bounds = (SerializableBounds)item;
+                CultureInfo culture = CultureInfo.CurrentUICulture;
+                  return string.Format(culture,$"Default: {bounds.Default}, Min: {bounds.Min}, Max: {bounds.Max}");
             }
 
             if (field.FieldType == typeof(VRageMath.Vector3))
             {
-                var vector3 = (VRageMath.Vector3)item;
-                // TODO: #21 localize
-                return string.Format("X:{0}, Y:{1}, Z:{2}", vector3.X, vector3.Y, vector3.Z);
+                VRageMath.Vector3 vector3 = (VRageMath.Vector3)item;
+                CultureInfo culture = CultureInfo.CurrentUICulture;
+                return string.Format(culture, $"X:{vector3.X:F2}, Y:{vector3.Y:F2}, Z:{vector3.Z:F2}");
             }
 
             if (field.FieldType == typeof(string))

@@ -1,24 +1,24 @@
-﻿namespace SEToolbox.ViewModels
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Windows.Input;
+
+using SEToolbox.Interop;
+using SEToolbox.Interop.Asteroids;
+using SEToolbox.Models;
+using SEToolbox.Models.Asteroids;
+using SEToolbox.Services;
+using SEToolbox.Support;
+using VRageMath;
+using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
+using VRage.ObjectBuilders;
+using VRage;
+using VRage.Game;
+
+namespace SEToolbox.ViewModels
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.IO;
-    using System.Linq;
-    using System.Windows.Input;
-
-    using SEToolbox.Interop;
-    using SEToolbox.Interop.Asteroids;
-    using SEToolbox.Models;
-    using SEToolbox.Models.Asteroids;
-    using SEToolbox.Services;
-    using SEToolbox.Support;
-    using VRageMath;
-    using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
-    using VRage.ObjectBuilders;
-    using VRage;
-    using VRage.Game;
-
     public class GenerateVoxelFieldViewModel : BaseViewModel
     {
         #region Fields
@@ -43,83 +43,76 @@
 
         #endregion
 
-        #region command Properties
+        #region Command Properties
 
         public ICommand ClearRowsCommand
         {
-            get { return new DelegateCommand(ClearRowsExecuted, ClearRowsCanExecute); }
+           get => new DelegateCommand(ClearRowsExecuted, ClearRowsCanExecute); 
         }
 
         public ICommand AddRandomRowCommand
         {
-            get { return new DelegateCommand(AddRandomRowExecuted, AddRandomRowCanExecute); }
+           get => new DelegateCommand(AddRandomRowExecuted, AddRandomRowCanExecute); 
         }
 
         public ICommand AddRowCommand
         {
-            get { return new DelegateCommand(AddRowExecuted, AddRowCanExecute); }
+           get => new DelegateCommand(AddRowExecuted, AddRowCanExecute); 
         }
 
         public ICommand DeleteRowCommand
         {
-            get { return new DelegateCommand(DeleteRowExecuted, DeleteRowCanExecute); }
+           get => new DelegateCommand(DeleteRowExecuted, DeleteRowCanExecute); 
         }
 
         public ICommand CreateCommand
         {
-            get { return new DelegateCommand(CreateExecuted, CreateCanExecute); }
+           get => new DelegateCommand(CreateExecuted, CreateCanExecute); 
         }
 
         public ICommand CancelCommand
         {
-            get { return new DelegateCommand(CancelExecuted, CancelCanExecute); }
+           get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         #endregion
 
-        #region properties
+        #region Properties
 
         /// <summary>
         /// Gets or sets the DialogResult of the View.  If True or False is passed, this initiates the Close().
         /// </summary>
         public bool? CloseResult
         {
-            get { return _closeResult; }
+            get => _closeResult;
 
-            set
-            {
-                _closeResult = value;
-                OnPropertyChanged(nameof(CloseResult));
-            }
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         public AsteroidByteFillProperties SelectedRow
         {
-            get { return _selectedRow; }
+            get => _selectedRow;
 
-            set
-            {
-                _selectedRow = value;
-                OnPropertyChanged(nameof(SelectedRow));
-            }
+            set => SetProperty( ref _selectedRow, value, nameof(SelectedRow));
+         
         }
 
         public ObservableCollection<AsteroidByteFillProperties> VoxelCollection
         {
-            get { return _dataModel.VoxelCollection; }
-            set { _dataModel.VoxelCollection = value; }
+        get => _dataModel.VoxelCollection;
+        set => _dataModel.VoxelCollection = value;
         }
 
         public int MinimumRange
         {
-            get { return _dataModel.MinimumRange; }
-            set { _dataModel.MinimumRange = value; }
+        get => _dataModel.MinimumRange;
+        set => _dataModel.MinimumRange = value;
         }
 
         public int MaximumRange
         {
-            get { return _dataModel.MaximumRange; }
-            set { _dataModel.MaximumRange = value; }
+        get => _dataModel.MaximumRange;
+        set => _dataModel.MaximumRange = value;
         }
 
         /// <summary>
@@ -127,67 +120,61 @@
         /// </summary>
         public bool IsBusy
         {
-            get
-            {
-                return _isBusy;
-            }
+            get => _isBusy;
 
             set
             {
-                if (value != _isBusy)
-                {
-                    _isBusy = value;
-                    OnPropertyChanged(nameof(IsBusy));
+                    SetProperty(ref _isBusy, value, nameof(IsBusy));
                     if (_isBusy)
                     {
                         System.Windows.Forms.Application.DoEvents();
                     }
                 }
             }
-        }
+        
 
         public ObservableCollection<GenerateVoxelDetailModel> VoxelFileList
         {
-            get { return _dataModel.VoxelFileList; }
+           get => _dataModel.VoxelFileList; 
         }
 
         public ObservableCollection<MaterialSelectionModel> MaterialsCollection
         {
-            get { return _dataModel.MaterialsCollection; }
+           get => _dataModel.MaterialsCollection; 
         }
 
         public List<int> PercentList
         {
-            get { return _dataModel.PercentList; }
+            get => _dataModel.PercentList;
         }
 
         public double CenterPositionX
         {
-            get { return _dataModel.CenterPositionX; }
-            set { _dataModel.CenterPositionX = value; }
+        get => _dataModel.CenterPositionX;
+        set => _dataModel.CenterPositionX = value;
         }
 
         public double CenterPositionY
         {
-            get { return _dataModel.CenterPositionY; }
-            set { _dataModel.CenterPositionY = value; }
+        get => _dataModel.CenterPositionY;
+        set => _dataModel.CenterPositionY = value;
         }
 
         public double CenterPositionZ
         {
-            get { return _dataModel.CenterPositionZ; }
-            set { _dataModel.CenterPositionZ = value; }
+        get => _dataModel.CenterPositionZ;
+        set => _dataModel.CenterPositionZ = value;
         }
 
-        public AsteroidFillType AsteroidFillType
+        public AsteroidFillType.AsteroidFills AsteroidFillType
         {
-            get { return _dataModel.AsteroidFillType; }
-            set { _dataModel.AsteroidFillType = value; }
+        get => _dataModel.AsteroidFillType;
+        set => _dataModel.AsteroidFillType = value;
         }
 
         #endregion
 
-        #region command methods
+        #region Command Methods
 
         public bool ClearRowsCanExecute()
         {
@@ -208,8 +195,8 @@
 
         public void AddRandomRowExecuted()
         {
-            var filler = new AsteroidByteFiller();
-            var randomModel = (AsteroidByteFillProperties)filler.CreateRandom(VoxelCollection.Count + 1, _dataModel.BaseMaterial, MaterialsCollection, VoxelFileList);
+            AsteroidByteFiller filler = new();
+            AsteroidByteFillProperties randomModel = (AsteroidByteFillProperties)filler.CreateRandom(VoxelCollection.Count + 1, _dataModel.BaseMaterial, MaterialsCollection, VoxelFileList);
 
             if (SelectedRow != null)
             {
@@ -249,7 +236,7 @@
 
         public void DeleteRowExecuted()
         {
-            var index = VoxelCollection.IndexOf(SelectedRow);
+            int index = VoxelCollection.IndexOf(SelectedRow);
             VoxelCollection.Remove(SelectedRow);
             _dataModel.RenumberCollection();
 
@@ -265,7 +252,7 @@
 
         public bool CreateCanExecute()
         {
-            var valid = VoxelCollection.Count > 0;
+            bool valid = VoxelCollection.Count > 0;
             return VoxelCollection.Aggregate(valid, (current, t) => current);
         }
 
@@ -286,66 +273,79 @@
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public void BuildEntities(out string[] sourceVoxelFiles, out MyObjectBuilder_EntityBase[] sourceEntities)
         {
-            var entities = new List<MyObjectBuilder_EntityBase>();
-            var sourceFiles = new List<string>();
+            List<MyObjectBuilder_EntityBase> entities = [];
+            List<string> sourceFiles = [];
 
             MainViewModel.ResetProgress(0, VoxelCollection.Count);
 
-            foreach (var voxelDesign in VoxelCollection)
+            foreach (AsteroidByteFillProperties voxelDesign in VoxelCollection)
             {
                 MainViewModel.Progress++;
 
-                if (string.IsNullOrEmpty(voxelDesign.VoxelFile.SourceFilename) || !MyVoxelMap.IsVoxelMapFile(voxelDesign.VoxelFile.SourceFilename))
+                if (string.IsNullOrEmpty(voxelDesign.VoxelFile.SourceFileName) || ! MyVoxelMapBase.IsVoxelMapFile(voxelDesign.VoxelFile.SourceFileName))
                     continue;
 
-                using var asteroid = new MyVoxelMap();
-                string tempSourcefilename = null;
+                using  MyVoxelMapBase asteroid = new();
+                string tempSourceFileName = null;
+                AsteroidFillType asteroidFillType = new( 1,string.Empty);
+                    int id = asteroidFillType.Id;
 
-                switch (AsteroidFillType)
+                        switch (asteroidFillType.Id)
                 {
-                    case AsteroidFillType.None:
-                        asteroid.Load(voxelDesign.VoxelFile.SourceFilename);
-                        tempSourcefilename = voxelDesign.VoxelFile.SourceFilename;
+                    case 0: //AsteroidFillType.None:
+                        asteroid.Load(voxelDesign.VoxelFile.SourceFileName);
+                        tempSourceFileName = voxelDesign.VoxelFile.SourceFileName;
                         break;
 
-                    case AsteroidFillType.ByteFiller:
-                        asteroid.Load(voxelDesign.VoxelFile.SourceFilename);
-                        var filler = new AsteroidByteFiller();
+                    case 1: // AsteroidFillType.ByteFiller
+                        asteroid.Load(voxelDesign.VoxelFile.SourceFileName);
+                        AsteroidByteFiller filler = new();
                         filler.FillAsteroid(asteroid, voxelDesign);
-                        tempSourcefilename = TempfileUtil.NewFilename(MyVoxelMap.V2FileExtension);
-                        asteroid.Save(tempSourcefilename);
+                        tempSourceFileName = TempFileUtil.NewFileName( MyVoxelMapBase.FileExtension.V2);
+                        asteroid.Save(tempSourceFileName);
                         break;
+                    case 2:  //AsteroidFillType.Custom
+                        asteroid.Load(voxelDesign.VoxelFile.SourceFileName);
+                        tempSourceFileName = voxelDesign.VoxelFile.SourceFileName;
+
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("Unsupported AsteroidFillType.");
                 }
 
 
-                // automatically number all files, and check for duplicate filenames.
-                var fileName = MainViewModel.CreateUniqueVoxelStorageName(voxelDesign.VoxelFile.Name + MyVoxelMap.V2FileExtension, entities.ToArray());
 
-                var radius = RandomUtil.GetDouble(MinimumRange, MaximumRange);
-                var longitude = RandomUtil.GetDouble(0, 2 * Math.PI);
-                var latitude = RandomUtil.GetDouble(-Math.PI / 2, (Math.PI / 2) + double.Epsilon);
+                // automatically number all files, and check for duplicate fileNames.
+                string fileName = MainViewModel.CreateUniqueVoxelStorageName(voxelDesign.VoxelFile.Name +  MyVoxelMapBase.FileExtension.V2, [.. entities]);
+
+                double radius = RandomUtil.GetDouble(MinimumRange, MaximumRange);
+                double longitude = RandomUtil.GetDouble(0, 2 * Math.PI);
+                double latitude = RandomUtil.GetDouble(-Math.PI / 2, (Math.PI / 2) + double.Epsilon);
 
                 // Test data. Place asteroids items into a circle.
                 //radius = 500;
                 //longitude = Math.PI * 2 * ((double)voxelDesign.Index / VoxelCollection.Count);
                 //latitude = 0;
 
-                var x = radius * Math.Cos(latitude) * Math.Cos(longitude);
-                var z = radius * Math.Cos(latitude) * Math.Sin(longitude);
-                var y = radius * Math.Sin(latitude);
+                double x = radius * Math.Cos(latitude) * Math.Cos(longitude);
+                double z = radius * Math.Cos(latitude) * Math.Sin(longitude);
+                double y = radius * Math.Sin(latitude);
 
-                var center = new Vector3D(CenterPositionX, CenterPositionY, CenterPositionZ);
-                var position = center + new Vector3D(x, y, z) - asteroid.ContentCenter;
+                Vector3D center = new(CenterPositionX, CenterPositionY, CenterPositionZ);
+                Vector3D position = center + new Vector3D(x, y, z) - asteroid.ContentCenter;
 
-                var entity = new MyObjectBuilder_VoxelMap(position, fileName) {
+                MyObjectBuilder_VoxelMap entity = new(position, fileName)
+                {
                     EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ASTEROID),
                     PersistentFlags = MyPersistentEntityFlags2.CastShadows | MyPersistentEntityFlags2.InScene,
                     StorageName = Path.GetFileNameWithoutExtension(fileName),
-                    PositionAndOrientation = new MyPositionAndOrientation {
+                    PositionAndOrientation = new MyPositionAndOrientation
+                    {
                         Position = position,
                         Forward = Vector3.Forward, // Asteroids currently don't have any orientation.
                         Up = Vector3.Up
@@ -353,11 +353,16 @@
                 };
 
                 entities.Add(entity);
-                sourceFiles.Add(tempSourcefilename);
+                sourceFiles.Add(tempSourceFileName);
             }
 
-            sourceVoxelFiles = sourceFiles.ToArray();
-            sourceEntities = entities.ToArray();
+            sourceVoxelFiles = [.. sourceFiles];
+            sourceEntities = [.. entities];
+        }
+
+        internal AsteroidByteFillProperties Clone()
+        {
+            return (AsteroidByteFillProperties)SelectedRow.Clone();
         }
 
         #endregion

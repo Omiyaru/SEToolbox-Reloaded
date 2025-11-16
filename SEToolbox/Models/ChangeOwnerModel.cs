@@ -1,10 +1,11 @@
-﻿namespace SEToolbox.Models
+﻿using System.Collections.ObjectModel;
+using System.Linq;
+
+using SEToolbox.Interop;
+using Generic = System.Collections.Generic;
+
+namespace SEToolbox.Models
 {
-    using System.Collections.ObjectModel;
-    using System.Linq;
-
-    using SEToolbox.Interop;
-
     public class ChangeOwnerModel : BaseModel
     {
         #region Fields
@@ -15,11 +16,11 @@
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public ChangeOwnerModel()
         {
-            _playerList = new ObservableCollection<OwnerModel>();
+            _playerList = [];
         }
 
         #endregion
@@ -28,49 +29,27 @@
 
         public ObservableCollection<OwnerModel> PlayerList
         {
-            get { return _playerList; }
-
-            set
-            {
-                if (value != _playerList)
-                {
-                    _playerList = value;
-                    OnPropertyChanged(nameof(PlayerList));
-                }
-            }
+            get => _playerList;
+            set => SetProperty( ref _playerList, value ,nameof(PlayerList));
         }
 
         public OwnerModel SelectedPlayer
         {
-            get { return _selectedPlayer; }
+            get => _selectedPlayer; 
 
-            set
-            {
-                if (value != _selectedPlayer)
-                {
-                    _selectedPlayer = value;
-                    OnPropertyChanged(nameof(SelectedPlayer));
-                }
-            }
+            set => SetProperty( ref _selectedPlayer, value, nameof(SelectedPlayer));
         }
 
         public string Title
         {
-            get { return _title; }
+            get => _title; 
 
-            set
-            {
-                if (value != _title)
-                {
-                    _title = value;
-                    OnPropertyChanged(nameof(Title));
-                }
-            }
+            set => SetProperty(ref _title, value, nameof(Title));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public void Load(long initalOwner)
         {

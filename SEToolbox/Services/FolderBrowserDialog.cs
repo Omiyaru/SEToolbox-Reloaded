@@ -1,11 +1,11 @@
-﻿namespace SEToolbox.Services
-{
-    using System;
-    using System.Diagnostics.Contracts;
-    using System.Windows.Forms;
-    using SEToolbox.Interfaces;
-    using WinFormsFolderBrowserDialog = System.Windows.Forms.FolderBrowserDialog;
+﻿using System;
+using System.Diagnostics.Contracts;
+using System.Windows.Forms;
+using SEToolbox.Interfaces;
+using WinFormsFolderBrowserDialog = System.Windows.Forms.FolderBrowserDialog;
 
+namespace SEToolbox.Services
+{
     /// <summary>
     /// Class wrapping System.Windows.Forms.FolderBrowserDialog, making it accept a ViewModel.
     /// </summary>
@@ -22,7 +22,7 @@
         {
             Contract.Requires(folderBrowserDialog != null);
 
-            this._folderBrowserDialog = folderBrowserDialog;
+            _folderBrowserDialog = folderBrowserDialog;
 
             // Create concrete FolderBrowserDialog
             _concreteFolderBrowserDialog = new WinFormsFolderBrowserDialog
@@ -48,7 +48,7 @@
         {
             Contract.Requires(owner != null);
 
-            var result = _concreteFolderBrowserDialog.ShowDialog(owner);
+            DialogResult result = _concreteFolderBrowserDialog.ShowDialog(owner);
 
             // Update ViewModel
             _folderBrowserDialog.SelectedPath = _concreteFolderBrowserDialog.SelectedPath;
@@ -84,7 +84,6 @@
                 }
             }
         }
-
         #endregion
     }
 }

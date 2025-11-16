@@ -1,11 +1,11 @@
-﻿namespace SEToolbox.Services
-{
-    using System;
-    using System.Diagnostics.Contracts;
-    using System.Windows.Forms;
-    using SEToolbox.Interfaces;
-    using WinFormsSaveFileDialog = System.Windows.Forms.SaveFileDialog;
+﻿using System;
+using System.Diagnostics.Contracts;
+using System.Windows.Forms;
+using SEToolbox.Interfaces;
+using WinFormsSaveFileDialog = System.Windows.Forms.SaveFileDialog;
 
+namespace SEToolbox.Services
+{
     /// <summary>
     /// Class wrapping System.Windows.Forms.SaveFileDialog, making it accept a ISaveFileDialog.
     /// </summary>
@@ -22,7 +22,7 @@
         {
             Contract.Requires(saveFileDialog != null);
 
-            this._saveFileDialog = saveFileDialog;
+            _saveFileDialog = saveFileDialog;
 
             // Create concrete SaveFileDialog
             _concreteSaveFileDialog = new WinFormsSaveFileDialog

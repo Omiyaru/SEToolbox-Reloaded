@@ -1,10 +1,10 @@
-﻿namespace SEToolbox.Controls
+﻿using System.Windows.Data;
+using System.ComponentModel;
+namespace SEToolbox.Controls
 {
-    using System.Windows.Data;
-
     public class SortableGridViewColumn : System.Windows.Controls.GridViewColumn
     {
-        #region fields
+        #region Fields
 
         private BindingBase _sortBinding;
 
@@ -14,10 +14,7 @@
 
         public BindingBase SortBinding
         {
-            get
-            {
-                return _sortBinding;
-            }
+            get => _sortBinding;
             set
             {
                 if (_sortBinding != value)
@@ -27,10 +24,11 @@
                 }
             }
         }
+   
 
         private void OnDisplayMemberBindingChanged()
         {
-            OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs("DisplayMemberBinding"));
+            OnPropertyChanged(new PropertyChangedEventArgs(nameof(DisplayMemberBinding)));
         }
 
         #endregion

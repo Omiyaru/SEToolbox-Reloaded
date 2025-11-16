@@ -1,9 +1,9 @@
-﻿namespace SEToolbox.Models
+﻿using System.IO;
+using SEToolbox.Support;
+
+
+namespace SEToolbox.Models
 {
-    using System.IO;
-
-    using SEToolbox.Support;
-
     public class FindApplicationModel : BaseModel
     {
         #region Fields
@@ -19,59 +19,27 @@
 
         public string GameApplicationPath
         {
-            get { return _gameApplicationPath; }
-
-            set
-            {
-                if (value != _gameApplicationPath)
-                {
-                    _gameApplicationPath = value;
-                    OnPropertyChanged(nameof(GameApplicationPath));
-                    Validate();
-                }
-            }
+            get => _gameApplicationPath;
+            set => SetProperty(ref _gameApplicationPath, value, nameof(GameApplicationPath), () => { Validate();});
+           
         }
 
         public string GameBinPath
         {
-            get { return _gameBinPath; }
-
-            set
-            {
-                if (value != _gameBinPath)
-                {
-                    _gameBinPath = value;
-                    OnPropertyChanged(nameof(GameBinPath));
-                }
-            }
+            get => _gameBinPath;
+            set => SetProperty(ref _gameBinPath, value, nameof(GameBinPath));
         }
 
         public bool IsValidApplication
         {
-            get { return _isValidApplication; }
-
-            set
-            {
-                if (value != _isValidApplication)
-                {
-                    _isValidApplication = value;
-                    OnPropertyChanged(nameof(IsValidApplication));
-                }
-            }
+            get => _isValidApplication;
+            set => SetProperty(ref _isValidApplication, value, nameof(IsValidApplication));
         }
 
         public bool IsWrongApplication
         {
-            get { return _isWrongApplication; }
-
-            set
-            {
-                if (value != _isWrongApplication)
-                {
-                    _isWrongApplication = value;
-                    OnPropertyChanged(nameof(IsWrongApplication));
-                }
-            }
+            get => _isWrongApplication;
+            set => SetProperty(ref _isWrongApplication, value, nameof(IsWrongApplication));
         }
 
         #endregion
@@ -81,22 +49,23 @@
         public void Validate()
         {
             GameBinPath = null;
+            IsValidApplication = false;
+            IsWrongApplication = false;
 
-            if (!string.IsNullOrEmpty(GameApplicationPath))
+            if (string.IsNullOrEmpty(GameApplicationPath))
+                return;
+
+            try
             {
-                try
+                var fullPath = Path.GetFullPath(GameApplicationPath);
+                if (File.Exists(fullPath))
                 {
-                    var fullPath = Path.GetFullPath(GameApplicationPath);
-                    if (File.Exists(fullPath))
-                    {
-                        GameBinPath = Path.GetDirectoryName(fullPath);
-                    }
+                    GameBinPath = Path.GetDirectoryName(fullPath);
+                    IsValidApplication = ToolboxUpdater.ValidateSpaceEngineersInstall(GameBinPath);
+                    IsWrongApplication = !IsValidApplication;
                 }
-                catch { }
             }
-
-            IsValidApplication = ToolboxUpdater.ValidateSpaceEngineersInstall(GameBinPath);
-            IsWrongApplication = !IsValidApplication;
+            catch { }
         }
 
         #endregion

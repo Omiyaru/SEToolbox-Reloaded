@@ -1,0 +1,542 @@
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Windows.Media.Media3D;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SEToolbox.Interop;
+using SEToolbox.Support;
+
+namespace ToolboxTest
+{
+    [TestClass]
+    public class VolumetricTests
+    {
+        [TestMethod, TestCategory("UnitTest")]
+        public void GenerateModelComplexVolumetric()
+        {
+            const string modelFile = @".\TestAssets\algos.obj";
+
+            CubeType[][][] cubic = Modelling.ReadVolumetricModel(modelFile, 1, null, ModelTraceVoxel.Thin);
+
+            Dictionary<CubeType, int> cubicCount = Modelling.CountCubic(cubic);
+
+            int size = cubic.Length * cubic[0].Length * cubic[0][0].Length;
+            Assert.AreEqual(1290600, size, "Array length size must match.");
+
+            Assert.AreEqual(108, cubic.Length, "Array size must match.");
+            Assert.AreEqual(50, cubic[0].Length, "Array size must match.");
+            Assert.AreEqual(239, cubic[0][0].Length, "Array size must match.");
+
+            Assert.AreEqual(CubeType.Cube, cubic[54][39][7]);
+            Assert.AreEqual(CubeType.Cube, cubic[54][39][17]);
+            Assert.AreEqual(CubeType.Cube, cubic[54][39][18]);
+            Assert.AreEqual(CubeType.Cube, cubic[54][39][19]);
+            Assert.AreEqual(CubeType.Cube, cubic[54][39][20]);
+            Assert.AreEqual(CubeType.Cube, cubic[54][39][23]);
+            Assert.AreEqual(CubeType.Cube, cubic[54][39][24]);
+            Assert.AreEqual(CubeType.Cube, cubic[54][39][25]);
+            Assert.AreEqual(CubeType.Cube, cubic[54][39][26]);
+            Assert.AreEqual(CubeType.Cube, cubic[54][39][35]);
+            Assert.AreEqual(CubeType.Cube, cubic[54][39][36]);
+
+            Assert.AreEqual(51921, cubicCount[CubeType.Cube], "Cube count must match.");
+            Assert.AreEqual(188293, cubicCount[CubeType.Interior], "Interior count must match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void GenerateModelComplexVolumetricHalfScale()
+        {
+            const string modelFile = @".\TestAssets\algos.obj";
+
+            CubeType[][][] cubic = Modelling.ReadVolumetricModel(modelFile, 0.5, null, ModelTraceVoxel.Thin);
+
+            Dictionary<CubeType, int> cubicCount = Modelling.CountCubic(cubic);
+
+            int size = cubic.Length * cubic[0].Length * cubic[0][0].Length;
+            Assert.AreEqual(168480, size, "Array length size must match.");
+
+            Assert.AreEqual(54, cubic.Length, "Array size must match.");
+            Assert.AreEqual(26, cubic[0].Length, "Array size must match.");
+            Assert.AreEqual(120, cubic[0][0].Length, "Array size must match.");
+
+            Assert.AreEqual(12540, cubicCount[CubeType.Cube], "Cube count must match.");
+            Assert.AreEqual(20651, cubicCount[CubeType.Interior], "Interior count must match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void GenerateModelSimpleThinVolumetric()
+        {
+            const string modelFile = @".\TestAssets\t25.obj";
+
+            CubeType[][][] cubic = Modelling.ReadVolumetricModel(modelFile, 0, null, ModelTraceVoxel.Thin);
+
+            Dictionary<CubeType, int> cubicCount = Modelling.CountCubic(cubic);
+
+            int size = cubic.Length * cubic[0].Length * cubic[0][0].Length;
+            Assert.AreEqual(72, size, "Array length size must match.");
+
+            Assert.AreEqual(4, cubic.Length, "Array size must match.");
+            Assert.AreEqual(6, cubic[0].Length, "Array size must match.");
+            Assert.AreEqual(3, cubic[0][0].Length, "Array size must match.");
+
+            Assert.AreEqual(36, cubicCount[CubeType.Cube], "Cube count must match.");
+            Assert.AreEqual(4, cubicCount[CubeType.Interior], "Interior count must match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void GenerateModelSimpleThinSmoothedVolumetric()
+        {
+            const string modelFile = @".\TestAssets\t25.obj";
+
+            CubeType[][][] cubic = Modelling.ReadVolumetricModel(modelFile, 0, null, ModelTraceVoxel.ThinSmoothed);
+
+            Dictionary<CubeType, int> cubicCount = Modelling.CountCubic(cubic);
+
+            int size = cubic.Length * cubic[0].Length * cubic[0][0].Length;
+            Assert.AreEqual(72, size, "Array length size must match.");
+
+            Assert.AreEqual(4, cubic.Length, "Array size must match.");
+            Assert.AreEqual(6, cubic[0].Length, "Array size must match.");
+            Assert.AreEqual(3, cubic[0][0].Length, "Array size must match.");
+
+            Assert.AreEqual(36, cubicCount[CubeType.Cube], "Cube count must match.");
+            Assert.AreEqual(4, cubicCount[CubeType.Interior], "Interior count must match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void GenerateModelSimpleThickVolumetric()
+        {
+            const string modelFile = @".\TestAssets\t25.obj";
+
+            CubeType[][][] cubic = Modelling.ReadVolumetricModel(modelFile, 0, null, ModelTraceVoxel.Thick);
+
+            Dictionary<CubeType, int> cubicCount = Modelling.CountCubic(cubic);
+
+            int size = cubic.Length * cubic[0].Length * cubic[0][0].Length;
+            Assert.AreEqual(72, size, "Array length size must match.");
+
+            Assert.AreEqual(4, cubic.Length, "Array size must match.");
+            Assert.AreEqual(6, cubic[0].Length, "Array size must match.");
+            Assert.AreEqual(3, cubic[0][0].Length, "Array size must match.");
+
+            Assert.AreEqual(58, cubicCount[CubeType.Cube], "Cube count must match.");
+            Assert.AreEqual(2, cubicCount[CubeType.Interior], "Interior count must match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+
+        public void LoadBrokenModel()
+        {
+            // Testing the model.
+            // TODO: finish testing the model.
+            const string modelFile = @".\TestAssets\LibertyStatue.obj";
+
+            CubeType[][][] cubic = Modelling.ReadVolumetricModel(modelFile, 0, null, ModelTraceVoxel.Thin);
+
+            int size = cubic.Length * cubic[0].Length * cubic[0][0].Length;
+            Assert.AreEqual(72, size, "Array length size must match.");
+
+
+            Assert.AreEqual(4, cubic.Length, "Array size must match.");
+            Assert.AreEqual(6, cubic[0].Length, "Array size must match.");
+            Assert.AreEqual(3, cubic[0][0].Length, "Array size must match.");
+        }
+
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void GenerateModelSimpleVolumetricFill()
+        {
+            const string modelFile = @".\TestAssets\t25.obj";
+
+            CubeType[][][] cubic = Modelling.ReadVolumetricModel(modelFile, 2, null, ModelTraceVoxel.Thin);
+
+            Dictionary<CubeType, int> cubicCount = Modelling.CountCubic(cubic);
+
+            int size = cubic.Length * cubic[0].Length * cubic[0][0].Length;
+            Assert.AreEqual(480, size, "Array length size must match.");
+
+            Assert.AreEqual(8, cubic.Length, "Array size must match.");
+            Assert.AreEqual(12, cubic[0].Length, "Array size must match.");
+            Assert.AreEqual(5, cubic[0][0].Length, "Array size must match.");
+
+            Assert.AreEqual(168, cubicCount[CubeType.Cube], "Cube count must match.");
+            Assert.AreEqual(48, cubicCount[CubeType.Interior], "Interior count must match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void GenerateModelSimpleVolumetricAltFill()
+        {
+            const string modelFile = @".\TestAssets\t25.obj";
+
+            CubeType[][][] cubic = Modelling.ReadVolumetricModelAlt(modelFile);
+
+            int size = cubic.Length * cubic[0].Length * cubic[0][0].Length;
+            Assert.AreEqual(480, size, "Array length size must match.");
+
+            Assert.AreEqual(8, cubic.Length, "Array size must match.");
+            Assert.AreEqual(12, cubic[0].Length, "Array size must match.");
+            Assert.AreEqual(5, cubic[0][0].Length, "Array size must match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void GenerateModelWithMaterial()
+        {
+            const string modelFile = @".\TestAssets\test.obj";
+
+            CubeType[][][] cubic = Modelling.ReadVolumetricModel(modelFile, 1, null, ModelTraceVoxel.Thin);
+
+            int size = cubic.Length * cubic[0].Length * cubic[0][0].Length;
+            Assert.AreEqual(480, size, "Array length size must match.");
+
+            Assert.AreEqual(8, cubic.Length, "Array size must match.");
+            Assert.AreEqual(12, cubic[0].Length, "Array size must match.");
+            Assert.AreEqual(5, cubic[0][0].Length, "Array size must match.");
+        }
+
+        private static long _counter;
+        private static long _maximumProgress;
+        private static int _percent;
+        public void ResetProgress(long initial, long maximumProgress)
+        {
+            _percent = 0;
+            _counter = initial;
+            _maximumProgress = maximumProgress;
+        }
+
+        public void IncrementProgress()
+        {
+            _counter++;
+
+            int p = (int)((double)_counter / _maximumProgress * 100);
+            if (_percent < p)
+            {
+                _percent = p;
+                SConsole.WriteLine($"{_percent}%");
+            }
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void IntersectionTestPoint0()
+        {
+           
+            Point3D p1 = new(0, 0, 0);
+            Point3D p2 = new(10.999, 0, 0);
+            Point3D p3 = new(0, 10.999, -15.999);
+            Point3DCollection points = [p1, p2, p3];
+            Point3D roundPointA = new(0, 0, -10);
+            Point3D roundPointB = new(0, 0, +10);
+
+            bool ret = MeshHelper.RayIntersectTriangle(points, roundPointA, roundPointB, out Point3D intersection, out int normal);
+
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(new(0, 0, 0), intersection, "Point must be match.");
+            Assert.AreEqual(1, normal, "Normal must be 1.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void IntersectionTestPoint1()
+        {
+            Point3D p1 = new(1, 1, 0);
+            Point3D p2 = new(10, 1, 0);
+            Point3D p3 = new(1, 10, 0);
+            Point3DCollection points;
+            points = [p1, p2, p3];
+        List<Point3D> rays =
+                [
+                    new(1, 1, -10), new(1, 1, +10)
+                ];
+
+            bool ret = MeshHelper.RayIntersectTriangleRound(points, rays, out Point3D intersection, out int normal);
+
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(new Point3D(1, 1, 0), intersection, "Point must be match.");
+            Assert.AreEqual(1, normal, "Normal must be 1.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void RayTestFace()
+        {
+
+            Point3D p1 = new(10, 10, 10);
+            Point3D p2 = new(15, 15, 11);
+            Point3D p3 = new(20, 10, 12);
+            Point3DCollection points;
+            points = [p1, p2, p3];
+
+            Point3D roundPointA = new(15, 12, 0);
+            Point3D roundPointB = new(15, 12, 20);
+            bool ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out Point3D intersection, out int normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(new Point3D(15, 12, 11), intersection, "intersection must be match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void RayTestFaceReverse()
+        {
+
+            Point3D p1 = new(20, 10, 12);
+            Point3D p2 = new(15, 15, 11);
+            Point3D p3 = new(10, 10, 10);
+            Point3DCollection points;
+            points = [p1,p2,p3];
+            Point3D roundPointA = new(15, 12, 0);
+            Point3D roundPointB = new(15, 12, 20);
+            bool ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out Point3D intersection, out int normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(new(15, 12, 11), intersection, "intersection must be match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void RayTestEdge()
+        {
+
+            Point3D p1 = new(10, 10, 10);
+            Point3D p2 = new(15, 15, 11);
+            Point3D p3 = new(20, 10, 12);
+            Point3DCollection points = [p1,p2,p3];
+
+            Point3D roundPointA = new(14, 14, 0);
+            Point3D roundPointB = new(14, 14, 20);
+            bool ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out Point3D intersection, out int normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(new(14, 14, 10.8), intersection, "intersection must be match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void RayTestEdgeReverse()
+        {
+
+            Point3D p1 = new(20, 10, 12);
+            Point3D p2 = new(15, 15, 11);
+            Point3D p3 = new(10, 10, 10);
+            Point3DCollection points = [p1,p2,p3];
+            Point3D roundPointA = new(14, 14, 0);
+            Point3D roundPointB = new(14, 14, 20);
+            bool ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out Point3D intersection, out int normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(new(14, 14, 10.8), intersection, "intersection must be match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void RayTestVertex1()
+        {
+
+            Point3D p1 = new(10, 10, 10);
+            Point3D p2 = new(15, 15, 11);
+            Point3D p3 = new(20, 10, 12);
+            Point3DCollection points = [p1 ,p2,p3];
+            Point3D roundPointA = new(p1.X, p1.Y, 0);
+            Point3D roundPointB = new(p1.X, p1.Y, 20);
+
+            bool ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out Point3D intersection, out int normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(p1, intersection, "intersection must be match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void RayTestVertex2()
+        {
+
+            Point3D p1 = new(10, 10, 10);
+            Point3D p2 = new(15, 15, 11);
+            Point3D p3 = new(20, 10, 12);
+            Point3DCollection points = [p1,p2,p3];
+            Point3D roundPointA = new(p2.X, p2.Y, 0);
+            Point3D roundPointB = new(p2.X, p2.Y, 20);
+
+            bool ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out Point3D intersection, out int normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(p2, intersection, "intersection must be match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void RayTestVertex3()
+        {
+
+            Point3D p1 = new(10, 10, 10);
+            Point3D p2 = new(15, 15, 11);
+            Point3D p3 = new(20, 10, 12);
+            Point3D roundPointA = new(p3.X, p3.Y, 0);
+            Point3D roundPointB = new(p3.X, p3.Y, 20);
+            Point3DCollection points = [p1,p2,p3];
+            bool ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out Point3D intersection, out int normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(p3, intersection, "intersection must be match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void RayTestVertexReverse1()
+        {
+
+            Point3D p1 = new(20, 10, 12);
+            Point3D p2 = new(15, 15, 11);
+            Point3D p3 = new(10, 10, 10);
+            Point3DCollection points = [p1, p2, p3];
+            Point3D roundPointA = new(p1.X, p1.Y, 0);
+            Point3D roundPointB = new(p1.X, p1.Y, 20);
+
+            bool ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out Point3D intersection, out int normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(p1, intersection, "intersection must be match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void RayTestVertexReverse2()
+        {
+
+            Point3D p1 = new(20, 10, 12);
+            Point3D p2 = new(15, 15, 11);
+            Point3D p3 = new(10, 10, 10);
+            Point3DCollection points = [p1,p2,p3];
+            Point3D roundPointA = new(p2.X, p2.Y, 0);
+            Point3D roundPointB = new(p2.X, p2.Y, 20);
+
+            bool ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out Point3D intersection, out int normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(p2, intersection, "intersection must be match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void RayTestVertexReverse3()
+        {
+
+            Point3D p1 = new(20, 10, 12);
+            Point3D p2 = new(15, 15, 11);
+            Point3D p3 = new(10, 10, 10);
+            Point3DCollection points = [p1, p2, p3];
+
+            Point3D roundPointA = new(p3.X, p3.Y, 0);
+            Point3D roundPointB = new(p3.X, p3.Y, 20);
+            
+            bool ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out Point3D intersection, out int normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(p3, intersection, "intersection must be match.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void RayTestNormalCheck()
+        {
+            Point3D p1, p2, p3, roundPointA, roundPointB;
+            bool ret;
+
+            roundPointA = new Point3D(15, 12, 2000);
+            roundPointB = new Point3D(15, 12, -2000);
+
+            p1 = new Point3D(10, 10, 10);
+            p2 = new Point3D(15, 15, 11);
+            p3 = new Point3D(20, 10, 12);
+            Point3DCollection points = [p1, p2, p3];
+            ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out Point3D intersection, out int normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(1, normal, "Normal must be 1.");
+
+            p1 = new Point3D(10, 10, -990);
+            p2 = new Point3D(15, 15, 11);
+            p3 = new Point3D(20, 10, 1012);
+            points = [p1, p2, p3];
+            ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out intersection, out normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(1, normal, "Normal must be 1.");
+
+            p1 = new Point3D(10, 10, 1010);
+            p2 = new Point3D(15, 15, 11);
+            p3 = new Point3D(20, 10, -990);
+            points = [p1, p2, p3];
+            ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out intersection, out normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(1, normal, "Normal must be 1.");
+
+            // reverse ray
+            roundPointA = new Point3D(15, 12, -2000);
+            roundPointB = new Point3D(15, 12, 2000);
+
+            // reverse normal
+            p3 = new Point3D(10, 10, 10);
+            p2 = new Point3D(15, 15, 11);
+            p1 = new Point3D(20, 10, 12);
+            points = [p1, p2, p3];
+            ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out intersection, out normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(1, normal, "Normal must be 1.");
+
+            p3 = new Point3D(10, 10, -990);
+            p2 = new Point3D(15, 15, 11);
+            p1 = new Point3D(20, 10, 1012);
+            points = [p1, p2, p3];
+            ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out intersection, out normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(1, normal, "Normal must be 1.");
+
+            p3 = new Point3D(10, 10, 1010);
+            p2 = new Point3D(15, 15, 11);
+            p1 = new Point3D(20, 10, -990);
+            points = [p1, p2, p3];
+            ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out intersection, out normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(1, normal, "Normal must be 1.");
+        }
+
+        [TestMethod, TestCategory("UnitTest")]
+        public void RayTestNormalInverseCheck()
+        {
+            Point3D p1, p2, p3, roundPointA, roundPointB;
+            bool ret;
+
+            roundPointA = new Point3D(15, 12, -2000);
+            roundPointB = new Point3D(15, 12, 2000);
+
+            p1 = new Point3D(10, 10, 10);
+            p2 = new Point3D(15, 15, 11);
+            p3 = new Point3D(20, 10, 12);
+            Point3DCollection points = [p1, p2, p3];
+            ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out Point3D intersection, out int normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(-1, normal, "Normal must be -1.");
+
+            p1 = new Point3D(10, 10, -990);
+            p2 = new Point3D(15, 15, 11);
+            p3 = new Point3D(20, 10, 1012);
+            points = [p1, p2, p3];
+            ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out intersection, out normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(-1, normal, "Normal must be -1.");
+
+            p1 = new Point3D(10, 10, 1010);
+            p2 = new Point3D(15, 15, 11);
+            p3 = new Point3D(20, 10, -990);
+            points = [p1, p2, p3];
+            ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out intersection, out normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(-1, normal, "Normal must be -1.");
+
+            // reverse ray
+            roundPointA = new Point3D(15, 12, 2000);
+            roundPointB = new Point3D(15, 12, -2000);
+
+            // reverse normal
+            p3 = new Point3D(10, 10, 10);
+            p2 = new Point3D(15, 15, 11);
+            p1 = new Point3D(20, 10, 12);
+            points = [p1, p2, p3];
+            ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out intersection, out normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(-1, normal, "Normal must be -1.");
+
+            p3 = new Point3D(10, 10, -990);
+            p2 = new Point3D(15, 15, 11);
+            p1 = new Point3D(20, 10, 1012);
+            points = [p1, p2, p3];
+            ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out intersection, out normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(-1, normal, "Normal must be -1.");
+
+            p3 = new Point3D(10, 10, 1010);
+            p2 = new Point3D(15, 15, 11);
+            p1 = new Point3D(20, 10, -990);
+            points = [p1, p2, p3];
+            ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out intersection, out normal);
+            Assert.IsTrue(ret, "ret must be true.");
+            Assert.AreEqual(-1, normal, "Normal must be -1.");
+        }
+    }
+}

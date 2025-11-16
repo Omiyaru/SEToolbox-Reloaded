@@ -1,13 +1,12 @@
-﻿namespace SEToolbox.Support
+﻿ using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Xml;
+using PaletteQuantizer = SEToolbox.ImageLibrary.PaletteReplacerQuantizer;
+
+namespace SEToolbox.Support
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Drawing;
-    using System.IO;
-    using System.Xml;
-
-    using SEToolbox.ImageLibrary;
-
     public static class ToolboxExtensions
     {
         #region GetOptimizerPalatte
@@ -94,10 +93,10 @@
         /// <returns></returns>
         public static Dictionary<Color, string> GetPalatteNames()
         {
-            var palette = new Dictionary<Color, string>
+            Dictionary<Color, string> palette = new()
             {
                 {Color.Black, "Black"},
-                {Color.Gray, ""},
+                {Color.Gray, "Gray"},
                 {Color.White, "White"},
                 {Color.Red, "Red"},
                 {Color.Green, "Green"},
@@ -112,15 +111,15 @@
 
         #region OptimizeImagePalette
 
-        public static Bitmap OptimizeImagePalette(string imageFilename)
+        public static Bitmap OptimizeImagePalette(string imageFileName)
         {
-            return OptimizeImagePalette(imageFilename, null);
+            return OptimizeImagePalette(imageFileName, null);
         }
-
-        public static Bitmap OptimizeImagePalette(string imageFilename, Dictionary<Color, Color> palette)
+        
+        public static Bitmap OptimizeImagePalette(string imageFileName, Dictionary<Color, Color> palette)
         {
-            imageFilename = Path.GetFullPath(imageFilename);
-            var bmp = new Bitmap(imageFilename);
+            imageFileName = Path.GetFullPath(imageFileName);
+            Bitmap bmp = new(imageFileName);
             return OptimizeImagePalette(bmp, palette);
         }
 
@@ -128,11 +127,10 @@
         {
             Bitmap palatteImage;
 
-            using (var image = new Bitmap(bmp))
+            using (Bitmap image = new(bmp))
             {
-                if (palette == null)
-                    palette = GetOptimizerPalatte();
-                var paletteQuantizer = new PaletteReplacerQuantizer(palette);
+                palette ??= GetOptimizerPalatte();
+                PaletteQuantizer paletteQuantizer = new(palette);
                 palatteImage = paletteQuantizer.Quantize(image);
             }
 
@@ -163,26 +161,22 @@
                 File.Delete(fileDestination);
             }
 
-            var settingsSource = new XmlReaderSettings
+            XmlReaderSettings settingsSource = new()
             {
                 IgnoreComments = true,
                 IgnoreWhitespace = true
             };
 
-            var settingsDestination = new XmlWriterSettings
+            XmlWriterSettings settingsDestination = new()
             {
                 Indent = false,
                 NewLineHandling = NewLineHandling.None,
                 NewLineOnAttributes = false
             };
 
-            using (var xmlWriter = XmlWriter.Create(fileDestination, settingsDestination))
-            {
-                using (XmlReader xmlReader = XmlReader.Create(fileSource, settingsSource))
-                {
-                    xmlWriter.WriteNode(xmlReader, true);
-                }
-            }
+            using XmlWriter xmlWriter = XmlWriter.Create(fileDestination, settingsDestination);
+            using XmlReader xmlReader = XmlReader.Create(fileSource, settingsSource);
+            xmlWriter.WriteNode(xmlReader, true);
 
             return true;
         }
@@ -198,14 +192,12 @@
         /// <param name="list"></param>
         public static void Shuffle<T>(this IList<T> list)
         {
-            var n = list.Count;
+            int n = list.Count;
             while (n > 1)
             {
                 n--;
-                var k = RandomUtil.GetInt(n + 1);
-                var value = list[k];
-                list[k] = list[n];
-                list[n] = value;
+                int k = RandomUtil.GetInt(n + 1);
+                (list[n], list[k]) = (list[k], list[n]);
             }
         }
 
@@ -224,8 +216,8 @@
         /// <param name="planarHeight"></param>
         public static Point? Cartesian3DToSphericalPlanar(double x, double y, double z, double altitude, int planarWidth, int planarHeight)
         {
-            var latitude = Math.Asin(y / altitude);
-            var longitude = Math.Atan2(z, x);
+            double latitude = Math.Asin(y / altitude);
+            double longitude = Math.Atan2(z, x);
 
             if (double.IsNaN(latitude) || double.IsNaN(longitude))
                 return null;
@@ -233,14 +225,14 @@
             // planarWidth  : 0 to width -1
             // longitude  : -PI to PI?
 
-            var x2 = Math.Round((longitude + Math.PI) / (2 * Math.PI) * (planarWidth - 1), 0);
+            double x2 = Math.Round((longitude + Math.PI) / (2 * Math.PI) * (planarWidth - 1), 0);
 
             // planarHeight  : 0 to height -1
             // latitude  : -PI/2 to PI/2
 
-            var y2 = Math.Round((latitude + (Math.PI / 2)) / Math.PI * (planarHeight - 1), 0);
+            double y2 = Math.Round((latitude + (Math.PI / 2)) / Math.PI * (planarHeight - 1), 0);
 
-            var planarPoint = new Point((int)x2, (int)y2);
+            Point planarPoint = new((int)x2, (int)y2);
 
             return planarPoint;
         }

@@ -1,21 +1,22 @@
-﻿namespace SEToolbox.ViewModels
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics.Contracts;
+using System.IO;
+using System.Media;
+using System.Windows.Forms;
+using System.Windows.Input;
+
+using SEToolbox.Interfaces;
+using SEToolbox.Interop;
+using SEToolbox.Models;
+using SEToolbox.Services;
+using SEToolbox.Support;
+using System.Diagnostics;
+
+using Res = SEToolbox.Properties.Resources;
+
+namespace SEToolbox.ViewModels
 {
-    using System;
-    using System.Collections.ObjectModel;
-    using System.Diagnostics.Contracts;
-    using System.IO;
-    using System.Media;
-    using System.Windows.Forms;
-    using System.Windows.Input;
-
-    using SEToolbox.Interfaces;
-    using SEToolbox.Interop;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-    using SEToolbox.Support;
-    using Views;
-    using Res = SEToolbox.Properties.Resources;
-
     public class SelectWorldViewModel : BaseViewModel
     {
         #region Fields
@@ -49,7 +50,7 @@
 
         #endregion
 
-        #region command Properties
+        #region Command Properties
 
         public ICommand LoadCommand => new DelegateCommand(LoadExecuted, LoadCanExecute);
 
@@ -76,7 +77,7 @@
         /// </summary>
         public bool? CloseResult
         {
-            get { return _closeResult; }
+            get => _closeResult;
             set
             {
                 if (_closeResult != value)
@@ -89,8 +90,7 @@
 
         public bool ZoomThumbnail
         {
-            get { return _zoomThumbnail; }
-
+            get => _zoomThumbnail;
             set
             {
                 if (_zoomThumbnail != value)
@@ -103,13 +103,13 @@
 
         public WorldResource SelectedWorld
         {
-            get { return _dataModel.SelectedWorld; }
-            set { _dataModel.SelectedWorld = value; }
+            get => _dataModel.SelectedWorld;
+            set => _dataModel.SelectedWorld = value;
         }
 
         public ObservableCollection<WorldResource> Worlds
         {
-            get { return _dataModel.Worlds; }
+            get=> _dataModel.Worlds; 
         }
 
         /// <summary>
@@ -117,25 +117,21 @@
         /// </summary>
         public bool IsBusy
         {
-            get { return _dataModel.IsBusy; }
-            set { _dataModel.IsBusy = value; }
+            get => _dataModel.IsBusy;
+            set => _dataModel.IsBusy = value;
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
-        public bool LoadCanExecute()
-        {
-            return SelectedWorld != null && SelectedWorld.IsValid;
-        }
-
+        public bool LoadCanExecute() => SelectedWorld is { IsValid: true };
+       
         public void LoadExecuted()
         {
             IsBusy = true;
-            string errorInformation;
             // Preload to world before cloasing dialog.
-            if (_dataModel.SelectedWorld.LoadCheckpoint(out errorInformation))
+            if (_dataModel.SelectedWorld.LoadCheckpoint(out string errorInformation))
             {
                 if (_dataModel.SelectedWorld.LoadSector(out errorInformation))
                 {
@@ -174,13 +170,13 @@
         {
             return SelectedWorld != null &&
                 (SelectedWorld.SaveType != SaveWorldType.DedicatedServerService ||
-                (SelectedWorld.SaveType == SaveWorldType.DedicatedServerService && ToolboxUpdater.IsRuningElevated()));
+                (SelectedWorld.SaveType == SaveWorldType.DedicatedServerService && ToolboxUpdater.IsRunningElevated()));
         }
 
         public void RepairExecuted()
         {
             IsBusy = true;
-            var results = SpaceEngineersRepair.RepairSandBox(_dataModel.SelectedWorld);
+            string results = SpaceEngineersRepair.RepairSandBox(_dataModel.SelectedWorld);
             IsBusy = false;
             _dialogService.ShowMessageBox(this, results, Res.ClsRepairTitle, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.None);
         }
@@ -192,7 +188,7 @@
 
         public void BrowseExecuted()
         {
-            var openFileDialog = _openFileDialogFactory();
+            IOpenFileDialog openFileDialog = _openFileDialogFactory();
             openFileDialog.CheckFileExists = true;
             openFileDialog.CheckPathExists = true;
             openFileDialog.DefaultExt = "sbc";
@@ -204,16 +200,14 @@
             if (_dialogService.ShowOpenFileDialog(this, openFileDialog) == DialogResult.OK)
             {
                 IsBusy = true;
-                var savePath = Path.GetDirectoryName(openFileDialog.FileName);
-                var userName = Environment.UserName;
-                var saveType = SaveWorldType.Custom;
+                string savePath = Path.GetDirectoryName(openFileDialog.FileName);
+                string userName = Environment.UserName;
+                SaveWorldType saveType = SaveWorldType.Custom;
 
                 try
                 {
-                    using (var fs = File.OpenWrite(openFileDialog.FileName))
-                    {
-                        // test opening the file to verify that we have Write Access.
-                    }
+                    using FileStream fs = File.OpenWrite(openFileDialog.FileName);
+                    // test opening the file to verify that we have Write Access.
                 }
                 catch
                 {
@@ -221,11 +215,10 @@
                 }
 
                 // Determine the correct UserDataPath for this custom save game if at all possible for the mods.
-                var dp = UserDataPath.FindFromSavePath(savePath);
+                UserDataPath dataPath = UserDataPath.FindFromSavePath(savePath);
 
-                var saveResource = _dataModel.LoadSaveFromPath(savePath, userName, saveType, dp);
-                string errorInformation;
-                if (saveResource.LoadCheckpoint(out errorInformation))
+                WorldResource saveResource = SelectWorldModel.LoadSaveFromPath(savePath, userName, saveType, dataPath);
+                if (saveResource.LoadCheckpoint(out string errorInformation))
                 {
                     if (saveResource.LoadSector(out errorInformation))
                     {
@@ -249,7 +242,7 @@
 
         public void OpenFolderExecuted()
         {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("Explorer", string.Format("\"{0}\"", SelectedWorld.Savepath)) { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("Explorer", string.Format($"\"{ SelectedWorld.SavePath}\"")) { UseShellExecute = true });
         }
 
         public bool OpenWorkshopCanExecute()
@@ -261,12 +254,12 @@
         public void OpenWorkshopExecuted()
         {
             if (SelectedWorld.WorkshopId.HasValue)
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(string.Format("http://steamcommunity.com/sharedfiles/filedetails/?id={0}", SelectedWorld.WorkshopId.Value)) { UseShellExecute = true });
+               Process.Start(new ProcessStartInfo(string.Format("http://steamcommunity.com/sharedfiles/filedetails/?id={0}", SelectedWorld.WorkshopId.Value)) { UseShellExecute = true });
         }
 
         public bool ZoomThumbnailCanExecute()
         {
-            return SelectedWorld != null && SelectedWorld.ThumbnailImageFilename != null;
+            return SelectedWorld != null && SelectedWorld.ThumbnailImageFileName != null;
         }
 
         public void ZoomThumbnailExecuted()

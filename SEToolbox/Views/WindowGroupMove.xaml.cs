@@ -1,7 +1,7 @@
-﻿namespace SEToolbox.Views
-{
-    using System.Windows;
+﻿using System.Windows;
 
+namespace SEToolbox.Views
+{
     /// <summary>
     /// Interaction logic for WindowGroupMove.xaml
     /// </summary>
@@ -9,7 +9,7 @@
     {
         public WindowGroupMove()
         {
-            this.Language = System.Windows.Markup.XmlLanguage.GetLanguage(System.Threading.Thread.CurrentThread.CurrentCulture.IetfLanguageTag);
+            Language = System.Windows.Markup.XmlLanguage.GetLanguage(System.Threading.Thread.CurrentThread.CurrentCulture.IetfLanguageTag);
             InitializeComponent();
         }
     }

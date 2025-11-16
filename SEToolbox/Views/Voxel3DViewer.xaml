@@ -1,0 +1,48 @@
+<UserControl x:Class="SEToolbox.Views.Voxel3DViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ht="clr-namespace:HelixToolkit.Wpf;assembly=HelixToolkit.Wpf"
+             mc:Ignorable="d" d:DesignHeight="600" d:DesignWidth="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <ht:HelixViewport3D x:Name="Voxel_ObjectView" Height="600" Background="Transparent" Grid.Column="1">
+            <ModelVisual3D x:Name="SliceVisuals">
+                <ModelVisual3D.Content>
+                    <GeometryModel3D x:Name="SliceModel3D" Geometry="{Binding SliceGeometry, FallbackValue={x:Null}}" Material="{Binding SliceMaterial, FallbackValue={x:Null}}" />
+                </ModelVisual3D.Content>
+            </ModelVisual3D>
+            <ModelVisual3D x:Name="VolumeVisuals">
+                <ModelVisual3D.Content>
+                    <GeometryModel3D x:Name="VolumeModel3D" Geometry="{Binding VolumeGeometry, FallbackValue={x:Null}}" Material="{Binding VolumeMaterial, FallbackValue={x:Null}}" />
+                </ModelVisual3D.Content>
+            </ModelVisual3D>
+            <ModelVisual3D x:Name="ChunkGridLines">
+                <ModelVisual3D.Content>
+                    <GeometryModel3D x:Name="ChunkGridLinesModel3D" Geometry="{Binding ChunkGridLinesGeometry, FallbackValue={x:Null}}" Material="{Binding ChunkGridLinesMaterial, FallbackValue={x:Null}}" />
+                </ModelVisual3D.Content>
+            </ModelVisual3D>
+        </ht:HelixViewport3D>
+
+        <StackPanel Grid.Column="0" Background="#eee">
+            <TextBlock Text="3D Voxel Viewer" Foreground="Black" FontWeight="Bold" Margin="5" Height="17" Width="227"/>
+
+            <TextBlock Text=" Voxel Tools" FontWeight="Bold"/>
+            <TextBlock x:Name="StatusText" Text=" Mode: Slice | Layer: 0" Foreground="Black" Width="133" HorizontalAlignment="Left"/>
+            <TextBlock Text="Slice Navigation:" Margin="0 5 0 0" Width="237"/>
+            <Slider Minimum="0" Maximum="{Binding MaxSlice, FallbackValue=0}" Value="{Binding CurrentSlice, FallbackValue=0}" TickFrequency="1" IsSnapToTickEnabled="True" Width="239"/>
+            <Separator Margin="5"/>
+            <TextBlock Text="Material Rendering:" Width="227"/>
+            <CheckBox Content="Enable Material Colors" IsChecked="{Binding UseMaterialColors, FallbackValue=False}" Width="243" />
+
+            <TextBlock Text="3D Voxel Viewer" Foreground="Black" FontWeight="Bold" Margin="5" Height="21" Width="210"/>
+            <TextBlock Foreground="Black" FontSize="10" Height="44" Width="186"><Run Text="↑/↓: Slice | V: Toggle View"/><LineBreak/><Run Text=" | M: Material Mode | C: Chunk Grid View"/><LineBreak/><Run Text="| R: Reset"/></TextBlock>
+        </StackPanel>
+    </Grid>
+</UserControl>
+

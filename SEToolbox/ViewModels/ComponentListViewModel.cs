@@ -1,17 +1,17 @@
-﻿namespace SEToolbox.ViewModels
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics.Contracts;
+using System.Windows.Forms;
+using System.Windows.Input;
+
+using SEToolbox.Interfaces;
+using SEToolbox.Models;
+using SEToolbox.Services;
+using SEToolbox.Support;
+using Res = SEToolbox.Properties.Resources;
+
+namespace SEToolbox.ViewModels
 {
-    using System;
-    using System.Collections.ObjectModel;
-    using System.Diagnostics.Contracts;
-    using System.Windows.Forms;
-    using System.Windows.Input;
-
-    using SEToolbox.Interfaces;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-    using Support;
-    using Res = SEToolbox.Properties.Resources;
-
     public class ComponentListViewModel : BaseViewModel
     {
         #region Fields
@@ -44,16 +44,16 @@
 
         #endregion
 
-        #region command Properties
+        #region Command Properties
 
         public ICommand ExportReportCommand
         {
-            get { return new DelegateCommand(ExportReportExecuted, ExportReportCanExecute); }
+            get =>new DelegateCommand(ExportReportExecuted, ExportReportCanExecute); 
         }
 
         public ICommand CloseCommand
         {
-            get { return new DelegateCommand(CloseExecuted, CloseCanExecute); }
+            get => new DelegateCommand(CloseExecuted, CloseCanExecute);
         }
 
         #endregion
@@ -65,10 +65,7 @@
         /// </summary>
         public bool? CloseResult
         {
-            get
-            {
-                return _closeResult;
-            }
+            get => _closeResult;
 
             set
             {
@@ -82,85 +79,49 @@
         /// </summary>
         public bool IsBusy
         {
-            get
-            {
-                return _dataModel.IsBusy;
-            }
+            get => _dataModel.IsBusy;
 
-            set
-            {
-                _dataModel.IsBusy = value;
-            }
+            set => _dataModel.IsBusy = value;
         }
 
         public ObservableCollection<ComponentItemModel> CubeAssets
         {
-            get
-            {
-                return _dataModel.CubeAssets;
-            }
+            get => _dataModel.CubeAssets;
 
-            set
-            {
-                _dataModel.CubeAssets = value;
-            }
+            set => _dataModel.CubeAssets = value;
         }
 
         public ObservableCollection<ComponentItemModel> ComponentAssets
         {
-            get
-            {
-                return _dataModel.ComponentAssets;
-            }
+            get => _dataModel.ComponentAssets;
 
-            set
-            {
-                _dataModel.ComponentAssets = value;
-            }
+            set => _dataModel.ComponentAssets = value;
         }
 
         public ObservableCollection<ComponentItemModel> ItemAssets
         {
-            get
-            {
-                return _dataModel.ItemAssets;
-            }
+            get => _dataModel.ItemAssets;
 
-            set
-            {
-                _dataModel.ItemAssets = value;
-            }
+            set => _dataModel.ItemAssets = value;
         }
 
         public ObservableCollection<ComponentItemModel> MaterialAssets
         {
-            get
-            {
-                return _dataModel.MaterialAssets;
-            }
+            get => _dataModel.MaterialAssets;
 
-            set
-            {
-                _dataModel.MaterialAssets = value;
-            }
+            set => _dataModel.MaterialAssets = value;
         }
 
         public ComponentItemModel SelectedCubeAsset
         {
-            get
-            {
-                return _dataModel.SelectedCubeAsset;
-            }
+            get => _dataModel.SelectedCubeAsset;
 
-            set
-            {
-                _dataModel.SelectedCubeAsset = value;
-            }
+            set => _dataModel.SelectedCubeAsset = value;
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public bool ExportReportCanExecute()
         {
@@ -169,14 +130,14 @@
 
         public void ExportReportExecuted()
         {
-            var saveFileDialog = _saveFileDialogFactory();
+            ISaveFileDialog saveFileDialog = _saveFileDialogFactory();
             saveFileDialog.Filter = AppConstants.HtmlFilter;
             saveFileDialog.Title = Res.DialogExportReportTitle;
-            saveFileDialog.FileName = Res.DialogExportReportFilename;
+            saveFileDialog.FileName = Res.DialogExportReportFileName;
             saveFileDialog.OverwritePrompt = true;
 
             // Open the dialog
-            var result = _dialogService.ShowSaveFileDialog(this, saveFileDialog);
+            DialogResult result = _dialogService.ShowSaveFileDialog(this, saveFileDialog);
 
             if (result == DialogResult.OK)
             {

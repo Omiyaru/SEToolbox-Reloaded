@@ -1,31 +1,26 @@
-﻿namespace SEToolbox.ViewModels
+﻿using SEToolbox.Interfaces;
+using SEToolbox.Services;
+
+namespace SEToolbox.ViewModels
 {
-    using SEToolbox.Interfaces;
-    using SEToolbox.Services;
 
-    public class DataBaseViewModel : BaseViewModel, IDragable
+    public class DataBaseViewModel(BaseViewModel parentViewModel, IStructureBase dataModel) : BaseViewModel(parentViewModel), IDragable
     {
-        #region fields
+        #region Fields
 
-        private IStructureBase _dataModel;
+        private IStructureBase _dataModel = dataModel;
+
+        #endregion
+        #region Ctor
 
         #endregion
 
-        #region ctor
-
-        public DataBaseViewModel(BaseViewModel parentViewModel, IStructureBase dataModel)
-            : base(parentViewModel)
-        {
-            _dataModel = dataModel;
-        }
-
-        #endregion
-
-        #region properties
+        #region Properties
 
         public IStructureBase DataModel
         {
-            get { return _dataModel; }
+            get => _dataModel;
+
             set
             {
                 if (value != _dataModel)
@@ -35,7 +30,6 @@
                 }
             }
         }
-
         #endregion
 
         #region IDragable Interface
@@ -43,7 +37,7 @@
         //[XmlIgnore]
         System.Type IDragable.DataType
         {
-            get { return typeof(DataBaseViewModel); }
+            get => typeof(DataBaseViewModel);
         }
 
         void IDragable.Remove(object i)

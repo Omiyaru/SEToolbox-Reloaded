@@ -1,15 +1,18 @@
-﻿namespace SEToolbox.Models
+﻿using VRage;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using Sandbox.Definitions;
+using SEToolbox.Interop;
+using SEToolbox.Support;
+using VRage.Game;
+using SETypes = SEToolbox.Interop.SpaceEngineersTypes;
+
+
+namespace SEToolbox.Models
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.IO;
-    using System.Linq;
-
-    using SEToolbox.Interop;
-    using SEToolbox.Support;
-    using VRage;
-
     public class GenerateFloatingObjectModel : BaseModel
     {
         public const int UniqueUnits = 1;
@@ -34,11 +37,11 @@
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public GenerateFloatingObjectModel()
         {
-            _stockItemList = new ObservableCollection<ComponentItemModel>();
+            _stockItemList = [];
             Multiplier = 1;
         }
 
@@ -48,190 +51,81 @@
 
         public MyPositionAndOrientation CharacterPosition
         {
-            get
-            {
-                return _characterPosition;
-            }
-
-            set
-            {
-                //if (value != characterPosition) // Unable to check for equivilence, without long statement. And, mostly uncessary.
-                _characterPosition = value;
-                OnPropertyChanged(nameof(CharacterPosition));
-            }
+            get => _characterPosition;
+            // unable to check for equivalence and mostly unnecessary
+            set => SetProperty(ref _characterPosition, value, nameof(CharacterPosition));
         }
 
         public ObservableCollection<ComponentItemModel> StockItemList
         {
-            get
-            {
-                return _stockItemList;
-            }
+            get => _stockItemList;
 
-            set
-            {
-                if (value != _stockItemList)
-                {
-                    _stockItemList = value;
-                    OnPropertyChanged(nameof(StockItemList));
-                }
-            }
+            set => SetProperty(ref _stockItemList, value, nameof(StockItemList));
         }
 
         public ComponentItemModel StockItem
         {
-            get
-            {
-                return _stockItem;
-            }
+            get => _stockItem;
 
-            set
-            {
-                if (value != _stockItem)
-                {
-                    _stockItem = value;
-                    OnPropertyChanged(nameof(StockItem));
-                    SetMassVolume();
-                }
-            }
+            set => SetProperty(ref _stockItem, value, nameof(StockItem));
         }
 
         public bool IsValidItemToImport
         {
-            get
-            {
-                return _isValidItemToImport;
-            }
+            get => _isValidItemToImport;
 
-            set
-            {
-                if (value != _isValidItemToImport)
-                {
-                    _isValidItemToImport = value;
-                    OnPropertyChanged(nameof(IsValidItemToImport));
-                }
-            }
+            set => SetProperty(ref _isValidItemToImport, value, nameof(IsValidItemToImport));
         }
 
         public double? Volume
         {
-            get
-            {
-                return _volume;
-            }
+            get => _volume;
 
-            set
-            {
-                if (value != _volume)
-                {
-                    _volume = value;
-                    OnPropertyChanged(nameof(Volume));
-                }
-            }
+            set => SetProperty(ref _volume, value, nameof(Volume));
         }
 
         public double? Mass
         {
-            get
-            {
-                return _mass;
-            }
+            get => _mass;
 
-            set
-            {
-                if (value != _mass)
-                {
-                    _mass = value;
-                    OnPropertyChanged(nameof(Mass));
-                }
-            }
+            set => SetProperty(ref _mass, value, nameof(Mass));
         }
 
         public int? Units
         {
-            get
-            {
-                return _units;
-            }
+            get => _units;
 
-            set
-            {
-                if (value != _units)
-                {
-                    _units = value;
-                    OnPropertyChanged(nameof(Units));
-                    SetMassVolume();
-                }
-            }
+            set => SetProperty(ref _units, value, nameof(Units), () => SetMassVolume());
+                   
+
         }
 
         public decimal? DecimalUnits
         {
-            get
-            {
-                return _decimalUnits;
-            }
+            get => _decimalUnits;
 
-            set
-            {
-                if (value != _decimalUnits)
-                {
-                    _decimalUnits = value;
-                    OnPropertyChanged(nameof(DecimalUnits));
-                    SetMassVolume();
-                }
-            }
+            set => SetProperty(ref _decimalUnits, value, nameof(DecimalUnits));
         }
 
         public bool IsDecimal
         {
-            get
-            {
-                return _isDecimal;
-            }
+            get => _isDecimal;
 
-            set
-            {
-                if (value != _isDecimal)
-                {
-                    _isDecimal = value;
-                    OnPropertyChanged(nameof(IsDecimal));
-                }
-            }
+            set => SetProperty(ref _isDecimal, value, nameof(IsDecimal));
         }
 
         public bool IsInt
         {
-            get
-            {
-                return _isInt;
-            }
+            get => _isInt;
 
-            set
-            {
-                if (value != _isInt)
-                {
-                    _isInt = value;
-                    OnPropertyChanged(nameof(IsInt));
-                }
-            }
+            set => SetProperty(ref _isInt, value, nameof(IsInt));
         }
 
         public bool IsUnique
         {
-            get
-            {
-                return _isUnique;
-            }
+            get => _isUnique;
 
-            set
-            {
-                if (value != _isUnique)
-                {
-                    _isUnique = value;
-                    OnPropertyChanged(nameof(IsUnique));
-                }
-            }
+            set => SetProperty(ref _isUnique, value, nameof(IsUnique));
         }
 
         /// <summary>
@@ -239,19 +133,9 @@
         /// </summary>
         public int Multiplier
         {
-            get
-            {
-                return _multiplier;
-            }
+            get => _multiplier;
 
-            set
-            {
-                if (value != _multiplier)
-                {
-                    _multiplier = value;
-                    OnPropertyChanged(nameof(Multiplier));
-                }
-            }
+            set => SetProperty(ref _multiplier, value, nameof(Multiplier));
         }
 
         /// <summary>
@@ -259,36 +143,26 @@
         /// </summary>
         public float MaxFloatingObjects
         {
-            get
-            {
-                return _maxFloatingObjects;
-            }
+            get => _maxFloatingObjects;
 
-            set
-            {
-                if (value != _maxFloatingObjects)
-                {
-                    _maxFloatingObjects = value;
-                    OnPropertyChanged(nameof(MaxFloatingObjects));
-                }
-            }
+            set => SetProperty(ref _maxFloatingObjects, value, nameof(MaxFloatingObjects));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public void Load(MyPositionAndOrientation characterPosition, float maxFloatingObjects)
         {
             MaxFloatingObjects = maxFloatingObjects;
             CharacterPosition = characterPosition;
             StockItemList.Clear();
-            var list = new List<ComponentItemModel>();
-            var contentPath = ToolboxUpdater.GetApplicationContentPath();
+            List<ComponentItemModel> list = [];
+            string contentPath = ToolboxUpdater.GetApplicationContentPath();
 
-            foreach (var componentDefinition in SpaceEngineersCore.Resources.ComponentDefinitions)
+            foreach (MyComponentDefinition componentDefinition in SpaceEngineersResources.ComponentDefinitions)
             {
-                var bp = SpaceEngineersApi.GetBlueprint(componentDefinition.Id.TypeId, componentDefinition.Id.SubtypeName);
+                MyBlueprintDefinitionBase bp = SpaceEngineersApi.GetBlueprint(componentDefinition.Id.TypeId, componentDefinition.Id.SubtypeName);
                 list.Add(new ComponentItemModel
                 {
                     Name = componentDefinition.DisplayNameText,
@@ -302,15 +176,14 @@
                 });
             }
 
-            foreach (var physicalItemDefinition in SpaceEngineersCore.Resources.PhysicalItemDefinitions)
+            foreach (MyPhysicalItemDefinition physicalItemDefinition in SpaceEngineersResources.PhysicalItemDefinitions)
             {
-                if (physicalItemDefinition.Id.TypeId == typeof(VRage.Game.MyObjectBuilder_TreeObject))
+                if (physicalItemDefinition.Id.TypeId == typeof(MyObjectBuilder_TreeObject) ||
+                    physicalItemDefinition.Id.SubtypeName == "CubePlacerItem" ||
+                    physicalItemDefinition.Id.SubtypeName == "WallPlacerItem")
                     continue;
 
-                if (physicalItemDefinition.Id.SubtypeName == "CubePlacerItem" || physicalItemDefinition.Id.SubtypeName == "WallPlacerItem")
-                    continue;
-
-                var bp = SpaceEngineersApi.GetBlueprint(physicalItemDefinition.Id.TypeId, physicalItemDefinition.Id.SubtypeName);
+                MyBlueprintDefinitionBase bp = SpaceEngineersApi.GetBlueprint(physicalItemDefinition.Id.TypeId, physicalItemDefinition.Id.SubtypeName);
                 list.Add(new ComponentItemModel
                 {
                     Name = physicalItemDefinition.DisplayNameText,
@@ -324,30 +197,30 @@
                 });
             }
 
-            foreach (var item in list.OrderBy(i => i.FriendlyName))
+            foreach (ComponentItemModel item in list.OrderBy(i => i.FriendlyName))
             {
                 StockItemList.Add(item);
             }
 
-            //list.Clear();
+            list.Clear();
 
-            //foreach (var cubeDefinition in SpaceEngineersAPI.CubeBlockDefinitions)
-            //{
-            //    list.Add(new ComponentItemModel
-            //    {
-            //        Name = cubeDefinition.DisplayName,
-            //        TypeId = cubeDefinition.Id.TypeId,
-            //        SubtypeId = cubeDefinition.Id.SubtypeName,
-            //        CubeSize = cubeDefinition.CubeSize,
-            //        TextureFile = cubeDefinition.Icon == null ? null : Path.Combine(contentPath, cubeDefinition.Icon),
-            //        Accessible = !string.IsNullOrEmpty(cubeDefinition.Model),
-            //    });
-            //}
+            foreach (MyCubeBlockDefinition cubeDefinition in SpaceEngineersResources.CubeBlockDefinitions)
+            {
+                list.Add(new ComponentItemModel
+                {
+                    Name = cubeDefinition.DisplayNameText,
+                    TypeId = cubeDefinition.Id.TypeId,
+                    SubtypeId = cubeDefinition.Id.SubtypeName,
+                    CubeSize = cubeDefinition.CubeSize,
+                    TextureFile = cubeDefinition.Icons == null ? null : Path.Combine(contentPath, cubeDefinition.Icons.First()),
+                    Accessible = !string.IsNullOrEmpty(cubeDefinition.Model),
+                });
+            }
 
-            //foreach (var item in list.OrderBy(i => i.FriendlyName))
-            //{
-            //    StockItemList.Add(item);
-            //}
+            foreach (ComponentItemModel item in list.OrderBy(i => i.FriendlyName))
+            {
+                StockItemList.Add(item);
+            }
         }
 
         private void SetMassVolume()
@@ -359,59 +232,32 @@
             }
             else
             {
-                if (StockItem.TypeId == SpaceEngineersTypes.Ore ||
-                    StockItem.TypeId == SpaceEngineersTypes.Ingot)
+                IsUnique = StockItem.TypeId != SETypes.MOBTypeIds.Ore &&
+                           StockItem.TypeId != SETypes.MOBTypeIds.Ingot &&
+                           StockItem.TypeId != SETypes.MOBTypeIds.Component &&
+                           StockItem.TypeId != SETypes.MOBTypeIds.AmmoMagazine &&
+                           StockItem.TypeId != SETypes.MOBTypeIds.PhysicalGunObject;
+
+                IsInt = !IsUnique;
+
+                IsDecimal = StockItem.TypeId == SETypes.MOBTypeIds.Ore ||
+                            StockItem.TypeId == SETypes.MOBTypeIds.Ingot ||
+                            StockItem.TypeId == SETypes.MOBTypeIds.AmmoMagazine;
+
+                if (IsUnique)
                 {
-                    IsDecimal = true;
-                    IsUnique = IsInt = false;
-                    if (DecimalUnits.HasValue)
-                    {
-                        Mass = (double)DecimalUnits * StockItem.Mass;
-                        Volume = (double)DecimalUnits * StockItem.Volume;
-                    }
-                    else
-                    {
-                        Mass = null;
-                        Volume = null;
-                    }
-                }
-                else if (StockItem.TypeId == SpaceEngineersTypes.Component ||
-                    StockItem.TypeId == SpaceEngineersTypes.AmmoMagazine)
-                {
-                    IsInt = true;
-                    IsUnique = IsDecimal = false;
-                    if (Units.HasValue)
-                    {
-                        Mass = Units.Value * StockItem.Mass;
-                        Volume = Units.Value * StockItem.Volume;
-                    }
-                    else
-                    {
-                        Mass = null;
-                        Volume = null;
-                    }
-                }
-                else if (StockItem.TypeId == SpaceEngineersTypes.PhysicalGunObject)
-                {
-                    IsUnique = true;
-                    IsInt = IsDecimal = false;
                     Mass = UniqueUnits * StockItem.Mass;
                     Volume = UniqueUnits * StockItem.Volume;
                 }
-                else if (StockItem.TypeId == SpaceEngineersTypes.OxygenContainerObject)
+                else if (IsInt)
                 {
-                    IsUnique = true;
-                    IsInt = IsDecimal = false;
-                    Mass = UniqueUnits * StockItem.Mass;
-                    Volume = UniqueUnits * StockItem.Volume;
+                    Mass = Units.HasValue ? Units.Value * StockItem.Mass : null;
+                    Volume = Units.HasValue ? Units.Value * StockItem.Volume : null;
                 }
                 else
                 {
-                    // Assume any new objects are whole objects that cannot be stacked (for safety).
-                    IsUnique = true;
-                    IsInt = IsDecimal = false;
-                    Mass = UniqueUnits * StockItem.Mass;
-                    Volume = UniqueUnits * StockItem.Volume;
+                    Mass = DecimalUnits.HasValue ? (double)DecimalUnits * StockItem.Mass : null;
+                    Volume = DecimalUnits.HasValue ? (double)DecimalUnits * StockItem.Volume : null;
                 }
             }
         }

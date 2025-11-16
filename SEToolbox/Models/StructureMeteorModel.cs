@@ -1,19 +1,19 @@
-﻿namespace SEToolbox.Models
+﻿using System;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.Definitions;
+using SEToolbox.Interop;
+using VRage.Game;
+using VRage.ObjectBuilders;
+using VRageMath;
+using Res = SEToolbox.Properties.Resources;
+
+namespace SEToolbox.Models
 {
-    using System;
-    using System.Runtime.Serialization;
-    using System.Xml.Serialization;
-
-    using Sandbox.Common.ObjectBuilders;
-    using Sandbox.Definitions;
-    using SEToolbox.Interop;
-    using VRage.Game;
-    using VRage.ObjectBuilders;
-    using VRageMath;
-    using Res = SEToolbox.Properties.Resources;
-
     [Serializable]
-    public class StructureMeteorModel : StructureBaseModel
+    public class StructureMeteorModel(MyObjectBuilder_EntityBase entityBase) : StructureBaseModel(entityBase)
     {
         #region Fields
 
@@ -23,13 +23,7 @@
         private double? _volume;
 
         #endregion
-
-        #region ctor
-
-        public StructureMeteorModel(MyObjectBuilder_EntityBase entityBase)
-            : base(entityBase)
-        {
-        }
+        #region Ctor
 
         #endregion
 
@@ -47,79 +41,45 @@
         [XmlIgnore]
         public MyObjectBuilder_InventoryItem Item
         {
-            get
-            {
-                return Meteor.Item;
-            }
+            get => Meteor.Item;
 
-            set
-            {
-                if (value != Meteor.Item)
-                {
-                    Meteor.Item = value;
-                    OnPropertyChanged(nameof(Item));
-                }
-            }
+            set => SetProperty(Meteor.Item, value, nameof(Item));
         }
 
         [XmlIgnore]
         public float Integrity
         {
-            get
-            {
-                return Meteor.Integrity;
-            }
+            get => Meteor.Integrity;
 
-            set
-            {
-                if (value != Meteor.Integrity)
-                {
-                    Meteor.Integrity = value;
-                    OnPropertyChanged(nameof(Integrity));
-                }
-            }
+            set => SetProperty(Meteor.Integrity, value, nameof(Integrity));
         }
 
         [XmlIgnore]
         public double? Volume
         {
-            get
-            {
-                return _volume;
-            }
+            get => _volume;
 
-            set
-            {
-                if (value != _volume)
-                {
-                    _volume = value;
-                    OnPropertyChanged(nameof(Volume));
-                }
-            }
+            set => SetProperty(ref _volume, value, nameof(Volume));
         }
 
         /// This is not to be taken as an accurate representation.
         [XmlIgnore]
         public double AngularVelocity
         {
-            get
-            {
-                return Meteor.AngularVelocity.LinearVector();
-            }
+            get => Meteor.AngularVelocity.LinearVector();
+
         }
 
         [XmlIgnore]
         public override double LinearVelocity
         {
-            get
-            {
-                return Meteor.LinearVelocity.LinearVector();
-            }
+            get => Meteor.LinearVelocity.LinearVector();
+          
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         [OnSerializing]
         private void OnSerializingMethod(StreamingContext context)
@@ -140,23 +100,23 @@
             float compVolume = 1;
             double amount = 1;
 
-            if (Meteor.Item != null && Meteor.Item.PhysicalContent is MyObjectBuilder_Ore)
+            if (Meteor?.Item.PhysicalContent is MyObjectBuilder_Ore)
             {
-                var def = (MyPhysicalItemDefinition)MyDefinitionManager.Static.GetDefinition(Meteor.Item.PhysicalContent.TypeId, Meteor.Item.PhysicalContent.SubtypeName);
+                MyPhysicalItemDefinition def = (MyPhysicalItemDefinition)MyDefinitionManager.Static.GetDefinition(Meteor.Item.PhysicalContent.TypeId, Meteor.Item.PhysicalContent.SubtypeName);
 
                 compMass = def.Mass;
                 compVolume = def.Volume;
                 amount = (double)Meteor.Item.Amount;
 
-                DisplayName = string.Format("{0} {1}", Meteor.Item.PhysicalContent.SubtypeName, Res.CtlMeteorOre);
+                DisplayName = string.Format($"{Meteor.Item.PhysicalContent.SubtypeName} {Res.CtlMeteorOre}");
                 Volume = compVolume * amount;
                 Mass = compMass * amount;
-                Description = string.Format("{0:#,##0.00} {1}", Mass, Res.GlobalSIMassKilogram);
+                Description = string.Format($"{Mass:#,##0.00} {Res.GlobalSIMassKilogram}");
             }
             else
             {
                 DisplayName = Res.CtlMeteorDisplayName;
-                Description = string.Format("x {0}", amount);
+                Description = string.Format($"x {amount}");
                 Volume = compVolume * amount;
                 Mass = compMass * amount;
             }
@@ -178,7 +138,7 @@
 
         public void MaxVelocityAtPlayer(Vector3D playerPosition)
         {
-            var v = playerPosition - Meteor.PositionAndOrientation.Value.Position;
+            Vector3D v = playerPosition - Meteor.PositionAndOrientation.Value.Position;
             v.Normalize();
             v = Vector3.Multiply(v, SpaceEngineersConsts.MaxMeteorVelocity);
 

@@ -1,6 +1,4 @@
-﻿namespace SEToolbox.Services
-{
-    using System;
+﻿    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.ComponentModel;
@@ -11,7 +9,8 @@
     using System.Windows.Input;
     using Microsoft.Xaml.Behaviors;
     using SEToolbox.Interop;
-    using SEToolbox.Support;
+using SEToolbox.Models;
+using SEToolbox.Support;
     using Binding = System.Windows.Data.Binding;
     using DataObject = System.Windows.DataObject;
     using DragDropEffects = System.Windows.DragDropEffects;
@@ -20,12 +19,14 @@
     using MouseEventArgs = System.Windows.Input.MouseEventArgs;
     using MouseEventHandler = System.Windows.Input.MouseEventHandler;
 
+namespace SEToolbox.Services
+{
     /// <summary>
     /// Multi Select Item Drag.
     /// </summary>
     public class ListBoxItemDragBehavior : Behavior<ListBoxItem>
     {
-        #region fields
+        #region Fields
 
         private bool _isMouseClicked = false;
         private bool _wasDragging = false;
@@ -37,29 +38,26 @@
 
         public BindingBase DragSourceBinding
         {
-            get
-            {
-                return this._dragMemberBinding;
-            }
+            get => _dragMemberBinding;
             set
             {
-                if (this._dragMemberBinding != value)
+                if (_dragMemberBinding != value)
                 {
-                    this._dragMemberBinding = value;
+                    _dragMemberBinding = value;
                 }
             }
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         protected override void OnAttached()
         {
             base.OnAttached();
-            this.AssociatedObject.MouseLeave += new MouseEventHandler(AssociatedObject_MouseLeave);
-            this.AssociatedObject.PreviewMouseLeftButtonDown += AssociatedObject_PreviewMouseLeftButtonDown;
-            this.AssociatedObject.PreviewMouseLeftButtonUp += AssociatedObject_PreviewMouseLeftButtonUp;
+            AssociatedObject.MouseLeave += new MouseEventHandler(AssociatedObject_MouseLeave);
+            AssociatedObject.PreviewMouseLeftButtonDown += AssociatedObject_PreviewMouseLeftButtonDown;
+            AssociatedObject.PreviewMouseLeftButtonUp += AssociatedObject_PreviewMouseLeftButtonUp;
         }
 
         #endregion
@@ -68,61 +66,55 @@
 
         void AssociatedObject_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            this._isMouseClicked = true;
+            _isMouseClicked = true;
 
-            var item = this.AssociatedObject.GetHitControl<ListViewItem>((MouseEventArgs)e);
-            if (item != null && item.IsEnabled && item.IsSelected)
+            var item = AssociatedObject.GetHitControl<ListViewItem>(e);
+            if (item is {IsEnabled: true, IsSelected: true})
+               if  ((NativeMethods.GetKeyState(Keys.ShiftKey) & KeyStates.Down) != KeyStates.Down
+                && (NativeMethods.GetKeyState(Keys.ControlKey) & KeyStates.Down) != KeyStates.Down)
             {
-                if ((NativeMethods.GetKeyState(Keys.ShiftKey) & KeyStates.Down) != KeyStates.Down
-                    && (NativeMethods.GetKeyState(Keys.ControlKey) & KeyStates.Down) != KeyStates.Down)
-                {
-                    e.Handled = true;
-                }
+                e.Handled = true;
             }
         }
-
         void AssociatedObject_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            var item = this.AssociatedObject.GetHitControl<ListViewItem>((MouseEventArgs)e);
-            if (item != null && item.IsEnabled && item.IsSelected && this._isMouseClicked && !this._wasDragging)
-            {
-                if ((NativeMethods.GetKeyState(Keys.ShiftKey) & KeyStates.Down) != KeyStates.Down
-                    && (NativeMethods.GetKeyState(Keys.ControlKey) & KeyStates.Down) != KeyStates.Down)
+            ListViewItem item = AssociatedObject.GetHitControl<ListViewItem>((MouseEventArgs)e);
+           if (item is {IsEnabled: true, IsSelected: true} && _isMouseClicked && !_wasDragging
+            && (NativeMethods.GetKeyState(Keys.ShiftKey) & KeyStates.Down) != KeyStates.Down
+            && (NativeMethods.GetKeyState(Keys.ControlKey) & KeyStates.Down) != KeyStates.Down)
                 {
-                    var parent = ItemsControl.ItemsControlFromItemContainer(this.AssociatedObject) as ListBox;
+                    ListBox parent = ItemsControl.ItemsControlFromItemContainer(AssociatedObject) as ListBox;
                     parent.SelectedItems.Clear();
                     item.IsSelected = true;
                     item.Focus();
                 }
-            }
-            this._isMouseClicked = false;
-            this._wasDragging = false;
+
+            _isMouseClicked = false;
+            _wasDragging = false;
         }
 
         void AssociatedObject_MouseLeave(object sender, MouseEventArgs e)
         {
-            if (this._isMouseClicked)
+            if (_isMouseClicked)
             {
                 // set the item's DataContext as the data to be transferred.
-                var dragObject = this.AssociatedObject.DataContext as IDragable;
-                if (dragObject != null)
+                if (AssociatedObject.DataContext is IDragable dragObject)
                 {
-                    this._wasDragging = true;
-                    var data = new DataObject();
+                    _wasDragging = true;
+                    DataObject data = new();
 
-                    var parent = ItemsControl.ItemsControlFromItemContainer(this.AssociatedObject) as ListBox;
+                    ListBox parent = ItemsControl.ItemsControlFromItemContainer(AssociatedObject) as ListBox;
                     IList list = null;
-
-                    if (this.DragSourceBinding == null)
+                    if (DragSourceBinding == null)
                     {
                         // Pass the raw ItemSource as the drag object.
-                        list = (IList)Activator.CreateInstance((typeof(List<>).MakeGenericType(dragObject.DataType)));
-                        if (!this.AssociatedObject.IsSelected)
+                        list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(dragObject.DataType));
+                        if (!AssociatedObject.IsSelected)
                         {
-                            list.Add(this.AssociatedObject.DataContext);
+                            list.Add(AssociatedObject.DataContext);
                         }
 
-                        foreach (var item in parent.SelectedItems)
+                        foreach (object item in parent.SelectedItems)
                         {
                             list.Add(item);
                         }
@@ -130,16 +122,16 @@
                     else
                     {
                         // Pass the Binding object under the ItemSource as the drag object.
-                        var propertyName = ((Binding)this.DragSourceBinding as Binding).Path.Path;
-                        var pd = TypeDescriptor.GetProperties(this.AssociatedObject.DataContext).Find(propertyName, false);
+                        string propertyName = ((Binding)DragSourceBinding).Path.Path;
+                        PropertyDescriptor pd = TypeDescriptor.GetProperties(AssociatedObject.DataContext).Find(propertyName, false);
 
-                        list = (IList)Activator.CreateInstance((typeof(List<>).MakeGenericType(pd.PropertyType)));
-                        if (!this.AssociatedObject.IsSelected)
+                        list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(pd.PropertyType));
+                        if (!AssociatedObject.IsSelected)
                         {
-                            list.Add(pd.GetValue(this.AssociatedObject.DataContext));
+                            list.Add(pd.GetValue(AssociatedObject.DataContext));
                         }
 
-                        foreach (var item in parent.SelectedItems)
+                        foreach (object item in parent.SelectedItems)
                         {
                             list.Add(pd.GetValue(item));
                         }
@@ -150,13 +142,13 @@
                     // Send the ListBox that initiated the drag, so we can determine if the drag and drop are different or not.
                     data.SetData(typeof(string), parent.Uid);
 
-                    //data.SetData(dragObject.DataType, this.AssociatedObject.DataContext);
-                    System.Windows.DragDrop.DoDragDrop(parent, data, DragDropEffects.Copy);
-                    //System.Windows.DragDrop.DoDragDrop(this.AssociatedObject, data, DragDropEffects.Move);
+                    data.SetData(dragObject.DataType, AssociatedObject.DataContext);
+                    DragDrop.DoDragDrop(parent, data, DragDropEffects.Copy);
+                    DragDrop.DoDragDrop(AssociatedObject, data, DragDropEffects.Move);
                 }
             }
 
-            this._isMouseClicked = false;
+            _isMouseClicked = false;
         }
         #endregion
     }

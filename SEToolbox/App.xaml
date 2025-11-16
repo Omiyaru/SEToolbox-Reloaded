@@ -2,36 +2,26 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:interop="clr-namespace:SEToolbox.Interop"
-             xmlns:interopAsteroid="clr-namespace:SEToolbox.Interop.Asteroids"
+             xmlns:asteroids="clr-namespace:SEToolbox.Interop.Asteroids"
              xmlns:support="clr-namespace:SEToolbox.Support"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
-             xmlns:shaders="clr-namespace:SEToolbox.ImageShaders;assembly=SEToolbox.ImageShaders"
+             xmlns:shaders="clr-namespace:SEToolbox.ImageShaders.EffectFiles;assembly=SEToolbox.ImageShaders"
              Startup="OnStartup" Exit="OnExit" DispatcherUnhandledException="OnDispatcherUnhandledException">
     <Application.Resources>
-
         <sys:Boolean x:Key="True">True</sys:Boolean>
         <sys:Boolean x:Key="False">False</sys:Boolean>
-
         <DataTemplate x:Key="HeaderTemplateArrowUp">
             <DockPanel>
                 <TextBlock HorizontalAlignment="Center" Text="{Binding}"/>
-                <Path x:Name="arrow"
-                    StrokeThickness = "1"
-                    Fill            = "Black"
-                    Data            = "M 5,10 L 15,10 L 10,5 L 5,10"/>
+                <Path x:Name="arrow" StrokeThickness="1" Fill="Black" Data="M 5,10 L 15,10 L 10,5 L 5,10"/>
             </DockPanel>
         </DataTemplate>
-
         <DataTemplate x:Key="HeaderTemplateArrowDown">
             <DockPanel>
                 <TextBlock HorizontalAlignment="Center" Text="{Binding}"/>
-                <Path x:Name="arrow"
-                    StrokeThickness = "1"
-                    Fill            = "Black"
-                    Data            = "M 5,5 L 10,10 L 15,5 L 5,5"/>
+                <Path x:Name="arrow" StrokeThickness="1" Fill="Black" Data="M 5,5 L 10,10 L 15,5 L 5,5"/>
             </DockPanel>
         </DataTemplate>
-
         <Style x:Key="DockPanelSeparator" TargetType="{x:Type Separator}">
             <Setter Property="OverridesDefaultStyle" Value="True"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -44,7 +34,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
         <Style x:Key="SpinUpButton" TargetType="{x:Type Button}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -64,7 +53,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
         <Style x:Key="SpinDownButton" TargetType="{x:Type Button}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -84,7 +72,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
         <Style x:Key="DropDownMenuButton" TargetType="{x:Type Button}">
             <Setter Property="ContentTemplate">
                 <Setter.Value>
@@ -97,65 +84,54 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
         <Style x:Key="ToolBarMenu" TargetType="{x:Type Menu}">
             <Setter Property="Panel.Background" Value="Transparent" />
         </Style>
-
         <ObjectDataProvider x:Key="ImportModelTypeEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="interop:ImportModelClassType" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
-
         <ObjectDataProvider x:Key="ImportImageTypeEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="interop:ImportImageClassType" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
-
         <ObjectDataProvider x:Key="ArmorTypeEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="interop:ImportArmorType" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
-
         <ObjectDataProvider x:Key="ModelTraceVoxelEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="support:ModelTraceVoxel" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
-
         <ObjectDataProvider x:Key="TraceTypeEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="interopAsteroid:TraceType" />
+                <x:Type TypeName="asteroids:TraceType" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
-
         <ObjectDataProvider x:Key="TraceDirectionEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="interopAsteroid:TraceDirection" />
+                <x:Type TypeName="asteroids:TraceDirection" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
-
         <ObjectDataProvider x:Key="TraceIdEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="interopAsteroid:TraceId" />
+                <x:Type TypeName="asteroids:TraceId" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
-
         <ObjectDataProvider x:Key="VoxelMergeTypeEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="support:VoxelMergeType" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
-
         <ObjectDataProvider x:Key="AsteroidFillTypeEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="support:AsteroidFillType" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
-
         <Style x:Key="{x:Type Image}" TargetType="Image">
             <Style.Triggers>
                 <Trigger Property="Image.IsEnabled" Value="False">
@@ -167,11 +143,9 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-
         <Style x:Key="ToolBarTopMenuitem" TargetType="MenuItem">
             <Setter Property="Padding" Value="-2,2,6,2"/>
         </Style>
-
         <Style x:Key="textBoxInError" TargetType="{x:Type TextBox}">
             <Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="true">
@@ -179,7 +153,6 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-
         <Style x:Key="dataGridCellInError" TargetType="{x:Type TextBlock}">
             <Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="true">
@@ -188,10 +161,8 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-
         <Style x:Key="DefaultWindowStyle" TargetType="{x:Type Window}">
-            <!--<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" />-->
+            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" />
         </Style>
-
     </Application.Resources>
 </Application>

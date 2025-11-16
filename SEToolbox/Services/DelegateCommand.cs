@@ -1,14 +1,15 @@
-﻿namespace SEToolbox.Services
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Windows.Input;
+﻿using System;
+using System.Collections.Generic;
+using System.Windows.Input;
 
+namespace SEToolbox.Services
+{
     /// <summary>
     ///     This class allows delegating the commanding logic to methods passed as parameters,
     ///     and enables a View to bind commands to objects that are not part of the element tree.
     /// </summary>
-    public class DelegateCommand : ICommand
+
+    public class DelegateCommand(Action executeMethod, Func<bool> canExecuteMethod, bool isAutomaticRequeryDisabled) : ICommand
     {
         #region Constructors
 
@@ -36,16 +37,6 @@
         {
         }
 
-        /// <summary>
-        ///     Constructor
-        /// </summary>
-        public DelegateCommand(Action executeMethod, Func<bool> canExecuteMethod, bool isAutomaticRequeryDisabled)
-        {
-            _executeMethod = executeMethod;
-            _canExecuteMethod = canExecuteMethod;
-            _isAutomaticRequeryDisabled = isAutomaticRequeryDisabled;
-        }
-
         #endregion
 
         #region Public Methods
@@ -66,22 +57,16 @@
         ///     Execution of the command
         /// </summary>
         public void Execute()
-        {
-            if (_executeMethod != null)
-            {
-                _executeMethod();
-            }
-        }
+        { 
+            _executeMethod?.Invoke();
+    }
 
         /// <summary>
         ///     Property to enable or disable CommandManager's automatic requery on this command
         /// </summary>
         public bool IsAutomaticRequeryDisabled
         {
-            get
-            {
-                return _isAutomaticRequeryDisabled;
-            }
+            get => _isAutomaticRequeryDisabled;
             set
             {
                 if (_isAutomaticRequeryDisabled != value)
@@ -98,6 +83,9 @@
                 }
             }
         }
+
+        
+
 
         /// <summary>
         ///     Raises the CanExecuteChaged event
@@ -158,9 +146,9 @@
 
         #region Data
 
-        private readonly Action _executeMethod = null;
-        private readonly Func<bool> _canExecuteMethod = null;
-        private bool _isAutomaticRequeryDisabled = false;
+        private readonly Action _executeMethod = executeMethod;
+        private readonly Func<bool> _canExecuteMethod = canExecuteMethod;
+        private bool _isAutomaticRequeryDisabled = isAutomaticRequeryDisabled;
         private List<WeakReference> _canExecuteChangedHandlers;
 
         #endregion
@@ -171,7 +159,8 @@
     ///     and enables a View to bind commands to objects that are not part of the element tree.
     /// </summary>
     /// <typeparam name="T">Type of the parameter passed to the delegates</typeparam>
-    public class DelegateCommand<T> : ICommand
+
+    public class DelegateCommand<T>(Action<T> executeMethod, Func<T, bool> canExecuteMethod, bool isAutomaticRequeryDisabled) : ICommand
     {
         #region Constructors
 
@@ -199,16 +188,6 @@
         {
         }
 
-        /// <summary>
-        ///     Constructor
-        /// </summary>
-        public DelegateCommand(Action<T> executeMethod, Func<T, bool> canExecuteMethod, bool isAutomaticRequeryDisabled)
-        {
-            _executeMethod = executeMethod;
-            _canExecuteMethod = canExecuteMethod;
-            _isAutomaticRequeryDisabled = isAutomaticRequeryDisabled;
-        }
-
         #endregion
 
         #region Public Methods
@@ -230,11 +209,9 @@
         /// </summary>
         public void Execute(T parameter)
         {
-            if (_executeMethod != null)
-            {
-                _executeMethod(parameter);
-            }
+            _executeMethod?.Invoke(parameter);
         }
+    
 
         /// <summary>
         ///     Raises the CanExecuteChaged event
@@ -257,10 +234,7 @@
         /// </summary>
         public bool IsAutomaticRequeryDisabled
         {
-            get
-            {
-                return _isAutomaticRequeryDisabled;
-            }
+            get => _isAutomaticRequeryDisabled;
             set
             {
                 if (_isAutomaticRequeryDisabled != value)
@@ -313,7 +287,7 @@
             if (parameter == null &&
                 typeof(T).IsValueType)
             {
-                return (_canExecuteMethod == null);
+                return _canExecuteMethod == null;
             }
             return CanExecute((T)parameter);
         }
@@ -327,9 +301,9 @@
 
         #region Data
 
-        private readonly Action<T> _executeMethod = null;
-        private readonly Func<T, bool> _canExecuteMethod = null;
-        private bool _isAutomaticRequeryDisabled = false;
+        private readonly Action<T> _executeMethod = executeMethod;
+        private readonly Func<T, bool> _canExecuteMethod = canExecuteMethod;
+        private bool _isAutomaticRequeryDisabled = isAutomaticRequeryDisabled;
         private List<WeakReference> _canExecuteChangedHandlers;
 
         #endregion
@@ -355,7 +329,7 @@
                 {
                     WeakReference reference = handlers[i];
                     EventHandler handler = reference.Target as EventHandler;
-                    if (handler == null)
+                    if (handler != null)
                     {
                         // Clean up old handlers that have been collected
                         handlers.RemoveAt(i);
@@ -366,7 +340,6 @@
                         count++;
                     }
                 }
-
                 // Call the handlers that we snapshotted
                 for (int i = 0; i < count; i++)
                 {
@@ -382,8 +355,7 @@
             {
                 foreach (WeakReference handlerRef in handlers)
                 {
-                    EventHandler handler = handlerRef.Target as EventHandler;
-                    if (handler != null)
+                    if (handlerRef.Target is EventHandler handler)
                     {
                         CommandManager.RequerySuggested += handler;
                     }
@@ -397,8 +369,7 @@
             {
                 foreach (WeakReference handlerRef in handlers)
                 {
-                    EventHandler handler = handlerRef.Target as EventHandler;
-                    if (handler != null)
+                    if (handlerRef.Target is EventHandler handler)
                     {
                         CommandManager.RequerySuggested -= handler;
                     }
@@ -413,10 +384,7 @@
 
         internal static void AddWeakReferenceHandler(ref List<WeakReference> handlers, EventHandler handler, int defaultListSize)
         {
-            if (handlers == null)
-            {
-                handlers = (defaultListSize > 0 ? new List<WeakReference>(defaultListSize) : new List<WeakReference>());
-            }
+            handlers ??= (defaultListSize > 0 ? new List<WeakReference>(defaultListSize) : []);
 
             handlers.Add(new WeakReference(handler));
         }
@@ -428,8 +396,9 @@
                 for (int i = handlers.Count - 1; i >= 0; i--)
                 {
                     WeakReference reference = handlers[i];
-                    EventHandler existingHandler = reference.Target as EventHandler;
-                    if ((existingHandler == null) || (existingHandler == handler))
+
+                     if(reference.Target is EventHandler existingHandler &&
+                       ReferenceEquals(existingHandler, handler))
                     {
                         // Clean up old handlers that have been collected
                         // in addition to the handler that is to be removed.

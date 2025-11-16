@@ -1,15 +1,16 @@
-﻿namespace SEToolbox.ViewModels
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics.Contracts;
+using System.Windows.Input;
+
+using SEToolbox.Interfaces;
+using SEToolbox.Models;
+using SEToolbox.Services;
+
+
+using VRageMath;
+
+namespace SEToolbox.ViewModels
 {
-    using System;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel;
-    using System.Diagnostics.Contracts;
-    using System.Windows.Input;
-
-    using SEToolbox.Interfaces;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-
     public class GroupMoveViewModel : BaseViewModel
     {
         #region Fields
@@ -40,16 +41,16 @@
 
         #endregion
 
-        #region command Properties
+        #region Command Properties
 
         public ICommand ApplyCommand
         {
-            get { return new DelegateCommand(ApplyExecuted, ApplyCanExecute); }
+            get => new DelegateCommand(ApplyExecuted, ApplyCanExecute);
         }
 
         public ICommand CancelCommand
         {
-            get { return new DelegateCommand(CancelExecuted, CancelCanExecute); }
+            get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         #endregion
@@ -61,10 +62,8 @@
         /// </summary>
         public bool? CloseResult
         {
-            get
-            {
-                return _closeResult;
-            }
+            get => _closeResult;
+
 
             set
             {
@@ -78,23 +77,14 @@
         /// </summary>
         public bool IsBusy
         {
-            get
-            {
-                return _dataModel.IsBusy;
-            }
+            get => _dataModel.IsBusy;
 
-            set
-            {
-                _dataModel.IsBusy = value;
-            }
+            set => _dataModel.IsBusy = value;
         }
 
         public float GlobalOffsetPositionX
         {
-            get
-            {
-                return _dataModel.GlobalOffsetPositionX;
-            }
+            get => _dataModel.GlobalOffsetPositionX;
 
             set
             {
@@ -105,10 +95,7 @@
 
         public float GlobalOffsetPositionY
         {
-            get
-            {
-                return _dataModel.GlobalOffsetPositionY;
-            }
+            get => _dataModel.GlobalOffsetPositionY;
 
             set
             {
@@ -119,10 +106,7 @@
 
         public float GlobalOffsetPositionZ
         {
-            get
-            {
-                return _dataModel.GlobalOffsetPositionZ;
-            }
+            get => _dataModel.GlobalOffsetPositionZ;
 
             set
             {
@@ -133,10 +117,7 @@
 
         public bool IsGlobalOffsetPosition
         {
-            get
-            {
-                return _dataModel.IsGlobalOffsetPosition;
-            }
+            get => _dataModel.IsGlobalOffsetPosition;
 
             set
             {
@@ -147,10 +128,7 @@
 
         public float SinglePositionX
         {
-            get
-            {
-                return _dataModel.SinglePositionX;
-            }
+            get => _dataModel.SinglePositionX;
 
             set
             {
@@ -161,10 +139,7 @@
 
         public float SinglePositionY
         {
-            get
-            {
-                return _dataModel.SinglePositionY;
-            }
+            get => _dataModel.SinglePositionY;
 
             set
             {
@@ -175,10 +150,7 @@
 
         public float SinglePositionZ
         {
-            get
-            {
-                return _dataModel.SinglePositionZ;
-            }
+            get => _dataModel.SinglePositionZ;
 
             set
             {
@@ -189,10 +161,7 @@
 
         public bool IsSinglePosition
         {
-            get
-            {
-                return _dataModel.IsSinglePosition;
-            }
+            get => _dataModel.IsSinglePosition;
 
             set
             {
@@ -201,27 +170,41 @@
             }
         }
 
-        public ObservableCollection<GroupMoveItemModel> Selections
+        public bool IsRelativePosition
         {
-            get
-            {
-                return _dataModel.Selections;
-            }
+            get => _dataModel.IsRelativePosition;
 
             set
             {
-                _dataModel.Selections = value;
+                _dataModel.IsRelativePosition = value;
+                _dataModel.CalculateGroupCenter(_dataModel.CenterPosition);
+                _dataModel.CalcOffsetDistances();
             }
         }
 
+        public ObservableCollection<GroupMoveItemModel> Selections
+        {
+            get => _dataModel.Selections;
+            set => _dataModel.Selections = value;
+        }
+
+        public Vector3D CenterPosition
+        {
+            get => _dataModel.CenterPosition;
+            set => _dataModel.CenterPosition = value;
+        }
         #endregion
 
-        #region methods
+        #region Methods
 
         public bool ApplyCanExecute()
         {
             return IsSinglePosition ||
-                (IsGlobalOffsetPosition && (GlobalOffsetPositionX != 0 || GlobalOffsetPositionY != 0 || GlobalOffsetPositionZ != 0));
+                   IsRelativePosition ||
+                   (IsGlobalOffsetPosition &&
+                  (GlobalOffsetPositionX != 0 ||
+                    GlobalOffsetPositionY != 0 ||
+                    GlobalOffsetPositionZ != 0));
         }
 
         public void ApplyExecuted()

@@ -1,9 +1,11 @@
-﻿namespace SEToolbox.Models
+﻿using SEToolbox.Interop;
+
+using System;
+
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
+
+namespace SEToolbox.Models
 {
-    using System;
-
-    using SEToolbox.Interop;
-
     [Serializable]
     public class OreAssetModel : BaseModel
     {
@@ -19,111 +21,53 @@
 
         private string _textureFile;
 
+        public static object MaterialColors { get; internal set; }
+
         #region Properties
 
         public string Name
         {
-            get
-            {
-                return _name;
-            }
+            get => _name;
 
-            set
-            {
-                if (value != _name)
-                {
-                    _name = value;
-                    FriendlyName = SpaceEngineersApi.GetResourceName(Name);
-                    OnPropertyChanged(nameof(Name));
-                }
-            }
+            set => SetProperty(ref _name, value,FriendlyName = SpaceEngineersApi.GetResourceName(Name), nameof(Name), nameof(FriendlyName));
+            
         }
 
         public string FriendlyName { get; set; }
 
         public decimal Amount
         {
-            get
-            {
-                return _amount;
-            }
+            get => _amount;
 
-            set
-            {
-                if (value != _amount)
-                {
-                    _amount = value;
-                    OnPropertyChanged(nameof(Amount));
-                }
-            }
+            set => SetProperty(ref _amount, value, nameof(Amount));
         }
 
         public double Mass
         {
-            get
-            {
-                return _mass;
-            }
+            get => _mass;
 
-            set
-            {
-                if (value != _mass)
-                {
-                    _mass = value;
-                    OnPropertyChanged(nameof(Mass));
-                }
-            }
+            set => SetProperty(ref _mass, value, nameof(Mass));
         }
 
         public double Volume
         {
-            get
-            {
-                return _volume;
-            }
+            get => _volume;
 
-            set
-            {
-                if (value != _volume)
-                {
-                    _volume = value;
-                    OnPropertyChanged(nameof(Volume));
-                }
-            }
+            set => SetProperty(ref _volume, value, nameof(Volume));
         }
 
         public TimeSpan Time
         {
-            get
-            {
-                return _time;
-            }
+            get => _time;
 
-            set
-            {
-                if (value != _time)
-                {
-                    _time = value;
-                    OnPropertyChanged(nameof(Time));
-                }
-            }
+            set => SetProperty(ref _time, value, nameof(Time));
         }
 
         public string TextureFile
         {
-            get
-            {
-                return _textureFile;
-            }
+            get => _textureFile;
 
-            set
-            {
-                if (value != _textureFile)
-                {
-                    _textureFile = value;
-                    OnPropertyChanged(nameof(TextureFile));
-                }
-            }
+            set => SetProperty(ref _textureFile, value, nameof(TextureFile));
         }
 
         #endregion

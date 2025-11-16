@@ -1,17 +1,11 @@
-﻿namespace SEToolbox.Interop.Asteroids
+﻿using VRage.Voxels;
+using VRageMath;
+
+namespace SEToolbox.Interop.Asteroids
 {
-    using VRage.Voxels;
-    using VRageMath;
-
-    class MyVoxelTaskWorker
+    class MyVoxelTaskWorker(Vector3I baseCoords, MyStorageData voxelCache)
     {
-        public Vector3I BaseCoords { get; set; }
-        public MyStorageData VoxelCache { get; set; }
-
-        public MyVoxelTaskWorker(Vector3I baseCoords, MyStorageData voxelCache)
-        {
-            BaseCoords = baseCoords;
-            VoxelCache = voxelCache;
-        }
+        public Vector3I BaseCoords { get; set; } = baseCoords;
+        public MyStorageData VoxelCache { get; set; } = voxelCache;
     }
 }

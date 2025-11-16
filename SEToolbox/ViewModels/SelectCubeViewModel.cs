@@ -1,11 +1,12 @@
-﻿namespace SEToolbox.ViewModels
+﻿using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Input;
+
+using SEToolbox.Models;
+using SEToolbox.Services;
+
+namespace SEToolbox.ViewModels
 {
-    using System.Collections.ObjectModel;
-    using System.Windows.Input;
-
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-
     public class SelectCubeViewModel : BaseViewModel
     {
         #region Fields
@@ -16,7 +17,8 @@
 
         #endregion
 
-        #region ctor
+        #region Ctor
+
 
         public SelectCubeViewModel(BaseViewModel parentViewModel, SelectCubeModel dataModel)
             : base(parentViewModel)
@@ -29,16 +31,16 @@
 
         #endregion
 
-        #region command properties
+        #region Command Properties
 
         public ICommand OkayCommand
         {
-            get { return new DelegateCommand(OkayExecuted, OkayCanExecute); }
+            get => new DelegateCommand(OkayExecuted, OkayCanExecute); 
         }
 
         public ICommand CancelCommand
         {
-            get { return new DelegateCommand(CancelExecuted, CancelCanExecute); }
+            get => new DelegateCommand(CancelExecuted, CancelCanExecute); 
         }
 
         #endregion
@@ -50,10 +52,7 @@
         /// </summary>
         public bool? CloseResult
         {
-            get
-            {
-                return _closeResult;
-            }
+            get => _closeResult;
 
             set
             {
@@ -67,51 +66,34 @@
         /// </summary>
         public bool IsBusy
         {
-            get
-            {
-                return _isBusy;
-            }
+             get => _isBusy;
 
             set
             {
-                if (value != _isBusy)
-                {
-                    _isBusy = value;
-                    OnPropertyChanged(nameof(IsBusy));
+                    SetProperty(ref _isBusy, value, nameof(IsBusy));
                     if (_isBusy)
                     {
                         System.Windows.Forms.Application.DoEvents();
                     }
-                }
             }
         }
 
         public ObservableCollection<ComponentItemModel> CubeList
         {
-            get
-            {
-                return _dataModel.CubeList;
-            }
+            get => _dataModel.CubeList;
         }
 
         public ComponentItemModel CubeItem
         {
-            get
-            {
-                return _dataModel.CubeItem;
-            }
-
-            set
-            {
-                _dataModel.CubeItem = value;
-            }
+            get => _dataModel.CubeItem;
+            set => _dataModel.CubeItem = value;
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
-        #region commands
+        #region Commands
 
         public bool OkayCanExecute()
         {

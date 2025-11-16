@@ -1,17 +1,19 @@
-﻿namespace SEToolbox.Support
-{
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Windows;
-    using System.Windows.Controls;
-    using System.Windows.Input;
-    using System.Windows.Markup;
-    using System.Windows.Threading;
-    using Res = SEToolbox.Properties.Resources;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Markup;
+using System.Windows.Threading;
+using Res = SEToolbox.Properties.Resources;
+using Color = System.Drawing.Color;
 
+namespace SEToolbox.Support
+{
     public static class FrameworkExtension
     {
         /// <summary>
@@ -32,36 +34,29 @@
             if (attr != null)
             {
                 var prop = ctrlType.GetProperty(attr.Name);
-
-                if (prop.PropertyType.GetInterfaces().Contains<Type>(typeof(IEnumerable)))
+                if (prop.PropertyType.GetInterfaces().Contains(typeof(IEnumerable)))
                 {
-                    foreach (var child in ((IEnumerable)prop.GetValue(root, null)).OfType<FrameworkElement>())
+                    foreach (var child in ((IEnumerable)prop.GetValue(root)).OfType<FrameworkElement>())
                     {
                         yield return child;
-
-                        foreach (var descendent in Descendents(child))
+                        foreach (var descendent in Descendents(child, depth - 1))
                         {
-                            yield return (FrameworkElement)descendent;
+                            yield return descendent;
                         }
                     }
                 }
-                else
+                else if (prop.GetValue(root) is FrameworkElement child)
                 {
-                    var child = prop.GetValue(root, null);
-
-                    if (child is FrameworkElement)
+                    yield return child;
+                    
+                    foreach (FrameworkElement descendent in Descendents(child, depth - 1))
                     {
-                        yield return (FrameworkElement)child;
-
-                        foreach (var descendent in Descendents((FrameworkElement)child))
-                        {
-                            yield return (FrameworkElement)descendent;
-                        }
+                        yield return descendent;
                     }
                 }
             }
         }
-
+    
         /// <summary>
         /// Find all elements that are children of the specified element, including Templated controls.
         /// </summary>
@@ -73,70 +68,78 @@
         /// <returns></returns>
         public static IEnumerable<DependencyObject> VisualDescendents(this DependencyObject root)
         {
-            return VisualDescendents(root, Int32.MaxValue);
+            return VisualDescendents(root, int.MaxValue);
         }
 
         public static IEnumerable<DependencyObject> VisualDescendents(this DependencyObject root, int depth)
         {
-            var count = System.Windows.Media.VisualTreeHelper.GetChildrenCount(root);
-            for (var i = 0; i < count; i++)
+            var queue = new Queue<(DependencyObject, int)>();
+            queue.Enqueue((root, depth));
+
+            while (queue.Count > 0)
             {
-                var child = System.Windows.Media.VisualTreeHelper.GetChild(root, i);
-                yield return child;
-                if (depth > 0)
+                var (current, currentDepth) = queue.Dequeue();
                 {
-                    foreach (var descendent in VisualDescendents(child, --depth))
-                        yield return descendent;
+                    yield return current;
+                }
+                var count = VisualTreeHelper.GetChildrenCount(current);
+                for (int i = 0; i < count; i++)
+                {
+                    var child = VisualTreeHelper.GetChild(current, i);
+                    if (child != null)
+                    {
+                        queue.Enqueue((child, currentDepth - 1));
+                    }
                 }
             }
         }
+        
+        
 
         /// <summary>
         /// Finds a parent of a given item on the visual tree.
         /// </summary>
         /// <typeparam name="T">The type of the queried item.</typeparam>
         /// <param name="child">A direct or indirect child of the queried item.</param>
-        /// <returns>The first parent item that matches the submitted type parameter. 
+        /// <returns>The first parent item that matches the submitted type parameter.
         /// If not matching item can be found, a null reference is being returned.</returns>
         public static T FindVisualParent<T>(this DependencyObject child)
             where T : DependencyObject
         {
-            // get parent item
-            var parentObject = System.Windows.Media.VisualTreeHelper.GetParent(child);
+            var parentObject = VisualTreeHelper.GetParent(child);
 
-            // we’ve reached the end of the tree
-            if (parentObject == null) return null;
-
-            // check if the parent matches the type we’re looking for
-            var parent = parentObject as T;
-            if (parent != null)
-            {
-                return parent;
-            }
-            else
-            {
-                // use recursion to proceed with next level
-                return FindVisualParent<T>(parentObject);
-            }
+            // get parent item                  // we’ve reached the end of the tree
+            return parentObject is null ? null : parentObject is T pO ? pO : FindVisualParent<T>(parentObject);
         }
 
-        //public ItemsControl GetSelectedTreeViewItemParent<T>(TreeViewItem item)
-        //{
-        //    DependencyObject parent = VisualTreeHelper.GetParent(item);
+         public static T FindVisualChild<T>(this DependencyObject parent) where T : DependencyObject
+        {
+            T child = default;
+            int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < childrenCount; i++)
+            {
+                var childItem = VisualTreeHelper.GetChild(parent, i);
+                if (childItem is T typedChild)
+                {
+                    child = typedChild;
+                    break;
+                }
+                child = FindVisualChild<T>(childItem);
+                if (child != null) break;
+            }
+            return child;
+        }
 
-        //    if (parent == null)
-        //        return null;
+        public static ItemsControl GetSelectedTreeViewItemParent<T>(TreeViewItem item)
+        {
+            var parent = VisualTreeHelper.GetParent(item);
+            while (parent != null && !(parent is TreeViewItem || parent is TreeView))
+            {
+                parent = VisualTreeHelper.GetParent(parent);   // use recursion to proceed with next level
+            }
+            return parent as ItemsControl;
+        }
 
-        //    while (!(parent is TreeViewItem || parent is TreeView))
-        //    {
-        //        if (parent == null)
-        //            return null;
-
-        //        parent = VisualTreeHelper.GetParent(parent);
-        //    }
-
-        //    return parent as ItemsControl;
-        //}
 
         /// <summary>
         /// Get the UIElement that is in the container at the point specified
@@ -146,38 +149,30 @@
         /// <returns></returns>
         internal static UIElement GetUIElement(this ItemsControl container, Point position)
         {
-            var elementAtPosition = container.InputHitTest(position) as UIElement;
             //move up the UI tree until you find the actual UIElement that is the Item of the container
-            if (elementAtPosition != null)
+            if (container.InputHitTest(position) is UIElement elementAtPosition)
             {
                 while (elementAtPosition != null)
                 {
-                    var testUiElement = container.ItemContainerGenerator.ItemFromContainer(elementAtPosition);
-                    if (testUiElement != DependencyProperty.UnsetValue) //if found the UIElement
+                    object testUiElement = container.ItemContainerGenerator.ItemFromContainer(elementAtPosition);
+                    if (testUiElement != DependencyProperty.UnsetValue)  //if found the UIElement
                     {
                         return elementAtPosition;
                     }
-                    else
-                    {
-                        elementAtPosition = System.Windows.Media.VisualTreeHelper.GetParent(elementAtPosition) as UIElement;
-                    }
+                elementAtPosition = VisualTreeHelper.GetParent(elementAtPosition) as UIElement;
                 }
             }
             return null;
         }
-
         /// <summary>
         /// Determines if the relative position is above the UIElement in the coordinate
         /// </summary>
-        /// <param name="i"></param>
+        /// <param name="element"></param>
         /// <param name="relativePosition"></param>
         /// <returns></returns>
-        internal static bool IsPositionAboveElement(this UIElement i, Point relativePosition)
+        internal static bool IsPositionAboveElement(this UIElement element, Point relativePosition)
         {
-            if (relativePosition != null)
-                if (relativePosition.Y < ((FrameworkElement)i).ActualHeight / 2) //if above
-                    return true;
-            return false;
+            return relativePosition.Y < (element as FrameworkElement)?.ActualHeight / 2; //if above
         }
 
         /// <summary>
@@ -188,11 +183,11 @@
         /// <param name="wrap"></param>
         internal static void MoveFocus(this FrameworkElement control, FocusNavigationDirection direction = FocusNavigationDirection.Next, bool wrap = true)
         {
-            control.Dispatcher.Invoke(DispatcherPriority.Input, (Action)(() =>
+            control.Dispatcher.Invoke(DispatcherPriority.Input, () =>
             {
-                var request = new TraversalRequest(direction) { Wrapped = wrap };
+                TraversalRequest request = new(direction) { Wrapped = wrap };
                 control.MoveFocus(request);
-            }));
+            });
         }
 
         internal static void FocusedElementMoveFocus()
@@ -210,14 +205,14 @@
             return Convert.ToDouble(value.ToString("G9", null));
         }
 
-        public static System.Drawing.Color ToDrawingColor(this System.Windows.Media.Color color)
+        public static Color ToDrawingColor(this System.Windows.Media.Color color)
         {
-            return System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+            return Color.FromArgb(color.A, color.R, color.G, color.B);
         }
 
         public static byte RoundUpToNearest(this byte value, int scale)
         {
-            return (byte)(Math.Min(0xff, Math.Ceiling((double)value / scale) * scale));
+            return (byte)Math.Min(0xff, Math.Ceiling((double)value / scale) * scale);
         }
 
         #region GetHitControl
@@ -231,42 +226,24 @@
         /// <param name="e"></param>
         /// <returns></returns>
         public static T GetHitControl<T>(this UIElement parentControl, MouseEventArgs e)
+          where T : FrameworkElement
         {
-            Point hit;
+            Point hit = e == null ? Mouse.GetPosition(parentControl) : e.GetPosition(parentControl);
+            var element = parentControl.InputHitTest(hit) as FrameworkElement;
 
-            if (e == null)
-                hit = Mouse.GetPosition(parentControl);
-            else
-                hit = e.GetPosition(parentControl);
-            object obj = parentControl.InputHitTest(hit);
-
-            if ((obj != null) && (obj is FrameworkElement))
+            while (element != null && element is not T)
             {
-                var control = obj;
-                while (control != null)
-                {
-                    if (control.GetType().GetProperty("TemplatedParent").GetValue(control, null) != null)
-                        control = (FrameworkElement)obj.GetType().GetProperty("TemplatedParent").GetValue(control, null);
-                    else if (control == parentControl)
-                        break;
-                    else if (control is FrameworkElement)
-                        control = ((FrameworkElement)control).Parent;
-                    else
-                        break;
-
-                    if (control is T)
-                    {
-                        return (T)control;
-                    }
-                }
+                element = VisualTreeHelper.GetParent(element) as FrameworkElement;
+                if (element == parentControl)
+                    break;
             }
-
-            return default(T);
+            return element as T;
         }
 
         #endregion
+        #region Update
 
-        /// <summary>
+     /// <summary>
         /// Adds an element with the provided key and value to the System.Collections.Generic.IDictionary&gt;TKey,TValue&lt;.
         /// If the provide key already exists, then the existing key is updated with the newly supplied value.
         /// </summary>
@@ -275,8 +252,8 @@
         /// <param name="dictionary"></param>
         /// <param name="key">The object to use as the key of the element to add.</param>
         /// <param name="value">The object to use as the value of the element to add.</param>
-        /// <exception cref="System.ArgumentNullException">key is null</exception>
-        /// <exception cref="System.NotSupportedException">The System.Collections.Generic.IDictionary&gt;TKey,TValue&lt; is read-only.</exception>
+        /// <exception cref="ArgumentNullException">key is null</exception>
+        /// <exception cref="NotSupportedException">The System.Collections.Generic.IDictionary&gt;TKey,TValue&lt; is read-only.</exception>    
         public static void Update<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
         {
             if (dictionary.ContainsKey(key))
@@ -292,24 +269,23 @@
         {
             Exception ex = exception;
 
-            StringBuilder text = new StringBuilder();
+            StringBuilder text = new();
             text.Append(ex.Message);
             while (ex.InnerException != null)
             {
                 text.AppendLine();
                 text.Append(" ---> ");
                 text.AppendLine(ex.InnerException.Message);
-
                 if (ex.InnerException is InvalidOperationException)
                 {
                     text.AppendLine(Res.ErrorStackLabel);
                     text.AppendLine(ex.InnerException.StackTrace);
                 }
-
                 ex = ex.InnerException;
             }
-
             return text.ToString();
         }
     }
 }
+
+#endregion

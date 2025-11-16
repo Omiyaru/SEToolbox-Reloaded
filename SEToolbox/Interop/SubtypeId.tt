@@ -44,10 +44,10 @@ namespace SEToolbox.Interop
                 var cubeBlocksFolder = Path.Combine(appPath, @"Content\Data\CubeBlocks");
                 var list = new List<string>();
 
-                foreach (var filename in Directory.GetFiles(cubeBlocksFolder))
+                foreach (var fileName in Directory.GetFiles(cubeBlocksFolder))
                 {
                     var xDoc = new XmlDocument();
-                    xDoc.Load(filename);
+                    xDoc.Load(fileName);
 
                     var nav = xDoc.CreateNavigator();
                     var definitions = nav.Select("Definitions/CubeBlocks/Definition");
@@ -63,25 +63,25 @@ namespace SEToolbox.Interop
 
                         if (definitions.Current.SelectSingleNode("Variants") != null)
                         {
-                            Write(string.Format("        {0},\r\n", name));
+                            Write(string.Format($"        {name}",\r\n"));
 
                             var variants = definitions.Current.Select("Variants/Variant");
 
                             while (variants.MoveNext())
                             {
                                 var variant = variants.Current.SelectSingleNode("@Color").Value;
-                                Write(string.Format("        {0}{1},\r\n", name, variant));
+                                Write(string.Format($"         {name}{variant}\r\n"));
                             }
                         }
                         else
                         {
                             if (!string.IsNullOrEmpty(originalName))
                             {
-                                Write(string.Format("        {0},        // '{1}'\r\n", name, originalName));
+                                Write(string.Format($"        {name},        // '{originalName}'\r\n"));
                             }
                             else if (!string.IsNullOrEmpty(name))
                             {
-                                Write(string.Format("        {0},\r\n", name));
+                                Write(string.Format("        {name},\r\n"));
                             }
 
                             list.Add(name);

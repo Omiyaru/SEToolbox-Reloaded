@@ -1,25 +1,27 @@
 ﻿TODO: list of tasks and features (in no particular order):
 - All the TODO: items in code!
 - https://setoolbox.codeplex.com/workitem/list/basic
-- Documentation.... lots of it to be added to CodePlex.
+- Documentation.... lots of it to be added to CodePlex. // CodePlex is now defunct; redirect to GitHub
 
 
 - Close Dialog on IsModified.
 - Wix installer project,
   * Desktop Icon.
-- View subscribed workshop Items (to allow exporting/copying from).
+- View subscribed workshop Items (to allow exporting/copying from).         //in progress
   * C:\Users\%Username%\AppData\Roaming\SpaceEngineers\WorkshopWorlds\*.sbw  These are .zip files.
   * It's not until the user presses "Copy & Load" that it's actually saved there.
   * The workshopId may or may not be present, depending on if it is the first version, or a subsequent upload by the author.
 - Multi lingual support.
 
 - Global:
-  * Refresh/Save needs to check if save directory no longer exists.
-  * tree view of everything.
-  * Property Grid, to edit properties and sub items.
-    * https://wpg.codeplex.com/
-    * https://wpftoolkit.codeplex.com/wikipage?title=PropertyGrid
-  * Corrupt and null save file check.
+  * Refresh/Save needs to check if save directory no longer exists.//in progress
+  * tree view of everything.//in progress
+  * Property Grid, to edit properties and sub items.  //in progress
+    * https://github.com/xceedsoftware/wpftoolkit
+    *https://github.com/xceedsoftware/wpftoolkit/wiki/DetailView //using a custom implementation
+  * Corrupt and null save file check.  //in progress
+  * Faction Manager.  //in progress
+  * Symbolic links.
 
 - Drag drop files direct into the interface.
   * Detect .vox files for asteroids.
@@ -32,9 +34,9 @@
   * Orientation options.
 
 - Improve Import 3D Model:
-  * New volumetric conversion type calculate the slopes differently to create a more accurate conversion.
+  * New volumetric conversion type calculate the slopes differently to create a more accurate conversion.//in progress
   * Import model colors or average model textures.
-  * 3D Preview of Volmetric?
+  * 3D Preview of volumetric models?
   * Orientation options.
 
 - Mixed:
@@ -42,7 +44,7 @@
     Need a way to detect attached landing skids, or overlapping objects (sigh).  Check if landing gear activated?
   * Export and Import Asteroids/Floating Objects/Meteors to/from files.
   * Duplicate. Clone any object.
-  * Group Move - Disperse over set area.
+  * Group Move - Disperse over set area.  //in progress
   * Duplicate any item.
 
 - Character:
@@ -53,8 +55,8 @@
   * Replace Asteroid/Voxel.
   * Rotate Asteroid/Voxel (not supported by sandbox currently, but procedural voxel rotation could be accomplished.)
   * Dialog to Generate box/sphere asteroid (size, hollow shell size, material).
-  * Generate 'Random' asteroid field.
-  * Improve the material mix in Asteroids somehow by creating clumps with the aim of optimising it along the cell boundaries.
+  * Generate 'Random' asteroid field.//in progress
+  * Improve the material mix in Asteroids somehow by creating clumps with the aim of optimising it along the cell boundaries.  //in progress
 
 - Items:
 
@@ -69,8 +71,16 @@
   * Set/Reset Ship Vector. (specify Direction and specify Speed)
   * Replace user specified blocks with other user blocks (ie., by Armor light/heavy/color.)
   * Set Ship direction at specific object (calc correct center of object).
-  * Resize ship small<->large.
+  * Set ship mirror axis to X/right Y/up/ Z/forward. without alteing ship orientation
+  * Resize ship small<->large. //may not be possible.
   * Subsystem editor.
+
+- Other:
+ * Scripting and management,
+
+- Planned:
+-lightweight mod management, sync with user subscribed workshop items.
+
 
 ========--------~~~~~~~~
 
@@ -139,10 +149,7 @@ Offical file extensions in use.
 Localization
   http://www.spaceengineersgame.com/localization.html
 
-Unofficial file extensions.
-".sbo" Sand Box Object. I made this one up for import and export of ships (MyObjectBuilder_CubeGrid).  .sbc seemed like it would conflict with the other official extensions.
-  Though looking at content assets, prefab fighters use the ".sbc" extension which are MyObjectBuilder_CubeGrid, so I will change this now.
-  Have now removed this file extension from use.
+
 
 
 Why are the blocks 0.5 and 2.5 meter blocks?

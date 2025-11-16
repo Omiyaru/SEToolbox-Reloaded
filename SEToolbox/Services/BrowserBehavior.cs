@@ -1,8 +1,8 @@
-﻿namespace SEToolbox.Services
-{
-    using System.Windows;
-    using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 
+namespace SEToolbox.Services
+{
     public class BrowserBehavior
     {
         public static readonly DependencyProperty HtmlProperty = DependencyProperty.RegisterAttached(
@@ -24,9 +24,8 @@
 
         static void OnHtmlChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
-            var webBrowser = (WebBrowser)dependencyObject;
-            if (webBrowser != null)
-                webBrowser.NavigateToString((string)e.NewValue);
+            WebBrowser webBrowser = (WebBrowser)dependencyObject;
+            webBrowser?.NavigateToString((string)e.NewValue);
         }
     }
 }

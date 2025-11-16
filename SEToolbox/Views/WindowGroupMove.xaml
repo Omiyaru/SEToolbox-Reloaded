@@ -27,10 +27,14 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,0,4">
                 <Grid HorizontalAlignment="Left" Width="420" Margin="1,0,0,0">
                     <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
@@ -90,6 +94,31 @@
                         </TextBox>
                         <TextBlock Text="{lex:Loc WnGroupMoveTxtSingleZ}" Background="Transparent" Foreground="LightSteelBlue" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,0" IsHitTestVisible="False" />
                     </Grid>
+                    <RadioButton Grid.Row="2" Grid.Column="0" Content="{lex:Loc WnGroupMoveRdoRelative}" VerticalAlignment="Center" IsChecked="{Binding IsRelativePosition}" Margin="0,0,4,0"/>
+                    <Grid Grid.Row="2" Grid.Column="1" >
+                        <TextBox ToolTip="{lex:Loc WnGroupMoveTxtRelativeXTooltip}">
+                            <TextBox.Text>
+                                <Binding Path="RelativePositionX" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                            </TextBox.Text>
+                        </TextBox>
+                        <TextBlock Text="{lex:Loc WnGroupMoveTxtRelativeX}" Background="Transparent" Foreground="LightSteelBlue" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,0" IsHitTestVisible="False" />
+                    </Grid>
+                    <Grid Grid.Row="2" Grid.Column="2" >
+                        <TextBox ToolTip="{lex:Loc WnGroupMoveTxtRelativeYTooltip}">
+                            <TextBox.Text>
+                                <Binding Path="RelativePositionY" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                            </TextBox.Text>
+                        </TextBox>
+                        <TextBlock Text="{lex:Loc WnGroupMoveTxtRelativeY}" Background="Transparent" Foreground="LightSteelBlue" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,0" IsHitTestVisible="False" />
+                    </Grid>
+                    <Grid Grid.Row="2" Grid.Column="3" >
+                        <TextBox ToolTip="{lex:Loc WnGroupMoveTxtRelativeZTooltip}">
+                            <TextBox.Text>
+                                <Binding Path="RelativePositionZ" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                            </TextBox.Text>
+                        </TextBox>
+                        <TextBlock Text="{lex:Loc WnGroupMoveTxtRelativeZ}" Background="Transparent" Foreground="LightSteelBlue" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,0" IsHitTestVisible="False" />
+                    </Grid>
                 </Grid>
             </Grid>
             <controls:SortableListView Grid.Row="1" ItemsSource="{Binding Selections}" VerticalAlignment="Stretch"
@@ -101,8 +130,8 @@
                 </ListView.ItemContainerStyle>
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="{lex:Loc SEToolbox:Resources:WnGroupMoveColType}" Width="70" DisplayMemberBinding="{Binding Item.DataModel.ClassType, Converter={StaticResource EnumToResourceConverter}}"/>
-                        <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnGroupMoveColPosition}" Width="210" SortBinding="{Binding Item.DataModel.PlayerDistance}">
+                        <GridViewColumn Header="{lex:Loc WnGroupMoveColType}" Width="70" DisplayMemberBinding="{Binding Item.DataModel.ClassType, Converter={StaticResource EnumToResourceConverter}}"/>
+                        <controls:SortableGridViewColumn Header="{lex:Loc WnGroupMoveColPosition}" Width="210" SortBinding="{Binding Item.DataModel.PlayerDistance}">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock>
@@ -117,7 +146,7 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </controls:SortableGridViewColumn>
-                        <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnGroupMoveColNewPosition}" Width="210" SortBinding="{Binding PlayerDistance}">
+                        <controls:SortableGridViewColumn Header="{lex:Loc WnGroupMoveColNewPosition}" Width="210" SortBinding="{Binding PlayerDistance}">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock>
@@ -132,14 +161,14 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </controls:SortableGridViewColumn>
-                        <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnGroupMoveColDistance}" Width="70" SortBinding="{Binding Item.DataModel.PlayerDistance}">
+                        <controls:SortableGridViewColumn Header="{lex:Loc WnGroupMoveColDistance}" Width="70" SortBinding="{Binding Item.DataModel.PlayerDistance}">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Path=Item.DataModel.PlayerDistance, Converter={StaticResource DistanceConverter}}" TextAlignment="Right"/>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </controls:SortableGridViewColumn>
-                        <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:WnGroupMoveColNewDistance}" Width="70" SortBinding="{Binding PlayerDistance}">
+                        <controls:SortableGridViewColumn Header="{lex:Loc WnGroupMoveColNewDistance}" Width="70" SortBinding="{Binding PlayerDistance}">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding PlayerDistance, Converter={StaticResource DistanceConverter}}" TextAlignment="Right"/>
@@ -156,6 +185,10 @@
                 </StackPanel>
             </Grid>
         </Grid>
-        <controls:BusyIndicator Visibility="{Binding IsBusy, FallbackValue=Hidden, Converter={StaticResource BooleanToVisibilityConverter}}" />
+       <controls:BusyIndicator Mode="Spinner"
+                         Visibility="{Binding IsBusy,
+             Converter={StaticResource BooleanToVisibilityConverter},
+             FallbackValue=Collapsed}"/>
+
     </Grid>
 </Window>

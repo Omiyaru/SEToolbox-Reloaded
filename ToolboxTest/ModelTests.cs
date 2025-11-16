@@ -1,15 +1,16 @@
-﻿namespace ToolboxTest
-{
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Sandbox.Definitions;
-    using SEToolbox.Interop;
-    using SEToolbox.Interop.Models;
-    using SEToolbox.Support;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Sandbox.Definitions;
+using SEToolbox.Interop;
+using SEToolbox.Interop.Models;
+using SEToolbox.Support;
+using MOBTypes = SEToolbox.Interop.SpaceEngineersTypes.MOBTypeIds;
 
+namespace ToolboxTest
+{
     [TestClass]
     public class ModelTests
     {
@@ -24,24 +25,24 @@
         [TestMethod]
         public void BaseModel1LoadSave()
         {
-            var location = ToolboxUpdater.GetApplicationFilePath();
+            string location = ToolboxUpdater.GetApplicationFilePath();
             Assert.IsNotNull(location, "Space Engineers should be installed on developer machine");
             Assert.IsTrue(Directory.Exists(location), "Filepath should exist on developer machine");
 
-            var contentPath = ToolboxUpdater.GetApplicationContentPath();
+            string contentPath = ToolboxUpdater.GetApplicationContentPath();
 
-            var largeThruster = (MyCubeBlockDefinition)MyDefinitionManager.Static.GetDefinition(SpaceEngineersTypes.Thrust, "LargeBlockLargeThrust");
-            var thrusterModelPath = Path.Combine(contentPath, largeThruster.Model);
+            MyCubeBlockDefinition largeThruster = (MyCubeBlockDefinition)MyDefinitionManager.Static.GetDefinition(MOBTypes.Thrust, "LargeBlockLargeThrust");
+            string thrusterModelPath = Path.Combine(contentPath, largeThruster.Model);
             Assert.IsTrue(File.Exists(thrusterModelPath), "Filepath should exist on developer machine");
 
-            var modelData = MyModel.LoadModelData(thrusterModelPath);
+            Dictionary<string, object> modelData = MyModel.LoadModelData(thrusterModelPath);
             //var modelData = MyModel.LoadCustomModelData(thrusterModelPath);
 
-            var testFilePath = @".\TestOutput\Thruster.mwm";
+            string testFilePath = @".\TestOutput\Thruster.mwm";
             MyModel.SaveModelData(testFilePath, modelData);
 
-            var originalBytes = File.ReadAllBytes(thrusterModelPath);
-            var newBytes = File.ReadAllBytes(testFilePath);
+            byte[] originalBytes = File.ReadAllBytes(thrusterModelPath);
+            byte[] newBytes = File.ReadAllBytes(testFilePath);
 
             Assert.AreEqual(originalBytes.Length, newBytes.Length, "Bytestream content must equal");
             Assert.IsTrue(originalBytes.SequenceEqual(newBytes), "Bytestream content must equal");
@@ -52,22 +53,22 @@
         [TestMethod, TestCategory("UnitTest")]
         public void CustomModel1LoadSave()
         {
-            var location = ToolboxUpdater.GetApplicationFilePath();
+            string location = ToolboxUpdater.GetApplicationFilePath();
             Assert.IsNotNull(location, "Space Engineers should be installed on developer machine");
             Assert.IsTrue(Directory.Exists(location), "Filepath should exist on developer machine");
 
-            var contentPath = ToolboxUpdater.GetApplicationContentPath();
+            string contentPath = ToolboxUpdater.GetApplicationContentPath();
 
-            var cockpitModelPath = Path.Combine(contentPath, @"Models\Characters\Animations\cockpit1_large.mwm");
+            string cockpitModelPath = Path.Combine(contentPath, @"Models\Characters\Animations\cockpit1_large.mwm");
             Assert.IsTrue(File.Exists(cockpitModelPath), "Filepath should exist on developer machine");
 
-            var modelData = MyModel.LoadCustomModelData(cockpitModelPath);
+            Dictionary<string, object> modelData = MyModel.LoadCustomModelData(cockpitModelPath);
 
-            var testFilePath = @".\TestOutput\cockpit_animation.mwm";
+            string testFilePath = @".\TestOutput\cockpit_animation.mwm";
             MyModel.SaveModelData(testFilePath, modelData);
 
-            var originalBytes = File.ReadAllBytes(cockpitModelPath);
-            var newBytes = File.ReadAllBytes(testFilePath);
+            byte[] originalBytes = File.ReadAllBytes(cockpitModelPath);
+            byte[] newBytes = File.ReadAllBytes(testFilePath);
 
             Assert.AreEqual(originalBytes.Length, newBytes.Length, "Bytestream content must equal");
             Assert.IsTrue(originalBytes.SequenceEqual(newBytes), "Bytestream content must equal");
@@ -77,23 +78,23 @@
         [TestMethod]
         public void LoadModelFailures()
         {
-            var location = ToolboxUpdater.GetApplicationFilePath();
+            string location = ToolboxUpdater.GetApplicationFilePath();
             Assert.IsNotNull(location, "Space Engineers should be installed on developer machine");
             Assert.IsTrue(Directory.Exists(location), "Filepath should exist on developer machine");
 
-            var contentPath = ToolboxUpdater.GetApplicationContentPath();
+            string contentPath = ToolboxUpdater.GetApplicationContentPath();
 
-            var files = Directory.GetFiles(Path.Combine(contentPath, "Models"), "*.mwm", SearchOption.AllDirectories);
-            var badList = new List<string>();
-            var convertDiffers = new List<string>();
+            string[] files = Directory.GetFiles(Path.Combine(contentPath, "Models"), "*.mwm", SearchOption.AllDirectories);
+            List<string> badList = [];
+            List<string> convertDiffers = [];
 
-            foreach (var file in files)
+            foreach (string file in files)
             {
-                Dictionary<string, object> data = null;
+                Dictionary<string, object> data;
                 try
                 {
                     data = MyModel.LoadModelData(file);
-                    //data = MyModel.LoadCustomModelData(file);
+                    data = MyModel.LoadCustomModelData(file);
                 }
                 catch (Exception)
                 {
@@ -103,12 +104,12 @@
 
                 if (data != null)
                 {
-                    var testFilePath = @".\TestOutput\TempModelTest.mwm";
+                    string testFilePath = @".\TestOutput\TempModelTest.mwm";
 
                     MyModel.SaveModelData(testFilePath, data);
 
-                    var originalBytes = File.ReadAllBytes(file);
-                    var newBytes = File.ReadAllBytes(testFilePath);
+                    byte[] originalBytes = File.ReadAllBytes(file);
+                    byte[] newBytes = File.ReadAllBytes(testFilePath);
 
                     if (!originalBytes.SequenceEqual(newBytes))
                     {

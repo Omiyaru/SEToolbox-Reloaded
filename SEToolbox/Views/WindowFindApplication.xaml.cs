@@ -1,7 +1,7 @@
-﻿namespace SEToolbox.Views
-{
-    using System.Windows;
+﻿using System.Windows;
 
+namespace SEToolbox.Views
+{
     /// <summary>
     /// Interaction logic for WindowFindApplication.xaml
     /// </summary>
@@ -9,14 +9,14 @@
     {
         public WindowFindApplication()
         {
-            this.Language = System.Windows.Markup.XmlLanguage.GetLanguage(System.Threading.Thread.CurrentThread.CurrentCulture.IetfLanguageTag);
+            Language = System.Windows.Markup.XmlLanguage.GetLanguage(System.Threading.Thread.CurrentThread.CurrentCulture.IetfLanguageTag);
             InitializeComponent();
         }
 
         public WindowFindApplication(object viewModel)
             : this()
         {
-            this.DataContext = viewModel;
+            DataContext = viewModel;
         }
     }
 }

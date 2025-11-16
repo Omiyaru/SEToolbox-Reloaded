@@ -1,20 +1,20 @@
-﻿namespace SEToolbox.ViewModels
-{
-    using System.ComponentModel;
-    using System.Diagnostics.Contracts;
-    using System.Globalization;
-    using System.Windows;
-    using System.Windows.Input;
-    using SEToolbox.Interfaces;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-    using SEToolbox.Views;
+﻿using System.ComponentModel;
+using System.Diagnostics.Contracts;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Input;
+using SEToolbox.Interfaces;
+using SEToolbox.Models;
+using SEToolbox.Services;
+using SEToolbox.Views;
 
+namespace SEToolbox.ViewModels
+{
     public class StructurePlanetViewModel : StructureBaseViewModel<StructurePlanetModel>
     {
         private readonly IDialogService _dialogService;
 
-        #region ctor
+        #region Ctor
 
         public StructurePlanetViewModel(BaseViewModel parentViewModel, StructurePlanetModel dataModel)
            : this(parentViewModel, dataModel, ServiceLocator.Resolve<IDialogService>())
@@ -37,7 +37,7 @@
 
         #endregion
 
-        #region command properties
+        #region Command Properties
 
         public ICommand CopyDetailCommand => new DelegateCommand(CopyDetailExecuted, CopyDetailCanExecute);
 
@@ -51,72 +51,73 @@
 
         protected new StructurePlanetModel DataModel
         {
-            get { return base.DataModel as StructurePlanetModel; }
+           get => base.DataModel as StructurePlanetModel;
         }
 
         public string Name
         {
-            get { return DataModel.Name; }
-            set { DataModel.Name = value; }
+            get => DataModel.Name;
+            set => DataModel.Name = value;
         }
 
         public BindableVector3DModel Center
         {
-            get { return new BindableVector3DModel(DataModel.Center); }
-            set { DataModel.Center = value.ToVector3(); }
+            get => new(DataModel.Center);
+            set => DataModel.Center = value.ToVector3();
         }
 
         public float Radius
         {
-            get { return DataModel.Radius; }
-            set { DataModel.Radius = value; }
+            get => DataModel.Radius;
+            set => DataModel.Radius = value;
         }
 
         public bool HasAtmosphere
         {
-            get { return DataModel.HasAtmosphere; }
-            set { DataModel.HasAtmosphere = value; }
+            get => DataModel.HasAtmosphere;
+            set => DataModel.HasAtmosphere = value;
         }
 
         public float AtmosphereRadius
         {
-            get { return DataModel.AtmosphereRadius; }
-            set { DataModel.AtmosphereRadius = value; }
+            get => DataModel.AtmosphereRadius;
+            set => DataModel.AtmosphereRadius = value;
         }
 
         public float MinimumSurfaceRadius
         {
-            get { return DataModel.MinimumSurfaceRadius; }
-            set { DataModel.MinimumSurfaceRadius = value; }
+            get => DataModel.MinimumSurfaceRadius;
+            set => DataModel.MinimumSurfaceRadius = value;
         }
 
         public float MaximumHillRadius
         {
-            get { return DataModel.MaximumHillRadius; }
-            set { DataModel.MaximumHillRadius = value; }
+            get => DataModel.MaximumHillRadius;
+            set => DataModel.MaximumHillRadius = value;
         }
 
         public float GravityFalloff
         {
-            get { return DataModel.GravityFalloff; }
-            set { DataModel.GravityFalloff = value; }
+            get => DataModel.GravityFalloff;
+            set => DataModel.GravityFalloff = value;
         }
 
         public float SurfaceGravity
         {
-            get { return DataModel.SurfaceGravity; }
-            set { DataModel.SurfaceGravity = value; }
+            get => DataModel.SurfaceGravity;
+            set => DataModel.SurfaceGravity = value;
         }
 
         public bool SpawnsFlora
         {
-            get { return DataModel.SpawnsFlora; }
-            set { DataModel.SpawnsFlora = value; }
+            get => DataModel.SpawnsFlora;
+            set => DataModel.SpawnsFlora = value;
         }
 
         public bool ShowGPS
         {
-            get { return DataModel.ShowGPS; }
+            get => DataModel.ShowGPS;
+
             set
             {
                 DataModel.ShowGPS = value;
@@ -126,22 +127,19 @@
 
         public string PlanetGenerator
         {
-            get { return DataModel.PlanetGenerator; }
-            set { DataModel.PlanetGenerator = value; }
+            get => DataModel.PlanetGenerator;
+            set => DataModel.PlanetGenerator = value;
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
-        public bool CopyDetailCanExecute()
-        {
-            return true;
-        }
+        public static bool CopyDetailCanExecute() => true;
 
         public void CopyDetailExecuted()
         {
-            var detail = string.Format(Properties.Resources.CtlPlanetDetail,
+            string detail = string.Format(Properties.Resources.CtlPlanetDetail,
                 Name,
                 Center.X, Center.Y, Center.Z,
                 PlayerDistance,
@@ -176,10 +174,10 @@
 
         public void RegenerateExecuted()
         {
-            var model = new RegeneratePlanetModel();
-            var loadVm = new RegeneratePlanetViewModel(this, model);
+            RegeneratePlanetModel model = new();
+            RegeneratePlanetViewModel loadVm = new(this, model);
             model.Load(DataModel.Seed, DataModel.Radius);
-            var result = _dialogService.ShowDialog<WindowRegeneratePlanet>(this, loadVm);
+            bool? result = _dialogService.ShowDialog<WindowRegeneratePlanet>(this, loadVm);
             if (result == true)
             {
                 DataModel.RegeneratePlanet(model.Seed, (float)model.Diameter / 2f);
@@ -194,7 +192,7 @@
 
         public void CopyCenterGpsExecuted()
         {
-            var text = string.Format(CultureInfo.InvariantCulture, "GPS:{0}:{1:0.00}:{2:0.00}:{3:0.00}:",  DataModel.DisplayName.Replace(":", "_").Replace("&", "_"), DataModel.Center.X, DataModel.Center.Y, DataModel.Center.Z);
+            string text = string.Format(CultureInfo.InvariantCulture, $"GPS:{ DataModel.DisplayName.Replace(":", "_").Replace("&", "_")}:{DataModel.Center.X:0.00}:{ DataModel.Center.Y:0.00}:{DataModel.Center.Z:0.00}:");
             try
             {
                 Clipboard.Clear();

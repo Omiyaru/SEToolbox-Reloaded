@@ -1,23 +1,23 @@
-﻿namespace SEToolbox.ViewModels
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.Contracts;
+using System.Windows.Input;
+
+using SEToolbox.Interfaces;
+using SEToolbox.Interop;
+using SEToolbox.Models;
+using SEToolbox.Services;
+
+namespace SEToolbox.ViewModels
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Diagnostics.Contracts;
-    using System.Windows.Input;
-
-    using SEToolbox.Interfaces;
-    using SEToolbox.Interop;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-
     public class StructureCharacterViewModel : StructureBaseViewModel<StructureCharacterModel>
     {
         private InventoryEditorViewModel _inventory;
         private readonly IDialogService _dialogService;
         private readonly Func<IColorDialog> _colorDialogFactory;
 
-        #region ctor
+        #region Ctor
 
         public StructureCharacterViewModel(BaseViewModel parentViewModel, StructureCharacterModel dataModel)
             : this(parentViewModel, dataModel, ServiceLocator.Resolve<IDialogService>(), ServiceLocator.Resolve<IColorDialog>)
@@ -37,7 +37,7 @@
                 return;
             Inventory = new InventoryEditorViewModel(this, dataModel.Inventory);
 
-            DataModel.PropertyChanged += delegate(object sender, PropertyChangedEventArgs e)
+            DataModel.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
             {
                 // Will bubble property change events from the Model to the ViewModel.
                 OnPropertyChanged(e.PropertyName);
@@ -46,21 +46,21 @@
 
         #endregion
 
-        #region command Properties
+        #region Command Properties
 
         public ICommand ResetVelocityCommand
         {
-            get { return new DelegateCommand(ResetVelocityExecuted, ResetVelocityCanExecute); }
-        }
+            get => new DelegateCommand(ResetVelocityExecuted, ResetVelocityCanExecute); 
+        } 
 
         public ICommand ReverseVelocityCommand
         {
-            get { return new DelegateCommand(ReverseVelocityExecuted, ReverseVelocityCanExecute); }
+            get =>new DelegateCommand(ReverseVelocityExecuted, ReverseVelocityCanExecute);
         }
 
         public ICommand ChangeColorCommand
         {
-            get { return new DelegateCommand(ChangeColorExecuted, ChangeColorCanExecute); }
+            get => new DelegateCommand(ChangeColorExecuted, ChangeColorCanExecute); 
         }
 
         #endregion
@@ -69,25 +69,24 @@
 
         protected new StructureCharacterModel DataModel
         {
-            get { return base.DataModel as StructureCharacterModel; }
+            get =>  base.DataModel as StructureCharacterModel; 
         }
 
         public bool IsPilot
         {
-            get { return DataModel.IsPilot; }
-            set { DataModel.IsPilot = value; }
+            get => DataModel.IsPilot;
+            set => DataModel.IsPilot = value;
         }
 
         public bool IsPlayer
         {
-            get { return DataModel.IsPlayer; }
-            set { DataModel.IsPlayer = value; }
+            get => DataModel.IsPlayer;
+            set => DataModel.IsPlayer = value;
         }
 
         public System.Windows.Media.Brush Color
         {
-            get { return new System.Windows.Media.SolidColorBrush(DataModel.Color.FromHsvMaskToPaletteMediaColor()); }
-
+            get => new System.Windows.Media.SolidColorBrush(DataModel.Color.FromHsvMaskToPaletteMediaColor());
             set
             {
                 DataModel.Color = ((System.Windows.Media.SolidColorBrush)value).Color.FromPaletteColorToHsvMask();
@@ -97,8 +96,7 @@
 
         public bool Light
         {
-            get { return DataModel.Light; }
-
+            get => DataModel.Light;
             set
             {
                 DataModel.Light = value;
@@ -108,8 +106,7 @@
 
         public bool JetPack
         {
-            get { return DataModel.JetPack; }
-
+            get => DataModel.JetPack;
             set
             {
                 DataModel.JetPack = value;
@@ -119,8 +116,7 @@
 
         public bool Dampeners
         {
-            get { return DataModel.Dampeners; }
-
+            get => DataModel.Dampeners;
             set
             {
                 DataModel.Dampeners = value;
@@ -130,37 +126,36 @@
 
         public override double LinearVelocity
         {
-            get { return DataModel.LinearVelocity; }
+            get => DataModel.LinearVelocity; 
         }
 
         public float BatteryCapacity
         {
-            get { return DataModel.BatteryCapacity * 100000; }
-            set { DataModel.BatteryCapacity = value / 100000; }
+            get => DataModel.BatteryCapacity * 100000;
+            set => DataModel.BatteryCapacity = value / 100000;
         }
 
         public float? Health
         {
-            get { return DataModel.Health; }
-            set { DataModel.Health = value; }
+            get => DataModel.Health;
+            set => DataModel.Health = value;
         }
 
         public float OxygenLevel
         {
-            get { return DataModel.OxygenLevel; }
-            set { DataModel.OxygenLevel = value; }
+            get => DataModel.OxygenLevel;
+            set => DataModel.OxygenLevel = value;
         }
 
         public float HydrogenLevel
         {
-            get { return DataModel.HydrogenLevel; }
-            set { DataModel.HydrogenLevel = value; }
+            get => DataModel.HydrogenLevel;
+            set => DataModel.HydrogenLevel = value;
         }
 
         public InventoryEditorViewModel Inventory
         {
-            get { return _inventory; }
-
+            get => _inventory;
             set
             {
                 if (value != _inventory)
@@ -173,7 +168,7 @@
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public bool ResetVelocityCanExecute()
         {
@@ -204,7 +199,7 @@
 
         public void ChangeColorExecuted()
         {
-            var colorDialog = _colorDialogFactory();
+            IColorDialog colorDialog = _colorDialogFactory();
             colorDialog.FullOpen = true;
             colorDialog.BrushColor = Color as System.Windows.Media.SolidColorBrush;
             colorDialog.CustomColors = MainViewModel.CreativeModeColors;

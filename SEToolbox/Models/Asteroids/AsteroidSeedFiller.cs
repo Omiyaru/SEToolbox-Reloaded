@@ -1,275 +1,216 @@
-﻿namespace SEToolbox.Models.Asteroids
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using SEToolbox.Interop.Asteroids;
+using SEToolbox.Support;
+
+
+namespace SEToolbox.Models.Asteroids
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using SEToolbox.Interop.Asteroids;
-    using SEToolbox.Support;
-
     public class AsteroidSeedFiller : IMyVoxelFiller
     {
-        public IMyVoxelFillProperties CreateRandom(int index, MaterialSelectionModel defaultMaterial, IEnumerable<MaterialSelectionModel> materialsCollection, IEnumerable<GenerateVoxelDetailModel> voxelCollection)
+        private static readonly AsteroidSeedFillProperties properties = new();
+        private AsteroidSeedFillProperties InitializeRandomModel(int index, MaterialSelectionModel defaultMaterial)
         {
-            int idx;
-
             var randomModel = new AsteroidSeedFillProperties
             {
-                Index = index,
-                MainMaterial = defaultMaterial,
-                FirstMaterial = defaultMaterial,
-                SecondMaterial = defaultMaterial,
-                ThirdMaterial = defaultMaterial,
-                FourthMaterial = defaultMaterial,
-                FifthMaterial = defaultMaterial,
-                SixthMaterial = defaultMaterial,
-                SeventhMaterial = defaultMaterial,
+                Index = index
             };
 
-            // Must be by reference, not value.
-            var largeVoxelFileList = voxelCollection.Where(v => v.FileSize > 100000).ToList();
-            var smallVoxelFileList = voxelCollection.Where(v => v.FileSize > 0 && v.FileSize < 100000).ToList();
-
-            // Random Asteroid.
-            var d = RandomUtil.GetDouble(1, 100);
-            var islarge = false;
-
-            if (largeVoxelFileList.Count == 0 && smallVoxelFileList.Count == 0)
-            {
-                // no asteroids?  You are so screwed.
-                throw new Exception("No valid asteroids found. Re-validate your game cache.");
-            }
-
-            if (largeVoxelFileList.Count == 0) // empty last list? Force to small list.
-                d = 1;
-            if (smallVoxelFileList.Count == 0) // empty small list? Force to large list.
-                d = 100;
-
-            if (d > 70)
-            {
-                idx = RandomUtil.GetInt(largeVoxelFileList.Count);
-                randomModel.VoxelFile = largeVoxelFileList[idx];
-                islarge = true;
-            }
-            else
-            {
-                idx = RandomUtil.GetInt(smallVoxelFileList.Count);
-                randomModel.VoxelFile = smallVoxelFileList[idx];
-            }
-
-            // Random Main Material non-Rare.
-            var nonRare = materialsCollection.Where(m => m.IsRare == false).ToArray();
-            idx = RandomUtil.GetInt(nonRare.Length);
-            randomModel.MainMaterial = nonRare[idx];
-
-            int chunks, chunkSize;
-            double multiplier = 1.0;
-            var rare = materialsCollection.Where(m => m.IsRare && m.MinedRatio >= 2).ToList();
-            var superRare = materialsCollection.Where(m => m.IsRare && m.MinedRatio < 2).ToList();
-
-            if (islarge)
-            {
-                // Random 1-4 are rare.
-                chunks = 20;
-                chunkSize = 5;
-
-                if (rare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(rare.Count);
-                    randomModel.FirstMaterial = rare[idx];
-                    randomModel.FirstVeins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));
-                    randomModel.FirstRadius = RandomUtil.GetInt((int)(chunkSize * multiplier), (int)(chunkSize * 1.5 * multiplier));
-                    rare.RemoveAt(idx);
-                }
-                multiplier *= 0.85;
-
-                if (rare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(rare.Count);
-                    randomModel.SecondMaterial = rare[idx];
-                    randomModel.SecondVeins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));
-                    randomModel.SecondRadius = RandomUtil.GetInt((int)(chunkSize * multiplier), (int)(chunkSize * 1.5 * multiplier));
-                    rare.RemoveAt(idx);
-                }
-                multiplier *= 0.85;
-
-                if (rare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(rare.Count);
-                    randomModel.ThirdMaterial = rare[idx];
-                    randomModel.ThirdVeins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));
-                    randomModel.ThirdRadius = RandomUtil.GetInt((int)(chunkSize * multiplier), (int)(chunkSize * 1.5 * multiplier));
-                    rare.RemoveAt(idx);
-                }
-                multiplier *= 0.85;
-
-                if (rare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(rare.Count);
-                    randomModel.FourthMaterial = rare[idx];
-                    randomModel.FourthVeins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));
-                    randomModel.FourthRadius = RandomUtil.GetInt((int)(chunkSize * multiplier), (int)(chunkSize * 1.5 * multiplier));
-                    rare.RemoveAt(idx);
-                }
-
-                // Random 5-7 are super-rare
-
-                multiplier = 1.0;
-                chunks = 50;
-                chunkSize = 2;
-
-                if (superRare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(superRare.Count);
-                    randomModel.FifthMaterial = superRare[idx];
-                    randomModel.FifthVeins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));
-                    randomModel.FifthRadius = RandomUtil.GetInt((int)(chunkSize * multiplier), (int)(chunkSize * 1.5 * multiplier));
-                    superRare.RemoveAt(idx);
-                }
-                multiplier *= 0.5;
-
-                if (superRare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(superRare.Count);
-                    randomModel.SixthMaterial = superRare[idx];
-                    randomModel.SixthVeins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));
-                    randomModel.SixthRadius = RandomUtil.GetInt((int)(chunkSize * multiplier), (int)(chunkSize * 1.5 * multiplier));
-                    superRare.RemoveAt(idx);
-                }
-                multiplier *= 0.5;
-
-                if (superRare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(superRare.Count);
-                    randomModel.SeventhMaterial = superRare[idx];
-                    randomModel.SeventhVeins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));
-                    randomModel.SeventhRadius = RandomUtil.GetInt((int)(chunkSize * multiplier), (int)(chunkSize * 1.5 * multiplier));
-                    superRare.RemoveAt(idx);
-                }
-                multiplier *= 0.5;
-
-            }
-            else // Small Asteroid.
-            {
-
-                // Random 1-3 are rare.
-                chunks = 10;
-                chunkSize = 2;
-
-                if (rare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(rare.Count);
-                    randomModel.FirstMaterial = rare[idx];
-                    randomModel.FirstVeins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));
-                    randomModel.FirstRadius = RandomUtil.GetInt((int)(chunkSize * multiplier), (int)(chunkSize * 1.5 * multiplier));
-                    rare.RemoveAt(idx);
-                }
-                multiplier *= 0.75;
-
-                if (rare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(rare.Count);
-                    randomModel.SecondMaterial = rare[idx];
-                    randomModel.SecondVeins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));
-                    randomModel.SecondRadius = RandomUtil.GetInt((int)(chunkSize * multiplier), (int)(chunkSize * 1.5 * multiplier));
-                    rare.RemoveAt(idx);
-                }
-                multiplier *= 0.75;
-
-                if (rare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(rare.Count);
-                    randomModel.ThirdMaterial = rare[idx];
-                    randomModel.ThirdVeins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));
-                    randomModel.ThirdRadius = RandomUtil.GetInt((int)(chunkSize * multiplier), (int)(chunkSize * 1.5 * multiplier));
-                    rare.RemoveAt(idx);
-                }
-
-
-                // Random 4-5 is super-rare
-
-                multiplier = 1.0;
-                chunks = 15;
-
-                if (superRare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(superRare.Count);
-                    randomModel.FourthMaterial = superRare[idx];
-                    randomModel.FourthVeins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));
-                    randomModel.FourthRadius = 0;
-                    superRare.RemoveAt(idx);
-                }
-                multiplier *= 0.5;
-
-                if (superRare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(superRare.Count);
-                    randomModel.FifthMaterial = superRare[idx];
-                    randomModel.FifthVeins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));
-                    randomModel.FifthRadius = 0;
-                    superRare.RemoveAt(idx);
-                }
-            }
+            var materials = new List<MaterialSelectionModel>(properties.MaterialsList);
+            var materialsDictionary = materials.ToDictionary(
+            m => m.Value,
+            m => defaultMaterial.Value == m.Value ? defaultMaterial : m, StringComparer.OrdinalIgnoreCase);
 
             return randomModel;
         }
 
-        public void FillAsteroid(MyVoxelMap asteroid, IMyVoxelFillProperties fillProperties)
+        public IMyVoxelFillProperties CreateRandom(int index, MaterialSelectionModel defaultMaterial, IEnumerable<MaterialSelectionModel> materialsCollection, IEnumerable<GenerateVoxelDetailModel> voxelCollection)
         {
-            var properties = (AsteroidSeedFillProperties)fillProperties;
+            var randomModel = InitializeRandomModel(index, defaultMaterial);
+
+            // Split voxel files by size thresholds
+            var largeVoxelFileList = voxelCollection.Where(v => v.FileSize > 100000).ToList();
+            var smallVoxelFileList = voxelCollection.Where(v => v.FileSize > 0 && v.FileSize < 100000).ToList();
+
+            // Ensure we have at least one list populated
+            if (!largeVoxelFileList.Any() && !smallVoxelFileList.Any())
+                throw new Exception("No valid asteroids found. Re-validate your game cache.");
+
+            // Fallback logic if one list is empty
+            double d = RandomUtil.GetDouble(1, 100);
+            bool hasLarge = largeVoxelFileList.Any();
+            bool hasSmall = smallVoxelFileList.Any();
+
+            d = hasLarge && hasSmall ? d : (hasLarge ? 100 : (hasSmall ? d : 1));
+
+            bool isLarge = d > 70;
+            var selectedVoxelList = isLarge ? largeVoxelFileList : smallVoxelFileList;
+
+            // Random asteroid selection
+            int voxelIdx = RandomUtil.GetInt(selectedVoxelList.Count());
+            randomModel.VoxelFile = selectedVoxelList[voxelIdx];
+
+            //Random Main material selection (non-rare)
+            var nonRare = materialsCollection.Where(m => !m.IsRare).ToArray();
+            randomModel.MainMaterial = nonRare.ElementAt(RandomUtil.GetInt(nonRare.Length));
+
+            // Categorize materials
+            var rare = materialsCollection.Where(m => m.IsRare && m.MinedRatio >= 2).ToList();
+            var superRare = materialsCollection.Where(m => m.IsRare && m.MinedRatio < 2).ToList();
+
+            // Parameters
+            int chunks = isLarge ? 20 : 10;
+            int chunkSize = isLarge ? 5 : 2;
+            double multiplier = 1.0;
+
+            // === Rare Assignments ===
+            AssignMaterials(index, randomModel, rare, chunks, chunkSize, ref multiplier, isLarge, isSuperRare: false);
+
+            // === Reset for Super-Rare Assignments ===
+            multiplier = 1.0;
+            chunks = isLarge ? 50 : 10;//large/small 
+            chunkSize = isLarge ? 2 : 0; //large/small
+            // === Super-Rare Assignments ===
+            AssignMaterials(index, randomModel, superRare, chunks, chunkSize, ref multiplier, isLarge, isSuperRare: true);
+
+            return randomModel;
+        }
+
+        public MaterialSelectionModel GetMaterial(int index, List<MaterialSelectionModel> materials)
+        {
+            if (materials == null || materials.Count == 0)
+                throw new ArgumentNullException(nameof(materials));
+            if (index < 0 || index >= materials.Count)
+                throw new ArgumentOutOfRangeException(nameof(index));
+            return materials[index];
+        }
+
+        private static void AssignMaterials(int index, AsteroidSeedFillProperties randomModel, List<MaterialSelectionModel> materials, int chunks, int chunkSize, ref double multiplier, bool isLarge = false, bool isSuperRare = false)
+        {   
+           bool isSecretRandom;
+            randomModel.MaterialsList = [];
+            int slotIndex = isSuperRare ? 5 : 1; // superRare starts filling from slot 5+
+
+            // Set how many we’ll assign depending on size/type
+            _ = isSuperRare ?
+                (isLarge ? 7 : 5) :
+                 isLarge ? 4 : 3;
+
+            var materialsToRemove = new List<MaterialSelectionModel>();
+            foreach (var mat in materials)
+            {
+
+               
+              
+                    
+                isSecretRandom = RandomUtil.EnableSecretRandom;
+                int idx = RandomUtil.GetInt(materials.Count);
+                
+                var material = materials[idx];
+                int veins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));
+                double radius = chunkSize > 0 ? RandomUtil.GetInt((int)(chunkSize * multiplier), (int)(chunkSize * 1.5 * multiplier)) : 0;
+                AsteroidSeedFillProperties.MaterialsData[index] = (material.Value.ToString(), material, radius, veins);
+                materialsToRemove.Add(material);
+
+                foreach (var m in materialsToRemove)
+                {
+                    var inst = mat;
+                    idx = materials.IndexOf(mat);
+                    material = materials[idx];
+                    materials.Remove(material);
+                }
+                multiplier = 1.0;
+
+                if (slotIndex >= 1 && slotIndex <= 7)
+                {
+                    bool isSuperRareRange = slotIndex >= 5 && slotIndex <= 7 && isSuperRare;
+                    double multiplierFactor = isSuperRareRange ? 0.75 : 0.50;
+              
+
+                    foreach (var kv in AsteroidSeedFillProperties.MaterialsData)
+                    {
+                        material = kv.Value.Material;
+                        veins = (int)kv.Value.Veins;
+                        radius = (double)kv.Value.Radius;
+                        }
+                    if (isSecretRandom)
+                    {
+                        int hash;
+                        hash = HashCode.Combine(materials.IndexOf(material), veins, Convert.ToInt32(radius)).GetHashCode();
+                        RandomUtil.SetSecretRandom(hash);
+                       }
+
+                    multiplier *= multiplierFactor;
+                }
+
+
+                    materials.RemoveAt(idx);
+                }
+                multiplier *= isLarge ? 0.85 : 0.75;
+            }
+
+
+        //interiorMaterial???
+        public void FillAsteroid(MyVoxelMapBase asteroid, IMyVoxelFillProperties fillProperties)
+        {
+            AsteroidSeedFillProperties properties = (AsteroidSeedFillProperties)fillProperties;
 
             /* The full history behind this hack/crutch eludes me.
-                 * There are roids that won't change their materials unless their face materials forced to something other than current value.
-                 * So we have to do that manually by setting to a usually unused ore (uranium) and then reverting to the one we chose (=old one in case of a flaky roid)
-                 */
+                * There are roids that won't change their materials unless their face materials forced to something other than current value.
+                * So we have to do that manually by setting to a usually unused or (uranium) and then reverting to the one we chose (=old one in case of a flaky roid)
+                */
             //byte oldMaterial = asteroid.VoxelMaterial;
-
+            //var value = properties.MainMaterial;
+            
             // ForceVoxelFaceMaterial should no longer be required.
+            // MyVoxelMaterialDefinition voxelSurfaceMaterial = value.VoxelSurfaceMaterial
             //asteroid.ForceVoxelFaceMaterial("Uraninite_01");
             //asteroid.ForceVoxelFaceMaterial(properties.MainMaterial.Value);
 
+            ///look into SurfaceMaterial?? (something to o withh planets??
             // Cycle through veins info and add 'spherical' depisits to the voxel cell grid (not voxels themselves)
-            int i;
 
-            if (properties.FirstVeins > 0)
-                for (i = 0; i < properties.FirstVeins; i++)
-                    asteroid.SeedMaterialSphere(properties.FirstMaterial.MaterialIndex.Value, (byte)properties.FirstRadius);
+            // Add ore veins into the asteroid voxel field
 
-            if (properties.SecondVeins > 0)
-                for (i = 0; i < properties.SecondVeins; i++)
-                    asteroid.SeedMaterialSphere(properties.SecondMaterial.MaterialIndex.Value, (byte)properties.SecondRadius);
+            for (int index = 0; index < 7; index++)
+            {
+                int veins = properties.GetVeins(index, null);
+                if (veins <= 0)
+                    continue;
+                MaterialSelectionModel material = AsteroidSeedFillProperties.GetMaterial(index, null);
 
-            if (properties.ThirdVeins > 0)
-                for (i = 0; i < properties.ThirdVeins; i++)
-                    asteroid.SeedMaterialSphere(properties.ThirdMaterial.MaterialIndex.Value, (byte)properties.ThirdRadius);
+                double radius = AsteroidSeedFillProperties.GetRadius(index);
 
-            if (properties.FourthVeins > 0)
-                for (i = 0; i < properties.FourthVeins; i++)
-                    asteroid.SeedMaterialSphere(properties.FourthMaterial.MaterialIndex.Value, (byte)properties.FourthRadius);
+                if (veins <= 0)
+                    continue;
 
-            if (properties.FifthVeins > 0)
-                for (i = 0; i < properties.FifthVeins; i++)
-                    asteroid.SeedMaterialSphere(properties.FifthMaterial.MaterialIndex.Value, (byte)properties.FifthRadius);
-
-            if (properties.SixthVeins > 0)
-                for (i = 0; i < properties.SixthVeins; i++)
-                    asteroid.SeedMaterialSphere(properties.SixthMaterial.MaterialIndex.Value, (byte)properties.SixthRadius);
-
-            if (properties.SeventhVeins > 0)
-                for (i = 0; i < properties.SeventhVeins; i++)
-                    asteroid.SeedMaterialSphere(properties.SeventhMaterial.MaterialIndex.Value, (byte)properties.SeventhRadius);
+                for (int v = 0; v < veins; v++)
+                {
+                    asteroid.SeedMaterialSphere(material.MaterialIndex.Value, radius);
+                }
+            }
+            //look into surface materials
 
             // Hide the surface materials up to depth of 2 cells.
             asteroid.ForceShellMaterial(properties.MainMaterial.Value, 2);
 
-            // This recovers material assigning ability for most roids (could be something specific to indestructibleContent property?)
+
+            // The following code blocks contain alternative methods for material manipulation, currently not in use 
+
+            // This recovers material assigning ability for most roids (could be specific to indestructibleContent property?)
             // And not for all, apparently :(
+
             //asteroid.ForceVoxelFaceMaterial(_dataModel.BaseMaterial.DisplayName); // don't change mattype
 
-            // doesn't help
-            //asteroid.ForceIndestructibleContent(0xff);
+            // Doesn't help
+            // asteroid.ForceIndestructibleContent(0xff);
 
-            // Alt ends     
+            // Alt ends
+
         }
-    }
+		
+	}
 }
+

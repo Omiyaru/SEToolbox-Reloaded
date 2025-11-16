@@ -2,6 +2,7 @@
 
   <ImportGroup Label="PropertySheets">
     <Import Project="$(SolutionDir)\global.targets" Condition="exists('$(SolutionDir)\global.targets')" />
+    <Import Project="$(SolutionDir)\fxc.targets" Condition="exists('$(SolutionDir)\fxc.targets')" />
   </ImportGroup>
 
   <PropertyGroup>
@@ -15,8 +16,11 @@
     <OutputType>Library</OutputType>
     <TargetFramework>net48</TargetFramework>
     <UseWPF>true</UseWPF>
+	<LangVersion>preview</LangVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\SEToolbox.snk</AssemblyOriginatorKeyFile>
+    <Platforms>AnyCPU</Platforms>
+    <UserSecretsId>9b382f3b-cff7-42df-9626-a2a8a68c038a</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,7 +30,10 @@
   </ItemGroup>
 
   <Target Name="EffectCompile" Condition="'@(Effect)' != '' " BeforeTargets="PrepareResourceNames">
-    <Exec Command="$(FxcPath) /T ps_3_0 /Fo @(Effect->'%(relativedir)%(filename)').ps %(Effect.Identity)" />
+    <PropertyGroup>
+      <FxcCommand>$(FxcPath) /T ps_3_0 /Fo</FxcCommand>
+    </PropertyGroup>
+    <Exec Command="$(FxcPath) /T ps_3_0 /Fo @(Effect->'%(relativedir)%(filename)').ps %(Effect.Identity)" Condition="Exists('$(FxcPath)')" ContinueOnError="false" />
   </Target>
 
 </Project>

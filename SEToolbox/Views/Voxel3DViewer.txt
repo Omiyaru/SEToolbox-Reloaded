@@ -1,0 +1,58 @@
+using Microsoft.Win32;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
+using HelixToolkit.Wpf;
+
+namespace SEToolbox.Views
+{
+    public partial class MainWindow : Window
+    {
+        private readonly MaterialPalette palette = MaterialPalette.Default;
+        private bool useMaterialColors = true;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+
+        private void OnOpenVoxel(object sender, RoutedEventArgs e)
+        {
+            var dlg = new OpenFileDialog { Filter = "Voxel Files (*.vx2)|*.vx2" };
+            if (dlg.ShowDialog() == true)
+            {
+                var grid = VoxelFileLoader.Load(dlg.FileName);
+                LoadVoxelGrid(grid);
+            }
+        }
+
+        private void LoadVoxelGrid(VoxelGrid grid)
+        {
+            var modelGroup = new Model3DGroup();
+            for (int z = 0; z < grid.SizeZ; z++)
+            {
+                for (int y = 0; y < grid.SizeY; y++)
+                {
+                    for (int x = 0; x < grid.SizeX; x++)
+                    {
+                        byte content = grid.GetContent(x, y, z);
+                        if (content > 0)
+                        {
+                            byte mat = grid.GetMaterial(x, y, z);
+                            var cube = new BoxVisual3D
+                            {
+                                Center = new Point3D(x, y, z),
+                                Width = 1,
+                                Height = 1,
+                                Length = 1,
+                                Fill = new SolidColorBrush(palette.GetColor(mat))
+                            };
+                            modelGroup.Children.Add(cube.Model);
+                        }
+                    }
+                }
+            }
+            VoxelModel.Content = modelGroup;
+        }
+    }
+}

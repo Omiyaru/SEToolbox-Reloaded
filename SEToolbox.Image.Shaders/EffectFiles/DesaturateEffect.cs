@@ -4,12 +4,12 @@
 //  </copyright>
 // ===============================================================================
 
-namespace SEToolbox.ImageShaders
-{
-    using System.Windows;
-    using System.Windows.Media;
-    using System.Windows.Media.Effects;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Effects;
 
+namespace SEToolbox.ImageShaders.EffectFiles
+{
     /// <summary>
     /// This is the implementation of an extensible framework ShaderEffect which loads
     /// a shader model 2 pixel shader. Dependecy properties declared in this class are mapped
@@ -41,7 +41,7 @@ namespace SEToolbox.ImageShaders
         /// Creates an instance of the shader from the included pixel shader.
         /// </summary>
         static DesaturateEffect()
-        {
+        {   
             pixelShader = new PixelShader { UriSource = Global.MakePackUri("ShaderSource/Desaturate.ps") };
         }
 
@@ -59,11 +59,11 @@ namespace SEToolbox.ImageShaders
         /// <summary>
         /// Gets or sets the input used in the shader.
         /// </summary>
-        [System.ComponentModel.BrowsableAttribute(false)]
+        [System.ComponentModel.Browsable(false)]
         public Brush Input
         {
-            get { return (Brush)GetValue(InputProperty); }
-            set { SetValue(InputProperty, value); }
+            get => (Brush)GetValue(InputProperty);
+            set => SetValue(InputProperty, value);
         }
     }
 }

@@ -14,54 +14,33 @@
 
         public string ErrorDescription
         {
-            get { return _errorDescription; }
+            get => _errorDescription;
 
-            set
-            {
-                if (value != _errorDescription)
-                {
-                    _errorDescription = value;
-                    OnPropertyChanged(nameof(ErrorDescription));
-                }
-            }
+            set => SetProperty(ref _errorDescription, value, nameof(ErrorDescription));
         }
 
         public string ErrorText
         {
-            get { return _errorText; }
+            get => _errorText;
 
-            set
-            {
-                if (value != _errorText)
-                {
-                    _errorText = value;
-                    OnPropertyChanged(nameof(ErrorText));
-                }
-            }
+            set => SetProperty(ref _errorText, value, nameof(ErrorText));
         }
 
         public bool CanContinue
         {
-            get { return _canContinue; }
+            get => _canContinue;
 
-            set
-            {
-                if (value != _canContinue)
-                {
-                    _canContinue = value;
-                    OnPropertyChanged(nameof(CanContinue));
-                }
-            }
+            set => SetProperty(ref _canContinue, value, nameof(CanContinue));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public void Load(string errorDescription, string errorText, bool canContinue)
         {
-            ErrorDescription = errorDescription;
-            ErrorText = errorText;
+            ErrorDescription = errorDescription ?? string.Empty;
+            ErrorText = errorText ?? string.Empty;
             CanContinue = canContinue;
         }
 

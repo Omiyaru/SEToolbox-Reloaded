@@ -1,16 +1,17 @@
-﻿namespace SEToolbox.Models
-{
-    using System.Collections.ObjectModel;
-    using System.Windows.Media.Media3D;
-    using SEToolbox.Interop;
-    using SEToolbox.Interop.Asteroids;
-    using VRage;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Media.Media3D;
+using SEToolbox.Interop;
+using SEToolbox.Interop.Asteroids;
+using VRage;
 
+namespace SEToolbox.Models
+{
     public class Import3DAsteroidModel : BaseModel
     {
         #region Fields
 
-        private string _filename;
+
+        private string _fileName;
         private Model3D _model;
         private bool _isValidModel;
         private bool _isValidEntity;
@@ -45,18 +46,18 @@
         private bool _saveWhenFinsihed;
         private bool _shutdownWhenFinished;
         private bool _runInLowPrioity;
-        // TODO: pause
+        //private bool _pauseWhenFinished;
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public Import3DAsteroidModel()
         {
-            _outsideMaterialsCollection = new ObservableCollection<MaterialSelectionModel>();
-            _insideMaterialsCollection = new ObservableCollection<MaterialSelectionModel>();
+            _outsideMaterialsCollection = [];
+            _insideMaterialsCollection = [];
 
-            foreach (var material in SpaceEngineersCore.Resources.VoxelMaterialDefinitions)
+            foreach (var material in SpaceEngineersResources.VoxelMaterialDefinitions)
             {
                 _outsideMaterialsCollection.Add(new MaterialSelectionModel { Value = material.Id.SubtypeName, DisplayName = material.Id.SubtypeName });
                 _insideMaterialsCollection.Add(new MaterialSelectionModel { Value = material.Id.SubtypeName, DisplayName = material.Id.SubtypeName });
@@ -77,32 +78,16 @@
 
         #region Properties
 
-        public string Filename
+        public string FileName
         {
-            get { return _filename; }
-
-            set
-            {
-                if (value != _filename)
-                {
-                    _filename = value;
-                    OnPropertyChanged(nameof(Filename));
-                }
-            }
+            get => _fileName;
+            set => SetProperty(ref _fileName, value, nameof(FileName));
         }
 
         public Model3D Model
         {
-            get { return _model; }
-
-            set
-            {
-                if (value != _model)
-                {
-                    _model = value;
-                    OnPropertyChanged(nameof(Model));
-                }
-            }
+            get  => _model;
+            set => SetProperty(ref _model, value, nameof(Model));
         }
 
         /// <summary>
@@ -110,16 +95,8 @@
         /// </summary>
         public bool IsValidModel
         {
-            get { return _isValidModel; }
-
-            set
-            {
-                if (value != _isValidModel)
-                {
-                    _isValidModel = value;
-                    OnPropertyChanged(nameof(IsValidModel));
-                }
-            }
+            get => _isValidModel;
+            set => SetProperty(ref _isValidModel, value, nameof(IsValidModel));
         }
 
         /// <summary>
@@ -127,421 +104,201 @@
         /// </summary>
         public bool IsValidEntity
         {
-            get { return _isValidEntity; }
-
-            set
-            {
-                if (value != _isValidEntity)
-                {
-                    _isValidEntity = value;
-                    OnPropertyChanged(nameof(IsValidEntity));
-                }
-            }
+            get => _isValidEntity;
+            set => SetProperty(ref _isValidEntity, value, nameof(IsValidEntity));
         }
 
         public BindableSize3DModel OriginalModelSize
         {
-            get { return _originalModelSize; }
-
-            set
-            {
-                if (value != _originalModelSize)
-                {
-                    _originalModelSize = value;
-                    OnPropertyChanged(nameof(OriginalModelSize));
-                }
-            }
+            get => _originalModelSize;
+            set => SetProperty(ref _originalModelSize, value, nameof(OriginalModelSize));
         }
 
         public BindableSize3DIModel NewModelSize
         {
-            get { return _newModelSize; }
-
-            set
-            {
-                if (value != _newModelSize)
-                {
-                    _newModelSize = value;
-                    OnPropertyChanged(nameof(NewModelSize));
-                }
-            }
+            get => _newModelSize;
+            set => SetProperty(ref _newModelSize, value, nameof(NewModelSize));
         }
 
         public BindablePoint3DModel NewModelScale
         {
-            get { return _newModelScale; }
-
-            set
-            {
-                if (value != _newModelScale)
-                {
-                    _newModelScale = value;
-                    OnPropertyChanged(nameof(NewModelScale));
-                }
-            }
+            get => _newModelScale;
+            set => SetProperty(ref _newModelScale, value, nameof(NewModelScale));
         }
 
         public BindablePoint3DModel Position
         {
-            get { return _position; }
-
-            set
-            {
-                if (value != _position)
-                {
-                    _position = value;
-                    OnPropertyChanged(nameof(Position));
-                }
-            }
+            get => _position;
+            set => SetProperty(ref _position, value, nameof(Position));
         }
 
         public BindableVector3DModel Forward
         {
-            get { return _forward; }
-
-            set
-            {
-                if (value != _forward)
-                {
-                    _forward = value;
-                    OnPropertyChanged(nameof(Forward));
-                }
-            }
+            get => _forward;
+            set => SetProperty(ref _forward, value, nameof(Forward));
         }
 
         public BindableVector3DModel Up
         {
-            get { return _up; }
-
-            set
-            {
-                if (value != _up)
-                {
-                    _up = value;
-                    OnPropertyChanged(nameof(Up));
-                }
-            }
+            get => _up;
+            set => SetProperty(ref _up, value, nameof(Up));
         }
 
         public MyPositionAndOrientation CharacterPosition
         {
-            get { return _characterPosition; }
-
-            set
-            {
-                //if (value != characterPosition) // Unable to check for equivilence, without long statement. And, mostly uncessary.
-                _characterPosition = value;
-                OnPropertyChanged(nameof(CharacterPosition));
-            }
+            get => _characterPosition;
+            // unable to checck for equivalence and mostly unnecessary
+            set => SetProperty(ref _characterPosition, value, nameof(CharacterPosition));
         }
 
         public TraceType TraceType
         {
-            get { return _traceType; }
-
-            set
-            {
-                if (value != _traceType)
-                {
-                    _traceType = value;
-                    OnPropertyChanged(nameof(TraceType));
-                }
-            }
+            get => _traceType;
+            set => SetProperty(ref _traceType, value, nameof(TraceType));
         }
 
         public TraceCount TraceCount
         {
-            get { return _traceCount; }
-
-            set
-            {
-                if (value != _traceCount)
-                {
-                    _traceCount = value;
-                    OnPropertyChanged(nameof(TraceCount));
-                }
-            }
+            get => _traceCount;
+            set => SetProperty(ref _traceCount, value, nameof(TraceCount));
         }
 
         public TraceDirection TraceDirection
         {
-            get { return _traceDirection; }
-
-            set
-            {
-                if (value != _traceDirection)
-                {
-                    _traceDirection = value;
-                    OnPropertyChanged(nameof(TraceDirection));
-                }
-            }
+            get => _traceDirection;
+            set => SetProperty(ref _traceDirection, value, nameof(TraceDirection));
         }
 
         public double MultipleScale
         {
-            get { return _multipleScale; }
-
-            set
-            {
-                if (value != _multipleScale)
-                {
-                    _multipleScale = value;
-                    OnPropertyChanged(nameof(MultipleScale));
-                }
-            }
+            get => _multipleScale;
+            set => SetProperty(ref _multipleScale, value, nameof(MultipleScale));
         }
 
         public double MaxLengthScale
         {
-            get { return _maxLengthScale; }
-
-            set
-            {
-                if (value != _maxLengthScale)
-                {
-                    _maxLengthScale = value;
-                    OnPropertyChanged(nameof(MaxLengthScale));
-                }
-            }
+            get => _maxLengthScale;
+            set => SetProperty(ref _maxLengthScale, value, nameof(MaxLengthScale));
         }
 
         public double BuildDistance
         {
-            get { return _buildDistance; }
+            get => _buildDistance;
 
-            set
-            {
-                if (value != _buildDistance)
-                {
-                    _buildDistance = value;
-                    OnPropertyChanged(nameof(BuildDistance));
-                }
-            }
+            set => SetProperty(ref _buildDistance, value, nameof(BuildDistance));
         }
 
         public bool IsMultipleScale
         {
-            get { return _isMultipleScale; }
-
-            set
-            {
-                if (value != _isMultipleScale)
-                {
-                    _isMultipleScale = value;
-                    OnPropertyChanged(nameof(IsMultipleScale));
-                }
-            }
+            get => _isMultipleScale;
+            set => SetProperty(ref _isMultipleScale, value, nameof(IsMultipleScale));
         }
 
         public bool IsMaxLengthScale
         {
-            get { return _isMaxLengthScale; }
-
-            set
-            {
-                if (value != _isMaxLengthScale)
-                {
-                    _isMaxLengthScale = value;
-                    OnPropertyChanged(nameof(IsMaxLengthScale));
-                }
-            }
+            get => _isMaxLengthScale;
+            set => SetProperty(ref _isMaxLengthScale, value, nameof(IsMaxLengthScale));
         }
 
         public bool IsAbsolutePosition
         {
-            get { return _isAbsolutePosition; }
+            get => _isAbsolutePosition;
 
-            set
-            {
-                if (value != _isAbsolutePosition)
-                {
-                    _isAbsolutePosition = value;
-                    OnPropertyChanged(nameof(IsAbsolutePosition));
-                }
-            }
+            set => SetProperty(ref _isAbsolutePosition, value, nameof(IsAbsolutePosition));
         }
 
         public bool IsInfrontofPlayer
         {
-            get { return _isInfrontofPlayer; }
-
-            set
-            {
-                if (value != _isInfrontofPlayer)
-                {
-                    _isInfrontofPlayer = value;
-                    OnPropertyChanged(nameof(IsInfrontofPlayer));
-                }
-            }
+            get => _isInfrontofPlayer;
+            set => SetProperty(ref _isInfrontofPlayer, value, nameof(IsInfrontofPlayer));
         }
 
         public ObservableCollection<MaterialSelectionModel> OutsideMaterialsCollection
         {
-            get { return _outsideMaterialsCollection; }
+            get => _outsideMaterialsCollection;
         }
-
         public int OutsideMaterialDepth
         {
-            get { return _outsideMaterialDepth; }
+            get => _outsideMaterialDepth;
 
-            set
-            {
-                if (value != _outsideMaterialDepth)
-                {
-                    _outsideMaterialDepth = value;
-                    OnPropertyChanged(nameof(OutsideMaterialDepth));
-                }
-            }
+            set => SetProperty(ref _outsideMaterialDepth, value, nameof(OutsideMaterialDepth));
         }
 
         public ObservableCollection<MaterialSelectionModel> InsideMaterialsCollection
         {
-            get { return _insideMaterialsCollection; }
+            get => _insideMaterialsCollection;
         }
 
         public MaterialSelectionModel OutsideStockMaterial
         {
-            get { return _outsideStockMaterial; }
-
-            set
-            {
-                if (value != _outsideStockMaterial)
-                {
-                    _outsideStockMaterial = value;
-                    OnPropertyChanged(nameof(OutsideStockMaterial));
-                }
-            }
+            get => _outsideStockMaterial;
+            set => SetProperty(ref _outsideStockMaterial, value, nameof(OutsideStockMaterial));
         }
 
         public MaterialSelectionModel InsideStockMaterial
         {
-            get { return _insideStockMaterial; }
+            get => _insideStockMaterial;
 
-            set
-            {
-                if (value != _insideStockMaterial)
-                {
-                    _insideStockMaterial = value;
-                    OnPropertyChanged(nameof(InsideStockMaterial));
-                }
-            }
+            set => SetProperty(ref _insideStockMaterial, value, nameof(InsideStockMaterial));
         }
 
         public string SourceFile
         {
-            get { return _sourceFile; }
+            get => _sourceFile;
 
-            set
-            {
-                if (value != _sourceFile)
-                {
-                    _sourceFile = value;
-                    OnPropertyChanged(nameof(SourceFile));
-                }
-            }
+            set => SetProperty(ref _sourceFile, value, nameof(SourceFile));
         }
 
         public double RotateYaw
         {
-            get { return _rotateYaw; }
-
-            set
-            {
-                if (value != _rotateYaw)
-                {
-                    _rotateYaw = value;
-                    OnPropertyChanged(nameof(RotateYaw));
-                }
-            }
+            get => _rotateYaw;
+            set => SetProperty(ref _rotateYaw, value, nameof(RotateYaw));
         }
 
         public double RotatePitch
         {
-            get { return _rotatePitch; }
+            get => _rotatePitch;
 
-            set
-            {
-                if (value != _rotatePitch)
-                {
-                    _rotatePitch = value;
-                    OnPropertyChanged(nameof(RotatePitch));
-                }
-            }
+            set => SetProperty(ref _rotatePitch, value, nameof(RotatePitch));
         }
 
         public double RotateRoll
         {
-            get { return _rotateRoll; }
+            get => _rotateRoll; 
 
-            set
-            {
-                if (value != _rotateRoll)
-                {
-                    _rotateRoll = value;
-                    OnPropertyChanged(nameof(RotateRoll));
-                }
-            }
+            set => SetProperty(ref _rotateRoll, value, nameof(RotateRoll));
         }
 
         public bool BeepWhenFinished
         {
-            get { return _beepWhenFinished; }
+            get => _beepWhenFinished;
 
-            set
-            {
-                if (value != _beepWhenFinished)
-                {
-                    _beepWhenFinished = value;
-                    OnPropertyChanged(nameof(BeepWhenFinished));
-                }
-            }
+            set => SetProperty(ref _beepWhenFinished, value, nameof(BeepWhenFinished));
         }
 
         public bool SaveWhenFinsihed
         {
-            get { return _saveWhenFinsihed; }
+            get => _saveWhenFinsihed;
 
-            set
-            {
-                if (value != _saveWhenFinsihed)
-                {
-                    _saveWhenFinsihed = value;
-                    OnPropertyChanged(nameof(SaveWhenFinsihed));
-                }
-            }
+            set => SetProperty(ref _saveWhenFinsihed, value, nameof(SaveWhenFinsihed));
         }
 
         public bool ShutdownWhenFinished
         {
-            get { return _shutdownWhenFinished; }
+            get => _shutdownWhenFinished;
 
-            set
-            {
-                if (value != _shutdownWhenFinished)
-                {
-                    _shutdownWhenFinished = value;
-                    OnPropertyChanged(nameof(ShutdownWhenFinished));
-                }
-            }
+            set => SetProperty(ref _shutdownWhenFinished, value, nameof(ShutdownWhenFinished));
         }
 
-        public bool RunInLowPrioity
+        public bool RunInLowPrioity 
         {
-            get { return _runInLowPrioity; }
-
-            set
-            {
-                if (value != _runInLowPrioity)
-                {
-                    _runInLowPrioity = value;
-                    OnPropertyChanged(nameof(RunInLowPrioity));
-                }
-            }
+            get  => _runInLowPrioity;
+            set => SetProperty(ref _runInLowPrioity, value, nameof(RunInLowPrioity));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public void Load(MyPositionAndOrientation characterPosition)
         {

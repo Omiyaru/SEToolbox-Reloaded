@@ -1,17 +1,17 @@
-﻿namespace SEToolbox.ViewModels
+﻿using System;
+using System.Diagnostics.Contracts;
+using System.IO;
+using System.Windows;
+using System.Windows.Input;
+
+using SEToolbox.Interfaces;
+using SEToolbox.Models;
+using SEToolbox.Services;
+using SEToolbox.Support;
+using Res = SEToolbox.Properties.Resources;
+
+namespace SEToolbox.ViewModels
 {
-    using System;
-    using System.Diagnostics.Contracts;
-    using System.IO;
-    using System.Windows;
-    using System.Windows.Input;
-
-    using SEToolbox.Interfaces;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-    using Support;
-    using Res = SEToolbox.Properties.Resources;
-
     public class ResourceReportViewModel : BaseViewModel
     {
         #region Fields
@@ -23,7 +23,7 @@
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public ResourceReportViewModel(BaseViewModel parentViewModel, ResourceReportModel dataModel)
             : this(parentViewModel, dataModel, ServiceLocator.Resolve<IDialogService>(), ServiceLocator.Resolve<ISaveFileDialog>)
@@ -45,41 +45,41 @@
 
         #endregion
 
-        #region command properties
+        #region Command Properties
 
         public ICommand GenerateCommand
         {
-            get { return new DelegateCommand(GenerateExecuted, GenerateCanExecute); }
+            get => new DelegateCommand(GenerateExecuted, GenerateCanExecute);
         }
 
         public ICommand ExportCommand
         {
-            get { return new DelegateCommand(new Func<bool>(ExportCanExecute)); }
+            get => new DelegateCommand(new Func<bool>(ExportCanExecute));
         }
 
         public ICommand CopyCommand
         {
-            get { return new DelegateCommand(CopyExecuted, CopyCanExecute); }
+            get => new DelegateCommand(CopyExecuted, CopyCanExecute);
         }
 
         public ICommand ExportTextCommand
         {
-            get { return new DelegateCommand(ExportTextExecuted, ExportTextCanExecute); }
+            get => new DelegateCommand(ExportTextExecuted, ExportTextCanExecute);
         }
 
         public ICommand ExportHtmlCommand
         {
-            get { return new DelegateCommand(ExportHtmlExecuted, ExportHtmlCanExecute); }
+            get => new DelegateCommand(ExportHtmlExecuted, ExportHtmlCanExecute);
         }
 
         public ICommand ExportXmlCommand
         {
-            get { return new DelegateCommand(ExportXmlExecuted, ExportXmlCanExecute); }
+            get => new DelegateCommand(ExportXmlExecuted, ExportXmlCanExecute);
         }
 
         public ICommand CloseCommand
         {
-            get { return new DelegateCommand(CloseExecuted, CloseCanExecute); }
+            get => new DelegateCommand(CloseExecuted, CloseCanExecute);
         }
 
         #endregion
@@ -91,8 +91,7 @@
         /// </summary>
         public bool? CloseResult
         {
-            get { return _closeResult; }
-
+            get => _closeResult;
             set
             {
                 _closeResult = value;
@@ -105,8 +104,8 @@
         /// </summary>
         public bool IsActive
         {
-            get { return _dataModel.IsActive; }
-            set { _dataModel.IsActive = value; }
+            get => _dataModel.IsActive;
+            set => _dataModel.IsActive = value;
         }
 
         /// <summary>
@@ -114,43 +113,43 @@
         /// </summary>
         public bool IsBusy
         {
-            get { return _dataModel.IsBusy; }
-            set { _dataModel.IsBusy = value; }
+            get => _dataModel.IsBusy;
+            set => _dataModel.IsBusy = value;
         }
 
         public bool IsReportReady
         {
-            get { return _dataModel.IsReportReady; }
-            set { _dataModel.IsReportReady = value; }
+            get => _dataModel.IsReportReady;
+            set => _dataModel.IsReportReady = value;
         }
 
         public string ReportHtml
         {
-            get { return _dataModel.ReportHtml; }
-            set { _dataModel.ReportHtml = value; }
+            get => _dataModel.ReportHtml;
+            set => _dataModel.ReportHtml = value;
         }
 
         public bool ShowProgress
         {
-            get { return _dataModel.ShowProgress; }
-            set { _dataModel.ShowProgress = value; }
+            get => _dataModel.ShowProgress;
+            set => _dataModel.ShowProgress = value;
         }
 
         public double Progress
         {
-            get { return _dataModel.Progress; }
-            set { _dataModel.Progress = value; }
+            get => _dataModel.Progress;
+            set => _dataModel.Progress = value;
         }
 
         public double MaximumProgress
         {
-            get { return _dataModel.MaximumProgress; }
-            set { _dataModel.MaximumProgress = value; }
+            get => _dataModel.MaximumProgress;
+            set => _dataModel.MaximumProgress = value;
         }
 
         #endregion
 
-        #region command methods
+        #region Command Methods
 
         public bool GenerateCanExecute()
         {
@@ -195,7 +194,7 @@
 
         public void ExportTextExecuted()
         {
-            var saveFileDialog = _saveFileDialogFactory();
+            ISaveFileDialog saveFileDialog = _saveFileDialogFactory();
             saveFileDialog.Filter = AppConstants.TextFileFilter;
             saveFileDialog.Title = string.Format(Res.DialogExportTextFileTitle, "Resource Report");
             saveFileDialog.FileName = string.Format("Resource Report - {0}.txt", _dataModel.SaveName);
@@ -214,7 +213,7 @@
 
         public void ExportHtmlExecuted()
         {
-            var saveFileDialog = _saveFileDialogFactory();
+            ISaveFileDialog saveFileDialog = _saveFileDialogFactory();
             saveFileDialog.Filter = AppConstants.HtmlFilter;
             saveFileDialog.Title = string.Format(Res.DialogExportHtmlFileTitle, "Resource Report");
             saveFileDialog.FileName = string.Format("Resource Report - {0}.html", _dataModel.SaveName);
@@ -233,7 +232,7 @@
 
         public void ExportXmlExecuted()
         {
-            var saveFileDialog = _saveFileDialogFactory();
+            ISaveFileDialog saveFileDialog = _saveFileDialogFactory();
             saveFileDialog.Filter = AppConstants.XmlFileFilter;
             saveFileDialog.Title = string.Format(Res.DialogExportXmlFileTitle, "Resource Report");
             saveFileDialog.FileName = string.Format("Resource Report - {0}.xml", _dataModel.SaveName);

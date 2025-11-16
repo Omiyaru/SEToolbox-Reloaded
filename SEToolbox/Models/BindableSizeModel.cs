@@ -1,7 +1,7 @@
-﻿namespace SEToolbox.Models
-{
-    using System.Drawing;
+﻿using System.Drawing;
 
+namespace SEToolbox.Models
+{
     public class BindableSizeModel : BaseModel
     {
         private Size _size;
@@ -29,53 +29,23 @@
 
         public int Width
         {
-            get
-            {
-                return _size.Width;
-            }
+            get => _size.Width;
 
-            set
-            {
-                if (value != _size.Width)
-                {
-                    _size.Width = value;
-                    OnPropertyChanged(nameof(Width));
-                }
-            }
+            set => SetProperty(_size.Width, value, nameof(Width));
         }
 
         public int Height
         {
-            get
-            {
-                return _size.Height;
-            }
+            get => _size.Height;
 
-            set
-            {
-                if (value != _size.Height)
-                {
-                    _size.Height = value;
-                    OnPropertyChanged(nameof(Height));
-                }
-            }
+            set => SetProperty(_size.Height, value, nameof(Height));
         }
 
         public Size Size
         {
-            get
-            {
-                return _size;
-            }
+            get => _size;
 
-            set
-            {
-                if (value != _size)
-                {
-                    _size = value;
-                    OnPropertyChanged(nameof(Size), nameof(Width), nameof(Height));
-                }
-            }
+            set => SetProperty(ref _size, value, nameof(Size));
         }
 
         #endregion

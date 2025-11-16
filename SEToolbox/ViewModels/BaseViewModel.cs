@@ -1,35 +1,25 @@
-﻿namespace SEToolbox.ViewModels
+﻿using System.ComponentModel;
+using SEToolbox.Interfaces;
+using SEToolbox.Models;
+
+namespace SEToolbox.ViewModels
 {
-    using System.ComponentModel;
-
-    using SEToolbox.Interfaces;
-
-    public class BaseViewModel : INotifyPropertyChanged
+    public class BaseViewModel(BaseViewModel ownerViewModel) : INotifyPropertyChanged
     {
-        #region fields
+        #region Fields
 
-        private BaseViewModel _ownerViewModel;
+        private BaseViewModel _ownerViewModel = ownerViewModel;
+
+        #endregion
+        #region Ctor
 
         #endregion
 
-        #region ctor
-
-        public BaseViewModel(BaseViewModel ownerViewModel)
-        {
-            _ownerViewModel = ownerViewModel;
-        }
-
-        #endregion
-
-        #region properties
+        #region Properties
 
         public virtual BaseViewModel OwnerViewModel
         {
-            get
-            {
-                return _ownerViewModel;
-            }
-
+            get => _ownerViewModel;
             set
             {
                 if (_ownerViewModel != value)
@@ -42,10 +32,7 @@
 
         public IMainView MainViewModel
         {
-            get
-            {
-                return (IMainView)_ownerViewModel;
-            }
+            get => (IMainView)_ownerViewModel;
         }
 
         #endregion
@@ -62,11 +49,16 @@
         {
             if (PropertyChanged != null)
             {
-                foreach (var propertyName in propertyNames)
+                foreach (string propertyName in propertyNames)
+                {
                     PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                }
             }
         }
-
+        BaseModel baseModel = new();
+        public void SetProperty( bool? field, bool? value, string propertyName) => baseModel.SetProperty(field, value, propertyName);
+        public void SetProperty(ref bool? field, bool? value, string propertyName) => baseModel.SetProperty(ref field, value, propertyName);
+         public void SetProperty<T>(ref T field, T value, object obj,  params object[] parameters) => baseModel.SetProperty(ref field, value, obj, parameters);
         #endregion
 
         #region INotifyPropertyChanged Members

@@ -1,21 +1,20 @@
-﻿namespace SEToolbox.Models.Asteroids
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using SEToolbox.Interop;
+using SEToolbox.Interop.Asteroids;
+using SEToolbox.Models;
+using SEToolbox.Support;
+
+
+namespace SEToolbox.Models.Asteroids
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using SEToolbox.Interop;
-    using SEToolbox.Interop.Asteroids;
-    using SEToolbox.Models;
-    using SEToolbox.Support;
-
     public class AsteroidByteFiller : IMyVoxelFiller
     {
         public IMyVoxelFillProperties CreateRandom(int index, MaterialSelectionModel defaultMaterial, IEnumerable<MaterialSelectionModel> materialsCollection, IEnumerable<GenerateVoxelDetailModel> voxelCollection)
         {
-            int idx;
-
-            var randomModel = new AsteroidByteFillProperties
+            AsteroidByteFillProperties randomModel = new()
             {
                 Index = index,
                 MainMaterial = defaultMaterial,
@@ -27,196 +26,180 @@
                 SeventhMaterial = defaultMaterial,
             };
 
-            // Must be by reference, not value.
-            var largeVoxelFileList = voxelCollection.Where(v => v.FileSize > 100000).ToList();
-            var smallVoxelFileList = voxelCollection.Where(v => v.FileSize > 0 && v.FileSize < 100000).ToList();
+            //Must be by reference, not by value
 
-            // Random Asteroid.
-            var d = RandomUtil.GetDouble(1, 100);
-            var islarge = false;
+            List<GenerateVoxelDetailModel> largeVoxelFileList = [.. voxelCollection.Where(v => v.FileSize > 100000)];
+            List<GenerateVoxelDetailModel> smallVoxelFileList = [.. voxelCollection.Where(v => v.FileSize > 0 && v.FileSize < 100000)];
 
-            if (largeVoxelFileList.Count == 0 && smallVoxelFileList.Count == 0)
-            {
-                // no asteroids?  You are so screwed.
+            if (!largeVoxelFileList.Any() && !smallVoxelFileList.Any())
+                // no asteroids? You are so screwed.
                 throw new Exception("No valid asteroids found. Re-validate your game cache.");
-            }
+            bool hasSmallVoxelFiles = smallVoxelFileList.Any();
+            double randomValue = hasSmallVoxelFiles ? RandomUtil.GetDouble(1, 100) : 100;
+            double d = largeVoxelFileList.Any() ? randomValue : 1;
+            bool isLarge = d > 70;
 
-            if (largeVoxelFileList.Count == 0) // empty last list? Force to small list.
-                d = 1;
-            if (smallVoxelFileList.Count == 0) // empty small list? Force to large list.
-                d = 100;
+            List<GenerateVoxelDetailModel> selectedVoxelList = isLarge ? largeVoxelFileList : smallVoxelFileList;
+            randomModel.VoxelFile = selectedVoxelList[RandomUtil.GetInt(selectedVoxelList.Count)];
 
-            if (d > 70)
+            MaterialSelectionModel[] nonRareMaterials = [.. materialsCollection.Where(m => !m.IsRare)];
+            randomModel.MainMaterial = nonRareMaterials[RandomUtil.GetInt(nonRareMaterials.Length)];
+
+            List<MaterialSelectionModel> rareMaterials = [.. materialsCollection.Where(m => m.IsRare && m.MinedRatio >= 2)];
+            List<MaterialSelectionModel> superRareMaterials = [.. materialsCollection.Where(m => m.IsRare && m.MinedRatio < 2)];
+
+            if (isLarge)
             {
-                idx = RandomUtil.GetInt(largeVoxelFileList.Count);
-                randomModel.VoxelFile = largeVoxelFileList[idx];
-                islarge = true;
+                AssignMaterials(randomModel, rareMaterials, superRareMaterials, [(40, 60), (6, 12), (6, 12)], [(2, 4), (1, 3), (1, 3)]);
             }
             else
             {
-                idx = RandomUtil.GetInt(smallVoxelFileList.Count);
-                randomModel.VoxelFile = smallVoxelFileList[idx];
-            }
-
-            // Random Main Material non-Rare.
-            var nonRare = materialsCollection.Where(m => m.IsRare == false).ToArray();
-            idx = RandomUtil.GetInt(nonRare.Length);
-            randomModel.MainMaterial = nonRare[idx];
-
-            int percent;
-            var rare = materialsCollection.Where(m => m.IsRare && m.MinedRatio >= 2).ToList();
-            var superRare = materialsCollection.Where(m => m.IsRare && m.MinedRatio < 2).ToList();
-
-            if (islarge)
-            {
-                // Random 1. Rare.
-                if (rare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(rare.Count);
-                    percent = RandomUtil.GetInt(40, 60);
-                    randomModel.SecondMaterial = rare[idx];
-                    randomModel.SecondPercent = percent;
-                    rare.RemoveAt(idx);
-                }
-
-                // Random 2. Rare.
-                if (rare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(rare.Count);
-                    percent = RandomUtil.GetInt(6, 12);
-                    randomModel.ThirdMaterial = rare[idx];
-                    randomModel.ThirdPercent = percent;
-                    rare.RemoveAt(idx);
-                }
-
-                // Random 3. Rare.
-                if (rare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(rare.Count);
-                    percent = RandomUtil.GetInt(6, 12);
-                    randomModel.ThirdMaterial = rare[idx];
-                    randomModel.ThirdPercent = percent;
-                    rare.RemoveAt(idx);
-                }
-
-                // Random 4. Super Rare.
-                if (superRare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(superRare.Count);
-                    percent = RandomUtil.GetInt(2, 4);
-                    randomModel.FourthMaterial = superRare[idx];
-                    randomModel.FourthPercent = percent;
-                    superRare.RemoveAt(idx);
-                }
-
-                // Random 5. Super Rare.
-                if (superRare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(superRare.Count);
-                    percent = RandomUtil.GetInt(1, 3);
-                    randomModel.FifthMaterial = superRare[idx];
-                    randomModel.FifthPercent = percent;
-                    superRare.RemoveAt(idx);
-                }
-
-                // Random 6. Super Rare.
-                if (superRare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(superRare.Count);
-                    percent = RandomUtil.GetInt(1, 3);
-                    randomModel.SixthMaterial = superRare[idx];
-                    randomModel.SixthPercent = percent;
-                    superRare.RemoveAt(idx);
-                }
-
-                // Random 7. Super Rare.
-                if (superRare.Count > 0)
-                {
-                    idx = RandomUtil.GetInt(superRare.Count);
-                    percent = RandomUtil.GetInt(1, 3);
-                    randomModel.SeventhMaterial = superRare[idx];
-                    randomModel.SeventhPercent = percent;
-                    superRare.RemoveAt(idx);
-                }
-            }
-            else // Small Asteroid.
-            {
-                // Random 1. Rare.
-                idx = RandomUtil.GetInt(rare.Count);
-                percent = RandomUtil.GetInt(6, 13);
-                randomModel.SecondMaterial = rare[idx];
-                randomModel.SecondPercent = percent;
-
-                // Random 2. Super Rare.
-                idx = RandomUtil.GetInt(superRare.Count);
-                percent = RandomUtil.GetInt(2, 4);
-                randomModel.ThirdMaterial = superRare[idx];
-                randomModel.ThirdPercent = percent;
-                superRare.RemoveAt(idx);
+                AssignMaterials(randomModel, rareMaterials, superRareMaterials, [(6, 13)], [(2, 4)]);
             }
 
             return randomModel;
         }
 
-        public void FillAsteroid(MyVoxelMap asteroid, IMyVoxelFillProperties fillProperties)
+        private static void AssignMaterials(AsteroidByteFillProperties model, List<MaterialSelectionModel> rare, List<MaterialSelectionModel> superRare, (int min, int max)[] rarePercents, (int min, int max)[] superRarePercents)
         {
-            var properties = (AsteroidByteFillProperties)fillProperties;
+            for (int i = 0; i < rarePercents.Length && rare.Any(); i++)
+            {
+                int idx = RandomUtil.GetInt(rare.Count);
+                int percent = RandomUtil.GetInt(rarePercents[i].min, rarePercents[i].max);
+                AssignMaterial(model, i + 1, rare[idx], percent);
+                rare.RemoveAt(idx);
+            }
+
+            for (int i = 0; i < superRarePercents.Length && superRare.Any(); i++)
+            {
+                int idx = RandomUtil.GetInt(superRare.Count);
+                int percent = RandomUtil.GetInt(superRarePercents[i].min, superRarePercents[i].max);
+                AssignMaterial(model, i + rarePercents.Length + 1, superRare[idx], percent);
+                superRare.RemoveAt(idx);
+            }
+        }
+
+        private static void AssignMaterial(AsteroidByteFillProperties model, int position, MaterialSelectionModel material, int percent)
+        {
+            switch (position)
+            {
+                case 1:
+                    model.SecondMaterial = material;
+                    model.SecondPercent = percent;
+                    break;
+                case 2:
+                    model.ThirdMaterial = material;
+                    model.ThirdPercent = percent;
+                    break;
+                case 3:
+                    model.FourthMaterial = material;
+                    model.FourthPercent = percent;
+                    break;
+                case 4:
+                    model.FifthMaterial = material;
+                    model.FifthPercent = percent;
+                    break;
+                case 5:
+                    model.SixthMaterial = material;
+                    model.SixthPercent = percent;
+                    break;
+                case 6:
+                    model.SeventhMaterial = material;
+                    model.SeventhPercent = percent;
+                    break;
+            }
+        }
+
+        public void FillAsteroid(MyVoxelMapBase asteroid, IMyVoxelFillProperties fillProperties)
+        {
+            AsteroidByteFillProperties properties = (AsteroidByteFillProperties)fillProperties;
 
             IList<byte> baseAssets = asteroid.CalcVoxelMaterialList();
 
-            var distribution = new List<double> { double.NaN };
-            var materialSelection = new List<byte> { SpaceEngineersCore.Resources.GetMaterialIndex(properties.MainMaterial.Value) };
+            List<double> distribution = [double.NaN];
+            List<byte> materialSelection =
+            [
+                // Ensure MainMaterial is not null
+              (byte)Conditional.ConditionCoalesced(null, properties?.MainMaterial, SpaceEngineersResources.GetMaterialIndex(properties.MainMaterial.Value),0),
+            ];
 
-            if (properties.SecondPercent > 0)
+            for (int i = 2; i <= 7; i++)
             {
-                distribution.Add((double)properties.SecondPercent / 100);
-                materialSelection.Add(SpaceEngineersCore.Resources.GetMaterialIndex(properties.SecondMaterial.Value));
-            }
-            if (properties.ThirdPercent > 0)
-            {
-                distribution.Add((double)properties.ThirdPercent / 100);
-                materialSelection.Add(SpaceEngineersCore.Resources.GetMaterialIndex(properties.ThirdMaterial.Value));
-            }
-            if (properties.FourthPercent > 0)
-            {
-                distribution.Add((double)properties.FourthPercent / 100);
-                materialSelection.Add(SpaceEngineersCore.Resources.GetMaterialIndex(properties.FourthMaterial.Value));
-            }
-            if (properties.FifthPercent > 0)
-            {
-                distribution.Add((double)properties.FifthPercent / 100);
-                materialSelection.Add(SpaceEngineersCore.Resources.GetMaterialIndex(properties.FifthMaterial.Value));
-            }
-            if (properties.SixthPercent > 0)
-            {
-                distribution.Add((double)properties.SixthPercent / 100);
-                materialSelection.Add(SpaceEngineersCore.Resources.GetMaterialIndex(properties.SixthMaterial.Value));
-            }
-            if (properties.SeventhPercent > 0)
-            {
-                distribution.Add((double)properties.SeventhPercent / 100);
-                materialSelection.Add(SpaceEngineersCore.Resources.GetMaterialIndex(properties.SeventhMaterial.Value));
-            }
+                double percent = 0;
+                string materialValue = null;
 
-            var newDistributiuon = new List<byte>();
-            int count;
-            for (var i = 1; i < distribution.Count(); i++)
-            {
-                count = (int)Math.Floor(distribution[i] * baseAssets.Count); // Round down.
-                for (var j = 0; j < count; j++)
+                switch (i)
                 {
-                    newDistributiuon.Add(materialSelection[i]);
+                    case 2:
+                        percent = properties.SecondPercent;
+                        materialValue = properties.SecondMaterial.Value;
+                        break;
+                    case 3:
+                        percent = properties.ThirdPercent;
+                        materialValue = properties.ThirdMaterial.Value;
+                        break;
+                    case 4:
+                        percent = properties.FourthPercent;
+                        materialValue = properties.FourthMaterial.Value;
+                        break;
+                    case 5:
+                        percent = properties.FifthPercent;
+                        materialValue = properties.FifthMaterial.Value;
+                        break;
+                    case 6:
+                        percent = properties.SixthPercent;
+                        materialValue = properties.SixthMaterial.Value;
+                        break;
+                    case 7:
+                        percent = properties.SeventhPercent;
+                        materialValue = properties.SeventhMaterial.Value;
+                        break;
+                }
+
+                if (percent > 0 && materialValue != null)
+                {
+                    distribution.Add(percent / 100);
+                    materialSelection.Add(SpaceEngineersResources.GetMaterialIndex(materialValue));
                 }
             }
-            count = baseAssets.Count - newDistributiuon.Count;
-            for (var j = 0; j < count; j++)
+            List<byte> newDistribution = [];
+            int count;
+            for (int i = 1; i < distribution.Count; i++)
             {
-                newDistributiuon.Add(materialSelection[0]);
+                count = (int)Math.Floor(distribution[i] * baseAssets.Count); // Round down.
+                for (int j = 0; j < count; j++)
+                {
+                    newDistribution.Add(materialSelection[i]);
+                }
+            }
+            count = baseAssets.Count - newDistribution.Count;
+            for (int j = 0; j < count; j++)
+            {
+                newDistribution.Add(materialSelection[0]);
             }
 
-            newDistributiuon.Shuffle();
-            asteroid.SetVoxelMaterialList(newDistributiuon);
+            newDistribution.Shuffle();
+            asteroid.SetVoxelMaterialList(newDistribution);
             //asteroid.ForceVoxelFaceMaterial(_dataModel.BaseMaterial.DisplayName);
         }
+        public void FillAsteroid(MyVoxelMapBase asteroid, IMyVoxelFillProperties fillProperties, AsteroidFillType.AsteroidFills fillType, int seed)
+        {
+            // seed = 0;
+            if (fillType == AsteroidFillType.AsteroidFills.None)
+            {
+                FillAsteroid(asteroid, fillProperties);
+                return;
+            }
+            //else if (seed > 0 )
+            // {
+            //     GenerateSeed(seed);
+            // }
+        }
+
+        // public int  GenerateSeed(int seed) {
+
     }
-}
+        
+    }
+
+

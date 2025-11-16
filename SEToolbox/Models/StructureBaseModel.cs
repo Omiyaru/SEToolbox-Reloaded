@@ -1,23 +1,23 @@
-﻿namespace SEToolbox.Models
+﻿using System;
+using System.Collections.Generic;
+using System.Windows.Threading;
+using System.Xml.Serialization;
+
+using Sandbox.Common.ObjectBuilders;
+using SEToolbox.Interfaces;
+using SEToolbox.Interop;
+using VRageMath;
+using VRage.ObjectBuilders;
+using VRage;
+using VRage.Game;
+using VRage.Game.ObjectBuilders;
+
+namespace SEToolbox.Models
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Windows.Threading;
-    using System.Xml.Serialization;
-
-    using Sandbox.Common.ObjectBuilders;
-    using SEToolbox.Interfaces;
-    using SEToolbox.Interop;
-    using VRageMath;
-    using VRage.ObjectBuilders;
-    using VRage;
-    using VRage.Game;
-    using VRage.Game.ObjectBuilders;
-
     [Serializable]
     public class StructureBaseModel : BaseModel, IStructureBase
     {
-        #region fields
+        #region Fields
 
         // Fields are marked as NonSerialized, as they aren't required during the drag-drop operation.
 
@@ -61,10 +61,13 @@
 
         [NonSerialized]
         internal Dispatcher _dispatcher;
+         
+        private Vector3D _playerPosition;
+        private string _sourceVoxelFilePath;
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public StructureBaseModel()
         {
@@ -83,203 +86,144 @@
         [XmlIgnore]
         public virtual MyObjectBuilder_EntityBase EntityBase
         {
-            get { return _entityBase; }
-            set
-            {
-                if (value != _entityBase)
-                {
-                    _entityBase = value;
-                    UpdateGeneralFromEntityBase();
-                    OnPropertyChanged(nameof(EntityBase));
-                }
-            }
+            get => _entityBase;
+
+            set  => SetProperty(ref _entityBase, value, nameof(EntityBase));
+        
         }
 
         [XmlIgnore]
         public long EntityId
         {
-            get { return _entityBase.EntityId; }
+            get => _entityBase.EntityId;
+            set => SetProperty(ref _entityBase.EntityId, value, nameof(EntityId));
 
-            set
-            {
-                if (value != _entityBase.EntityId)
-                {
-                    _entityBase.EntityId = value;
-                    OnPropertyChanged(nameof(EntityId));
-                }
-            }
         }
 
         [XmlIgnore]
         public MyPositionAndOrientation? PositionAndOrientation
         {
-            get { return _entityBase.PositionAndOrientation; }
-
-            set
-            {
-                if (!EqualityComparer<MyPositionAndOrientation?>.Default.Equals(value, _entityBase.PositionAndOrientation))
-                //if (value != entityBase.PositionAndOrientation)
-                {
-                    _entityBase.PositionAndOrientation = value;
-                    OnPropertyChanged(nameof(PositionAndOrientation));
-                }
-            }
+            get => _entityBase.PositionAndOrientation;
+            set => SetProperty( ref _entityBase.PositionAndOrientation, value, nameof(PositionAndOrientation));
         }
 
         [XmlIgnore]
         public double PositionX
         {
-            get { return _entityBase.PositionAndOrientation.Value.Position.X; }
+            get => _entityBase.PositionAndOrientation.Value.Position.X;
 
-            set
-            {
-                if (value != _entityBase.PositionAndOrientation.Value.Position.X)
-                {
-                    var pos = _entityBase.PositionAndOrientation.Value;
-                    pos.Position.X = value;
-                    _entityBase.PositionAndOrientation = pos;
-                    OnPropertyChanged(nameof(PositionX));
-                }
-            }
+            set => SetProperty( _entityBase.PositionAndOrientation.Value.Position.X, value, () =>
+
+              {
+                  if (value != _entityBase.PositionAndOrientation.Value.Position.X)
+                  {
+                      var pos = _entityBase.PositionAndOrientation.Value;
+                      pos.Position.X = value;
+                      _entityBase.PositionAndOrientation = pos;
+                  }
+              }, nameof(PositionX));
         }
 
         [XmlIgnore]
         public double PositionY
         {
-            get { return _entityBase.PositionAndOrientation.Value.Position.Y; }
+            get => _entityBase.PositionAndOrientation.Value.Position.Y;
 
-            set
-            {
-                if (value != _entityBase.PositionAndOrientation.Value.Position.Y)
-                {
-                    var pos = _entityBase.PositionAndOrientation.Value;
-                    pos.Position.Y = value;
-                    _entityBase.PositionAndOrientation = pos;
-                    OnPropertyChanged(nameof(PositionY));
-                }
-            }
+            set => SetProperty(_entityBase.PositionAndOrientation.Value.Position.Y, value, nameof(PositionY), () =>
+              {
+                  if (value != _entityBase.PositionAndOrientation.Value.Position.Y)
+                  {
+                      var pos = _entityBase.PositionAndOrientation.Value;
+                      pos.Position.Y = value;
+                      _entityBase.PositionAndOrientation = pos;
+                  }
+              });
         }
 
         [XmlIgnore]
         public double PositionZ
         {
-            get { return _entityBase.PositionAndOrientation.Value.Position.Z; }
+            get => _entityBase.PositionAndOrientation.Value.Position.Z;
 
-            set
+            set => SetProperty( _entityBase.PositionAndOrientation.Value.Position.Z, value, nameof(PositionZ));
+        }
+
+         public SerializableVector3D Position
+        {
+            get => new Vector3D(
+                    _entityBase.PositionAndOrientation.Value.Position.Z,
+                    _entityBase.PositionAndOrientation.Value.Position.Y,
+                    _entityBase.PositionAndOrientation.Value.Position.X);
+
+            set => SetProperty(_entityBase.PositionAndOrientation.Value.Position, value, () =>
             {
-                if (value != _entityBase.PositionAndOrientation.Value.Position.Z)
+                if (_entityBase.PositionAndOrientation.HasValue 
+                    && value.X != _entityBase.PositionAndOrientation.Value.Position.X
+                    && value.Y != _entityBase.PositionAndOrientation.Value.Position.Y
+                    && value.Z != _entityBase.PositionAndOrientation.Value.Position.Z)
                 {
-                    var pos = _entityBase.PositionAndOrientation.Value;
-                    pos.Position.Z = value;
+                    MyPositionAndOrientation pos = _entityBase.PositionAndOrientation.Value;
+                    pos.Position.X = value.X;
+                    pos.Position.Y = value.Y;
+                    pos.Position.Z = value.Z;
+                    
+                    
                     _entityBase.PositionAndOrientation = pos;
-                    OnPropertyChanged(nameof(PositionZ));
+                    
                 }
-            }
+            },nameof(Position));
         }
 
         [XmlIgnore]
         public ClassType ClassType
         {
-            get { return _classType; }
-
-            set
-            {
-                if (value != _classType)
-                {
-                    _classType = value;
-                    OnPropertyChanged(nameof(ClassType));
-                }
-            }
+            get => _classType;
+            set => SetProperty(ref _classType, value, nameof(ClassType));
         }
 
         [XmlIgnore]
         public virtual string DisplayName
         {
-            get { return _name; }
+            get => _name;
+            set => SetProperty(ref _name, value, nameof(DisplayName));
 
-            set
-            {
-                if (value != _name)
-                {
-                    _name = value;
-                    OnPropertyChanged(nameof(DisplayName));
-                }
-            }
         }
 
         [XmlIgnore]
         public string Description
         {
-            get { return _description; }
+            get => _description;
+            set => SetProperty(ref _description, value, nameof(Description));
 
-            set
-            {
-                if (value != _description)
-                {
-                    _description = value;
-                    OnPropertyChanged(nameof(Description));
-                }
-            }
         }
 
         [XmlIgnore]
         public double PlayerDistance
         {
-            get { return _playerDistance; }
+            get => _playerDistance;
+            set => SetProperty(ref _playerDistance, value, nameof(PlayerDistance));
 
-            set
-            {
-                if (value != _playerDistance)
-                {
-                    _playerDistance = value;
-                    OnPropertyChanged(nameof(PlayerDistance));
-                }
-            }
         }
 
         [XmlIgnore]
         public double Mass
         {
-            get { return _mass; }
-
-            set
-            {
-                if (value != _mass)
-                {
-                    _mass = value;
-                    OnPropertyChanged(nameof(Mass));
-                }
-            }
+            get => _mass;
+            set => SetProperty(ref _mass, value, nameof(Mass));
         }
 
         [XmlIgnore]
         public virtual int BlockCount
         {
-            get { return _blockCount; }
-
-            set
-            {
-                if (value != _blockCount)
-                {
-                    _blockCount = value;
-                    OnPropertyChanged(nameof(BlockCount));
-                }
-            }
+            get => _blockCount;
+            set => SetProperty(ref _blockCount, value, nameof(BlockCount));
         }
 
         [XmlIgnore]
         public virtual double LinearVelocity
         {
-            get { return _linearVelocity; }
-
-            set
-            {
-                if (value != _linearVelocity)
-                {
-                    _linearVelocity = value;
-                    OnPropertyChanged(nameof(LinearVelocity));
-                }
-            }
+            get => _linearVelocity;
+            set => SetProperty(ref _linearVelocity, value, nameof(LinearVelocity));
         }
 
         /// <summary>
@@ -288,90 +232,104 @@
         [XmlIgnore]
         public Vector3D Center
         {
-            get { return _center; }
-
-            set
-            {
-                if (value != _center)
-                {
-                    _center = value;
-                    OnPropertyChanged(nameof(Center));
-                }
-            }
+            get => _center;
+            set => SetProperty(ref _center, value, nameof(Center));
         }
 
         /// <summary>
         /// Bounding box.
         /// </summary>
         [XmlIgnore]
-        public BoundingBoxD WorldAABB
+        public BoundingBoxD WorldAabb
         {
-            get { return _worldAabb; }
-
-            set
-            {
-                if (value != _worldAabb)
-                {
-                    _worldAabb = value;
-                    OnPropertyChanged(nameof(WorldAABB));
-                }
-            }
+            get => _worldAabb;
+            set => SetProperty(ref _worldAabb, value, nameof(WorldAabb));
         }
 
         public string SerializedEntity
         {
-            get
-            {
-                return _serializedEntity;
-            }
+            get => _serializedEntity;
 
-            set
-            {
-                if (value != _serializedEntity)
-                {
-                    _serializedEntity = value;
-                    OnPropertyChanged(nameof(SerializedEntity));
-                }
-            }
+            set => SetProperty(ref _serializedEntity, value, nameof(SerializedEntity));
         }
 
         [XmlIgnore]
         public bool IsBusy
         {
-            get { return _isBusy; }
+            get => _isBusy;
 
-            set
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
-                if (value != _isBusy)
+                if (_isBusy)
                 {
-                    _isBusy = value;
-                    OnPropertyChanged(nameof(IsBusy));
-                    if (_isBusy)
-                    {
-                        System.Windows.Forms.Application.DoEvents();
-                    }
+                    System.Windows.Forms.Application.DoEvents();
                 }
-            }
+            });
         }
 
         [XmlIgnore]
         public bool IsValid
         {
-            get { return _isValid; }
-
-            set
-            {
-                if (value != _isValid)
-                {
-                    _isValid = value;
-                    OnPropertyChanged(nameof(IsValid));
-                }
-            }
+            get => _isValid;
+            set => SetProperty( ref _isValid, value, nameof(IsValid));
         }
+
+        public double PlayerLocationX
+        {
+            get => _playerPosition.X;
+            set => SetProperty(ref _playerPosition.X, value, nameof(PlayerLocationX), nameof(PlayerPosition));
+
+        }
+        public double PlayerLocationY
+        {
+            get => _playerPosition.Y;
+            set => SetProperty(ref _playerPosition.Y, value, nameof(PlayerLocationY), nameof(PlayerPosition));
+
+        }
+        public double PlayerLocationZ
+        {
+            get => _playerPosition.Z;
+            set => SetProperty(ref _playerPosition.Z, value, nameof(PlayerLocationZ), nameof(PlayerPosition));
+
+        }
+
+        public Vector3D PlayerPosition
+        {
+            get => _playerPosition;
+            set => SetProperty(ref _playerPosition, value, nameof(PlayerPosition));
+        }
+        
+        public Vector3D PlayerLocation
+        {
+            get => _playerPosition;
+            set => SetProperty(ref _playerPosition, value,
+                                nameof(PlayerLocation),
+                                nameof(PlayerLocationX),
+                                nameof(PlayerLocationY),
+                                nameof(PlayerLocationZ),
+                                nameof(PlayerPosition)
+                                );
+        }
+
+        public string SourceVoxelFilePath
+        {
+            get => _sourceVoxelFilePath;
+            set => SetProperty(ref _sourceVoxelFilePath, value, nameof(SourceVoxelFilePath));
+        }
+
+        Vector3D IStructureBase.Position
+        {
+            get => Position;
+            set => Position = value;
+        }
+
+
+
 
         #endregion
 
-        #region methods
+        #region Methods
+
 
         public virtual void UpdateGeneralFromEntityBase()
         {
@@ -380,44 +338,21 @@
 
         public static IStructureBase Create(MyObjectBuilder_EntityBase entityBase, string savefilePath)
         {
-            if (entityBase is MyObjectBuilder_Planet)
+            return entityBase switch
             {
-                return new StructurePlanetModel(entityBase, savefilePath);
-            }
+                MyObjectBuilder_Planet _ => new StructurePlanetModel(entityBase, savefilePath),
+                MyObjectBuilder_VoxelMap _ => new StructureVoxelModel(entityBase, savefilePath),
+                MyObjectBuilder_Character _ => new StructureCharacterModel(entityBase),
+                MyObjectBuilder_CubeGrid _ => new StructureCubeGridModel(entityBase),
+                MyObjectBuilder_FloatingObject _ => new StructureFloatingObjectModel(entityBase),
+                MyObjectBuilder_Meteor _ => new StructureMeteorModel(entityBase),
+                MyObjectBuilder_InventoryBagEntity _ => new StructureInventoryBagModel(entityBase),
+                _ => new StructureUnknownModel(entityBase)
+                // _=> new NotImplementedException($"A new object has not been catered for in the StructureBase, of type '{entityBase.GetType()}'.");
 
-            if (entityBase is MyObjectBuilder_VoxelMap)
-            {
-                return new StructureVoxelModel(entityBase, savefilePath);
-            }
-
-            if (entityBase is MyObjectBuilder_Character)
-            {
-                return new StructureCharacterModel(entityBase);
-            }
-
-            if (entityBase is MyObjectBuilder_CubeGrid)
-            {
-                return new StructureCubeGridModel(entityBase);
-            }
-
-            if (entityBase is MyObjectBuilder_FloatingObject)
-            {
-                return new StructureFloatingObjectModel(entityBase);
-            }
-
-            if (entityBase is MyObjectBuilder_Meteor)
-            {
-                return new StructureMeteorModel(entityBase);
-            }
-
-            if (entityBase is MyObjectBuilder_InventoryBagEntity)
-            {
-                return new StructureInventoryBagModel(entityBase);
-            }
-
-            return new StructureUnknownModel(entityBase);
-            //throw new NotImplementedException(string.Format("A new object has not been catered for in the StructureBase, of type '{0}'.", entityBase.GetType()));
+            };
         }
+
 
         public virtual void InitializeAsync()
         {

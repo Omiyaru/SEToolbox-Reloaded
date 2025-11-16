@@ -11,7 +11,7 @@
         Title="{Binding DialogTitle}" Height="240" Width="320" Icon="/SEToolbox;component/app.ico" Style="{StaticResource DefaultWindowStyle}"
         commands:DialogService.IsRegisteredView="True"
         commands:DialogCloser.DialogResult="{Binding CloseResult}"
-        FocusManager.FocusedElement="{Binding ElementName=UxInitialElement}" WindowStyle="ThreeDBorderWindow" MinHeight="200" MinWidth="300">
+        FocusManager.FocusedElement="{Binding ElementName=uxInitialElement}" WindowStyle="ThreeDBorderWindow" MinHeight="200" MinWidth="300">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:BusyMouseConverter x:Key="BusyMouseConverter" />
@@ -35,7 +35,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="60"/>
                     <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>   
+                </Grid.ColumnDefinitions>
                 <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
                     <TextBlock Text="{lex:Loc WnBlueprintDialogLabelDescription}" TextWrapping="WrapWithOverflow" />
                 </StackPanel>
@@ -47,6 +47,10 @@
                 <Button Margin="8,0,0,0" Width="90" Command="{Binding CancelCommand}" Content="{lex:Loc WnBlueprintDialogBtnCancel}" IsCancel="True"/>
             </StackPanel>
         </Grid>
-        <controls:BusyIndicator Visibility="{Binding IsBusy, FallbackValue=Hidden, Converter={StaticResource BooleanToVisibilityConverter}}" />
+       <controls:BusyIndicator Mode="Spinner"
+                         Visibility="{Binding IsBusy,
+             Converter={StaticResource BooleanToVisibilityConverter},
+             FallbackValue=Collapsed}"/>
+
     </Grid>
 </Window>

@@ -1,22 +1,21 @@
-﻿namespace SEToolbox.Interfaces
-{
-    using System;
-    using System.Collections.ObjectModel;
-    using System.Diagnostics.Contracts;
-    using System.Windows;
-    using System.Windows.Forms;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics.Contracts;
+using System.Windows;
+using System.Windows.Forms;
 
+namespace SEToolbox.Interfaces
+{
     [ContractClassFor(typeof(IDialogService))]
-    abstract class IDialogServiceContract : IDialogService
+     abstract class IDialogServiceContract : IDialogService
     {
         /// <summary>
         /// Gets the registered views.
         /// </summary>
         public ReadOnlyCollection<FrameworkElement> Views
         {
-            get { return default(ReadOnlyCollection<FrameworkElement>); }
+        get => default;
         }
-
         /// <summary>
         /// Registers a View.
         /// </summary>
@@ -54,7 +53,7 @@
             Contract.Requires(ownerViewModel != null);
             Contract.Requires(viewModel != null);
 
-            return default(bool?);
+            return default;
         }
 
         /// <summary>
@@ -73,7 +72,7 @@
             Contract.Requires(ownerViewModel != null);
             Contract.Requires(viewModel != null);
 
-            return default(bool?);
+            return default;
         }
 
         public bool? ShowDialog<T>(object ownerViewModel, object viewModel, Action action) where T : Window
@@ -81,7 +80,7 @@
             Contract.Requires(ownerViewModel != null);
             Contract.Requires(viewModel != null);
 
-            return default(bool?);
+            return default;
         }
 
         /// <summary>
@@ -124,7 +123,7 @@
             Contract.Requires(!string.IsNullOrWhiteSpace(messageBoxText));
             Contract.Requires(!string.IsNullOrWhiteSpace(caption));
 
-            return default(MessageBoxResult);
+            return default;
         }
 
         /// <summary>
@@ -142,7 +141,7 @@
             Contract.Requires(ownerViewModel != null);
             Contract.Requires(openFileDialog != null);
 
-            return default(DialogResult);
+            return default;
         }
 
         /// <summary>
@@ -160,7 +159,7 @@
             Contract.Requires(ownerViewModel != null);
             Contract.Requires(saveFileDialog != null);
 
-            return default(DialogResult);
+            return default;
         }
 
         /// <summary>
@@ -178,7 +177,7 @@
             Contract.Requires(ownerViewModel != null);
             Contract.Requires(folderBrowserDialog != null);
 
-            return default(DialogResult);
+            return default;
         }
 
         /// <summary>
@@ -196,7 +195,7 @@
             Contract.Requires(ownerViewModel != null);
             Contract.Requires(colorDialog != null);
 
-            return default(DialogResult);
+            return default;
         }
     }
 }

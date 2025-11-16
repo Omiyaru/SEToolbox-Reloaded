@@ -1,15 +1,15 @@
-﻿namespace SEToolbox.ViewModels
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+using System.Windows.Input;
+
+using SEToolbox.Services;
+using SEToolbox.Support;
+
+namespace SEToolbox.ViewModels
 {
-    using System;
-    using System.Diagnostics;
-    using System.Linq;
-    using System.Reflection;
-    using System.Windows.Input;
-
-    using SEToolbox.Services;
-    using SEToolbox.Support;
-
-    public class AboutViewModel : BaseViewModel
+    public class AboutViewModel(BaseViewModel parentViewModel) : BaseViewModel(parentViewModel)
     {
         #region Fields
 
@@ -18,11 +18,6 @@
         #endregion
 
         #region Constructors
-
-        public AboutViewModel(BaseViewModel parentViewModel)
-            : base(parentViewModel)
-        {
-        }
 
         #endregion
 
@@ -33,8 +28,7 @@
         /// </summary>
         public bool? CloseResult
         {
-            get { return _closeResult; }
-
+            get => _closeResult;
             set
             {
                 _closeResult = value;
@@ -44,15 +38,15 @@
 
         public ICommand OpenLinkCommand
         {
-            get { return new DelegateCommand(OpenLinkExecuted, OpenLinkCanExecute); }
+            get => new DelegateCommand(OpenLinkExecuted, OpenLinkCanExecute);
         }
 
         public ICommand CloseCommand
-        {
-            get { return new DelegateCommand(CloseExecuted, CloseCanExecute); }
+          { 
+             get => new DelegateCommand(CloseExecuted, CloseCanExecute);
         }
 
-        public string Company
+        public static string Company
         {
             get
             {
@@ -66,17 +60,17 @@
 
         public Version Version
         {
-            get { return GlobalSettings.GetAppVersion(); }
+            get => GlobalSettings.GetAppVersion();
         }
-
+   
         public string HomepageUrl
         {
-            get { return SEToolbox.Properties.Resources.GlobalHomepageUrl; }
-        }
+            get => Properties.Resources.GlobalHomepageUrl;
+        } 
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public bool CloseCanExecute()
         {

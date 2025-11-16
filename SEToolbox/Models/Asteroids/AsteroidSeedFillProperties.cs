@@ -1,4 +1,14 @@
-﻿namespace SEToolbox.Models.Asteroids
+﻿
+
+using SEToolbox.Support;
+
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Security.Cryptography;
+
+namespace SEToolbox.Models.Asteroids
 {
     public class AsteroidSeedFillProperties : BaseModel, IMyVoxelFillProperties
     {
@@ -8,114 +18,115 @@
         private GenerateVoxelDetailModel _voxelFile;
         private MaterialSelectionModel _mainMaterial, _firstMaterial, _secondMaterial, _thirdMaterial, _fourthMaterial, _fifthMaterial, _sixthMaterial, _seventhMaterial;
         private int _firstVeins, _secondVeins, _thirdVeins, _fourthVeins, _fifthVeins, _sixthVeins, _seventhVeins;
-        private int _firstRadius, _secondRadius, _thirdRadius, _fourthRadius, _fifthRadius, _sixthRadius, _seventhRadius;
+        private double _firstRadius, _secondRadius, _thirdRadius, _fourthRadius, _fifthRadius, _sixthRadius, _seventhRadius;
+        private ObservableCollection<GenerateVoxelDetailModel> _voxelFileList;
+        private List<MaterialSelectionModel> _materialsList;
+        private List<VoxelMaterialAssetModel> _materialsAssets;
+
 
         #endregion
-
-        #region Properties
-
-        public int Index
+        public struct MaterialInfo
         {
-            get { return _index; }
+            public int Index;
+            public string Name;
+            public MaterialSelectionModel Material;
+            public double Radius ;
+            public int Veins;
+        }           
+            public static Dictionary<int, (string Name, MaterialSelectionModel Material, double? Radius, int? Veins)> _materialsData = MaterialsData;
+            private static readonly Dictionary<int, (string Name, MaterialSelectionModel Material, double? Radius, int? Veins)> _materialsDataCache = [];
+            public static Dictionary<int, (string Name, MaterialSelectionModel Material, double? Radius, int? Veins)> MaterialsData => _materialsDataCache;
+            // private static void BuildMaterialsDataCache()
+            // {
+            //     if (_materialsDataCache.Count > 0)
+            //         return;
+            //     var index = 0;
+            //     foreach (var material in _materialsData.Select(x => x.Value.Material))
+            //     {
+            //         _materialsDataCache.Add(index, ($"{material}", material, index > 0 ? material.Radius : null, index > 0 ? material.Veins : null));
+            //         index++;
+            //     }
+            //}
+    
+      
+        #region Properties
+        public ObservableCollection<GenerateVoxelDetailModel> VoxelFileList
+        {
+            get => _voxelFileList;
+            set => SetProperty(ref _voxelFileList, value, nameof(VoxelFileList));
 
-            set
-            {
-                if (value != _index)
-                {
-                    _index = value;
-                    OnPropertyChanged(nameof(Index));
-                }
-            }
+        }
+
+
+        public List<MaterialSelectionModel> MaterialsList
+        {
+            get => _materialsList = [.. MaterialsData.Select(x => x.Value.Material)];
+
+            set => SetProperty( ref _materialsList, value, nameof(MaterialsList));
         }
 
         public GenerateVoxelDetailModel VoxelFile
         {
-            get { return _voxelFile; }
+            get => _voxelFile;
 
-            set
-            {
-                if (value != _voxelFile)
-                {
-                    _voxelFile = value;
-                    OnPropertyChanged(nameof(VoxelFile));
-                }
-            }
+            set => SetProperty(ref _voxelFile, value, nameof(VoxelFile));
+        }
+
+
+        public int Index
+        {
+            get => _index;
+            set => SetProperty(ref _index, value, nameof(Index));
         }
 
         public MaterialSelectionModel MainMaterial
         {
-            get { return _mainMaterial; }
-
-            set
-            {
-                if (value != _mainMaterial)
-                {
-                    _mainMaterial = value;
-                    OnPropertyChanged(nameof(MainMaterial));
-                }
-            }
+            get => _mainMaterial;
+            set => SetProperty(ref _mainMaterial, value, nameof(MainMaterial));
         }
 
         public MaterialSelectionModel FirstMaterial
         {
-            get { return _firstMaterial; }
-
-            set
-            {
-                if (value != _firstMaterial)
-                {
-                    _firstMaterial = value;
-                    OnPropertyChanged(nameof(FirstMaterial));
-                }
-            }
+            get => _firstMaterial;
+            set => SetProperty(ref _firstMaterial, value, nameof(FirstMaterial));
         }
-
 
         public int FirstVeins
         {
-            get { return _firstVeins; }
-            set { _firstVeins = value; }
+            get => _firstVeins == 0 ? 1 : _firstVeins;
+            set => _firstVeins = value;
         }
 
-        public int FirstRadius
+        public double FirstRadius
         {
-            get { return _firstRadius; }
-            set { _firstRadius = value; }
+            get => _firstRadius == 0 ? 1 : _firstRadius;
+            set => _firstRadius = value;
         }
 
         public MaterialSelectionModel SecondMaterial
         {
-            get { return _secondMaterial; }
-
-            set
-            {
-                if (value != _secondMaterial)
-                {
-                    _secondMaterial = value;
-                    OnPropertyChanged(nameof(SecondMaterial));
-                }
-            }
+            get => _secondMaterial;
+            set => SetProperty(ref _secondMaterial, value, nameof(SecondMaterial));
         }
 
         public int SecondVeins
         {
-            get { return _secondVeins; }
-            set { _secondVeins = value; }
+            get => _secondVeins == 0 ? 1 : _secondVeins;
+            set => _secondVeins = value;
         }
 
-        public int SecondRadius
+        public double SecondRadius
         {
-            get { return _secondRadius; }
-            set { _secondRadius = value; }
+            get => _secondRadius == 0 ? 1 : _secondRadius;
+            set => _secondRadius = value;
         }
 
         public MaterialSelectionModel ThirdMaterial
         {
-            get { return _thirdMaterial; }
-
+            get => _thirdMaterial;
             set
             {
-                if (value != _thirdMaterial)
+                if (_thirdMaterial != value)
                 {
                     _thirdMaterial = value;
                     OnPropertyChanged(nameof(ThirdMaterial));
@@ -125,23 +136,22 @@
 
         public int ThirdVeins
         {
-            get { return _thirdVeins; }
-            set { _thirdVeins = value; }
+            get => _thirdVeins == 0 ? 1 : _thirdVeins;
+            set => _thirdVeins = value;
         }
 
-        public int ThirdRadius
+        public double ThirdRadius
         {
-            get { return _thirdRadius; }
-            set { _thirdRadius = value; }
+            get => _thirdRadius == 0 ? 1 : _thirdRadius;
+            set => _thirdRadius = value;
         }
 
         public MaterialSelectionModel FourthMaterial
         {
-            get { return _fourthMaterial; }
-
+            get => _fourthMaterial;
             set
             {
-                if (value != _fourthMaterial)
+                if (_fourthMaterial != value)
                 {
                     _fourthMaterial = value;
                     OnPropertyChanged(nameof(FourthMaterial));
@@ -151,22 +161,22 @@
 
         public int FourthVeins
         {
-            get { return _fourthVeins; }
-            set { _fourthVeins = value; }
+            get => _fourthVeins == 0 ? 1 : _fourthVeins;
+            set => _fourthVeins = value;
         }
 
-        public int FourthRadius
+        public double FourthRadius
         {
-            get { return _fourthRadius; }
-            set { _fourthRadius = value; }
+            get => _fourthRadius == 0 ? 1 : _fourthRadius;
+            set => _fourthRadius = value;
         }
 
         public MaterialSelectionModel FifthMaterial
         {
-            get { return _fifthMaterial; }
+            get => _fifthMaterial;
             set
             {
-                if (value != _fifthMaterial)
+                if (_fifthMaterial != value)
                 {
                     _fifthMaterial = value;
                     OnPropertyChanged(nameof(FifthMaterial));
@@ -176,22 +186,22 @@
 
         public int FifthVeins
         {
-            get { return _fifthVeins; }
-            set { _fifthVeins = value; }
+            get => _fifthVeins == 0 ? 1 : _fifthVeins;
+            set => _fifthVeins = value;
         }
 
-        public int FifthRadius
+        public double FifthRadius
         {
-            get { return _fifthRadius; }
-            set { _fifthRadius = value; }
+            get => _fifthRadius == 0 ? 1 : _fifthRadius;
+            set => _fifthRadius = value;
         }
 
         public MaterialSelectionModel SixthMaterial
         {
-            get { return _sixthMaterial; }
+            get => _sixthMaterial;
             set
             {
-                if (value != _sixthMaterial)
+                if (_sixthMaterial != value)
                 {
                     _sixthMaterial = value;
                     OnPropertyChanged(nameof(SixthMaterial));
@@ -201,23 +211,22 @@
 
         public int SixthVeins
         {
-            get { return _sixthVeins; }
-            set { _sixthVeins = value; }
+            get => _sixthVeins == 0 ? 1 : _sixthVeins;
+            set => _sixthVeins = value;
         }
 
-        public int SixthRadius
+        public double SixthRadius
         {
-            get { return _sixthRadius; }
-            set { _sixthRadius = value; }
+            get => _sixthRadius == 0 ? 1 : _sixthRadius;
+            set => _sixthRadius = value;
         }
 
         public MaterialSelectionModel SeventhMaterial
         {
-            get { return _seventhMaterial; }
-
+            get => _seventhMaterial;
             set
             {
-                if (value != _seventhMaterial)
+                if (_seventhMaterial != value)
                 {
                     _seventhMaterial = value;
                     OnPropertyChanged(nameof(SeventhMaterial));
@@ -225,50 +234,122 @@
             }
         }
 
-
         public int SeventhVeins
         {
-            get { return _seventhVeins; }
-            set { _seventhVeins = value; }
+            get => _seventhVeins == 0 ? 1 : _seventhVeins;
+            set => _seventhVeins = value;
         }
 
-        public int SeventhRadius
+        public double SeventhRadius
         {
-            get { return _seventhRadius; }
-            set { _seventhRadius = value; }
+            get => _seventhRadius == 0 ? 1 : _seventhRadius;
+            set => _seventhRadius = value;
+        }
+        public List<VoxelMaterialAssetModel> MaterialsAssets
+        {
+            get => _materialsAssets;
+            set => _materialsAssets = value;
         }
 
         #endregion
 
         public IMyVoxelFillProperties Clone()
         {
-            return new AsteroidSeedFillProperties
+            AsteroidSeedFillProperties clone = (AsteroidSeedFillProperties)MemberwiseClone();
+            clone.Index = Index;
+            clone.VoxelFile = VoxelFile.Clone();
+            var clonedMaterials = new List<MaterialSelectionModel>();
+            foreach (var material in MaterialsList)
             {
-                Index = Index,
-                VoxelFile = VoxelFile,
-                MainMaterial = MainMaterial,
-                FirstMaterial = FirstMaterial,
-                FirstVeins = FirstVeins,
-                FirstRadius = FirstRadius,
-                SecondMaterial = SecondMaterial,
-                SecondVeins = SecondVeins,
-                SecondRadius = SecondRadius,
-                ThirdMaterial = ThirdMaterial,
-                ThirdVeins = ThirdVeins,
-                ThirdRadius = ThirdRadius,
-                FourthMaterial = FourthMaterial,
-                FourthVeins = FourthVeins,
-                FourthRadius = FourthRadius,
-                FifthMaterial = FifthMaterial,
-                FifthVeins = FifthVeins,
-                FifthRadius = FifthRadius,
-                SixthMaterial = SixthMaterial,
-                SixthVeins = SixthVeins,
-                SixthRadius = SixthRadius,
-                SeventhMaterial = SeventhMaterial,
-                SeventhVeins = SeventhVeins,
-                SeventhRadius = SeventhRadius,
-            };
+                clonedMaterials.Add(material.Clone());
+                clone.MaterialsList = [.. clone.MaterialsList.Select(x => x.Clone())];
+            }
+            return clone;
         }
+        
+        static AsteroidSeedFillProperties()
+        {
+            var properties = new AsteroidSeedFillProperties();
+            foreach (var (material, index) in properties.MaterialsList.Select((x, i) => (x, i)))
+            {
+                _materialsData.Add(index, ($"{material}", material, index > 0 ? material.Radius : null, index > 0 ? material.Veins : null));
+            }
+        }
+
+        public static void GetMaterial(int index, MaterialSelectionModel material, int? radius, int? veins)
+        {
+            if (material == null)
+                throw new ArgumentNullException(nameof(material));
+
+            if (index < 0 || index >= MaterialsData.Count)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
+            MaterialsData[index] = ($"{material}", material, radius, veins);
+        }
+
+        /// <summary>
+        /// Retrieves the radius of the material at the specified vein index.
+        /// </summary>
+        /// <param name="index">The index of the vein from which to retrieve the radius.</param>
+        /// <returns>The radius of the material at the specified vein index.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the vein index is invalid.</exception>
+        public static double GetRadius(int index)
+        {
+            var materials = MaterialsData.Select(x => x.Value.Material).ToList();
+            return GetMaterial(index, materials).Radius;
+        }
+      
+        public static MaterialSelectionModel GetMaterial(int index, List<MaterialSelectionModel> materialList)
+        {
+            if (materialList == null)
+                throw new ArgumentNullException(nameof(materialList));
+
+            if (index < 0 || index >= materialList.Count)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
+            return materialList[index];
+        }
+
+        public  int GetVeins(int index, List<MaterialSelectionModel> materialsList)
+        {
+            if (index < 0 || index >= MaterialsList.Count)
+                throw new ArgumentOutOfRangeException(nameof(index), "Invalid vein index: " + index);
+            return materialsList[index].Veins;
+        }
+    
+        public  static void SetMaterial( int index, MaterialSelectionModel material, int? radius, int? veins)
+        {
+            if (material == null)
+                throw new ArgumentNullException(nameof(material));
+
+            if (index < 0 || index >= MaterialsData.Count)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
+            MaterialsData[index] = ($"{material}", material, radius, veins);
+        }
+
+        internal void RandomizeMaterials()
+        {
+            if (MaterialsList == null || MaterialsList.Count == 0)
+                throw new InvalidOperationException(" Materials list is empty or not initialized.");
+
+            var random = new Random();
+            var indices = Enumerable.Range(0, MaterialsList.Count).OrderBy(i => RandomUtil.GetInt(0, MaterialsList.Count)).ToArray();
+
+            var veins = RandomUtil.GetInt((int)(MaterialsData.Select(x => x.Value.Veins).Min() * 0.85),
+                                    (int)(MaterialsData.Select(x => x.Value.Veins).Max() * 1.5 * 0.85));
+            
+            var radius = RandomUtil.GetInt((int)( MaterialsData.Select(x => x.Value.Radius).Min() * 0.85),
+                                     (int)( MaterialsData.Select(x => x.Value.Radius).Max() * 1.5 * 0.85));
+
+            MainMaterial = MaterialsList[indices[0]];
+            var materialIndices = indices.Skip(1).Take(veins).ToArray();
+            foreach (var index in materialIndices)
+            {
+                GetMaterial(index, MaterialsList[index], radius, veins);
+            }
+        }
+        
     }
 }
+

@@ -1,11 +1,11 @@
-﻿namespace SEToolbox.Services
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Diagnostics.Contracts;
+using System.Linq;
+using System.Collections.Generic;
+namespace SEToolbox.Services
 {
-    using System;
-    using System.Collections.ObjectModel;
-    using System.Collections.Specialized;
-    using System.Diagnostics.Contracts;
-    using System.Linq;
-
     // http://stackoverflow.com/questions/1256793/mvvm-sync-collections/2177659#2177659
 
     public class ObservableViewModelCollection<TViewModel, TModel> : ObservableCollection<TViewModel>
@@ -14,77 +14,82 @@
         private readonly Func<TModel, TViewModel> _viewModelFactory;
 
         public ObservableViewModelCollection(ObservableCollection<TModel> source, Func<TModel, TViewModel> viewModelFactory)
-            : base(source == null ? new TViewModel[0] : source.Select(viewModelFactory))
+            : base(source == null ? [] : source.Select(viewModelFactory))
         {
             Contract.Requires(source != null);
             Contract.Requires(viewModelFactory != null);
 
-            this._source = source;
-            this._viewModelFactory = viewModelFactory;
-            if (this._source != null)
-                this._source.CollectionChanged += OnSourceCollectionChanged;
+            _source = source;
+            _viewModelFactory = viewModelFactory;
+            if (_source != null)
+                _source.CollectionChanged += OnSourceCollectionChanged;
         }
 
         ~ObservableViewModelCollection()
         {
-            if (this._source != null)
-                this._source.CollectionChanged -= OnSourceCollectionChanged;
+                _source?.CollectionChanged -= OnSourceCollectionChanged;
         }
 
-        protected virtual TViewModel CreateViewModel(TModel model)
-        {
-            return _viewModelFactory(model);
-        }
+        protected virtual TViewModel CreateViewModel(TModel model) => _viewModelFactory(model);
+        
 
         private void OnSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
+            int newIndex = e.NewStartingIndex;
+            int oldIndex = e.OldStartingIndex;
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    for (var i = 0; i < e.NewItems.Count; i++)
-                    {
-                        this.Insert(e.NewStartingIndex + i, CreateViewModel((TModel)e.NewItems[i]));
-                    }
+                    var viewModelsToAdd = e.NewItems.Cast<TModel>().Select(CreateViewModel);
+                    InsertNewIndex(newIndex, viewModelsToAdd, e);
                     break;
 
                 case NotifyCollectionChangedAction.Move:
-                    if (e.OldItems.Count == 1)
-                    {
-                        this.Move(e.OldStartingIndex, e.NewStartingIndex);
-                    }
-                    else
-                    {
-                        var items = this.Skip(e.OldStartingIndex).Take(e.OldItems.Count).ToList();
-                        for (var i = 0; i < e.OldItems.Count; i++)
-                            this.RemoveAt(e.OldStartingIndex);
-
-                        for (var i = 0; i < items.Count; i++)
-                            this.Insert(e.NewStartingIndex + i, items[i]);
-                    }
+                    var itemsToMove = this.Skip(oldIndex).Take(e.OldItems.Count).ToList();
+                    RemoveOld(oldIndex, e);
+                    InsertNewIndex(newIndex, itemsToMove, e);
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
-                    for (var i = 0; i < e.OldItems.Count; i++)
-                        this.RemoveAt(e.OldStartingIndex);
+                    RemoveOld(oldIndex, e);
                     break;
-
                 case NotifyCollectionChangedAction.Replace:
-                    // remove
-                    for (var i = 0; i < e.OldItems.Count; i++)
-                        this.RemoveAt(e.OldStartingIndex);
-
-                    // add
-                    goto case NotifyCollectionChangedAction.Add;
+                    RemoveOld(oldIndex, e);
+                    var viewModelsToReplace = e.NewItems.Cast<TModel>().Select(CreateViewModel);
+                    InsertNewIndex(newIndex, viewModelsToReplace, e);
+                    break;
 
                 case NotifyCollectionChangedAction.Reset:
-                    this.Clear();
-                    for (var i = 0; i < e.NewItems.Count; i++)
-                        this.Add(CreateViewModel((TModel)e.NewItems[i]));
+                    {
+                        Clear();
+                        if (e.NewItems.Count > 0)
+                        {
+                            var viewModels = e.NewItems.Cast<TModel>().Select(CreateViewModel);
+                            AddViewModel(viewModels, e);
+                        }
+                    }
                     break;
-
                 default:
                     break;
             }
+        }
+        private void RemoveOld(int oldIndex, NotifyCollectionChangedEventArgs e)
+        {
+            for (int i = 0; i < e.OldItems.Count; i++)
+                RemoveAt(oldIndex);
+        }
+
+        private void InsertNewIndex(int newIndex, IEnumerable<TViewModel> viewModels, NotifyCollectionChangedEventArgs e)
+        {
+            foreach (var viewModel in viewModels)
+                
+                Insert(newIndex++, viewModel);
+
+        }
+        private void AddViewModel(IEnumerable<TViewModel> viewModels, NotifyCollectionChangedEventArgs e)
+        {
+            foreach (var viewModel in viewModels)
+                    Add(viewModel);
         }
     }
 }

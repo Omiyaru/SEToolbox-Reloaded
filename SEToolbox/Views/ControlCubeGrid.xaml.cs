@@ -1,7 +1,8 @@
-﻿namespace SEToolbox.Views
-{
-    using System.Windows.Controls;
+﻿using System.Windows.Controls;
+using SEToolbox.Controls;
 
+namespace SEToolbox.Views
+{
     /// <summary>
     /// Interaction logic for ControlCubeGrid.xaml
     /// </summary>

@@ -1,10 +1,9 @@
-﻿namespace SEToolbox.Models
+﻿using System.Collections.ObjectModel;
+using SEToolbox.Interfaces;
+using VRageMath;
+
+namespace SEToolbox.Models
 {
-    using System.Collections.ObjectModel;
-
-    using SEToolbox.Interfaces;
-    using VRageMath;
-
     public class GroupMoveModel : BaseModel
     {
         #region Fields
@@ -23,10 +22,12 @@
         private bool _isSinglePosition;
 
         private bool _isBusy;
+        internal bool _isRelativePosition;
+        private Vector3D _centerPosition;
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public GroupMoveModel()
         {
@@ -41,19 +42,8 @@
 
         public ObservableCollection<GroupMoveItemModel> Selections
         {
-            get
-            {
-                return _selections;
-            }
-
-            set
-            {
-                if (value != _selections)
-                {
-                    _selections = value;
-                    OnPropertyChanged(nameof(Selections));
-                }
-            }
+            get => _selections;
+            set => SetProperty(ref _selections, value, nameof(Selections));
         }
 
         /// <summary>
@@ -61,172 +51,89 @@
         /// </summary>
         public bool IsBusy
         {
-            get
+            get => _isBusy;
+            set 
             {
-                return _isBusy;
-            }
-
-            set
-            {
-                if (value != _isBusy)
-                {
-                    _isBusy = value;
-                    OnPropertyChanged(nameof(IsBusy));
+                 SetProperty(ref _isBusy, value, nameof(IsBusy));
+           
                     if (_isBusy)
                     {
                         System.Windows.Forms.Application.DoEvents();
                     }
-                }
+             
             }
         }
 
         public float GlobalOffsetPositionX
         {
-            get
-            {
-                return _globalOffsetPositionX;
-            }
-
-            set
-            {
-                if (value != _globalOffsetPositionX)
-                {
-                    _globalOffsetPositionX = value;
-                    OnPropertyChanged(nameof(GlobalOffsetPositionX));
-                }
-            }
+            get => _globalOffsetPositionX;
+            set => SetProperty(ref _globalOffsetPositionX, value, nameof(GlobalOffsetPositionX));
         }
 
         public float GlobalOffsetPositionY
         {
-            get
-            {
-                return _globalOffsetPositionY;
-            }
-
-            set
-            {
-                if (value != _globalOffsetPositionY)
-                {
-                    _globalOffsetPositionY = value;
-                    OnPropertyChanged(nameof(GlobalOffsetPositionY));
-                }
-            }
+            get => _globalOffsetPositionY;
+            set => SetProperty(ref _globalOffsetPositionY, value, nameof(GlobalOffsetPositionY));
         }
 
         public float GlobalOffsetPositionZ
         {
-            get
-            {
-                return _globalOffsetPositionZ;
-            }
-
-            set
-            {
-                if (value != _globalOffsetPositionZ)
-                {
-                    _globalOffsetPositionZ = value;
-                    OnPropertyChanged(nameof(GlobalOffsetPositionZ));
-                }
-            }
+            get => _globalOffsetPositionZ;
+            set => SetProperty(ref _globalOffsetPositionZ, value, nameof(GlobalOffsetPositionZ));
         }
 
         public bool IsGlobalOffsetPosition
         {
-            get
-            {
-                return _isGlobalOffsetPosition;
-            }
-
-            set
-            {
-                if (value != _isGlobalOffsetPosition)
-                {
-                    _isGlobalOffsetPosition = value;
-                    OnPropertyChanged(nameof(IsGlobalOffsetPosition));
-                }
-            }
+            get => _isGlobalOffsetPosition;
+            set => SetProperty(ref _isGlobalOffsetPosition, value, nameof(IsGlobalOffsetPosition));
         }
 
         public float SinglePositionX
         {
-            get
-            {
-                return _singlePositionX;
-            }
-
-            set
-            {
-                if (value != _singlePositionX)
-                {
-                    _singlePositionX = value;
-                    OnPropertyChanged(nameof(SinglePositionX));
-                }
-            }
+            get => _singlePositionX;
+            set => SetProperty(ref _singlePositionX, value, nameof(SinglePositionX));
         }
 
         public float SinglePositionY
         {
-            get
-            {
-                return _singlePositionY;
-            }
-
-            set
-            {
-                if (value != _singlePositionY)
-                {
-                    _singlePositionY = value;
-                    OnPropertyChanged(nameof(SinglePositionY));
-                }
-            }
+            get => _singlePositionY;
+            set => SetProperty(ref _singlePositionY, value, nameof(SinglePositionY));
         }
 
         public float SinglePositionZ
         {
-            get
-            {
-                return _singlePositionZ;
-            }
-
-            set
-            {
-                if (value != _singlePositionZ)
-                {
-                    _singlePositionZ = value;
-                    OnPropertyChanged(nameof(SinglePositionZ));
-                }
-            }
+            get => _singlePositionZ;
+            set => SetProperty(ref _singlePositionZ, value, nameof(SinglePositionZ));
         }
 
         public bool IsSinglePosition
         {
-            get
-            {
-                return _isSinglePosition;
-            }
-
-            set
-            {
-                if (value != _isSinglePosition)
-                {
-                    _isSinglePosition = value;
-                    OnPropertyChanged(nameof(IsSinglePosition));
-                }
-            }
+            get => _isSinglePosition;
+            set => SetProperty(ref _isSinglePosition, value, nameof(IsSinglePosition));
         }
 
+        public Vector3D CenterPosition
+        {
+            get => _centerPosition;
+            set => SetProperty(ref _centerPosition, value, nameof(CenterPosition));
+        }
+
+        public bool IsRelativePosition
+        {
+            get => _isRelativePosition;
+            set => SetProperty(ref _isRelativePosition, value, nameof(IsRelativePosition));
+        }
+       
         #endregion
 
-        #region methods
-
-        public void Load(ObservableCollection<IStructureViewBase> selections, Vector3D playerPosition)
+        #region Methods
+        public void Load(ObservableCollection<IStructureViewBase> selections, Vector3D playerPosition, bool IsRelativePosition = false, Vector3D centerPosition = default)
         {
-            Selections = new ObservableCollection<GroupMoveItemModel>();
+            Selections = [];
             _playerPosition = playerPosition;
             IsGlobalOffsetPosition = true;
 
-            foreach (var selection in selections)
+            foreach (IStructureViewBase selection in selections)
             {
                 Selections.Add(new GroupMoveItemModel
                 {
@@ -237,15 +144,49 @@
                     PlayerDistance = selection.DataModel.PlayerDistance
                 });
             }
+
+            if (IsRelativePosition)
+            {
+                // Calculate the center of the group
+                Vector3D Center = CalculateGroupCenter(centerPosition);
+
+                // Move the group itself to a new position
+                foreach (GroupMoveItemModel item in Selections)
+                {
+                    if (item == null)
+                        continue;
+
+                    item.PositionX = item.PositionX + centerPosition.X - Center.X;
+                    item.PositionY = item.PositionY + centerPosition.Y - Center.Y;
+                    item.PositionZ = item.PositionZ + centerPosition.Z - Center.Z;
+                }
+            }
         }
+        public Vector3D CalculateGroupCenter( Vector3D centerPosition)
+        {
+            if (Selections == null || Selections.Count == 0)
+                return centerPosition;
+
+            Vector3D center = Vector3D.Zero;
+            foreach (GroupMoveItemModel item in Selections)
+            {
+                if (item == null)
+                    continue;
+
+                center += new Vector3D(item.PositionX, item.PositionY, item.PositionZ);
+            }
+            center /= Selections.Count;
+            return center;
+        }
+
 
         #endregion
 
-        #region helpers
+        #region Helpers
 
         public void CalcOffsetDistances()
         {
-            foreach (var selection in Selections)
+            foreach (GroupMoveItemModel selection in Selections)
             {
                 if (IsGlobalOffsetPosition)
                 {
@@ -263,13 +204,27 @@
                     selection.PositionZ = SinglePositionZ;
                 }
 
-                selection.PlayerDistance = (_playerPosition - new Vector3D(selection.PositionX, selection.PositionY, selection.PositionZ)).Length();
+                if (IsRelativePosition)
+                {
+                    foreach (GroupMoveItemModel item in Selections)
+                    {
+                        if (selection.Item.DataModel != null)
+                        {
+                            item.PositionX = selection.Item.DataModel.PositionX = CenterPosition.X;
+                            item.PositionY = selection.Item.DataModel.PositionY = CenterPosition.Y;
+                            selection.PositionZ = selection.Item.DataModel.PositionX = CenterPosition.Z;
+                        }
+
+                        selection.PlayerDistance = (_playerPosition - new Vector3D(selection.PositionX, selection.PositionY, selection.PositionZ)).Length();
+
+                    }
+                }
             }
         }
 
         public void ApplyNewPositions()
         {
-            foreach (var selection in Selections)
+            foreach (GroupMoveItemModel selection in Selections)
             {
                 selection.Item.DataModel.PositionX = selection.PositionX;
                 selection.Item.DataModel.PositionY = selection.PositionY;

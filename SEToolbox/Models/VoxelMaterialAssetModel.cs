@@ -1,7 +1,8 @@
-﻿namespace SEToolbox.Models
-{
-    using System;
+﻿using System;
 
+
+namespace SEToolbox.Models
+{
     [Serializable]
     public class VoxelMaterialAssetModel : BaseModel
     {
@@ -22,72 +23,32 @@
         /// </summary>
         public string MaterialName
         {
-            get { return _materialName; }
-
-            set
-            {
-                if (value != _materialName)
-                {
-                    _materialName = value;
-                    OnPropertyChanged(nameof(MaterialName));
-                }
-            }
+            get => _materialName;
+            set => SetProperty(ref _materialName, value, nameof(MaterialName));
         }
 
         public string DisplayName
         {
-            get { return _displayName; }
-
-            set
-            {
-                if (value != _displayName)
-                {
-                    _displayName = value;
-                    OnPropertyChanged(nameof(DisplayName));
-                }
-            }
+            get => _displayName;
+            set => SetProperty(ref _displayName, value, nameof(DisplayName));
         }
 
         public double Volume
         {
-            get { return _volume; }
-
-            set
-            {
-                if (value != _volume)
-                {
-                    _volume = value;
-                    OnPropertyChanged(nameof(Volume));
-                }
-            }
+            get => _volume;
+            set => SetProperty(ref _volume, value, nameof(Volume));
         }
 
         public double Percent
         {
-            get { return _percent; }
-
-            set
-            {
-                if (value != _percent)
-                {
-                    _percent = value;
-                    OnPropertyChanged(nameof(Percent));
-                }
-            }
+            get => _percent;
+            set => SetProperty(ref _percent, value, nameof(Percent));
         }
 
         public string TextureFile
         {
-            get { return _textureFile; }
-
-            set
-            {
-                if (value != _textureFile)
-                {
-                    _textureFile = value;
-                    OnPropertyChanged(nameof(TextureFile));
-                }
-            }
+            get => _textureFile;
+            set => SetProperty(ref _textureFile, value, nameof(TextureFile));
         }
 
         #endregion

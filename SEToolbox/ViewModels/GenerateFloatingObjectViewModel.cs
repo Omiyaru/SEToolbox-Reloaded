@@ -1,18 +1,21 @@
-﻿namespace SEToolbox.ViewModels
-{
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Windows.Input;
-    using System.Windows.Media.Media3D;
-    using Sandbox.Common.ObjectBuilders.Definitions;
-    using SEToolbox.Interop;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-    using VRage;
-    using VRage.Game;
-    using VRage.ObjectBuilders;
-    using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
+using System.Windows.Media.Media3D;
+using Sandbox.Common.ObjectBuilders.Definitions;
+using SEToolbox.Interop;
+using SEToolbox.Models;
+using SEToolbox.Services;
+using VRage;
+using VRage.Game;
+using VRage.ObjectBuilders;
+using MOBTypeIds = SEToolbox.Interop.SpaceEngineersTypes.MOBTypeIds;
+using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
+using VRage.Network;
 
+namespace SEToolbox.ViewModels
+{
     public class GenerateFloatingObjectViewModel : BaseViewModel
     {
         #region Fields
@@ -23,7 +26,7 @@
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public GenerateFloatingObjectViewModel(BaseViewModel parentViewModel, GenerateFloatingObjectModel dataModel)
             : base(parentViewModel)
@@ -36,16 +39,16 @@
 
         #endregion
 
-        #region command properties
+        #region Command Properties
 
         public ICommand CreateCommand
         {
-            get { return new DelegateCommand(CreateExecuted, CreateCanExecute); }
+            get => new DelegateCommand(CreateExecuted, CreateCanExecute);
         }
 
         public ICommand CancelCommand
         {
-            get { return new DelegateCommand(CancelExecuted, CancelCanExecute); }
+            get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         #endregion
@@ -57,31 +60,23 @@
         /// </summary>
         public bool? CloseResult
         {
-            get
-            {
-                return _closeResult;
-            }
-
+            get => _closeResult;
             set
-            {
-                _closeResult = value;
-                OnPropertyChanged(nameof(CloseResult));
+                {
+                    _closeResult = value;
+                    OnPropertyChanged(nameof(CloseResult));
+                }
             }
-        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the View is currently in the middle of an asynchonise operation.
         /// </summary>
         public bool IsBusy
         {
-            get
-            {
-                return _isBusy;
-            }
-
+            get  => _isBusy;
             set
             {
-                if (value != _isBusy)
+                if (_isBusy != value)
                 {
                     _isBusy = value;
                     OnPropertyChanged(nameof(IsBusy));
@@ -95,160 +90,90 @@
 
         public ObservableCollection<ComponentItemModel> StockItemList
         {
-            get
-            {
-                return _dataModel.StockItemList;
+            get => _dataModel.StockItemList;
             }
-        }
-
         public ComponentItemModel StockItem
         {
-            get
-            {
-                return _dataModel.StockItem;
-            }
+            get =>  _dataModel.StockItem;
 
-            set
-            {
-                _dataModel.StockItem = value;
-            }
+            set =>  _dataModel.StockItem = value;
         }
 
         public bool IsValidItemToImport
         {
-            get
-            {
-                return _dataModel.IsValidItemToImport;
-            }
+            get => _dataModel.IsValidItemToImport;
 
-            set
-            {
-                _dataModel.IsValidItemToImport = value;
-            }
+            set =>  _dataModel.IsValidItemToImport = value;
         }
 
         public double? Volume
         {
-            get
-            {
-                return _dataModel.Volume;
-            }
+            get => _dataModel.Volume;
 
-            set
-            {
-                _dataModel.Volume = value;
-            }
+            set => _dataModel.Volume = value;
         }
 
         public double? Mass
         {
-            get
-            {
-                return _dataModel.Mass;
-            }
+            get => _dataModel.Mass;
 
-            set
-            {
-                _dataModel.Mass = value;
-            }
+            set => _dataModel.Mass = value;
         }
 
         public int? Units
         {
-            get
-            {
-                return _dataModel.Units;
-            }
+            get => _dataModel.Units;
 
-            set
-            {
-                _dataModel.Units = value;
-            }
+            set => _dataModel.Units = value;
         }
 
         public decimal? DecimalUnits
         {
-            get
-            {
-                return _dataModel.DecimalUnits;
-            }
+            get => _dataModel.DecimalUnits;
 
-            set
-            {
-                _dataModel.DecimalUnits = value;
-            }
+            set =>  _dataModel.DecimalUnits = value;
         }
 
         public bool IsDecimal
         {
-            get
-            {
-                return _dataModel.IsDecimal;
-            }
+            get => _dataModel.IsDecimal;
 
-            set
-            {
-                _dataModel.IsDecimal = value;
-            }
+            set =>  _dataModel.IsDecimal = value;
         }
 
         public bool IsInt
         {
-            get
-            {
-                return _dataModel.IsInt;
-            }
+            get => _dataModel.IsInt;
 
-            set
-            {
-                _dataModel.IsInt = value;
-            }
+            set =>  _dataModel.IsInt = value;
         }
 
         public bool IsUnique
         {
-            get
-            {
-                return _dataModel.IsUnique;
-            }
+            get => _dataModel.IsUnique;
 
-            set
-            {
-                _dataModel.IsUnique = value;
-            }
+            set =>  _dataModel.IsUnique = value;
         }
 
         public int Multiplier
         {
-            get
-            {
-                return _dataModel.Multiplier;
-            }
+            get => _dataModel.Multiplier;
 
-            set
-            {
-                _dataModel.Multiplier = value;
-            }
+            set => _dataModel.Multiplier = value;
         }
 
         public float MaxFloatingObjects
         {
-            get
-            {
-                return _dataModel.MaxFloatingObjects;
-            }
-
-            set
-            {
-                _dataModel.MaxFloatingObjects = value;
-            }
+            get => _dataModel.MaxFloatingObjects;
+            set => _dataModel.MaxFloatingObjects = value;
         }
+    
 
         #endregion
 
-        #region methods
+        #region Methods
 
-        #region commands
+        #region Commands
 
         public bool CreateCanExecute()
         {
@@ -279,67 +204,54 @@
 
         public MyObjectBuilder_EntityBase[] BuildEntities()
         {
-            var entity = new MyObjectBuilder_FloatingObject
+            MyObjectBuilder_FloatingObject entity = new()
             {
                 EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ENTITY),
                 PersistentFlags = MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.InScene,
                 Item = new MyObjectBuilder_InventoryItem { ItemId = 0 },
             };
-
-            if (IsDecimal && DecimalUnits.HasValue)
-                entity.Item.Amount = DecimalUnits.Value.ToFixedPoint();
-            else if (IsInt && Units.HasValue)
-                entity.Item.Amount = Units.Value.ToFixedPoint();
-            else if (IsUnique)
-                entity.Item.Amount = GenerateFloatingObjectModel.UniqueUnits.ToFixedPoint();
-            else
-                entity.Item.Amount = 1;
+            entity.Item.Amount = IsDecimal && DecimalUnits.HasValue ? DecimalUnits.Value.ToFixedPoint() :
+                                     IsInt && Units.HasValue ? Units.Value.ToFixedPoint() :
+                                IsUnique ? GenerateFloatingObjectModel.UniqueUnits.ToFixedPoint() : 1;
 
             IsValidItemToImport = true;
-            entity.Item.PhysicalContent = SpaceEngineersCore.Resources.CreateNewObject<MyObjectBuilder_PhysicalObject>(StockItem.TypeId, StockItem.SubtypeId);
+            entity.Item.PhysicalContent = SpaceEngineersResources.CreateNewObject<MyObjectBuilder_PhysicalObject>(StockItem.TypeId, StockItem.SubtypeId);
 
-            var gasContainer = entity.Item.PhysicalContent as MyObjectBuilder_GasContainerObject;
-            if (gasContainer != null)
-                gasContainer.GasLevel = 1f;
 
-            //switch (StockItem.TypeId)
-            //{
-            //    case MyObjectBuilderTypeEnum.Component:
-            //    case MyObjectBuilderTypeEnum.Ingot:
-            //    case MyObjectBuilderTypeEnum.Ore:
-            //    case MyObjectBuilderTypeEnum.AmmoMagazine:
-            //        break;
+             /// <summary> See <see cref="Interop.SpaceEngineersTypeIds"/> for a list of all possible types.</summary
+          switch (StockItem.TypeId)
+           
+        
+            {
+              case var t when t == MOBTypeIds.Component:
+                break;
+                case var t when t == MOBTypeIds.AmmoMagazine:
+                break;
+              case var t when t == MOBTypeIds.Ingot:
+                break;
+            
+            case var t when t == MOBTypeIds.Ore:
+                break;
+              case var t  when t == MOBTypeIds.PhysicalGunObject: CreateGunEntity(entity); // MyObjectBuilder_PhysicalGunObject
+                    break;
+              case var t when t == MOBTypeIds.GasContainerObject: MyObjectBuilder_GasContainerObject gasContainer = entity.Item.PhysicalContent as MyObjectBuilder_GasContainerObject;
+                    _ = (gasContainer?.GasLevel = 1f); // MyObjectBuilder_GasContainerObject
 
-            //    case MyObjectBuilderTypeEnum.PhysicalGunObject:
-            //        // The GunEntity appears to make each 'GunObject' unique through the definition of an EntityId.
-            //        // This means, you can't stack them.
-            //        // Ownership does not appear to be required at this stage.
-
-            //  ###  Only required for pre-generating the Entity id for a gun that has been handled.  ####
-            //        // This is a hack approach, to find the Enum from a SubtypeName like "AngleGrinderItem".
-            //        var enumName = StockItem.SubtypeId.Substring(0, StockItem.SubtypeId.Length - 4);
-            //        MyObjectBuilderTypeEnum itemEnum;
-            //        if (Enum.TryParse<MyObjectBuilderTypeEnum>(enumName, out itemEnum))
-            //        {
-            //            var gunEntity = MyObjectBuilder_Base.CreateNewObject(itemEnum) as MyObjectBuilder_EntityBase;
-            //            gunEntity.EntityId = SpaceEngineersAPI.GenerateEntityId();
-            //            gunEntity.PersistentFlags = MyPersistentEntityFlags2.None;
-            //            ((MyObjectBuilder_PhysicalGunObject)entity.Item.PhysicalContent).GunEntity = gunEntity;
-            //        }
-            //        break;
-
-            //    default:
-            //        // As yet uncatered for items which may be new.
-            //        IsValidItemToImport = false;
-            //        break;
-            //}
+               break;
+              case var t when t == MOBTypeIds.OxygenContainerObject:
+               break; // MyObjectBuilder_OxygenContainerObject
+                default:
+                    // As yet uncatered for items which may be new.
+                    IsValidItemToImport = false;
+                    break;
+            }
 
             // Figure out where the Character is facing, and plant the new construct 1m out in front, and 1m up from the feet, facing the Character.
-            var vectorFwd = _dataModel.CharacterPosition.Forward.ToVector3D();
-            var vectorUp = _dataModel.CharacterPosition.Up.ToVector3D();
+            Vector3D vectorFwd = _dataModel.CharacterPosition.Forward.ToVector3D();
+            Vector3D vectorUp = _dataModel.CharacterPosition.Up.ToVector3D();
             vectorFwd.Normalize();
             vectorUp.Normalize();
-            var vector = Vector3D.Multiply(vectorFwd, 1.0f) + Vector3D.Multiply(vectorUp, 1.0f);
+            Vector3D vector = Vector3D.Multiply(vectorFwd, 1.0f) + Vector3D.Multiply(vectorUp, 1.0f);
 
             entity.PositionAndOrientation = new MyPositionAndOrientation
             {
@@ -348,24 +260,41 @@
                 Up = _dataModel.CharacterPosition.Up
             };
 
-            var entities = new List<MyObjectBuilder_EntityBase>();
+            List<MyObjectBuilder_EntityBase> entities = [];
 
-            for (var i = 0; i < Multiplier; i++)
+            for (int i = 0; i < Multiplier; i++)
             {
-                var newEntity = (MyObjectBuilder_FloatingObject)entity.Clone();
+                MyObjectBuilder_FloatingObject newEntity = (MyObjectBuilder_FloatingObject)entity.Clone();
                 newEntity.EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
-                //if (StockItem.TypeId == SpaceEngineersConsts.PhysicalGunObject)
-                //{
-                //    Only required for pre-generating the Entity id for a gun that has been handled.
-                //    ((MyObjectBuilder_PhysicalGunObject)entity.Item.PhysicalContent).GunEntity.EntityId = SpaceEngineersAPI.GenerateEntityId();
-                //}
+                if (StockItem.TypeId == MOBTypeIds.PhysicalGunObject)
+                {
+                    // Only required for pre-generating the Entity id for a gun that has been handled.
+                    ((MyObjectBuilder_PhysicalGunObject)newEntity.Item.PhysicalContent).GunEntity.EntityId = SpaceEngineersApi.GenerateEntityId();
+                }
                 entities.Add(newEntity);
             }
 
-            return entities.ToArray();
+             return [.. entities];
         }
 
-        #endregion
+            // GunEntity makes each 'GunObject' unique through EntityId, so no stacking,
+        // and no ownership required. Only need to pre-generate EntityId for handled guns.
+        // This is a hack approach for enums like AngleGrinderItem
+        void CreateGunEntity(MyObjectBuilder_FloatingObject entity){
+
+            string enumName = StockItem.SubtypeId.Substring(0, StockItem.SubtypeId.Length - 4);
+            if (Enum.TryParse(enumName, out MyObjectBuilderType itemEnum))
+            {
+                var gunEntity = SpaceEngineersResources.CreateNewObject<MyObjectBuilder_EntityBase>(itemEnum, StockItem.SubtypeId);
+                {
+                    gunEntity.EntityId = SpaceEngineersApi.GenerateEntityId();
+                    gunEntity.PersistentFlags = MyPersistentEntityFlags2.None;
+                    ((MyObjectBuilder_PhysicalGunObject)entity.Item.PhysicalContent).GunEntity = gunEntity;
+                }
+            }
+            #endregion
+
+        }
 
         #endregion
     }

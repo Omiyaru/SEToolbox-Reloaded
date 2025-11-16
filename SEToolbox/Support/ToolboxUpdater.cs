@@ -1,21 +1,20 @@
-﻿namespace SEToolbox.Support
+using Microsoft.Win32;
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Security.Principal;
+
+using static SEToolbox.Support.Conditional;
+namespace SEToolbox.Support
 {
-    using System;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.Security.Principal;
-
-    using Microsoft.Win32;
-
     public static class ToolboxUpdater
     {
-        /// <summary>
-        /// Required dependancies which must be copied for SEToolbox to work.
-        /// </summary>
-        internal static readonly string[] CoreSpaceEngineersFiles = {
+        internal static readonly string[] RequiredAssemblies = [
             "HavokWrapper.dll",                 // x64
             "ProtoBuf.Net.dll",                 // 1.192.x requirement.
             "ProtoBuf.Net.Core.dll",            // 1.192.x requirement.
@@ -50,6 +49,7 @@
             "VRage.Scripting.dll",              // x64     1.197.x requirement.
             "VRage.Steam.dll",                  // x64     1.188.x requirement.
             "Steamworks.NET.dll",               // x64     1.188.x requirement.
+           // "System.Data.SQLite.dll",           // AnyCPU  1.171.x requirement
             "System.Buffers.dll",
             "System.ComponentModel.Annotations.dll",
             "System.Collections.Immutable.dll", // AnyCPU  1.194.x requirement
@@ -60,12 +60,18 @@
             "EmptyKeys.UserInterface.Core.dll",
             "SixLabors.Core.dll",
             "SixLabors.ImageSharp.dll"
-        };
+            ];
 
-        internal static readonly string[] OptionalSpaceEngineersFiles = {
+
+        /// <summary>
+        /// Required dependancies which must be copied for SEToolbox to work.
+        /// </summary>
+        internal static readonly string[] CoreSpaceEngineersFiles = RequiredAssemblies;
+
+        internal static readonly string[] OptionalSpaceEngineersFiles = [
             "msvcp120.dll",                     // VRage.Native dependancy.  // testing dropping it these. Keen may have made a mistake by removing them from DS deployment.
             "msvcr120.dll",                     // VRage.Native dependancy.
-        };
+        ];
 
         //internal static readonly string[] CoreMedievalEngineersFiles = {
         //    "Sandbox.Common.dll",
@@ -110,22 +116,21 @@
         /// <returns></returns>
         public static string GetGameRegistryFilePath()
         {
-            RegistryKey key;
-
+            string keypath = @"SOFTWARE\" + (@"Wow6432Node\" ?? null) + @"Microsoft\Windows\CurrentVersion\Uninstall\Steam App 244850";
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(keypath, false);
             if (Environment.Is64BitProcess)
-                key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 244850", false);
-            else
-                key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 244850", false);
+                key = Registry.LocalMachine.OpenSubKey(keypath, false);
 
             if (key != null)
                 return key.GetValue("InstallLocation") as string;
 
             // Backup check, but no choice if the above goes to pot.
             // Using the [Software\Valve\Steam\SteamPath] as a base for "\steamapps\common\SpaceEngineers", is unreliable, as the Steam Library is customizable and could be on another drive and directory.
-            var steamPath = GetSteamFilePath();
-
+            string steamPath = GetSteamFilePath();
             if (!string.IsNullOrEmpty(steamPath))
-                return Path.Combine(steamPath, @"SteamApps\common\SpaceEngineers");
+            {
+                return Path.Combine(steamPath, @"SteamApps\common\SpaceEngineers" ?? @"steamapps\common\SpaceEngineers");
+            }
 
             return null;
         }
@@ -142,18 +147,19 @@
         public static string GetSteamFilePath()
         {
             RegistryKey key;
+            string keypath = @"SOFTWARE\" + (@"Wow6432Node\" ?? null) + @"\Valve\Steam";
 
             if (Environment.Is64BitProcess)
-                key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Wow6432Node\Valve\Steam", false);
-            else
-                key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Valve\Steam", false);
+            {
+                key = Registry.LocalMachine.OpenSubKey(keypath, false);
 
-            if (key != null)
-                return (string)key.GetValue("InstallPath");
-
+                if (key != null)
+                {
+                    return (string)key.GetValue("InstallPath");
+                }
+            }
             return null;
         }
-
         #endregion
 
         #region IsSpaceEngineersInstalled
@@ -161,23 +167,23 @@
         /// <summary>
         /// Checks for key directory names from the game bin folder.
         /// </summary>
-        /// <param name="filePath"></param>
+        /// <param name="installationPath"></param>
         /// <returns></returns>
-        public static bool ValidateSpaceEngineersInstall(string filePath)
+
+        public static bool ValidateSpaceEngineersInstall(string installationPath)
         {
-            if (string.IsNullOrEmpty(filePath))
-                return false;
+            const string executableName = "SpaceEngineers.exe";
+            const string contentPath = @"..\Content";
 
-            if (!Directory.Exists(filePath))
+            if (string.IsNullOrWhiteSpace(installationPath)
+                && string.IsNullOrEmpty(installationPath)
+                && !Directory.Exists(installationPath)
+                && !Directory.Exists(Path.Combine(installationPath, contentPath))
+                && CoreSpaceEngineersFiles.Any(fileName => !File.Exists(Path.Combine(installationPath, fileName)))
+                && !File.Exists(Path.Combine(executableName)))
+            {
                 return false;
-
-            if (!Directory.Exists(Path.Combine(filePath, @"..\Content")))
-                return false;
-
-            // Validate that all core SE assemblies are present, otherwise it's pointless continuing.
-            if (CoreSpaceEngineersFiles.Any(filename => !File.Exists(Path.Combine(filePath, filename))))
-                return false;
-
+            }
             // Skip checking for the .exe. Not required for the Toolbox currently.
             return true;
         }
@@ -188,12 +194,15 @@
 
         public static bool IsBaseAssembliesChanged()
         {
-            var baseFilePath = GetApplicationFilePath();
-            var appFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            string baseFilePath = GetApplicationFilePath();
+            string appFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
-            foreach (var filename in CoreSpaceEngineersFiles)
+            foreach (var fileName in CoreSpaceEngineersFiles)
             {
-                if (DoFilesDiffer(baseFilePath, appFilePath, filename))
+                string baseFile = Path.Combine(baseFilePath, fileName);
+                string appFile = Path.Combine(appFilePath, fileName);
+
+                if (DoFilesDiffer(baseFile, appFile))
                     return true;
             }
 
@@ -202,25 +211,22 @@
 
         public static bool UpdateBaseFiles()
         {
-            var baseFilePath = GetApplicationFilePath();
-            var appFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            string baseFilePath = GetApplicationFilePath();
+            string appFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
-            foreach (var filename in CoreSpaceEngineersFiles)
+            var requiredFiles = new HashSet<string>(CoreSpaceEngineersFiles.Concat(OptionalSpaceEngineersFiles), StringComparer.OrdinalIgnoreCase);
+            var existingFiles = new HashSet<string>(Directory.EnumerateFiles(baseFilePath, "*.dll", SearchOption.TopDirectoryOnly)
+                                                             .Select(f => Path.GetFileName(f)));
+
+            var filesToCopy = requiredFiles
+                            .Where(f => !existingFiles.Contains(f))
+                            .Select(f => new { Source = Path.Combine(appFilePath, f), Destination = Path.Combine(baseFilePath, f) })
+                            .ToList();
+            foreach (var file in filesToCopy)
             {
-                var sourceFile = Path.Combine(baseFilePath, filename);
-
-                if (File.Exists(sourceFile))
-                    File.Copy(sourceFile, Path.Combine(appFilePath, filename), true);
+                  File.Copy(file.Source, file.Destination, true);
             }
-
-            foreach (var filename in OptionalSpaceEngineersFiles)
-            {
-                var sourceFile = Path.Combine(baseFilePath, filename);
-
-                if (File.Exists(sourceFile))
-                    File.Copy(sourceFile, Path.Combine(appFilePath, filename), true);
-            }
-
+                
             return true;
         }
 
@@ -228,55 +234,68 @@
 
         #region DoFilesDiffer
 
-        public static bool DoFilesDiffer(string directory1, string directory2, string filename)
+        public static bool DoFilesDiffer(string directoryA, string directoryB, string fileName)
         {
-            return DoFilesDiffer(Path.Combine(directory1, filename), Path.Combine(directory2, filename));
+            return DoFilesDiffer(Path.Combine(directoryA, fileName), Path.Combine(directoryB, fileName));
         }
 
-        public static bool DoFilesDiffer(string file1, string file2)
+        /// <summary> 
+        /// Compares two files, returning true if they differ.
+        /// </summary>
+        public static bool DoFilesDiffer(string fileAPath, string fileBPath)
         {
-            if (!File.Exists(file2))
-                return true;
+            using var stream1 = File.Exists(fileAPath) ? new FileStream(fileAPath, FileMode.Open, FileAccess.Read) : null;
+            using var stream2 = File.Exists(fileBPath) ? new FileStream(fileBPath, FileMode.Open, FileAccess.Read) : null;
+            if (Conditional.NotNull(stream1, stream2))
+            {
+                var bufferA = new byte[stream1.Length];
+                var bufferB = new byte[stream2.Length];
 
-            if (File.Exists(file1) != File.Exists(file2))
-                return false;
+                var readStreamA = stream1.Read(bufferA, 0, bufferA.Length);
+                var readStreamB = stream2.Read(bufferB, 0, bufferB.Length);
+            
+                if (readStreamA != readStreamB)
+                    return true;
 
-            var buffer1 = File.ReadAllBytes(file1);
-            var buffer2 = File.ReadAllBytes(file2);
 
-            if (buffer1.Length != buffer2.Length)
-                return true;
+                return !bufferA.SequenceEqual(bufferB);
 
-            return !buffer1.SequenceEqual(buffer2);
+            }
+            return false;
         }
 
         #endregion
 
-        #region IsRuningElevated
+        #region IsRunningElevated
 
-        private static bool? _isRuningElevated = null;
+        private static bool? _isRunningElevated = null;
 
-        internal static bool IsRuningElevated()
+        internal static bool IsRunningElevated()
         {
-            if (_isRuningElevated.HasValue)
-                return _isRuningElevated.Value;
+            if (_isRunningElevated.HasValue)
+            {
+                return _isRunningElevated.Value;
+            }
 
             var identity = WindowsIdentity.GetCurrent();
+            if (identity != null)
+            {
+                WindowsPrincipal principal = new(identity);
+                _isRunningElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
+                {
+                    return _isRunningElevated.Value;
+                }
+            }
 
-            if (identity == null)
-                return false;
+            return false;
 
-            var pricipal = new WindowsPrincipal(identity);
-            _isRuningElevated = pricipal.IsInRole(WindowsBuiltInRole.Administrator);
-
-            return _isRuningElevated.Value;
         }
 
         #endregion
 
         #region RunElevated
 
-        internal static int? RunElevated(string fileName, string arguments, bool elevate, bool waitForExit)
+        internal static int? RunElevated(string fileName,string arguments, bool elevate, bool waitForExit)
         {
             var processInfo = new ProcessStartInfo {
                 FileName = fileName,
@@ -290,7 +309,7 @@
             {
                 var process = Process.Start(processInfo);
 
-                if (waitForExit && process != null)
+                if (ConditionNot(null,elevate, process, waitForExit))
                 {
                     process.WaitForExit();
 
@@ -305,7 +324,16 @@
                 return null;
             }
         }
+        #endregion
+
+        #region GetBinCachePath
+
+        public static string GetBinCachePath()
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"MidSpace\SEToolbox\__bincache");
+        }
 
         #endregion
     }
 }
+

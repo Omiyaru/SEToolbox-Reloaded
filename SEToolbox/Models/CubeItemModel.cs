@@ -1,19 +1,20 @@
-﻿namespace SEToolbox.Models
-{
-    using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Text.RegularExpressions;
-    using Sandbox.Common.ObjectBuilders;
-    using Sandbox.Definitions;
-    using SEToolbox.Interop;
-    using VRage;
-    using VRage.Game;
-    using VRage.ObjectBuilders;
-    using Res = SEToolbox.Properties.Resources;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text.RegularExpressions;
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.Definitions;
+using SEToolbox.Interop;
+using VRage;
+using VRage.Game;
+using VRage.ObjectBuilders;
+using Res = SEToolbox.Properties.Resources;
 
+namespace SEToolbox.Models
+{
     public class CubeItemModel : BaseModel
     {
-        #region fields
+        #region Fields
 
         private MyObjectBuilder_CubeBlock _cube;
 
@@ -51,7 +52,7 @@
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public CubeItemModel(MyObjectBuilder_CubeBlock cube, MyCubeBlockDefinition definition)
         {
@@ -66,210 +67,108 @@
 
         public MyObjectBuilder_CubeBlock Cube
         {
-            get { return _cube; }
+            get => _cube;
 
-            set
-            {
-                if (value != _cube)
-                {
-                    _cube = value;
-                    OnPropertyChanged(nameof(Cube));
-                }
+            set => SetProperty(ref _cube, value, nameof(Cube));
             }
-        }
+
+        
 
         public long Owner
         {
-            get { return _cube.Owner; }
-            set
-            {
-                if (value != _cube.Owner)
-                {
-                    _cube.Owner = value;
-                    OnPropertyChanged(nameof(Owner));
-                }
-            }
+            get => _cube.Owner;
+            set => SetProperty(ref _cube.Owner, value, nameof(Owner));
         }
 
         public long BuiltBy
         {
-            get { return _cube.BuiltBy; }
-            set
-            {
-                if (value != _cube.BuiltBy)
-                {
-                    _cube.BuiltBy = value;
-                    OnPropertyChanged(nameof(BuiltBy));
-                }
-            }
+            get => Cube.BuiltBy;
+            set => SetProperty(Cube.BuiltBy, value, nameof(BuiltBy));
+
         }
 
         public MyObjectBuilderType TypeId
         {
-            get { return _typeId; }
+            get => _typeId;
 
-            set
-            {
-                if (value != _typeId)
-                {
-                    _typeId = value;
-                    OnPropertyChanged(nameof(TypeId));
-                }
-            }
+            set => SetProperty(ref _typeId, value, nameof(TypeId));
         }
 
         public string SubtypeId
         {
-            get { return _subtypeId; }
+            get => _subtypeId;
 
-            set
-            {
-                if (value != _subtypeId)
-                {
-                    _subtypeId = value;
-                    OnPropertyChanged(nameof(SubtypeId));
-                }
-            }
+            set => SetProperty(ref _subtypeId, value, nameof(SubtypeId));
         }
 
         public string TextureFile
         {
-            get { return _textureFile; }
+            get => _textureFile;
 
-            set
-            {
-                if (value != _textureFile)
-                {
-                    _textureFile = value;
-                    OnPropertyChanged(nameof(TextureFile));
-                }
-            }
+            set => SetProperty(ref _textureFile, value, nameof(TextureFile));
         }
 
         public MyCubeSize CubeSize
         {
-            get { return _cubeSize; }
+            get => _cubeSize;
 
-            set
-            {
-                if (value != _cubeSize)
-                {
-                    _cubeSize = value;
-                    OnPropertyChanged(nameof(CubeSize));
-                }
-            }
+            set => SetProperty(ref _cubeSize, value, nameof(CubeSize));
         }
 
         public string FriendlyName
         {
-            get { return _friendlyName; }
+            get => _friendlyName;
 
-            set
-            {
-                if (value != _friendlyName)
-                {
-                    _friendlyName = value;
-                    OnPropertyChanged(nameof(FriendlyName));
-                }
-            }
+            set => SetProperty(ref _friendlyName, value, nameof(FriendlyName));
         }
 
         public string OwnerName
         {
-            get { return _ownerName; }
+            get => _ownerName;
 
-            set
-            {
-                if (value != _ownerName)
-                {
-                    _ownerName = value;
-                    OnPropertyChanged(nameof(OwnerName));
-                }
-            }
+            set => SetProperty(ref _ownerName, value, nameof(OwnerName));
         }
 
         public string BuiltByName
         {
-            get { return _builtByName; }
+            get => _builtByName;
 
-            set
-            {
-                if (value != _builtByName)
-                {
-                    _builtByName = value;
-                    OnPropertyChanged(nameof(BuiltByName));
-                }
-            }
+            set => SetProperty(ref _builtByName, value, nameof(BuiltByName));
         }
 
         public string ColorText
         {
-            get { return _colorText; }
+            get => _colorText;
 
-            set
-            {
-                if (value != _colorText)
-                {
-                    _colorText = value;
-                    OnPropertyChanged(nameof(ColorText));
-                }
-            }
+            set => SetProperty(ref _colorText, value, nameof(ColorText));
         }
 
         public float ColorHue
         {
-            get { return _colorHue; }
+            get => _colorHue;
 
-            set
-            {
-                if (value != _colorHue)
-                {
-                    _colorHue = value;
-                    OnPropertyChanged(nameof(ColorHue));
-                }
-            }
+            set => SetProperty(ref _colorHue, value, nameof(ColorHue));
         }
 
         public float ColorSaturation
         {
-            get { return _colorSaturation; }
+            get => _colorSaturation;
 
-            set
-            {
-                if (value != _colorSaturation)
-                {
-                    _colorSaturation = value;
-                    OnPropertyChanged(nameof(ColorSaturation));
-                }
-            }
+            set => SetProperty(ref _colorSaturation, value, nameof(ColorSaturation));
         }
 
         public float ColorLuminance
         {
-            get { return _colorLuminance; }
+            get => _colorLuminance;
 
-            set
-            {
-                if (value != _colorLuminance)
-                {
-                    _colorLuminance = value;
-                    OnPropertyChanged(nameof(ColorLuminance));
-                }
-            }
+            set => SetProperty(ref _colorLuminance, value, nameof(ColorLuminance));
         }
 
         public BindablePoint3DIModel Position
         {
-            get { return _position; }
+            get => _position;
 
-            set
-            {
-                if (value != _position)
-                {
-                    _position = value;
-                    OnPropertyChanged(nameof(Position));
-                }
-            }
+            set => SetProperty(ref _position, value, nameof(Position));
         }
 
         public override string ToString()
@@ -279,58 +178,30 @@
 
         public double BuildPercent
         {
-            get { return _buildPercent; }
+            get => _buildPercent;
 
-            set
-            {
-                if (value != _buildPercent)
-                {
-                    _buildPercent = value;
-                    OnPropertyChanged(nameof(BuildPercent));
-                }
-            }
+            set => SetProperty(ref _buildPercent, value, nameof(BuildPercent));
         }
 
         public System.Windows.Media.Brush Color
         {
-            get { return _color; }
+            get => _color;
 
-            set
-            {
-                if (value != _color)
-                {
-                    _color = value;
-                    OnPropertyChanged(nameof(Color));
-                }
-            }
+            set => SetProperty(ref _color, value, nameof(Color));
         }
 
         public int PCU
         {
-            get { return _pcu; }
+            get => _pcu;
 
-            set
-            {
-                if (value != _pcu)
-                {
-                    _pcu = value;
-                    OnPropertyChanged(nameof(PCU));
-                }
-            }
+            set => SetProperty(ref _pcu, value, nameof(PCU));
         }
 
         public ObservableCollection<InventoryEditorModel> Inventory
         {
-            get { return _inventory; }
+            get => _inventory;
 
-            set
-            {
-                if (value != _inventory)
-                {
-                    _inventory = value;
-                    OnPropertyChanged(nameof(Inventory));
-                }
-            }
+            set => SetProperty(ref _inventory, value, nameof(Inventory));
         }
 
         #endregion
@@ -361,83 +232,49 @@
 
         public static bool ConvertFromLightToHeavyArmor(MyObjectBuilder_CubeBlock cube)
         {
-            if (cube.SubtypeName.StartsWith("LargeBlockArmor"))
+            var resource = SpaceEngineersResources.CubeBlockDefinitions.FirstOrDefault(b => b.Id.TypeId == cube.TypeId && b.Id.SubtypeName == cube.SubtypeName);
+
+            if (resource == null)
             {
-                var newSubTypeName = cube.SubtypeName.Replace("LargeBlockArmor", "LargeHeavyBlockArmor");
-                if (cube.SubtypeName != newSubTypeName && SpaceEngineersCore.Resources.CubeBlockDefinitions.Any(b => b.Id.TypeId == cube.TypeId && b.Id.SubtypeName == newSubTypeName))
-                {
-                    cube.SubtypeName = newSubTypeName;
-                    return true;
-                }
-            }
-            else if (cube.SubtypeName.StartsWith("Large") && (cube.SubtypeName.EndsWith("HalfArmorBlock") || cube.SubtypeName.EndsWith("HalfSlopeArmorBlock")))
-            {
-                var newSubTypeName = cube.SubtypeName.Replace("LargeHalf", "LargeHeavyHalf");
-                if (cube.SubtypeName != newSubTypeName && SpaceEngineersCore.Resources.CubeBlockDefinitions.Any(b => b.Id.TypeId == cube.TypeId && b.Id.SubtypeName == newSubTypeName))
-                {
-                    cube.SubtypeName = newSubTypeName;
-                    return true;
-                }
-            }
-            else if (cube.SubtypeName.StartsWith("SmallBlockArmor"))
-            {
-                var newSubTypeName = cube.SubtypeName.Replace("SmallBlockArmor", "SmallHeavyBlockArmor");
-                if (cube.SubtypeName != newSubTypeName && SpaceEngineersCore.Resources.CubeBlockDefinitions.Any(b => b.Id.TypeId == cube.TypeId && b.Id.SubtypeName == newSubTypeName))
-                {
-                    cube.SubtypeName = newSubTypeName;
-                    return true;
-                }
-            }
-            else if (!cube.SubtypeName.StartsWith("Large") && (cube.SubtypeName.EndsWith("HalfArmorBlock") || cube.SubtypeName.EndsWith("HalfSlopeArmorBlock")))
-            {
-                var newSubTypeName = Regex.Replace(cube.SubtypeName, "^(Half)(.*)", "HeavyHalf$2", RegexOptions.IgnoreCase);
-                if (cube.SubtypeName != newSubTypeName && SpaceEngineersCore.Resources.CubeBlockDefinitions.Any(b => b.Id.TypeId == cube.TypeId && b.Id.SubtypeName == newSubTypeName))
-                {
-                    cube.SubtypeName = newSubTypeName;
-                    return true;
-                }
+                return false;
             }
 
-            return false;
+            var newSubTypeName = resource.Id.SubtypeName switch
+            {
+                { } SubTypeName when resource.Id.SubtypeName.StartsWith("LargeBlockArmor") => SubTypeName.Replace("LargeBlockArmor", "LargeHeavyBlockArmor"),
+                { } SubTypeName when resource.Id.SubtypeName.StartsWith("Large") && (resource.Id.SubtypeName.EndsWith("HalfArmorBlock") || resource.Id.SubtypeName.EndsWith("HalfSlopeArmorBlock")) => SubTypeName.Replace("LargeHalf", "LargeHeavyHalf"),
+                { } SubTypeName when resource.Id.SubtypeName.StartsWith("SmallBlockArmor") => SubTypeName.Replace("SmallBlockArmor", "SmallHeavyBlockArmor"),
+                { } SubTypeName when !resource.Id.SubtypeName.StartsWith("Large") && (resource.Id.SubtypeName.EndsWith("HalfArmorBlock") || resource.Id.SubtypeName.EndsWith("HalfSlopeArmorBlock")) => Regex.Replace(SubTypeName, "^(Half)(.*)", "HeavyHalf$2", RegexOptions.IgnoreCase),
+                _ => null
+            };
+
+            if (newSubTypeName == null || resource.Id.SubtypeName == newSubTypeName)
+            {
+                return false;
+            }
+
+            cube.SubtypeName = newSubTypeName;
+            return true;
         }
 
         public static bool ConvertFromHeavyToLightArmor(MyObjectBuilder_CubeBlock cube)
         {
-            if (cube.SubtypeName.StartsWith("LargeHeavyBlockArmor"))
+            var cubeBlockDefinitions = SpaceEngineersResources.CubeBlockDefinitions;
+            var typeId = cube.TypeId;
+            var subTypeId = cube.SubtypeName;
+            var newSubTypeId = subTypeId switch
             {
-                var newSubTypeName = cube.SubtypeName.Replace("LargeHeavyBlockArmor", "LargeBlockArmor");
-                if (cube.SubtypeName != newSubTypeName && SpaceEngineersCore.Resources.CubeBlockDefinitions.Any(b => b.Id.TypeId == cube.TypeId && b.Id.SubtypeName == newSubTypeName))
-                {
-                    cube.SubtypeName = newSubTypeName;
-                    return true;
-                }
-            }
-            else if (cube.SubtypeName.StartsWith("Large") && (cube.SubtypeName.EndsWith("HalfArmorBlock") || cube.SubtypeName.EndsWith("HalfSlopeArmorBlock")))
+                { } SubTypeId when subTypeId.StartsWith("LargeHeavyBlockArmor") => SubTypeId.Replace("LargeHeavyBlockArmor", "LargeBlockArmor"),
+                { } SubTypeId when subTypeId.StartsWith("Large") && (subTypeId.EndsWith("HalfArmorBlock") || subTypeId.EndsWith("HalfSlopeArmorBlock")) => SubTypeId.Replace("LargeHeavyHalf", "LargeHalf"),
+                { } SubTypeId when subTypeId.StartsWith("SmallHeavyBlockArmor") => SubTypeId.Replace("SmallHeavyBlockArmor", "SmallBlockArmor"),
+                { } SubTypeId when !subTypeId.StartsWith("Large") && (subTypeId.EndsWith("HalfArmorBlock") || subTypeId.EndsWith("HalfSlopeArmorBlock")) => Regex.Replace(SubTypeId, "^(HeavyHalf)(.*)", "Half$2", RegexOptions.IgnoreCase),
+                _ => null
+            };
+
+            if (newSubTypeId != null && cubeBlockDefinitions.Any(b => b.Id.TypeId == typeId && b.Id.SubtypeName == newSubTypeId))
             {
-                var newSubTypeName = cube.SubtypeName.Replace("LargeHeavyHalf", "LargeHalf");
-                if (cube.SubtypeName != newSubTypeName && SpaceEngineersCore.Resources.CubeBlockDefinitions.Any(b => b.Id.TypeId == cube.TypeId && b.Id.SubtypeName == newSubTypeName))
-                {
-                    cube.SubtypeName = newSubTypeName;
-                    return true;
-                }
-            }
-            else if (cube.SubtypeName.StartsWith("SmallHeavyBlockArmor"))
-            {
-                var newSubTypeName = cube.SubtypeName.Replace("SmallHeavyBlockArmor", "SmallBlockArmor");
-                if (cube.SubtypeName != newSubTypeName && SpaceEngineersCore.Resources.CubeBlockDefinitions.Any(b => b.Id.TypeId == cube.TypeId && b.Id.SubtypeName == newSubTypeName))
-                {
-                    cube.SubtypeName = newSubTypeName;
-                    return true;
-                }
-            }
-            else if (!cube.SubtypeName.StartsWith("Large") && (cube.SubtypeName.EndsWith("HalfArmorBlock") || cube.SubtypeName.EndsWith("HalfSlopeArmorBlock")))
-            {
-                var newSubTypeName = Regex.Replace(cube.SubtypeName, "^(HeavyHalf)(.*)", "Half$2", RegexOptions.IgnoreCase);
-                if (cube.SubtypeName != newSubTypeName && SpaceEngineersCore.Resources.CubeBlockDefinitions.Any(b => b.Id.TypeId == cube.TypeId && b.Id.SubtypeName == newSubTypeName))
-                {
-                    cube.SubtypeName = newSubTypeName;
-                    return true;
-                }
+                cube.SubtypeName = newSubTypeId;
+                return true;
             }
 
             return false;
@@ -445,7 +282,7 @@
 
         public MyObjectBuilder_CubeBlock CreateCube(MyObjectBuilderType typeId, string subTypeId, MyCubeBlockDefinition definition)
         {
-            var newCube = SpaceEngineersCore.Resources.CreateNewObject<MyObjectBuilder_CubeBlock>(typeId, subTypeId);
+            MyObjectBuilder_CubeBlock newCube = SpaceEngineersResources.CreateNewObject<MyObjectBuilder_CubeBlock>(typeId, subTypeId);
             newCube.BlockOrientation = Cube.BlockOrientation;
             newCube.ColorMaskHSV = Cube.ColorMaskHSV;
             newCube.BuildPercent = Cube.BuildPercent;
@@ -467,18 +304,18 @@
         {
             // There appear to be quite a few exceptions, blocks that inherit from MyObjectBuilder_TerminalBlock but SE doesn't allow setting of Owner.
             if (Cube is MyObjectBuilder_InteriorLight
-                || Cube is MyObjectBuilder_ReflectorLight
-                || Cube is MyObjectBuilder_LandingGear
-                || (Cube is MyObjectBuilder_Cockpit && SubtypeId == "PassengerSeatLarge")
-                || Cube is MyObjectBuilder_Thrust)
+                || Cube  is MyObjectBuilder_ReflectorLight
+                || Cube  is MyObjectBuilder_LandingGear
+                || Cube  is MyObjectBuilder_Cockpit && SubtypeId == "PassengerSeatLarge"
+                || Cube  is MyObjectBuilder_Thrust)
                 return false;
 
             if (Cube is MyObjectBuilder_TerminalBlock)
             {
-                this.Owner = newOwnerId;
+                Owner = newOwnerId;
 
-                var identity = SpaceEngineersCore.WorldResource.Checkpoint.Identities.FirstOrDefault(p => p.PlayerId == Owner);
-                var dead = $" ({Res.ClsCharacterDead})";
+                MyObjectBuilder_Identity identity = SpaceEngineersCore.WorldResource.Checkpoint.Identities.FirstOrDefault(p => p.PlayerId == Owner);
+                string dead = $" ({Res.ClsCharacterDead})";
                 if (SpaceEngineersCore.WorldResource.Checkpoint.AllPlayersData != null)
                 {
                     var player = SpaceEngineersCore.WorldResource.Checkpoint.AllPlayersData.Dictionary.FirstOrDefault(kvp => kvp.Value.IdentityId == Owner);
@@ -493,10 +330,10 @@
 
         public bool ChangeBuiltBy(long newOwnerId)
         {
-            this.BuiltBy = newOwnerId;
+            BuiltBy = newOwnerId;
 
-            var identity = SpaceEngineersCore.WorldResource.Checkpoint.Identities.FirstOrDefault(p => p.PlayerId == BuiltBy);
-            var dead = $" ({Res.ClsCharacterDead})";
+            MyObjectBuilder_Identity identity = SpaceEngineersCore.WorldResource.Checkpoint.Identities.FirstOrDefault(p => p.PlayerId == BuiltBy);
+            string dead = $" ({Res.ClsCharacterDead})";
             if (SpaceEngineersCore.WorldResource.Checkpoint.AllPlayersData != null)
             {
                 var player = SpaceEngineersCore.WorldResource.Checkpoint.AllPlayersData.Dictionary.FirstOrDefault(kvp => kvp.Value.IdentityId == BuiltBy);
@@ -520,12 +357,12 @@
             }
 
             CubeSize = definition.CubeSize;
-            FriendlyName = SpaceEngineersApi.GetResourceName(definition.DisplayNameText);
+            FriendlyName = SpaceEngineersApi.GetResourceName(value: definition.DisplayNameText);
 
-            var ownerIdentity = SpaceEngineersCore.WorldResource.Checkpoint.Identities.FirstOrDefault(p => p.PlayerId == Owner);
-            var buyiltByIdentity = SpaceEngineersCore.WorldResource.Checkpoint.Identities.FirstOrDefault(p => p.PlayerId == BuiltBy);
-            var ownerDead = $" ({Res.ClsCharacterDead})";
-            var builtByDead = $" ({Res.ClsCharacterDead})";
+            MyObjectBuilder_Identity ownerIdentity = SpaceEngineersCore.WorldResource.Checkpoint.Identities.FirstOrDefault(p => p.PlayerId == Owner);
+            MyObjectBuilder_Identity buyiltByIdentity = SpaceEngineersCore.WorldResource.Checkpoint.Identities.FirstOrDefault(p => p.PlayerId == BuiltBy);
+            string ownerDead = $" ({Res.ClsCharacterDead})";
+            string builtByDead = $" ({Res.ClsCharacterDead})";
             if (SpaceEngineersCore.WorldResource.Checkpoint.AllPlayersData != null)
             {
                 var ownerPlayer = SpaceEngineersCore.WorldResource.Checkpoint.AllPlayersData.Dictionary.FirstOrDefault(kvp => kvp.Value.IdentityId == Owner);
@@ -534,17 +371,17 @@
                 var builtByPlayer = SpaceEngineersCore.WorldResource.Checkpoint.AllPlayersData.Dictionary.FirstOrDefault(kvp => kvp.Value.IdentityId == BuiltBy);
                 builtByDead = builtByPlayer.Value == null ? $" ({Res.ClsCharacterDead})" : "";
             }
-            OwnerName = ownerIdentity == null ? null : ownerIdentity.DisplayName + ownerDead;
-            BuiltByName = buyiltByIdentity == null ? null : buyiltByIdentity.DisplayName + builtByDead;
+
+            OwnerName = ownerIdentity?.DisplayName + (ownerIdentity == null || SpaceEngineersCore.WorldResource.Checkpoint.AllPlayersData?.Dictionary.Values.Any(p => p.IdentityId == Owner) == false ? $" ({Res.ClsCharacterDead})" : "");
+            BuiltByName = buyiltByIdentity?.DisplayName + (buyiltByIdentity == null || SpaceEngineersCore.WorldResource.Checkpoint.AllPlayersData?.Dictionary.Values.Any(p => p.IdentityId == BuiltBy) == false ? $" ({Res.ClsCharacterDead})" : "");
 
             TypeId = definition.Id.TypeId;
             SubtypeId = definition.Id.SubtypeName;
             PCU = definition.PCU;
 
-            if (Inventory == null)
-                Inventory = new ObservableCollection<InventoryEditorModel>();
-
-            foreach (var item in cube.ComponentContainer.GetInventory(definition))
+            Inventory ??= [];
+            Inventory.Clear();
+            foreach (InventoryEditorModel item in cube.ComponentContainer.GetInventory(definition))
                 Inventory.Add(item);
 
             while (Inventory.Count < 2)
@@ -552,6 +389,5 @@
                 Inventory.Add(new InventoryEditorModel(false));
             }
         }
-
     }
 }

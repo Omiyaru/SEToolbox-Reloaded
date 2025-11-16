@@ -1,14 +1,15 @@
-﻿namespace ToolboxTest
-{
-    using System.IO;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Sandbox.Common.ObjectBuilders;
-    using SEToolbox.Interop;
-    using SEToolbox.Support;
-    using VRage.Game;
-    using VRage.ObjectBuilders;
-    using VRageMath;
+﻿using System.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Sandbox.Common.ObjectBuilders;
+using SEToolbox.Interop;
+using SEToolbox.Support;
+using VRage.Game;
+using VRage.ObjectBuilders;
+using VRageMath;
+using Direction = VRageMath.Base6Directions.Direction;
 
+namespace ToolboxTest
+{
     [TestClass]
     public class InteropTests
     {
@@ -39,15 +40,11 @@
         [TestMethod, TestCategory("UnitTest")]
         public void LoadSandbox_Fighter()
         {
-            var contentPath = ToolboxUpdater.GetApplicationContentPath();
+            string contentPath = ToolboxUpdater.GetApplicationContentPath();
 
-            var fighterPath = Path.Combine(contentPath, @"Data\Prefabs\LegacyContent\Fighter.sbc");
+            string fighterPath = Path.Combine(contentPath, @"Data\Prefabs\LegacyContent\Fighter.sbc");
             Assert.IsTrue(File.Exists(fighterPath), "Sandbox content file should exist");
-
-            MyObjectBuilder_Definitions prefabDefinitions;
-            bool isCompressed;
-            string errorInformation;
-            var ret = SpaceEngineersApi.TryReadSpaceEngineersFile(fighterPath, out prefabDefinitions, out isCompressed, out errorInformation);
+            bool ret = SpaceEngineersApi.TryReadSpaceEngineersFile(fighterPath, out MyObjectBuilder_Definitions prefabDefinitions, out bool isCompressed, out _);
 
             Assert.IsNotNull(prefabDefinitions, "Sandbox content should not be null");
             Assert.IsTrue(ret, "Sandbox content should have been detected");
@@ -58,15 +55,11 @@
         [TestMethod, TestCategory("UnitTest")]
         public void LoadSandbox_Binary_BaseEasyStart()
         {
-            var contentPath = ToolboxUpdater.GetApplicationContentPath();
+            string contentPath = ToolboxUpdater.GetApplicationContentPath();
 
-            var baseEasyStart1Path = Path.Combine(contentPath, $@"Data\Prefabs\LegacyContent\LargeShipRed.sbc{SpaceEngineersConsts.ProtobuffersExtension}");
+            string baseEasyStart1Path = Path.Combine(contentPath, $@"Data\Prefabs\LegacyContent\LargeShipRed.sbc{SpaceEngineersConsts.ProtobuffersExtension}");
             Assert.IsTrue(File.Exists(baseEasyStart1Path), "Sandbox content file should exist");
-
-            MyObjectBuilder_Definitions prefabDefinitions;
-            bool isCompressed;
-            string errorInformation;
-            var ret = SpaceEngineersApi.TryReadSpaceEngineersFile(baseEasyStart1Path, out prefabDefinitions, out isCompressed, out errorInformation);
+            bool ret = SpaceEngineersApi.TryReadSpaceEngineersFile(baseEasyStart1Path, out MyObjectBuilder_Definitions prefabDefinitions, out bool isCompressed, out string _);//errorinformation
 
             Assert.IsNotNull(prefabDefinitions, "Sandbox content should not be null");
             Assert.IsTrue(ret, "Sandbox content should have been detected");
@@ -77,7 +70,7 @@
         [TestMethod, TestCategory("UnitTest")]
         public void RotateComponent()
         {
-            var d1 = SpaceEngineersApi.GetCubeDefinition(new MyObjectBuilderType(typeof(MyObjectBuilder_Thrust)), MyCubeSize.Large, "LargeBlockLargeThrust");
+            Sandbox.Definitions.MyCubeBlockDefinition d1 = SpaceEngineersApi.GetCubeDefinition(new MyObjectBuilderType(typeof(MyObjectBuilder_Thrust)), MyCubeSize.Large, "LargeBlockLargeThrust");
             Assert.AreEqual("DisplayName_Block_LargeThrust", d1.DisplayNameEnum.Value.String, "Must match");
             Assert.AreEqual(MyCubeSize.Large, d1.CubeSize, "Must match");
 
@@ -87,16 +80,16 @@
 
             //======//
 
-            var orient = new SerializableBlockOrientation(Base6Directions.Direction.Forward, Base6Directions.Direction.Up);
+            var orient = new SerializableBlockOrientation(Direction.Forward,Direction.Up);
 
-            var f = Base6Directions.GetVector(orient.Forward);
-            var u = Base6Directions.GetVector(orient.Up);
+            Vector3 f = Base6Directions.GetVector(orient.Forward);
+            Vector3 u = Base6Directions.GetVector(orient.Up);
 
-            var m = Matrix.CreateFromDir(f, u);
-            var q = Quaternion.CreateFromRotationMatrix(m);
+            Matrix m = Matrix.CreateFromDir(f, u);
+            Quaternion q = Quaternion.CreateFromRotationMatrix(m);
 
-            var nf = Base6Directions.GetForward(q);
-            var nu = Base6Directions.GetUp(q);
+            Direction nf = Base6Directions.GetForward(q);
+            Direction nu = Base6Directions.GetUp(q);
 
             // Test that Space Engineers orientation methods are working as expected. Forward is still Forward, Up is still Up.
             Assert.AreEqual(nf, orient.Forward, "Initial Orientation Forward must match.");
@@ -104,8 +97,8 @@
 
             //======//
 
-            var v = d1.Size;
-            var fV1 = Vector3.Transform(v, m);
+            Vector3I v = d1.Size;
+            Vector3 fV1 = Vector3.Transform(v, m);
 
             // Orientation of Forward/Up should provide the exact same dimentions as the original Component above.
             Assert.AreEqual(3, fV1.X, "Must match");
@@ -114,11 +107,11 @@
 
             //======//
 
-            var newOrient = new SerializableBlockOrientation(Base6Directions.Direction.Down, Base6Directions.Direction.Right);
+            SerializableBlockOrientation newOrient = new(Direction.Down, Direction.Right);
 
-            var newM = Matrix.CreateFromDir(Base6Directions.GetVector(newOrient.Forward), Base6Directions.GetVector(newOrient.Up));
+            Matrix newM = Matrix.CreateFromDir(Base6Directions.GetVector(newOrient.Forward), Base6Directions.GetVector(newOrient.Up));
 
-            var fV2 = Vector3.Transform(v, newM);
+            Vector3 fV2 = Vector3.Transform(v, newM);
 
             // The reoriented Component size should now have changed.
             Assert.AreEqual(2, fV2.X, "Must match");
@@ -128,8 +121,8 @@
             //======//
 
             // Reducing complexity of code with Extension.
-            var direction = new SerializableBlockOrientation(Base6Directions.Direction.Down, Base6Directions.Direction.Right);
-            var fV3 = d1.Size.Transform(direction);
+            SerializableBlockOrientation direction = new(Direction.Down, Direction.Right);
+            Vector3I fV3 = d1.Size.Transform(direction);
 
             // The reoriented Component size should now have changed.
             Assert.AreEqual(2, fV3.X, "Must match");

@@ -1,15 +1,15 @@
-﻿namespace SEToolbox.Models
+﻿using System.Drawing;
+
+using SEToolbox.Interop;
+using VRage;
+
+namespace SEToolbox.Models
 {
-    using System.Drawing;
-
-    using SEToolbox.Interop;
-    using VRage;
-
     public class ImportImageModel : BaseModel
     {
         #region Fields
 
-        private string _filename;
+        private string _fileName;
         private bool _isValidImage;
 
         private Size _originalImageSize;
@@ -36,51 +36,30 @@
 
         #region Properties
 
-        public string Filename
+        public string FileName
         {
-            get { return _filename; }
+            get => _fileName; 
 
-            set
-            {
-                if (value != _filename)
-                {
-                    _filename = value;
-                    OnPropertyChanged(nameof(Filename));
-                }
-            }
+            set => SetProperty(ref _fileName, value, nameof(FileName));
         }
 
         public bool IsValidImage
         {
-            get { return _isValidImage; }
+            get =>  _isValidImage; 
 
-            set
-            {
-                if (value != _isValidImage)
-                {
-                    _isValidImage = value;
-                    OnPropertyChanged(nameof(IsValidImage));
-                }
-            }
+            set => SetProperty(ref _isValidImage, value, nameof(IsValidImage));
         }
 
         public Size OriginalImageSize
         {
-            get { return _originalImageSize; }
+            get =>  _originalImageSize;
 
-            set
-            {
-                if (value != _originalImageSize)
-                {
-                    _originalImageSize = value;
-                    OnPropertyChanged(nameof(OriginalImageSize));
-                }
-            }
+            set => SetProperty(ref _originalImageSize, value, nameof(OriginalImageSize));
         }
 
         public BindableSizeModel NewImageSize
         {
-            get { return _newImageSize; }
+            get => _newImageSize; 
 
             set
             {
@@ -94,63 +73,35 @@
 
         public BindablePoint3DModel Position
         {
-            get { return _position; }
+            get =>  _position; 
 
-            set
-            {
-                if (value != _position)
-                {
-                    _position = value;
-                    OnPropertyChanged(nameof(Position));
-                }
-            }
+            set => SetProperty(ref _position, value, nameof(Position));
         }
 
         public BindableVector3DModel Forward
         {
-            get { return _forward; }
+            get =>  _forward; 
 
-            set
-            {
-                if (value != _forward)
-                {
-                    _forward = value;
-                    OnPropertyChanged(nameof(Forward));
-                }
-            }
+            set => SetProperty(ref _forward, value, nameof(Forward));
         }
 
         public BindableVector3DModel Up
         {
-            get { return _up; }
+            get =>  _up; 
 
-            set
-            {
-                if (value != _up)
-                {
-                    _up = value;
-                    OnPropertyChanged(nameof(Up));
-                }
-            }
+            set => SetProperty(ref _up, value, nameof(Up));
         }
 
         public ImportImageClassType ClassType
         {
-            get { return _classType; }
+            get =>  _classType; 
 
-            set
-            {
-                if (value != _classType)
-                {
-                    _classType = value;
-                    OnPropertyChanged(nameof(ClassType));
-                }
-            }
+            set => SetProperty(ref _classType, value, nameof(ClassType));
         }
 
         public ImportArmorType ArmorType
         {
-            get { return _armorType; }
+            get =>  _armorType; 
 
             set
             {
@@ -164,75 +115,43 @@
 
         public MyPositionAndOrientation CharacterPosition
         {
-            get { return _characterPosition; }
+            get =>  _characterPosition;
 
-            set
-            {
                 //if (value != characterPosition) // Unable to check for equivilence, without long statement. And, mostly uncessary.
-                _characterPosition = value;
-                OnPropertyChanged(nameof(CharacterPosition));
-            }
+            set => SetProperty(ref _characterPosition, value, nameof(CharacterPosition));
         }
 
         public int AlphaLevel
         {
-            get { return _alphaLevel; }
+            get =>  _alphaLevel; 
 
-            set
-            {
-                if (value != _alphaLevel)
-                {
-                    _alphaLevel = value;
-                    OnPropertyChanged(nameof(AlphaLevel));
-                }
-            }
+            set => SetProperty(ref _alphaLevel, value, nameof(AlphaLevel));
         }
 
         public System.Windows.Media.Color KeyColor
         {
-            get { return _keyColor; }
+            get =>  _keyColor; 
 
-            set
-            {
-                if (_keyColor != value)
-                {
-                    _keyColor = value;
-                    OnPropertyChanged(nameof(KeyColor));
-                }
-            }
+            set => SetProperty(ref _keyColor, value, nameof(KeyColor));
         }
 
         public bool IsAlphaLevel
         {
-            get { return _isAlphaLevel; }
+            get =>  _isAlphaLevel; 
 
-            set
-            {
-                if (value != _isAlphaLevel)
-                {
-                    _isAlphaLevel = value;
-                    OnPropertyChanged(nameof(IsAlphaLevel));
-                }
-            }
+            set => SetProperty(ref _isAlphaLevel, value, nameof(IsAlphaLevel));
         }
 
         public bool IsKeyColor
         {
-            get { return _isKeyColor; }
+            get =>  _isKeyColor; 
 
-            set
-            {
-                if (value != _isKeyColor)
-                {
-                    _isKeyColor = value;
-                    OnPropertyChanged(nameof(IsKeyColor));
-                }
-            }
+            set => SetProperty(ref _isKeyColor, value, nameof(IsKeyColor));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public void Load(MyPositionAndOrientation characterPosition)
         {
@@ -241,7 +160,7 @@
 
         #endregion
 
-        #region helpers
+        #region Helpers
 
         #endregion
     }

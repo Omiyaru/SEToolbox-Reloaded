@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -178,6 +178,9 @@
   <data name="delete2" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\delete2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="string_format" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\string_format.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="export" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\export1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -261,44 +264,44 @@ To use the SEToolbox, you must have the Space Engineers game installed on your c
   </data>
   <data name="CtlVoxelDetail" xml:space="preserve">
     <value>Filename:	{0}
-Bounding Size:	{1} × {2} × {3} blocks
-Size:	{4} m × {5} m × {6} m
-Center:	{7}, {8}, {9}
-Volume:	{10:#,##0.00} m³
-VoxCells:	{11:#,##0}
-Distance:	{12:#,##0.0} m
-Position:	{13}, {14}, {15}
+	  Bounding Size:	{1} x {2} x {3} blocks
+		  	   Size:	{4} m x {5} m x {6} m
+	   		 Center:	{7}, {8}, {9}
+	     	 Volume:	{10:#,##0.00} m³
+	 	   VoxCells:	{11:#,##0}
+	 	   Distance:	{12:#,##0.0} m
+	 	   Position:	{13}, {14}, {15}
 
-Material	Mass	Percent
-{16}</value>
+			Material	Mass	Percent
+			{16}</value>
   </data>
   <data name="CtlCubeDetail" xml:space="preserve">
     <value>Name:	{0}
-Type:	{1}
-Piloted:	{2}
-Damage:	{3}
-Speed:	{4:#,##0.000} m/s
-Distance:	{5:#,##0.0} m
-Scale:	{6} × {7} × {8} blocks
-Size:	{9} m × {10} m × {11} m
-Mass:	{12:#,##0.00} kg
-Blocks:	{13:#,##0}
-Position:	{14}, {15}, {16}
-PCU:	{17:#,##0}
+		   Type:	{1}
+		Piloted:	{2}
+		 Damage:	{3}
+		  Speed:	{4:#,##0.000} m/s
+	   Distance:	{5:#,##0.0} m
+		  Scale:	{6} x {7} x {8} blocks
+		   Size:	{9} m x {10} m x {11} m
+		   Mass:	{12:#,##0.00} kg
+	     Blocks:	{13:#,##0}
+	   Position:	{14}, {15}, {16}
+			PCU:	{17:#,##0}
 Total time to produce:	{18:dd} days, {18:hh} hours, {18:mm\:ss\.ff}
-
-Construction Requirements:
-Cubes	Count	Mass	Time to Produce	PCU
-{19}
-
-Components	Count	Mass	Volume	Time to Produce
-{20}
-
-Ingots	Amount	Mass	Volume	Time to Produce
-{21}
-
-Ore	Amount	Mass	Volume
-{22}</value>
+	
+	Construction Requirements:
+	Cubes	Count	Mass	Time to Produce	PCU
+	{19}
+	
+	Components	Count	Mass	Volume	Time to Produce
+	{20}
+	
+	Ingots	Amount	Mass	Volume	Time to Produce
+	{21}
+	
+	Ore	Amount	Mass	Volume
+	{22}</value>
   </data>
   <data name="document_view" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\document_view.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -702,8 +705,15 @@ Please update it before running SEToolbox {2} again.</value>
   <data name="VoxelMergeType_UnionMaterialRightToLeft" xml:space="preserve">
     <value>Union Material Right to Left</value>
   </data>
+  <data name="AsteroidFillTypes" xml:space="preserve">
+  <value>Fill Types</value>
+  </data> 
+  <data name="AsteroidFillType_Custom" xml:space="preserve">
+  	<value>Custom Asteroid Fill</value>
+  	<comment>enum</comment>
+  </data>
   <data name="AsteroidFillType_ByteFiller" xml:space="preserve">
-    <value>Crazy mix fill</value>
+    <value>preset: Crazy mix fill</value>
     <comment>enum</comment>
   </data>
   <data name="AsteroidFillType_None" xml:space="preserve">
@@ -721,7 +731,7 @@ Please update it before running SEToolbox {2} again.</value>
   </data>
   <data name="InventoryBagDetail" xml:space="preserve">
     <value>Type:		{0}
-Distance:		{1:#,##0.0} m</value>
+           Distance:		{1:#,##0.0} m</value>
   </data>
   <data name="WnExplorerColCubes" xml:space="preserve">
     <value>Cubes</value>
@@ -749,6 +759,78 @@ Distance:		{1:#,##0.0} m</value>
   </data>
   <data name="WnExplorerColType" xml:space="preserve">
     <value>Type</value>
+  </data>
+  <data name ="WnExplorerColFaction" xml:space="preserve">
+    <value>Faction</value>
+  </data>
+  <data name="WnExplorerColFactionTooltip" xml:space="preserve">
+    <value>Faction</value>
+  </data>
+  <data name="WnExplorerColFactionName" xml:space="preserve">
+    <value>Faction Name</value>
+  </data>
+  <data name="WnExplorerColFactionNameTooltip" xml:space="preserve">
+    <value>The name of the faction </value>
+  </data>
+   <data name="WnExplorerColFactionTag" xml:space="preserve">
+    <value>Faction Tag</value>
+  </data>
+  <data name="WnExplorerColFactionTagTooltip" xml:space="preserve">
+    <value>The identifier for a faction   </value>
+  </data>
+  <data name="WnExplorerColFactionIcon" xml:space="preserve">
+    <value>Faction Icon</value>
+  </data>
+  <data name="WnExplorerColFactionIconTooltip" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="WnExplorerColFactionColor" xml:space="preserve">
+    <value>Faction Color</value>
+  </data>
+  <data name="WnExplorerColFactionColorTooltip" xml:space="preserve">
+    <value>Primary color of the faction</value>
+  </data>
+  <data name="WnExplorerColFactionCustomColor" xml:space="preserve">
+    <value>Faction Custom Color</value>
+  </data>
+  <data name="WnExplorerColFactionCustomColorTooltip" xml:space="preserve">
+    <value>the secondary color of the faction Icon</value>
+  </data>
+  <data name="WnExplorerColFactionFounder" xml:space="preserve">
+    <value>Faction Founder</value>
+  </data>
+  <data name="WnExplorerColFactionFounderTooltip" xml:space="preserve">
+    <value>this is the founder of the faction</value>
+  </data>
+  <data name="WnExplorerColFactionLeader" xml:space="preserve">
+    <value>Faction Leader</value>
+  </data>
+  <data name="WnExplorerColFactionLeaderTooltip" xml:space="preserve">
+    <value>The leader of the faction</value>
+  </data>
+  <data name="WnExplorerColFactionDescription" xml:space="preserve">
+  <value>Faction Description</value>
+  </data>
+  <data name="WnExplorerColFactionDescriptionTooltip" xml:space="preserve">
+  <value>The public descriptor of the Current Faction </value>
+  </data>
+  <data name="WnExplorerColFactionPrivateInfo" xml:space="preserve">
+    <value>Private Info</value>
+  </data>
+  <data name="WnExplorerColFactionPrivateInfoTooltip" xml:space="preserve">
+    <value>The private desriptor of the Faction</value>
+  </data>
+  <data name="WnExplorerColFactionControl" xml:space="preserve">
+    <value>Faction Control</value>
+  </data>
+  <data name="WnExplorerColFactionControlTooltip" xml:space="preserve">
+    <value>Faction Control signifies whether or not the Faction is player or npc controlled</value>
+  </data>
+  <data name="WnExplorerColOwner" xml:space="preserve">
+    <value>Owner</value>
+  </data>
+  <data name="WnExplorerColOwnerTooltip" xml:space="preserve">
+    <value>Owner of object</value>
   </data>
   <data name="WnExplorerColVelocity" xml:space="preserve">
     <value>Velocity</value>
@@ -1182,6 +1264,36 @@ Distance:		{1:#,##0.0} m</value>
   <data name="CtlCubeMnuOptimizeTooltip" xml:space="preserve">
     <value>Only useful for enormous ships of more than 200,000 blocks. Reorganises order of cubes within the file, to speed up loading time.</value>
   </data>
+  <data name="CtlCubeMnuOverlap" xml:space="preserve">
+    <value>Overlap</value>
+  </data>
+  <data name="CtlCubeMnuOverlapTooltip" xml:space="preserve">
+    <value>Set the overlap settings for the selected object.</value>
+  </data>
+  <data name="CtlCubeMnuOverlapFind" xml:space="preserve">
+    <value>Find Overlap</value>
+  </data>
+  <data name="CtlCubeMnuOverlapScanTooltip" xml:space="preserve">
+    <value>Scan the selected object for overlapping blocks.</value>
+  </data>
+  <data name="CtlCubeMnuOverlapRemove" xml:space="preserve">
+    <value>Remove Overlap</value>
+  </data>
+  <data name="CtlCubeMnuOverlapRemoveTooltip" xml:space="preserve">
+    <value>Remove any overlapping blocks from the selected object.</value>
+  </data>
+  <data name="CtlCubeMnuOverlapMove" xml:space="preserve">
+    <value>Move Overlap</value>
+  </data>
+  <data name="CtlCubeMnuOverlapMoveTooltip" xml:space="preserve">
+    <value>Move any overlapping blocks from the selected object.</value>
+  </data>
+  <data name = "CtlCubeMnuExclude" xml:space = "preserve" >
+    <value>Exclude Mechanical</value>
+  </data>
+  <data name="CtlCubeMnuExcludeTooltip" xml:space="preserve">
+    <value>Exclude all mechanical blocks from the overlap Operations.</value>
+  </data>
   <data name="CtlCubeMnuRepair" xml:space="preserve">
     <value>Repair</value>
   </data>
@@ -1381,10 +1493,10 @@ Distance:		{1:#,##0.0} m</value>
     <value>Total time to produce:</value>
   </data>
   <data name="CtlGridBlockSizeValue" xml:space="preserve">
-    <value>{0} × {1} × {2} blocks</value>
+    <value>{0} x {1} x {2} blocks</value>
   </data>
   <data name="CtlGridSizeValue" xml:space="preserve">
-    <value>{0}m × {1}m × {2}m</value>
+    <value>{0}m x {1}m x {2}m</value>
   </data>
   <data name="CtlGridTimeToProdValue" xml:space="preserve">
     <value>{0:dd} days, {0:hh} hours, {0:mm\:ss\.ff}</value>
@@ -1435,7 +1547,7 @@ Distance:		{1:#,##0.0} m</value>
     <value>Build Time</value>
   </data>
   <data name="WnComponentsColCubeDimention" xml:space="preserve">
-    <value>Size (W×H×D)</value>
+    <value>Size (WxHxD)</value>
   </data>
   <data name="WnComponentsColCubeMass" xml:space="preserve">
     <value>Mass (kg)</value>
@@ -1514,19 +1626,19 @@ Distance:		{1:#,##0.0} m</value>
   </data>
   <data name="CtlPlanetDetail" xml:space="preserve">
     <value>Filename:	{0}
-Center:	{1}, {2}, {3}
-Distance:	{4:#,##0.0} m
-Position:	{5}, {6}, {7}
-Radius:	{8:#,##0.0} m
-Has Atmosphere:	{9}
-Atmosphere Radius:	{10:#,##0.0} m
-Minimum Surface Radius:	{11:#,##0.0} m
-Maximum Hill Radius:	{12:#,##0.0} m
-Gravity Falloff:	{13:#,##0.0} m
-Surface Gravity:	{14:#,##0.0} g
-Spawns Flora:	{15}
-Show GPS:	{16}
-Planet Generator:	{17}</value>
+           Center:	{1}, {2}, {3}
+		       Distance:	{4:#,##0.0} m
+		       Position:	{5}, {6}, {7}
+			     Radius:	{8:#,##0.0} m
+	         Has Atmosphere:	{9}
+           Atmosphere Radius:	{10:#,##0.0} m
+           Minimum Surface Radius:	{11:#,##0.0} m
+           Maximum Hill Radius:	{12:#,##0.0} m
+	         Gravity Falloff:	{13:#,##0.0} m
+	         Surface Gravity:	{14:#,##0.0} g
+	         Spawns Flora:	{15}
+		       Show GPS:	{16}
+           Planet Generator:	{17}</value>
   </data>
   <data name="ClassType_SmallStation" xml:space="preserve">
     <value>Small Station</value>
@@ -1778,7 +1890,7 @@ Planet Generator:	{17}</value>
     <value>Bounding Size:</value>
   </data>
   <data name="CtlVoxelBoundingSizeValue" xml:space="preserve">
-    <value>{0} × {1} × {2} voxels</value>
+    <value>{0} x {1} x {2} voxels</value>
   </data>
   <data name="CtlVoxelCenter" xml:space="preserve">
     <value>Volume center:</value>
@@ -1871,7 +1983,7 @@ Planet Generator:	{17}</value>
     <value>Size:</value>
   </data>
   <data name="CtlVoxelSizeValue" xml:space="preserve">
-    <value>{0}m × {1}m × {2}m</value>
+    <value>{0}m x {1}m x {2}m</value>
   </data>
   <data name="CtlVoxelTitle" xml:space="preserve">
     <value>Asteroid</value>
@@ -1933,6 +2045,9 @@ Planet Generator:	{17}</value>
   <data name="WnGroupMoveRdoSingle" xml:space="preserve">
     <value>Single Position:</value>
   </data>
+  <data name="WnGroupMoveRdoRelative" xml:space="preserve">
+    <value>Relative Position:</value>
+  </data>
   <data name="WnGroupMoveTitle" xml:space="preserve">
     <value>Group Move</value>
   </data>
@@ -1940,37 +2055,55 @@ Planet Generator:	{17}</value>
     <value>X</value>
   </data>
   <data name="WnGroupMoveTxtOffsetXTooltip" xml:space="preserve">
-    <value>X</value>
+    <value>X offset coordinate</value>
   </data>
   <data name="WnGroupMoveTxtOffsetY" xml:space="preserve">
     <value>Y</value>
   </data>
   <data name="WnGroupMoveTxtOffsetYTooltip" xml:space="preserve">
-    <value>Y</value>
+    <value>Y offset coordinate</value>
   </data>
   <data name="WnGroupMoveTxtOffsetZ" xml:space="preserve">
     <value>Z</value>
   </data>
   <data name="WnGroupMoveTxtOffsetZTooltip" xml:space="preserve">
-    <value>Z</value>
+    <value>Z offset coordinate</value>
   </data>
   <data name="WnGroupMoveTxtSingleX" xml:space="preserve">
     <value>X</value>
   </data>
   <data name="WnGroupMoveTxtSingleXTooltip" xml:space="preserve">
-    <value>X</value>
+    <value>X coordinate</value>
   </data>
   <data name="WnGroupMoveTxtSingleY" xml:space="preserve">
     <value>Y</value>
   </data>
   <data name="WnGroupMoveTxtSingleYTooltip" xml:space="preserve">
-    <value>Y</value>
+    <value>Y coordinate</value>
   </data>
   <data name="WnGroupMoveTxtSingleZ" xml:space="preserve">
     <value>Z</value>
   </data>
   <data name="WnGroupMoveTxtSingleZTooltip" xml:space="preserve">
+    <value>Z  coordinate</value>
+  </data>
+  <data name="WnGroupMoveTxtRelativeX" xml:space="preserve">
+    <value>X</value>
+  </data>
+  <data name="WnGroupMoveTxtRelativeXTooltip" xml:space="preserve">
+    <value>Relative X coordinate</value>
+  </data>
+  <data name="WnGroupMoveTxtRelativeY" xml:space="preserve">
+    <value>Y</value>
+  </data>
+  <data name="WnGroupMoveTxtRelativeYTooltip" xml:space="preserve">
+    <value>Relative Y coordinate</value>
+  </data>
+  <data name="WnGroupMoveTxtRelativeZ" xml:space="preserve">
     <value>Z</value>
+  </data>
+  <data name="WnGroupMoveTxtRelativeZTooltip" xml:space="preserve">
+    <value>Relative Z coordinate</value>
   </data>
   <data name="WnImportAsteroidBtnCancel" xml:space="preserve">
     <value>Cancel</value>
@@ -2663,6 +2796,12 @@ Planet Generator:	{17}</value>
   <data name="ClsReportColTime" xml:space="preserve">
     <value>Time</value>
   </data>
+    <data name="ClsReportHeaderShipName" xml:space="preserve">
+  <value>Ship Name</value>
+  </data>
+    <data name="ClsReportHeaderShips" xml:space="preserve">
+  <value>Ships</value>
+  </data>
   <data name="ClsReportHeaderAllComponents" xml:space="preserve">
     <value>All Components</value>
   </data>
@@ -2739,7 +2878,7 @@ Planet Generator:	{17}</value>
   <data name="CtlVoxelMnuRemoveMaterial" xml:space="preserve">
     <value>Delete/Remove</value>
   </data>
-  <data name="DialogExportReportFilename" xml:space="preserve">
+  <data name="DialogExportReportFileName" xml:space="preserve">
     <value>Space Engineers Component Item Report</value>
   </data>
   <data name="ValidationInvalidCharacters" xml:space="preserve">
@@ -2834,11 +2973,14 @@ Planet Generator:	{17}</value>
     <value>Changes have been made</value>
   </data>
   <data name="ErrorLoadFileError" xml:space="preserve">
-    <value>Failed to load file: {0}
+    <value>Failed to load file: {0} 
 Reason: {1}</value>
   </data>
   <data name="ErrorLoadSaveGameFileError" xml:space="preserve">
     <value>An error occurred while loading a save file.</value>
+  </data>
+  <data name="ErrorSavePathInvalid" xml:space="preserve">
+  <value>Invalid save path.</value>
   </data>
   <data name="WnErrorDialogBtnClose" xml:space="preserve">
     <value>Close</value>
@@ -3005,10 +3147,10 @@ Reason: {1}</value>
     <value>Cube Size</value>
   </data>
   <data name="CtlComponentColfk" xml:space="preserve">
-    <value />
+    <value>k</value>
   </data>
   <data name="CtlComponentColfl" xml:space="preserve">
-    <value />
+    <value>l</value>
   </data>
   <data name="CtlComponentColIcon" xml:space="preserve">
     <value>Icon</value>
@@ -3035,7 +3177,7 @@ Reason: {1}</value>
     <value>Rare</value>
   </data>
   <data name="CtlComponentColSize" xml:space="preserve">
-    <value>Size (W×H×D)</value>
+    <value>Size (WxHxD)</value>
   </data>
   <data name="CtlComponentColSubType" xml:space="preserve">
     <value>Sub Type Id</value>
@@ -3095,9 +3237,9 @@ Reason: {1}</value>
     <value>Can not find update</value>
   </data>
   <data name="DirApplicationName" xml:space="preserve">
-    <value />
+    <value>Application Name</value>
   </data>
   <data name="DirCompanyName" xml:space="preserve">
-    <value />
+    <value>Company Name</value>
   </data>
 </root>

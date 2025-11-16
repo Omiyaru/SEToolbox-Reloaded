@@ -1,19 +1,19 @@
-﻿namespace SEToolbox.Models
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Runtime.Serialization;
-    using System.Xml.Serialization;
-    using Sandbox.Definitions;
-    using SEToolbox.Interop;
-    using VRage;
-    using VRage.Game;
-    using VRage.ObjectBuilders;
-    using Res = SEToolbox.Properties.Resources;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using Sandbox.Definitions;
+using SEToolbox.Interop;
+using VRage;
+using VRage.Game;
+using VRage.ObjectBuilders;
+using Res = SEToolbox.Properties.Resources;
 
+namespace SEToolbox.Models
+{
     [Serializable]
-    public class StructureCharacterModel : StructureBaseModel
+    public class StructureCharacterModel(MyObjectBuilder_EntityBase entityBase) : StructureBaseModel(entityBase)
     {
         #region Fields
 
@@ -29,13 +29,8 @@
         private InventoryEditorModel _inventory;
 
         #endregion
+        #region Ctor
 
-        #region ctor
-
-        public StructureCharacterModel(MyObjectBuilder_EntityBase entityBase)
-            : base(entityBase)
-        {
-        }
 
         #endregion
 
@@ -53,14 +48,11 @@
         [XmlIgnore]
         public SerializableVector3 Color
         {
-            get
-            {
-                return Character.ColorMaskHSV;
-            }
+            get => Character.ColorMaskHSV;
 
             set
             {
-                if (!EqualityComparer<SerializableVector3>.Default.Equals(value, Character.ColorMaskHSV))
+                if (!EqualityComparer<SerializableVector3?>.Default.Equals(value, Character?.ColorMaskHSV))
                 {
                     Character.ColorMaskHSV = value;
                     OnPropertyChanged(nameof(Color));
@@ -72,99 +64,59 @@
         [XmlIgnore]
         public bool Light
         {
-            get
-            {
-                return Character.LightEnabled;
-            }
+            get => Character.LightEnabled;
 
-            set
-            {
-                if (value != Character.LightEnabled)
-                {
-                    Character.LightEnabled = value;
-                    OnPropertyChanged(nameof(Light));
-                }
-            }
+            set => SetProperty(Character.LightEnabled, value, nameof(Light));
         }
 
         [XmlIgnore]
         public bool JetPack
         {
-            get
-            {
-                return Character.JetpackEnabled;
-            }
+            get => Character.JetpackEnabled;
 
-            set
-            {
-                if (value != Character.JetpackEnabled)
-                {
-                    Character.JetpackEnabled = value;
-                    OnPropertyChanged(nameof(JetPack));
-                }
-            }
+            set => SetProperty(Character.JetpackEnabled, value, nameof(JetPack));
         }
 
         [XmlIgnore]
         public bool Dampeners
         {
-            get
-            {
-                return Character.DampenersEnabled;
-            }
+            get => Character.DampenersEnabled;
 
-            set
-            {
-                if (value != Character.DampenersEnabled)
-                {
-                    Character.DampenersEnabled = value;
-                    OnPropertyChanged(nameof(Dampeners));
-                }
-            }
+            set => SetProperty(Character.DampenersEnabled, value, nameof(Dampeners));
         }
 
         [XmlIgnore]
-        public float BatteryCapacity
-        {
-            get
-            {
-                return Character.Battery.CurrentCapacity;
-            }
 
-            set
-            {
-                if (value != Character.Battery.CurrentCapacity)
-                {
-                    Character.Battery.CurrentCapacity = value;
-                    OnPropertyChanged(nameof(BatteryCapacity));
-                }
-            }
+        public float BatteryCapacity // Character.Battery.CurrentCapacity ?? 0;
+        {
+            get => Character.Battery.CurrentCapacity;
+
+            set => SetProperty(Character.Battery.CurrentCapacity, value, nameof(BatteryCapacity));
         }
 
         [XmlIgnore]
         public float? Health
         {
-            get
-            {
-                return Character.Health;
-            }
+            get => Character.Health;
 
-            set
-            {
-                if (value != Character.Health)
-                {
-                    Character.Health = value;
-                    OnPropertyChanged(nameof(Health));
-                }
-            }
+            set => SetProperty(Character.Health, value, nameof(Health));
         }
+
+        //[XmlIgnore]
+
+
+        //public bool IsDead
+        //{
+        //    get =>  Character.IsDead;
+        //}
+
 
         [XmlIgnore]
         public float OxygenLevel
         {
             get
             {
-                if (Character.StoredGases == null)
+                if (Character?.StoredGases == null)
                     return 0;
                 // doesn't matter if Oxygen is not there, as it will still be 0.
                 MyObjectBuilder_Character.StoredGas gas = Character.StoredGases.FirstOrDefault(e => e.Id.SubtypeName == "Oxygen");
@@ -173,7 +125,7 @@
 
             set
             {
-                if (ReplaceGasValue("Oxygen", value))
+                if (Character != null && ReplaceGasValue("Oxygen", value))
                     OnPropertyChanged(nameof(OxygenLevel));
             }
         }
@@ -183,7 +135,8 @@
         {
             get
             {
-                if (Character.StoredGases == null)
+
+                if (Character?.StoredGases == null)
                     return 0;
                 // doesn't matter if Hydrogen is not there, as it will still be 0.
                 MyObjectBuilder_Character.StoredGas gas = Character.StoredGases.FirstOrDefault(e => e.Id.SubtypeName == "Hydrogen");
@@ -192,7 +145,7 @@
 
             set
             {
-                if (ReplaceGasValue("Hydrogen", value))
+                if (Character != null && ReplaceGasValue("Hydrogen", value))
                     OnPropertyChanged(nameof(HydrogenLevel));
             }
         }
@@ -200,69 +153,38 @@
         [XmlIgnore]
         public bool IsPlayer
         {
-            get
-            {
-                return _isPlayer;
-            }
+            get => _isPlayer;
 
-            set
-            {
-                if (value != _isPlayer)
-                {
-                    _isPlayer = value;
-                    OnPropertyChanged(nameof(IsPlayer));
-                }
-            }
+            set => SetProperty(ref _isPlayer, value, nameof(IsPlayer));
         }
 
         [XmlIgnore]
         public override double LinearVelocity
         {
-            get
-            {
-                return Character.LinearVelocity.ToVector3().LinearVector();
-            }
+            get => Character.LinearVelocity.ToVector3().LinearVector();
         }
+
 
         [XmlIgnore]
         public bool IsPilot
         {
-            get
-            {
-                return _isPilot;
-            }
+            get => _isPilot;
 
-            set
-            {
-                if (value != _isPilot)
-                {
-                    _isPilot = value;
-                    OnPropertyChanged(nameof(IsPilot));
-                }
-            }
+            set => SetProperty(ref _isPilot, value, nameof(IsPilot));
+           
         }
 
         [XmlIgnore]
         public InventoryEditorModel Inventory
         {
-            get
-            {
-                return _inventory;
-            }
+            get => _inventory;
 
-            set
-            {
-                if (value != _inventory)
-                {
-                    _inventory = value;
-                    OnPropertyChanged(nameof(Inventory));
-                }
-            }
+            set => SetProperty(ref _inventory, value, nameof(Inventory));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         [OnSerializing]
         private void OnSerializingMethod(StreamingContext context)
@@ -284,7 +206,7 @@
             if (string.IsNullOrEmpty(Character.DisplayName))
             {
                 Description = Res.ClsCharacterNPC;
-                DisplayName = Character.CharacterModel + dead;
+                DisplayName = (Character.CharacterModel ?? "Unknown Model") + dead;
                 Mass = SpaceEngineersConsts.PlayerMass; // no idea what an npc body weighs.
             }
             else
@@ -296,14 +218,16 @@
 
             if (Inventory == null)
             {
-                var inventories = Character.ComponentContainer.GetInventory();
-                if (inventories.Count > 0)
+                System.Collections.ObjectModel.ObservableCollection<InventoryEditorModel> inventories = Character.ComponentContainer.GetInventory();
+                if (inventories?.Count > 0)
                 {
                     Inventory = inventories[0];
                     Mass += Inventory.TotalMass;
                 }
                 else
+                {
                     Inventory = null;
+                }
             }
         }
 
@@ -322,7 +246,7 @@
         private bool ReplaceGasValue(string gasName, float value)
         {
             if (Character.StoredGases == null)
-                Character.StoredGases = new List<MyObjectBuilder_Character.StoredGas>();
+                Character.StoredGases = [];
 
             // Find the existing gas value.
             for (int i = 0; i < Character.StoredGases.Count; i++)
@@ -340,7 +264,7 @@
             }
 
             // If it doesn't exist for old save games, add it in.
-            MyObjectBuilder_Character.StoredGas newGas = new MyObjectBuilder_Character.StoredGas
+            MyObjectBuilder_Character.StoredGas newGas = new()
             {
                 // This could cause an exception if the gas names are ever changed, even in casing.
                 Id = MyDefinitionManager.Static.GetGasDefinitions().FirstOrDefault(e => e.Id.SubtypeName == gasName).Id,
@@ -349,7 +273,6 @@
             Character.StoredGases.Add(newGas);
             return true;
         }
-
         #endregion
     }
 }

@@ -1,28 +1,30 @@
-﻿namespace SEToolbox.Controls
-{
-    using System;
-    using System.Net;
+﻿using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
+namespace SEToolbox.Controls
+{
     // Actually it's a component, but meh.
 
-    class MyWebClient : WebClient
+    class MyWebClient : HttpClient
     {
-        public Uri ResponseUri { get; private set; }
-
-        protected override WebResponse GetWebResponse(WebRequest request)
+        public Uri RequestUri { get; private set; }
+        
+        public override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            WebResponse response;
-            try
-            {
-                response = base.GetWebResponse(request);
-            }
-            catch
-            {
-                response = null;
-            }
-
-            ResponseUri = (response != null) ? response.ResponseUri : null;
-
+            Task<HttpResponseMessage> response = base.SendAsync(request, cancellationToken);
+         try
+         {
+            response.Wait();
+         }
+         catch (Exception ex)
+         {
+           
+            throw new WebException( ex.Message);
+         }  
+             RequestUri = response?.Result.RequestMessage.RequestUri;
             return response;
         }
     }

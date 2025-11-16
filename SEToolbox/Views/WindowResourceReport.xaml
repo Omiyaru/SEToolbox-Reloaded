@@ -9,7 +9,7 @@
         lex:ResxLocalizationProvider.DefaultDictionary="Resources"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         ResizeMode="CanResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" WindowStyle="ThreeDBorderWindow"
-        Title="{lex:Loc WnResourceReportTitle}"  Height="600" Width="700" MinWidth="260" MinHeight="200" Icon="/SEToolbox;component/app.ico" Style="{StaticResource DefaultWindowStyle}"
+        Title="{lex:Loc WnResourceReportTitle}" Height="600" Width="700" MinWidth="260" MinHeight="200" Icon="/SEToolbox;component/app.ico" Style="{StaticResource DefaultWindowStyle}"
         commands:DialogService.IsRegisteredView="True"
         commands:DialogCloser.DialogResult="{Binding CloseResult}"
         FocusManager.FocusedElement="{Binding ElementName=uxInitialElement}">
@@ -20,46 +20,50 @@
     <Window.Cursor>
         <Binding Path="IsBusy" Converter="{StaticResource BusyMouseConverter}"/>
     </Window.Cursor>
-    <Grid IsEnabled="{Binding IsActive}">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid Margin="8">
-                <WebBrowser commands:BrowserBehavior.Html="{Binding ReportHtml}" />
-            </Grid>
-            <Grid Grid.Row="1" Margin="8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0"  MinWidth="120" Command="{Binding GenerateCommand}" Content="{lex:Loc WnResourceReportBtnGenerate}" IsDefault="True" Name="uxInitialElement"/>
-                <Button Grid.Column="1" Margin="8,0,0,0" MinWidth="80" Command="{Binding ExportCommand}" HorizontalAlignment="Left" Content="{lex:Loc WnResourceReportBtnExport}" Style="{StaticResource DropDownMenuButton}">
-                    <i:Interaction.Behaviors>
-                        <commands:ButtonDropDownMenuBehavior />
-                    </i:Interaction.Behaviors>
-                    <!--<Button.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Export"/>
-                            <Path x:Name="BtnArrow" Margin="4" VerticalAlignment="Center" Width="6" Fill="#FF527DB5" Stretch="Uniform" HorizontalAlignment="Right" Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z "/>
-                        </StackPanel>
-                    </Button.Content>-->
-                    <Button.ContextMenu>
-                        <ContextMenu HorizontalAlignment="Right">
-                            <MenuItem Header="{lex:Loc SEToolbox:Resources:WnResourceReportBtnCopy}" Command="{Binding CopyCommand}"/>
-                            <MenuItem Header="{lex:Loc SEToolbox:Resources:WnResourceReportBtnTextFile}" Command="{Binding ExportTextCommand}"/>
-                            <MenuItem Header="{lex:Loc SEToolbox:Resources:WnResourceReportBtnHtmlFile}" Command="{Binding ExportHtmlCommand}"/>
-                            <MenuItem Header="{lex:Loc SEToolbox:Resources:WnResourceReportBtnXmlFile}" Command="{Binding ExportXmlCommand}"/>
-                        </ContextMenu>
-                    </Button.ContextMenu>
-                </Button>
-                <ProgressBar Grid.Column="2" Margin="8,0,8,0" Value="{Binding Progress}" Maximum="{Binding MaximumProgress}" />
+    <Grid IsEnabled="{Binding IsActive, FallbackValue=False}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid Margin="8">
+                        <WebBrowser commands:BrowserBehavior.Html="{Binding ReportHtml, FallbackValue=''}" />
+                    </Grid>
+                    <Grid Grid.Row="1" Margin="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" MinWidth="120" Command="{Binding GenerateCommand}" Content="{lex:Loc WnResourceReportBtnGenerate}" IsDefault="True" Name="uxInitialElement"/>
+                       <Button Grid.Column="1" Margin="8,0,0,0" MinWidth="80" Command="{Binding ExportCommand}" HorizontalAlignment="Left" Style="{StaticResource DropDownMenuButton}">
+                        <i:Interaction.Behaviors>
+                            <commands:ButtonDropDownMenuBehavior />
+                        </i:Interaction.Behaviors>
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{lex:Loc WnResourceReportBtnExport}"/>
+                                <Path x:Name="BtnArrow" Margin="4" VerticalAlignment="Center" Width="6" Fill="#FF527DB5" Stretch="Uniform" HorizontalAlignment="Right" Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z "/>
+                            </StackPanel>
+                        </Button.Content>
+                        <Button.ContextMenu>
+                            <ContextMenu HorizontalAlignment="Right">
+                                <MenuItem Header="{lex:Loc WnResourceReportBtnCopy}" Command="{Binding CopyCommand}"/>
+                                <MenuItem Header="{lex:Loc WnResourceReportBtnTextFile}" Command="{Binding ExportTextCommand}"/>
+                                <MenuItem Header="{lex:Loc WnResourceReportBtnHtmlFile}" Command="{Binding ExportHtmlCommand}"/>
+                                <MenuItem Header="{lex:Loc WnResourceReportBtnXmlFile}" Command="{Binding ExportXmlCommand}"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                <ProgressBar Grid.Column="2" Margin="8,0,8,0" Value="{Binding Progress, FallbackValue=0}" Maximum="{Binding MaximumProgress, FallbackValue=100}" />
                 <Button Grid.Column="3" Width="90" Command="{Binding CloseCommand}" Content="{lex:Loc WnResourceReportBtnClose}" HorizontalAlignment="Right" IsCancel="True"/>
             </Grid>
         </Grid>
-        <controls:BusyIndicator Visibility="{Binding IsBusy, FallbackValue=Hidden, Converter={StaticResource BooleanToVisibilityConverter}}" />
+       <controls:BusyIndicator Mode="Spinner"
+                         Visibility="{Binding IsBusy,
+             Converter={StaticResource BooleanToVisibilityConverter},
+             FallbackValue=Collapsed}"/>
+
     </Grid>
 </Window>

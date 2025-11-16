@@ -1,7 +1,9 @@
-﻿namespace SEToolbox.Services
-{
-    using SEToolbox.Interfaces;
+﻿using System.Windows.Media;
 
+using SEToolbox.Interfaces;
+
+namespace SEToolbox.Services
+{
     /// <summary>
     /// ViewModel of the abstract ColorDialog.
     /// </summary>
@@ -15,7 +17,7 @@
             // Set default values
             AllowFullOpen = true;
             AnyColor = true;
-            CustomColors = new int[0];
+            CustomColors = [];
             FullOpen = false;
             ShowHelp = false;
             SolidColorOnly = true;
@@ -36,9 +38,9 @@
         /// </summary>
         public System.Drawing.Color? DrawingColor { get; set; }
 
-        public System.Windows.Media.Color? MediaColor { get; set; }
+        public Color? MediaColor { get; set; }
 
-        public System.Windows.Media.SolidColorBrush BrushColor { get; set; }
+        public SolidColorBrush BrushColor { get; set; }
 
         /// <summary>
         /// Gets or sets the set of custom colors shown in the dialog box.

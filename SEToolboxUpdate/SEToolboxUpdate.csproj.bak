@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Title>SEToolboxUpdate</Title>
+    <Description>Space Engineers Toolbox - Updater</Description>
+    <Company>Mid-Space Productions</Company>
+    <Product>SEToolbox</Product>
+    <Copyright>Copyright © MidSpace 2013-2018</Copyright>
+    <Platforms>AnyCPU;x64</Platforms>
+    <OutputPath>bin\$(Platform)\$(Configuration)</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="..\SEToolbox\Support\DiagnosticsLogging.cs">
+      <Link>Support\DiagnosticsLogging.cs</Link>
+    </Compile>
+    <Compile Include="..\SEToolbox\Support\GlobalSettings.cs">
+      <Link>Support\GlobalSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\SEToolbox\Support\ToolboxUpdater.cs">
+      <Link>Support\ToolboxUpdater.cs</Link>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="app.ico" />
+  </ItemGroup>
+</Project>

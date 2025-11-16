@@ -1,16 +1,16 @@
-﻿namespace SEToolbox.Models
-{
-    using System;
-    using System.Runtime.Serialization;
-    using System.Xml.Serialization;
-    using Sandbox.Definitions;
-    using SEToolbox.Interop;
-    using VRage.Game;
-    using VRage.ObjectBuilders;
-    using Res = SEToolbox.Properties.Resources;
+﻿using System;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using Sandbox.Definitions;
+using SEToolbox.Interop;
+using VRage.Game;
+using VRage.ObjectBuilders;
+using Res = SEToolbox.Properties.Resources;
 
+namespace SEToolbox.Models
+{
     [Serializable]
-    public class StructureFloatingObjectModel : StructureBaseModel
+    public class StructureFloatingObjectModel(MyObjectBuilder_EntityBase entityBase) : StructureBaseModel(entityBase)
     {
         #region Fields
 
@@ -23,13 +23,7 @@
         private decimal? _units;
 
         #endregion
-
-        #region ctor
-
-        public StructureFloatingObjectModel(MyObjectBuilder_EntityBase entityBase)
-            : base(entityBase)
-        {
-        }
+        #region Ctor
 
         #endregion
 
@@ -47,60 +41,30 @@
         [XmlIgnore]
         public MyObjectBuilder_InventoryItem Item
         {
-            get
-            {
-                return FloatingObject.Item;
-            }
+            get => FloatingObject.Item;
 
-            set
-            {
-                if (value != FloatingObject.Item)
-                {
-                    FloatingObject.Item = value;
-                    OnPropertyChanged(nameof(Item));
-                }
-            }
+            set => SetProperty(FloatingObject.Item, value, nameof(Item));
         }
 
         [XmlIgnore]
         public double? Volume
         {
-            get
-            {
-                return _volume;
-            }
+            get => _volume;
 
-            set
-            {
-                if (value != _volume)
-                {
-                    _volume = value;
-                    OnPropertyChanged(nameof(Volume));
-                }
-            }
+            set => SetProperty(ref _volume, value, nameof(Volume));
         }
 
         [XmlIgnore]
         public decimal? Units
         {
-            get
-            {
-                return _units;
-            }
+            get => _units;
 
-            set
-            {
-                if (value != _units)
-                {
-                    _units = value;
-                    OnPropertyChanged(nameof(Units));
-                }
-            }
+            set => SetProperty(ref _units, value, nameof(Units));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         [OnSerializing]
         private void OnSerializingMethod(StreamingContext context)
@@ -118,8 +82,8 @@
         {
             ClassType = ClassType.FloatingObject;
 
-            var cd = (MyPhysicalItemDefinition)MyDefinitionManager.Static.GetDefinition(FloatingObject.Item.PhysicalContent.TypeId, FloatingObject.Item.PhysicalContent.SubtypeName);
-            var friendlyName = cd != null ? SpaceEngineersApi.GetResourceName(cd.DisplayNameText) : FloatingObject.Item.PhysicalContent.SubtypeName;
+            MyPhysicalItemDefinition cd = (MyPhysicalItemDefinition)MyDefinitionManager.Static.GetDefinition(FloatingObject.Item.PhysicalContent.TypeId, FloatingObject.Item.PhysicalContent.SubtypeName);
+            string friendlyName = cd != null ? SpaceEngineersApi.GetResourceName(cd.DisplayNameText) : FloatingObject.Item.PhysicalContent.SubtypeName;
 
             if (FloatingObject.Item.PhysicalContent is MyObjectBuilder_Ore)
             {
@@ -127,7 +91,7 @@
                 Units = (decimal)FloatingObject.Item.Amount;
                 Volume = cd == null ? 0 : cd.Volume * SpaceEngineersConsts.VolumeMultiplyer * (double)FloatingObject.Item.Amount;
                 Mass = cd == null ? 0 : cd.Mass * (double)FloatingObject.Item.Amount;
-                Description = string.Format("{0:#,##0.00} {1}", Mass, Res.GlobalSIMassKilogram);
+                Description = string.Format($"{Mass:#,##0.00} {Res.GlobalSIMassKilogram}");
             }
             else if (FloatingObject.Item.PhysicalContent is MyObjectBuilder_Ingot)
             {
@@ -135,7 +99,7 @@
                 Units = (decimal)FloatingObject.Item.Amount;
                 Volume = cd == null ? 0 : cd.Volume * SpaceEngineersConsts.VolumeMultiplyer * (double)FloatingObject.Item.Amount;
                 Mass = cd == null ? 0 : cd.Mass * (double)FloatingObject.Item.Amount;
-                Description = string.Format("{0:#,##0.00} {1}", Mass, Res.GlobalSIMassKilogram);
+                Description = string.Format($"{Mass:#,##0.00} {Res.GlobalSIMassKilogram}");
             }
             else
             {

@@ -1,39 +1,38 @@
-﻿namespace SEToolbox.Interop.Models
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using BulletXNA.BulletCollision;
+using VRage.Import;
+using VRageMath;
+using VRageMath.PackedVector;
+using VRageRender.Animations;
+using VRageRender.Import;
+
+namespace SEToolbox.Interop.Models
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-
-    using BulletXNA.BulletCollision;
-    using VRage.Import;
-    using VRageMath;
-    using VRageMath.PackedVector;
-    using VRageRender.Animations;
-    using VRageRender.Import;
-
     public static class MyModel
     {
         #region LoadModelData
 
-        public static Dictionary<string, object> LoadModelData(string filename)
+        public static Dictionary<string, object> LoadModelData(string fileName)
         {
-            var model = new MyModelImporter();
-            model.ImportData(filename);
+            MyModelImporter model = new();
+            model.ImportData(fileName);
             return model.GetTagData();
         }
 
         /// <summary>
         /// Load Model Data
         /// </summary>
-        /// <param name="filename"></param>
+        /// <param name="fileName"></param>
         /// <returns></returns>
-        public static Dictionary<string, object> LoadCustomModelData(string filename)
+        public static Dictionary<string, object> LoadCustomModelData(string fileName)
         {
-            var data = new Dictionary<string, object>();
+            Dictionary<string, object> data = [];
 
-            using (var stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
             {
                 var reader = new BinaryReader(stream);
                 try
@@ -53,36 +52,31 @@
 
         #region SaveModelData
 
-        public static void SaveModelData(string filename, Dictionary<string, object> data)
+        public static void SaveModelData(string fileName, Dictionary<string, object> data)
         {
-            var methods = typeof(MyModel).GetMethods(BindingFlags.Static | BindingFlags.NonPublic);
+            MethodInfo[] methods = typeof(MyModel).GetMethods(BindingFlags.Static | BindingFlags.NonPublic);
 
-            using (var fileStream = new FileStream(filename, FileMode.Create))
+            using FileStream fileStream = new(fileName, FileMode.Create);
+            BinaryWriter writer = new(fileStream);
+            foreach (var kvp in data)
             {
-                var writer = new BinaryWriter(fileStream);
-                foreach (var kvp in data)
-                {
-                    var method = methods.FirstOrDefault(m => m.Name.Equals("ExportData") && m.GetParameters().Length > 2 && m.GetParameters()[2].ParameterType == kvp.Value.GetType());
+                MethodInfo method = methods.FirstOrDefault(m => m.Name.Equals("ExportData") && m.GetParameters().Length > 2 && m.GetParameters()[2].ParameterType == kvp.Value.GetType());
 
-                    if (method != null)
-                    {
-                        method.Invoke(null, new[] { writer, kvp.Key, kvp.Value });
-                    }
-                    else
-                    {
-                        method = methods.FirstOrDefault(m => m.Name.Equals("ExportData") && m.GetParameters().Length > 2 && m.GetParameters()[2].ParameterType == kvp.Value.GetType().MakeByRefType());
-                        if (method != null)
-                        {
-                            method.Invoke(null, new[] { writer, kvp.Key, kvp.Value });
-                        }
-                    }
+                if (method != null)
+                {
+                    method.Invoke(null, [writer, kvp.Key, kvp.Value]);
+                }
+                else
+                {
+                    method = methods.FirstOrDefault(m => m.Name.Equals("ExportData") && m.GetParameters().Length > 2 && m.GetParameters()[2].ParameterType == kvp.Value.GetType().MakeByRefType());
+                    method.Invoke(null, [writer, kvp.Key, kvp.Value]);
                 }
             }
         }
 
         #endregion
 
-        #region Write helpers
+        #region Write Helpers
 
         private static void WriteBone(this BinaryWriter writer, ref MyModelBone bone)
         {
@@ -216,7 +210,7 @@
 
         #endregion
 
-        #region Export Data packers
+        #region Export Data Packers
 
         private static bool ExportDataPackedAsHV4(this BinaryWriter writer, string tagName, Vector3[] vectorArray)
         {
@@ -229,10 +223,10 @@
             }
 
             writer.Write(vectorArray.Length);
-            foreach (var vectorVal in vectorArray)
+            foreach (Vector3 vectorVal in vectorArray)
             {
-                var v = vectorVal;
-                var vector = VF_Packer.PackPosition(ref v);
+                Vector3 v = vectorVal;
+                HalfVector4 vector = VF_Packer.PackPosition(ref v);
                 WriteHalfVector4(writer, ref vector);
             }
 
@@ -250,9 +244,9 @@
             }
 
             writer.Write(vectorArray.Length);
-            foreach (var vectorVal in vectorArray)
+            foreach (Vector2 vectorVal in vectorArray)
             {
-                var vector = new HalfVector2(vectorVal);
+                HalfVector2 vector = new(vectorVal);
                 WriteHalfVector2(writer, ref vector);
             }
 
@@ -270,11 +264,13 @@
             }
 
             writer.Write(vectorArray.Length);
-            foreach (var vectorVal in vectorArray)
+            foreach (Vector3 vectorVal in vectorArray)
             {
-                var v = vectorVal;
-                var vector = new Byte4();
-                vector.PackedValue = VF_Packer.PackNormal(ref v);
+                Vector3 v = vectorVal;
+                Byte4 vector = new()
+                {
+                    PackedValue = VF_Packer.PackNormal(ref v)
+                };
                 WriteByte4(writer, ref vector);
             }
 
@@ -292,7 +288,7 @@
             }
 
             writer.Write(vectorArray.Length);
-            foreach (var vectorVal in vectorArray)
+            foreach (HalfVector4 vectorVal in vectorArray)
             {
                 writer.Write(vectorVal.PackedValue);
             }
@@ -311,7 +307,7 @@
             }
 
             writer.Write(vectorArray.Length);
-            foreach (var vectorVal in vectorArray)
+            foreach (HalfVector2 vectorVal in vectorArray)
             {
                 writer.Write(vectorVal.PackedValue);
             }
@@ -330,7 +326,7 @@
             }
 
             writer.Write(vectorArray.Length);
-            foreach (var vectorVal in vectorArray)
+            foreach (Byte4 vectorVal in vectorArray)
             {
                 writer.Write(vectorVal.PackedValue);
             }
@@ -352,9 +348,9 @@
 
             WriteTag(writer, tagName);
             writer.Write(vectorArray.Length);
-            foreach (var vectorVal in vectorArray)
+            foreach (Vector3 vectorVal in vectorArray)
             {
-                var vector = vectorVal;
+                Vector3 vector = vectorVal;
                 WriteVector3(writer, ref vector);
             }
 
@@ -375,9 +371,9 @@
 
             WriteTag(writer, tagName);
             writer.Write(vectorArray.Length);
-            foreach (var vectorVal in vectorArray)
+            foreach (Vector4 vectorVal in vectorArray)
             {
-                var vector = vectorVal;
+                Vector4 vector = vectorVal;
                 WriteVector4(writer, ref vector);
             }
 
@@ -398,9 +394,9 @@
 
             WriteTag(writer, tagName);
             writer.Write(vectorArray.Length);
-            foreach (var vectorVal in vectorArray)
+            foreach (Vector3I vectorVal in vectorArray)
             {
-                var vector = vectorVal;
+                Vector3I vector = vectorVal;
                 WriteVector3I(writer, ref vector);
             }
 
@@ -421,9 +417,9 @@
 
             WriteTag(writer, tagName);
             writer.Write(vectorArray.Length);
-            foreach (var vectorVal in vectorArray)
+            foreach (Vector4I vectorVal in vectorArray)
             {
-                var vector = vectorVal;
+                Vector4I vector = vectorVal;
                 WriteVector4I(writer, ref vector);
             }
 
@@ -444,9 +440,9 @@
 
             WriteTag(writer, tagName);
             writer.Write(matrixArray.Length);
-            foreach (var matVal in matrixArray)
+            foreach (Matrix matVal in matrixArray)
             {
-                var mat = matVal;
+                Matrix mat = matVal;
                 WriteMatrix(writer, ref mat);
             }
 
@@ -471,9 +467,9 @@
             }
 
             writer.Write(vectorArray.Length);
-            foreach (var vectorVal in vectorArray)
+            foreach (Vector2 vectorVal in vectorArray)
             {
-                var vector = vectorVal;
+                Vector2 vector = vectorVal;
                 WriteVector2(writer, ref vector);
             }
 
@@ -498,7 +494,7 @@
             }
 
             writer.Write(stringArrayay.Length);
-            foreach (var sVal in stringArrayay)
+            foreach (string sVal in stringArrayay)
                 writer.Write(sVal);
 
             return true;
@@ -523,7 +519,7 @@
             }
 
             writer.Write(intArray.Length);
-            foreach (var iVal in intArray)
+            foreach (int iVal in intArray)
                 writer.Write(iVal);
 
             return true;
@@ -596,7 +592,7 @@
         {
             WriteTag(writer, tagName);
 
-            var buffer = bvh.Save();
+            byte[] buffer = bvh.Save();
 
             writer.Write(buffer.Length);
             writer.Write(bvh.Save());
@@ -610,21 +606,21 @@
 
             writer.Write(animations.Clips.Count);
 
-            foreach (var clip in animations.Clips)
+            foreach (MyAnimationClip clip in animations.Clips)
             {
                 writer.Write(clip.Name);
                 writer.Write(clip.Duration);
                 writer.Write(clip.Bones.Count);
 
-                foreach (var bone in clip.Bones)
+                foreach (MyAnimationClip.Bone bone in clip.Bones)
                 {
                     writer.Write(bone.Name);
                     writer.Write(bone.Keyframes.Count);
 
-                    foreach (var keyframe in bone.Keyframes)
+                    foreach (MyAnimationClip.Keyframe keyframe in bone.Keyframes)
                     {
                         writer.Write(keyframe.Time);
-                        var rotation = keyframe.Rotation.ToVector4();
+                        Vector4 rotation = keyframe.Rotation.ToVector4();
                         writer.WriteVector4(ref rotation);
                         writer.WriteVector3(ref keyframe.Translation);
                     }
@@ -633,7 +629,7 @@
 
             writer.Write(animations.Skeleton.Count);
 
-            foreach (var skeleton in animations.Skeleton)
+            foreach (int skeleton in animations.Skeleton)
                 writer.Write(skeleton);
 
             return true;
@@ -644,9 +640,9 @@
             WriteTag(writer, tagName);
             writer.Write(boneArray.Length);
 
-            foreach (var boneVal in boneArray)
+            foreach (MyModelBone boneVal in boneArray)
             {
-                var bone = boneVal;
+                MyModelBone bone = boneVal;
                 WriteBone(writer, ref bone);
             }
 
@@ -658,7 +654,7 @@
             WriteTag(writer, tagName);
             writer.Write(lodArray.Length);
 
-            foreach (var lodVal in lodArray)
+            foreach (MyLODDescriptor lodVal in lodArray)
             {
                 lodVal.Write(writer);
             }
@@ -677,10 +673,10 @@
         {
             WriteTag(writer, tagName);
             writer.Write(dict.Count);
-            foreach (var pair in dict)
+            foreach (KeyValuePair<string, Matrix> pair in dict)
             {
                 writer.Write(pair.Key);
-                var mat = pair.Value;
+                Matrix mat = pair.Value;
                 WriteMatrix(writer, ref mat);
             }
             return true;
@@ -697,9 +693,9 @@
         {
             WriteTag(writer, tagName);
             writer.Write(dict.Count);
-            foreach (var pair in dict)
+            foreach (KeyValuePair<int, MyMeshPartInfo> pair in dict)
             {
-                var meshInfo = pair.Value;
+                MyMeshPartInfo meshInfo = pair.Value;
                 meshInfo.Export(writer);
             }
 
@@ -710,7 +706,7 @@
         {
             WriteTag(writer, tagName);
             writer.Write(list.Count);
-            foreach (var meshInfo in list)
+            foreach (MyMeshPartInfo meshInfo in list)
             {
                 meshInfo.Export(writer);
             }
@@ -729,14 +725,14 @@
         {
             WriteTag(writer, tagName);
             writer.Write(dict.Count);
-            foreach (var pair in dict)
+            foreach (KeyValuePair<string, MyModelDummy> pair in dict)
             {
                 writer.Write(pair.Key);
-                var mat = pair.Value.Matrix;
+                Matrix mat = pair.Value.Matrix;
                 WriteMatrix(writer, ref mat);
 
                 writer.Write(pair.Value.CustomData.Count);
-                foreach (var customDataPair in pair.Value.CustomData)
+                foreach (KeyValuePair<string, object> customDataPair in pair.Value.CustomData)
                 {
                     writer.Write(customDataPair.Key);
                     writer.Write(customDataPair.Value.ToString());
@@ -775,7 +771,7 @@
 
         #endregion
 
-        #region read helpers
+        #region Read Helpers
 
         /// <summary>
         /// Read HalfVector4
@@ -879,9 +875,9 @@
         /// <returns></returns>
         private static Vector3[] ReadArrayOfVector3(BinaryReader reader)
         {
-            var nCount = reader.ReadInt32();
-            var vectorArray = new Vector3[nCount];
-            for (var i = 0; i < nCount; ++i)
+            int nCount = reader.ReadInt32();
+            Vector3[] vectorArray = new Vector3[nCount];
+            for (int i = 0; i < nCount; ++i)
             {
                 vectorArray[i] = ReadVector3(reader);
             }
@@ -896,9 +892,9 @@
         /// <returns></returns>
         private static Vector3I[] ReadArrayOfVector3I(BinaryReader reader)
         {
-            var nCount = reader.ReadInt32();
-            var vectorArray = new Vector3I[nCount];
-            for (var i = 0; i < nCount; ++i)
+            int nCount = reader.ReadInt32();
+            Vector3I[] vectorArray = new Vector3I[nCount];
+            for (int i = 0; i < nCount; ++i)
             {
                 vectorArray[i] = ReadVector3I(reader);
             }
@@ -911,10 +907,10 @@
         /// </summary>
         private static Vector4[] ReadArrayOfVector4(BinaryReader reader)
         {
-            var nCount = reader.ReadInt32();
-            var vectorArray = new Vector4[nCount];
+            int nCount = reader.ReadInt32();
+            Vector4[] vectorArray = new Vector4[nCount];
 
-            for (var i = 0; i < nCount; ++i)
+            for (int i = 0; i < nCount; ++i)
             {
                 vectorArray[i] = ReadVector4(reader);
             }
@@ -927,10 +923,10 @@
         /// </summary>
         private static HalfVector4[] ReadArrayOfHalfVector4(BinaryReader reader)
         {
-            var nCount = reader.ReadInt32();
-            var vectorArray = new HalfVector4[nCount];
+            int nCount = reader.ReadInt32();
+            HalfVector4[] vectorArray = new HalfVector4[nCount];
 
-            for (var i = 0; i < nCount; ++i)
+            for (int i = 0; i < nCount; ++i)
             {
                 vectorArray[i] = ReadHalfVector4(reader);
             }
@@ -943,10 +939,10 @@
         /// </summary>
         private static Byte4[] ReadArrayOfByte4(BinaryReader reader)
         {
-            var nCount = reader.ReadInt32();
-            var vectorArray = new Byte4[nCount];
+            int nCount = reader.ReadInt32();
+            Byte4[] vectorArray = new Byte4[nCount];
 
-            for (var i = 0; i < nCount; ++i)
+            for (int i = 0; i < nCount; ++i)
             {
                 vectorArray[i] = ReadByte4(reader);
             }
@@ -959,10 +955,10 @@
         /// </summary>
         private static HalfVector2[] ReadArrayOfHalfVector2(BinaryReader reader)
         {
-            var nCount = reader.ReadInt32();
-            var vectorArray = new HalfVector2[nCount];
+            int nCount = reader.ReadInt32();
+            HalfVector2[] vectorArray = new HalfVector2[nCount];
 
-            for (var i = 0; i < nCount; ++i)
+            for (int i = 0; i < nCount; ++i)
             {
                 vectorArray[i] = ReadHalfVector2(reader);
             }
@@ -978,9 +974,9 @@
         /// <returns></returns>
         private static Vector2[] ReadArrayOfVector2(BinaryReader reader)
         {
-            var nCount = reader.ReadInt32();
-            var vectorArray = new Vector2[nCount];
-            for (var i = 0; i < nCount; ++i)
+            int nCount = reader.ReadInt32();
+            Vector2[] vectorArray = new Vector2[nCount];
+            for (int i = 0; i < nCount; ++i)
             {
                 vectorArray[i] = ReadVector2(reader);
             }
@@ -995,9 +991,9 @@
         /// <returns></returns>
         private static string[] ReadArrayOfString(BinaryReader reader)
         {
-            var nCount = reader.ReadInt32();
-            var stringArray = new string[nCount];
-            for (var i = 0; i < nCount; ++i)
+            int nCount = reader.ReadInt32();
+            string[] stringArray = new string[nCount];
+            for (int i = 0; i < nCount; ++i)
             {
                 stringArray[i] = reader.ReadString();
             }
@@ -1016,7 +1012,6 @@
             boundingBox.Min = ReadVector3(reader);
             boundingBox.Max = ReadVector3(reader);
             return boundingBox;
-
         }
 
         /// <summary>
@@ -1071,11 +1066,13 @@
         /// <returns></returns>
         private static List<MyMeshPartInfo> ReadMeshParts(BinaryReader reader)
         {
-            var list = new List<MyMeshPartInfo>();
-            var nCount = reader.ReadInt32();
-            for (var i = 0; i < nCount; ++i)
+            List<MyMeshPartInfo> list = [];
+            int nCount = reader.ReadInt32();
+            for (int i = 0; i < nCount; ++i)
             {
-                var meshPart = new MyMeshPartInfo();
+                MyMeshPartInfo meshPart = new();
+                int version = reader.ReadInt32();
+                meshPart.Import(reader, version);
                 meshPart.Import(reader, 0); // TODO: test version detail
                 list.Add(meshPart);
             }
@@ -1090,25 +1087,25 @@
         /// <returns></returns>
         private static Dictionary<string, MyModelDummy> ReadDummies(BinaryReader reader)
         {
-            var dummies = new Dictionary<string, MyModelDummy>();
-            var nCount = reader.ReadInt32();
+            Dictionary<string, MyModelDummy> dummies = [];
+            int nCount = reader.ReadInt32();
 
-            for (var i = 0; i < nCount; ++i)
+            for (int i = 0; i < nCount; ++i)
             {
-                var str = reader.ReadString();
-                var mat = ReadMatrix(reader);
+                string str = reader.ReadString();
+                Matrix mat = ReadMatrix(reader);
 
-                var customData = new Dictionary<string, object>();
-                var customDataCount = reader.ReadInt32();
+                Dictionary<string, object> customData = [];
+                int customDataCount = reader.ReadInt32();
 
-                for (var j = 0; j < customDataCount; ++j)
+                for (int j = 0; j < customDataCount; ++j)
                 {
-                    var name = reader.ReadString();
-                    var value = reader.ReadString();
+                    string name = reader.ReadString();
+                    string value = reader.ReadString();
                     customData.Add(name, value);
                 }
 
-                var dummy = new MyModelDummy { Matrix = mat, CustomData = customData };
+                MyModelDummy dummy = new() { Matrix = mat, CustomData = customData };
                 dummies.Add(str, dummy);
             }
 
@@ -1122,9 +1119,9 @@
         /// <returns></returns>
         private static int[] ReadArrayOfInt(BinaryReader reader)
         {
-            var nCount = reader.ReadInt32();
-            var intArr = new int[nCount];
-            for (var i = 0; i < nCount; ++i)
+            int nCount = reader.ReadInt32();
+            int[] intArr = new int[nCount];
+            for (int i = 0; i < nCount; ++i)
             {
                 intArr[i] = reader.ReadInt32();
             }
@@ -1134,35 +1131,35 @@
 
         private static byte[] ReadArrayOfBytes(BinaryReader reader)
         {
-            var nCount = reader.ReadInt32();
-            var data = reader.ReadBytes(nCount);
+            int nCount = reader.ReadInt32();
+            byte[] data = reader.ReadBytes(nCount);
             return data;
         }
 
         private static ModelAnimations ReadModelAnimations(BinaryReader reader)
         {
-            var modelAnimations = new ModelAnimations { Clips = new List<MyAnimationClip>() };
-            var animationCount = reader.ReadInt32();
+            ModelAnimations modelAnimations = new() { Clips = [] };
+            int animationCount = reader.ReadInt32();
 
-            for (var i = 0; i < animationCount; i++)
+            for (int i = 0; i < animationCount; i++)
             {
-                var clipName = reader.ReadString();
-                var duration = reader.ReadDouble();
-                var animationClip = new MyAnimationClip() { Name = clipName, Duration = duration };
+                string clipName = reader.ReadString();
+                double duration = reader.ReadDouble();
+                MyAnimationClip animationClip = new() { Name = clipName, Duration = duration };
 
-                var boneCount = reader.ReadInt32();
-                for (var j = 0; j < boneCount; j++)
+                int boneCount = reader.ReadInt32();
+                for (int j = 0; j < boneCount; j++)
                 {
-                    var boneName = reader.ReadString();
-                    var bone = new MyAnimationClip.Bone() { Name = boneName };
-                    var keyFrameCount = reader.ReadInt32();
+                    string boneName = reader.ReadString();
+                    MyAnimationClip.Bone bone = new() { Name = boneName };
+                    int keyFrameCount = reader.ReadInt32();
 
-                    for (var k = 0; k < keyFrameCount; k++)
+                    for (int k = 0; k < keyFrameCount; k++)
                     {
-                        var time = reader.ReadDouble();
-                        var vector = ReadVector4(reader);
-                        var rotation = new Quaternion(vector.X, vector.Y, vector.Z, vector.W);
-                        var translation = ReadVector3(reader);
+                        double time = reader.ReadDouble();
+                        Vector4 vector = ReadVector4(reader);
+                        Quaternion rotation = new(vector.X, vector.Y, vector.Z, vector.W);
+                        Vector3 translation = ReadVector3(reader);
                         bone.Keyframes.Add(new MyAnimationClip.Keyframe() { Time = time, Rotation = rotation, Translation = translation });
                     }
 
@@ -1172,20 +1169,20 @@
                 modelAnimations.Clips.Add(animationClip);
             }
 
-            modelAnimations.Skeleton = ReadArrayOfInt(reader).ToList();
+            modelAnimations.Skeleton = [.. ReadArrayOfInt(reader)];
             return modelAnimations;
         }
 
         private static MyModelBone[] ReadMyModelBoneArray(BinaryReader reader)
         {
-            var nCount = reader.ReadInt32();
-            var myModelBoneArray = new MyModelBone[nCount];
+            int nCount = reader.ReadInt32();
+            MyModelBone[] myModelBoneArray = new MyModelBone[nCount];
 
-            for (var i = 0; i < nCount; i++)
+            for (int i = 0; i < nCount; i++)
             {
-                var name = reader.ReadString();
-                var parent = reader.ReadInt32();
-                var matrix = ReadMatrix(reader);
+                string name = reader.ReadString();
+                int parent = reader.ReadInt32();
+                Matrix matrix = ReadMatrix(reader);
                 myModelBoneArray[i] = new MyModelBone { Name = name, Parent = parent, Transform = matrix };
             }
 
@@ -1194,14 +1191,14 @@
 
         private static MyLODDescriptor[] ReadMyLodDescriptorArray(BinaryReader reader)
         {
-            var nCount = reader.ReadInt32();
-            var myLodDescriptorArray = new MyLODDescriptor[nCount];
+            int nCount = reader.ReadInt32();
+            MyLODDescriptor[] myLodDescriptorArray = new MyLODDescriptor[nCount];
 
-            for (var i = 0; i < nCount; i++)
+            for (int i = 0; i < nCount; i++)
             {
-                var distance = reader.ReadSingle();
-                var model = reader.ReadString();
-                var renderQuality = reader.ReadString();
+                float distance = reader.ReadSingle();
+                string model = reader.ReadString();
+                string renderQuality = reader.ReadString();
                 myLodDescriptorArray[i] = new MyLODDescriptor { Distance = distance, Model = model, RenderQuality = renderQuality };
             }
 
@@ -1210,7 +1207,7 @@
 
         #endregion
 
-        #region Import Data readers
+        #region Import Data Readers
 
         /// <summary>
         /// LoadTagData
@@ -1220,7 +1217,7 @@
         {
             while (reader.BaseStream.Position != reader.BaseStream.Length)
             {
-                var tagName = reader.ReadString();
+                string tagName = reader.ReadString();
 
                 switch (tagName)
                 {
@@ -1276,11 +1273,11 @@
                         data.Add(tagName, reader.ReadBoolean());
                         break;
 
-                    //case MyImporterConstants.TAG_SPECULAR_SHININESS:
+                    // case MyImporterConstants.TAG_SPECULAR_SHININESS:
                     //    data.Add(tagName, reader.ReadSingle());
                     //    break;
 
-                    //case MyImporterConstants.TAG_SPECULAR_POWER:
+                    // case MyImporterConstants.TAG_SPECULAR_POWER:
                     //    data.Add(tagName, reader.ReadSingle());
                     //    break;
 
@@ -1301,15 +1298,15 @@
                         break;
 
                     case MyImporterConstants.TAG_MODEL_BVH:
-                        var bvh = new GImpactQuantizedBvh();
+                        GImpactQuantizedBvh bvh = new();
                         bvh.Load(ReadArrayOfBytes(reader));
                         data.Add(tagName, bvh);
                         break;
 
                     case MyImporterConstants.TAG_MODEL_INFO:
-                        var tri = reader.ReadInt32();
-                        var vert = reader.ReadInt32();
-                        var bb = ReadVector3(reader);
+                        int tri = reader.ReadInt32();
+                        int vert = reader.ReadInt32();
+                        Vector3 bb = ReadVector3(reader);
                         data.Add(tagName, new MyModelInfo(tri, vert, bb));
                         break;
 
@@ -1345,8 +1342,39 @@
                         data.Add(tagName, ReadMyLodDescriptorArray(reader));
                         break;
 
+                    case MyImporterConstants.TAG_HAVOK_DESTRUCTION_GEOMETRY:
+                        data.Add(tagName, ReadArrayOfBytes(reader));
+                        break;
+
+                    case MyImporterConstants.TAG_HAVOK_DESTRUCTION:
+                        data.Add(tagName, ReadArrayOfBytes(reader));
+                        break;
+
+                    case MyImporterConstants.TAG_FBXHASHSTRING:
+                        data.Add(tagName, reader.ReadString());
+                        break;
+
+                    case MyImporterConstants.TAG_HKTHASHSTRING:
+                        data.Add(tagName, reader.ReadString());
+                        break;
+
+                    case MyImporterConstants.TAG_XMLHASHSTRING:
+                        data.Add(tagName, reader.ReadString());
+                        break;
+
+                    // case MyImporterConstants.TAG_MODEL_FRACTURES:
+                    //     data.Add(tagName, ReadArrayOfBytes(reader));
+                    //     break;
+
+                    case MyImporterConstants.TAG_GEOMETRY_DATA_ASSET:
+                        data.Add(tagName, ReadArrayOfBytes(reader));
+                        break;
+
+                    case MyImporterConstants.TAG_IS_SKINNED:
+                        data.Add(tagName, reader.ReadBoolean());
+                        break;
                     default:
-                        throw new NotImplementedException(string.Format("tag '{0}' has not been implmented ", tagName));
+                        throw new NotImplementedException(string.Format("tag '{0}' has not been implemented ", tagName));
                 }
             }
         }

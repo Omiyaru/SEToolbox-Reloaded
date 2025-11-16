@@ -1,96 +1,251 @@
-﻿namespace SEToolbox.Support
+﻿using System;
+using System.Configuration;
+using System.IO;
+using System.Text;
+
+
+namespace SEToolbox.Support
 {
-    using System.Web.UI;
+
 
     internal static class HtmlExtensions
     {
+        private static readonly char[] _htmlChars = ['<', '>', '&', '"'];
+
         #region BeginDocument
 
-        internal static void BeginDocument(this HtmlTextWriter writer, string title, string inlineStyleSheet)
+
+        internal static void BeginDocument(this StringWriter writer, string title, string inlineStyleSheet)
         {
-            writer.AddAttribute("http-equiv", "Content-Type");
-            writer.AddAttribute("content", "text/html;charset=UTF-8");
-            writer.RenderBeginTag(HtmlTextWriterTag.Meta);
-            writer.RenderEndTag();
-
-            writer.RenderBeginTag(HtmlTextWriterTag.Html);
-            writer.RenderBeginTag(HtmlTextWriterTag.Style);
-            writer.Write(inlineStyleSheet);
-            writer.RenderEndTag(); // Style
-
-            writer.RenderBeginTag(HtmlTextWriterTag.Head);
-            writer.RenderBeginTag(HtmlTextWriterTag.Title);
-            writer.Write(title);
-            writer.RenderEndTag();
-            writer.RenderEndTag();
-
-            writer.RenderBeginTag(HtmlTextWriterTag.Body);
+            writer.WriteLine("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\" />");
+            writer.WriteLine("<html>");
+            writer.WriteLine("<style>");
+            writer.WriteLine(inlineStyleSheet);
+            writer.WriteLine("</style>");
+            writer.WriteLine("<head>");
+            writer.WriteLine("<title>" + title + "</title>");
+            writer.WriteLine("</head>");
+            writer.WriteLine("<body>");
         }
 
         #endregion
 
         #region EndDocument
 
-        internal static void EndDocument(this HtmlTextWriter writer)
+        internal static void EndDocument(this StringWriter writer)
         {
-            writer.RenderEndTag(); // Body
-            writer.RenderEndTag(); // Html
+            writer.Write("</body>");
+            writer.Write("</html>");
         }
 
         #endregion
 
         #region RenderElement
 
-        internal static void RenderElement(this HtmlTextWriter writer, HtmlTextWriterTag tag)
+
+        internal static void RenderElement(this StringWriter writer, string text, string tagName = null)
         {
-            writer.RenderBeginTag(tag);
-            writer.RenderEndTag();
+            writer.Write("<" + tagName + ">" + text + "</" + tagName + ">");
         }
 
-        internal static void RenderElement(this HtmlTextWriter writer, HtmlTextWriterTag tag, object value)
+        internal static void RenderElement(this StringWriter writer, string tagName = null)
         {
-            writer.RenderElement(tag, value.ToString());
+            writer.Write("<" + tagName + "/>");
+        }
+        internal static void RenderElement(this StringWriter writer, bool start, string tagName, string format, params object[] args)
+        {
+            writer.Write((start ? "<" : "</") + string.Format(format, tagName, args) + ">");
         }
 
-        internal static void RenderElement(this HtmlTextWriter writer, HtmlTextWriterTag tag, string format, params object[] arg)
+        internal static void RenderElement(this StringWriter writer, string tagName, object value, string text = null, string format = null, params object[] arg)
         {
-            writer.RenderBeginTag(tag);
+            Type type = value?.GetType();
+            writer.Write(type?.Name switch
+            {
+                null => string.Empty,
+                _ when type.IsInstanceOfType(value) => Convert.ToString(value),
+                _ when type.IsInstanceOfType(text) => text,
+                _ when type.IsInstanceOfType(format) => string.Format(format, arg),
+                _ => throw new ArgumentException($"Unsupported type: {type.Name}"),
+            });
+            writer.RenderElement(tagName, type);
+        }
+
+        internal static void RenderElement(this StringWriter writer, string tagName, string text, string format, params object[] arg)
+        {
+            RenderTag(writer, tagName, true);
+            if (text != null)
+            {
+                var index = text.IndexOfAny(_htmlChars);
+                if (index >= 0)
+                {
+                    writer.Write(text.Substring(0, index));
+                    writer.Write(HtmlEncode(text.Substring(index)));
+                }
+                else
+                {
+                    writer.Write(text);
+                }
+            }
             if (format != null)
-                writer.Write(format, arg);
-            writer.RenderEndTag();
+                writer.Write(string.Format(format, arg));
+            RenderTag(writer, tagName, false);
         }
+
+        internal static void AddAttribute(this StringWriter writer, string attributeName, string attributeValue)
+        => writer.Write($"{attributeName}=\"{attributeValue}\"");
+
+
+        private static string HtmlEncode(string text)
+        {
+            int index = text.IndexOfAny(_htmlChars);
+            if (index < 0)
+                return text;
+
+            var result = new StringBuilder(text.Length + 6);
+            int textLength = text.Length;
+            for (int i = 0; i < textLength; ++i)
+            {
+
+                result.Append(text[i] switch
+                {
+                    '<' => "&lt;",
+                    '>' => "&gt;",
+                    '&' => "&amp;",
+                    '"' => "&quot;",
+                    _ => $"{text[i]}",
+                });
+            }
+
+            return result.ToString();
+        }
+
+        internal static void RenderTag(this StringWriter writer, string tagName, bool start = true)
+        {
+            writer.Write((start ? "<" : "</") + tagName + ">");
+        }
+        internal static void RenderTagStart(this StringWriter writer, string tagName)
+        {
+            writer.Write("<" + tagName + ">");
+        }
+          internal static void RenderTagEnd(this StringWriter writer, string tagName)
+        {
+            writer.Write("</" + tagName + ">");
+        }
+        
+
 
         #endregion
 
         #region BeginTable
 
-        internal static void BeginTable(this HtmlTextWriter writer, string border, string cellpadding, string cellspacing, string[] headings)
+        internal static void BeginTable(this StringWriter writer, string border, string cellpadding, string cellspacing, string[] headings)
         {
-            writer.AddAttribute(HtmlTextWriterAttribute.Border, border);
-            writer.AddAttribute(HtmlTextWriterAttribute.Cellpadding, cellpadding);
-            writer.AddAttribute(HtmlTextWriterAttribute.Cellspacing, cellspacing);
-            writer.RenderBeginTag(HtmlTextWriterTag.Table);
-            writer.RenderBeginTag(HtmlTextWriterTag.Thead);
-            writer.RenderBeginTag(HtmlTextWriterTag.Tr);
-
-            foreach (var header in headings)
+            writer.Write("<table");
+            string str = null;
+            switch (!string.IsNullOrEmpty(str))
             {
-                writer.RenderBeginTag(HtmlTextWriterTag.Td);
-                writer.Write(header);
-                writer.RenderEndTag(); // Td
+                case bool when str == border:
+                    writer.Write($" border=\"{str}\"");
+                     break; 
+                case bool when str == cellpadding:
+                    writer.Write($" cellpadding=\"{str}\"");
+                    break;
+                case bool when str == cellspacing:
+                    writer.Write($" cellspacing=\"{str}\"");
+                    break;
+            }
+            writer.Write(">");
+            writer.WriteLine("<thead><tr>");
+
+            foreach (string header in headings)
+            {
+                writer.WriteLine("<th>{0}</th>", header);
             }
 
-            writer.RenderEndTag(); // Tr
-            writer.RenderEndTag(); // Thead
+            writer.Write("</tr>");
+            writer.Write("</thead>");
         }
 
         #endregion
 
         #region EndTable
 
-        internal static void EndTable(this HtmlTextWriter writer)
+        internal static void EndTable(this StringWriter writer)
         {
-            writer.RenderEndTag(); // Table
+            writer.Write("</table>");
+}
+    }
+    #endregion
+
+    internal static class HtmlWriter
+    {
+        #region HtmlWriter
+        internal class HtmlWriterSettings
+        {
+            public HtmlWriterSettings()
+            {
+                Encoding = Encoding.UTF8;
+            }
+
+            public Encoding Encoding { get; set; }
+            public string Doctype { get; set; }
+            public string DoctypeVersion { get; set; }
+            public string DoctypePublic { get; set; }
+            public string DoctypeSystem { get; set; }
+        }
+        public class HtmlElement
+        {
+            public string Tag { get; set; }
+            public string Text { get; set; }
+        }
+
+        internal static void WriteHtml(
+            this StringWriter writer,
+            string title,
+            string inlineStyleSheet,
+            (string tag, string text)[] elements,
+            string border,
+            string cellpadding,
+            string cellspacing,
+            string[] headings,
+            string[][] rows)
+        {
+            // Start doc
+            writer.BeginDocument(title, inlineStyleSheet);
+
+            // Render elements
+            if (elements != null)
+            {
+                foreach (var (tag, text) in elements)
+                {
+                    writer.RenderElement(tag, text);
+                }
+            }
+
+            // Render table
+            if (headings != null && headings.Length > 0)
+            {
+                writer.BeginTable(border, cellpadding, cellspacing, headings);
+
+                if (rows != null)
+                {
+                    foreach (var row in rows)
+                    {
+                        writer.Write("<tr>");
+                        foreach (var cell in row)
+                        {
+                            writer.RenderElement("td", cell ?? string.Empty);
+                        }
+                        writer.WriteLine("</tr>");
+                    }
+                }
+
+                writer.EndTable();
+            }
+
+            // End doc
+            writer.EndDocument();
         }
 
         #endregion

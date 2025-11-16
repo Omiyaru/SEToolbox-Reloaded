@@ -18,9 +18,9 @@ partial class Log
         var appFile = Path.GetFullPath(Assembly.GetEntryAssembly().Location);
         var appFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
-        diagReport.Append(Res.ClsErrorApplication).Append(' ').Append(ObsufacatePathNames(appFile)).AppendLine();
-        diagReport.Append(Res.ClsErrorCommandLine).Append(' ').Append(ObsufacatePathNames(Environment.CommandLine)).AppendLine();
-        diagReport.Append(Res.ClsErrorCurrentDirectory).Append(' ').Append(ObsufacatePathNames(Environment.CurrentDirectory)).AppendLine();
+        diagReport.Append(Res.ClsErrorApplication).Append(' ').Append(ObfuscatePathNames(appFile)).AppendLine();
+        diagReport.Append(Res.ClsErrorCommandLine).Append(' ').Append(ObfuscatePathNames(Environment.CommandLine)).AppendLine();
+        diagReport.Append(Res.ClsErrorCurrentDirectory).Append(' ').Append(ObfuscatePathNames(Environment.CurrentDirectory)).AppendLine();
         diagReport.Append(Res.ClsErrorSEBinPath).Append(' ').Append(GlobalSettings.Default.SEBinPath).AppendLine();
         diagReport.Append(Res.ClsErrorSEBinVersion).Append(' ').Append(GlobalSettings.Default.SEVersion).AppendLine();
         diagReport.Append(Res.ClsErrorProcessorCount).Append(' ').Append(Environment.ProcessorCount).AppendLine();
@@ -28,7 +28,7 @@ partial class Log
         diagReport.Append(Res.ClsErrorVersion).Append(' ').Append(Environment.Version).AppendLine();
         diagReport.Append(Res.ClsErrorIs64BitOperatingSystem).Append(' ').Append(Environment.Is64BitOperatingSystem).AppendLine();
         diagReport.Append(Res.ClsErrorIntPtrSize).Append(' ').Append(IntPtr.Size).AppendLine();
-        diagReport.Append(Res.ClsErrorIsAdmin).Append(' ').Append(ToolboxUpdater.IsRuningElevated()).AppendLine();
+        diagReport.Append(Res.ClsErrorIsAdmin).Append(' ').Append(ToolboxUpdater.IsRunningElevated()).AppendLine();
         diagReport.Append(Res.ClsErrorCurrentUICulture).Append(' ').Append(CultureInfo.CurrentUICulture.IetfLanguageTag).AppendLine();
         diagReport.Append(Res.ClsErrorCurrentCulture).Append(' ').Append(CultureInfo.CurrentCulture.IetfLanguageTag).AppendLine();
         diagReport.Append(Res.ClsErrorTimesStartedTotal).Append(' ').Append(GlobalSettings.Default.TimesStartedTotal).AppendLine();
@@ -54,7 +54,7 @@ partial class Log
         WriteLine(diagReport.ToString(), LogLevel.FATAL, exception);
     }
 
-    static string ObsufacatePathNames(string path)
+    static string ObfuscatePathNames(string path)
     {
         return path.Replace($@"\{Environment.UserName}\", @"\%USERNAME%\");
     }

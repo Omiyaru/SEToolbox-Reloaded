@@ -1,7 +1,7 @@
-﻿namespace SEToolbox.Services
-{
-    using SEToolbox.Interfaces;
+﻿using SEToolbox.Interfaces;
 
+namespace SEToolbox.Services
+{
     /// <summary>
     /// ViewModel of the OpenFileDialog.
     /// </summary>

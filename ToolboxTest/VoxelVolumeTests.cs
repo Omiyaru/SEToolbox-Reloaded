@@ -1,18 +1,18 @@
-﻿namespace ToolboxTest
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Threading;
-    using System.Windows.Media.Media3D;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using SEToolbox.Interop;
-    using SEToolbox.Interop.Asteroids;
-    using SEToolbox.Support;
-    using VRageMath;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Windows.Media.Media3D;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SEToolbox.Interop;
+using SEToolbox.Interop.Asteroids;
+using SEToolbox.Support;
+using VRageMath;
 
+namespace ToolboxTest
+{
     [TestClass]
     public class VoxelVolumeTests
     {
@@ -23,26 +23,26 @@
         }
 
         [TestMethod, TestCategory("UnitTest")]
-        public void VoxelConvertToVolmeticOdd()
+        public void VoxelConvertToVolumetricOdd()
         {
-            var materials = SpaceEngineersCore.Resources.VoxelMaterialDefinitions;
+            var materials = SpaceEngineersResources.VoxelMaterialDefinitions;
 
-            var goldMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Gold"));
+            VRage.Game.MyVoxelMaterialDefinition goldMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Gold"));
             Assert.IsNotNull(goldMaterial, "Gold material should exist.");
 
-            var modelFile = @".\TestAssets\Sphere_Gold.3ds";
-            var scale = new Size3D(5, 5, 5);
-            var rotateTransform = Matrix3D.Identity;
-            var traceType = SEToolbox.Interop.Asteroids.TraceType.Odd;
-            var traceCount = SEToolbox.Interop.Asteroids.TraceCount.Trace5;
-            var traceDirection = SEToolbox.Interop.Asteroids.TraceDirection.XYZ;
+            string modelFile = @".\TestAssets\Sphere_Gold.3ds";
+            Size3D scale = new(5, 5, 5);
+            Matrix3D rotateTransform = Matrix3D.Identity;
+            TraceType traceType = TraceType.Odd;
+            TraceCount traceCount = TraceCount.Trace5;
+            TraceDirection traceDirection = TraceDirection.XYZ;
 
-            var asteroidFile = @".\TestOutput\test_sphere_odd.vx2";
+            string asteroidFile = @".\TestOutput\test_sphere_odd.vx2";
 
-            var model = MeshHelper.Load(modelFile, ignoreErrors: true);
-            var info = new MyVoxelRayTracer.Model(model, scale, rotateTransform, goldMaterial.Index);
+            Model3DGroup model = MeshHelper.Load(modelFile, ignoreErrors: true);
+            MyVoxelRayTracer.Model info = new(model, scale, rotateTransform, goldMaterial.Index);
 
-            var voxelMap = MyVoxelRayTracer.GenerateVoxelMapFromModel(info, rotateTransform, traceType, traceCount, traceDirection,
+            MyVoxelMapBase voxelMap = MyVoxelRayTracer.GenerateVoxelMapFromModel(info, rotateTransform, traceType, traceCount, traceDirection,
                 ResetProgress, IncrementProgress, CompleteProgress, default);
             voxelMap.Save(asteroidFile);
 
@@ -50,7 +50,7 @@
 
             Assert.IsTrue(File.Exists(asteroidFile), "Generated file must exist");
 
-            var voxelFileLength = new FileInfo(asteroidFile).Length;
+            long voxelFileLength = new FileInfo(asteroidFile).Length;
             Assert.AreEqual(13641, voxelFileLength, "File size must match.");
             Assert.AreEqual(new Vector3I(32, 32, 32), voxelMap.Size, "Voxel Bounding size must match.");
             Assert.AreEqual(new Vector3I(27, 27, 27), voxelMap.BoundingContent.Size + 1, "Voxel Content size must match.");
@@ -64,26 +64,26 @@
         }
 
         [TestMethod, TestCategory("UnitTest")]
-        public void VoxelConvertToVolmeticEven()
+        public void VoxelConvertToVolumetricEven()
         {
-            var materials = SpaceEngineersCore.Resources.VoxelMaterialDefinitions;
+            var materials = SpaceEngineersResources.VoxelMaterialDefinitions;
 
             // Use anything except for stone for testing, as Stone is a default material, and it shouldn't show up in the test.
-            var goldMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Gold"));
+            VRage.Game.MyVoxelMaterialDefinition goldMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Gold"));
             Assert.IsNotNull(goldMaterial, "Gold material should exist.");
 
-            var modelFile = @".\TestAssets\Sphere_Gold.3ds";
-            var scale = new Size3D(5, 5, 5);
-            var rotateTransform = Matrix3D.Identity;
-            var traceType = SEToolbox.Interop.Asteroids.TraceType.Even;
-            var traceCount = SEToolbox.Interop.Asteroids.TraceCount.Trace5;
-            var traceDirection = SEToolbox.Interop.Asteroids.TraceDirection.XYZ;
-            var asteroidFile = @".\TestOutput\test_sphere_even.vx2";
+            string modelFile = @".\TestAssets\Sphere_Gold.3ds";
+            Size3D scale = new(5, 5, 5);
+            Matrix3D rotateTransform = Matrix3D.Identity;
+            TraceType traceType = TraceType.Even;
+            TraceCount traceCount = TraceCount.Trace5;
+            TraceDirection traceDirection = TraceDirection.XYZ;
+            string asteroidFile = @".\TestOutput\test_sphere_even.vx2";
 
-            var model = MeshHelper.Load(modelFile, ignoreErrors: true);
-            var info = new MyVoxelRayTracer.Model(model, scale, rotateTransform, goldMaterial.Index);
+            Model3DGroup model = MeshHelper.Load(modelFile, ignoreErrors: true);
+            MyVoxelRayTracer.Model info = new(model, scale, rotateTransform, goldMaterial.Index);
 
-            var voxelMap = MyVoxelRayTracer.GenerateVoxelMapFromModel(info, rotateTransform, traceType, traceCount, traceDirection,
+            MyVoxelMapBase voxelMap = MyVoxelRayTracer.GenerateVoxelMapFromModel(info, rotateTransform, traceType, traceCount, traceDirection,
                 ResetProgress, IncrementProgress, CompleteProgress, default);
             voxelMap.Save(asteroidFile);
 
@@ -91,7 +91,7 @@
 
             Assert.IsTrue(File.Exists(asteroidFile), "Generated file must exist");
 
-            var voxelFileLength = new FileInfo(asteroidFile).Length;
+            long voxelFileLength = new FileInfo(asteroidFile).Length;
             Assert.AreEqual(13691, voxelFileLength, "File size must match.");
             Assert.AreEqual(new Vector3I(32, 32, 32), voxelMap.Size, "Voxel Bounding size must match.");
             Assert.AreEqual(new Vector3I(26, 26, 26), voxelMap.BoundingContent.Size + 1, "Voxel Content size must match.");
@@ -105,35 +105,35 @@
         }
 
         [TestMethod, TestCategory("UnitTest")]
-        public void VoxelConvertToVolmeticCancel()
+        public void VoxelConvertToVolumetricCancel()
         {
-            var materials = SpaceEngineersCore.Resources.VoxelMaterialDefinitions;
+            var materials = SpaceEngineersResources.VoxelMaterialDefinitions;
 
-            var stoneMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Stone"));
+            VRage.Game.MyVoxelMaterialDefinition stoneMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Stone"));
             Assert.IsNotNull(stoneMaterial, "Stone material should exist.");
 
-            var modelFile = @".\TestAssets\Sphere_Gold.3ds";
-            var scale = new Size3D(50, 50, 50);
-            var rotateTransform = Matrix3D.Identity;
-            var traceType = SEToolbox.Interop.Asteroids.TraceType.Odd;
-            var traceCount = SEToolbox.Interop.Asteroids.TraceCount.Trace5;
-            var traceDirection = SEToolbox.Interop.Asteroids.TraceDirection.XYZ;
+            string modelFile = @".\TestAssets\Sphere_Gold.3ds";
+            Size3D scale = new(50, 50, 50);
+            Matrix3D rotateTransform = Matrix3D.Identity;
+            TraceType traceType = TraceType.Odd;
+            TraceCount traceCount = TraceCount.Trace5;
+            TraceDirection traceDirection = TraceDirection.XYZ;
 
-            var model = MeshHelper.Load(modelFile, ignoreErrors: true);
-            var cts = new CancellationTokenSource();
+            Model3DGroup model = MeshHelper.Load(modelFile, ignoreErrors: true);
+            CancellationTokenSource cts = new();
 
             // cancel the convertion after 2 seconds.
-            var timer = new System.Timers.Timer(2000);
+            System.Timers.Timer timer = new(2000);
             timer.Elapsed += delegate
             {
-                Debug.WriteLine("Cancelling!!!");
+                SConsole.WriteLine("Cancelling!!!");
                 cts.Cancel();
                 timer.Stop();
             };
             timer.Start();
 
-            var info = new MyVoxelRayTracer.Model(model, scale, rotateTransform, stoneMaterial.Index);
-            var voxelMap = MyVoxelRayTracer.GenerateVoxelMapFromModel(info, rotateTransform, traceType, traceCount, traceDirection,
+            MyVoxelRayTracer.Model info = new(model, scale, rotateTransform, stoneMaterial.Index);
+            MyVoxelMapBase voxelMap = MyVoxelRayTracer.GenerateVoxelMapFromModel(info, rotateTransform, traceType, traceCount, traceDirection,
                 ResetProgress, IncrementProgress, CompleteProgress, cts.Token);
 
             Assert.IsNull(voxelMap, "Asteroid must not exist.");
@@ -142,26 +142,26 @@
         // This was set up to test various things, including memory usage in x86. It's no longer required, but still a good test base.
         [Ignore]
         [TestMethod]
-        public void VoxelConvertToVolmeticMisc()
+        public void VoxelConvertToVolumetricMisc()
         {
-            var materials = SpaceEngineersCore.Resources.VoxelMaterialDefinitions;
+            var materials = SpaceEngineersResources.VoxelMaterialDefinitions;
 
-            var stoneMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Stone"));
+            VRage.Game.MyVoxelMaterialDefinition stoneMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Stone"));
             Assert.IsNotNull(stoneMaterial, "Stone material should exist.");
 
-            var goldMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Gold"));
+            VRage.Game.MyVoxelMaterialDefinition goldMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Gold"));
             Assert.IsNotNull(goldMaterial, "Gold material should exist.");
 
-            var silverMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Silver"));
+            VRage.Game.MyVoxelMaterialDefinition silverMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Silver"));
             Assert.IsNotNull(silverMaterial, "Silver material should exist.");
 
             // Basic test...
-            var modelFile = @".\TestAssets\Sphere_Gold.3ds";
-            var scale = new Size3D(5, 5, 5);
-            var rotateTransform = Matrix3D.Identity;
-            var traceType = SEToolbox.Interop.Asteroids.TraceType.Odd;
-            var traceCount = SEToolbox.Interop.Asteroids.TraceCount.Trace5;
-            var traceDirection = SEToolbox.Interop.Asteroids.TraceDirection.XYZ;
+            string modelFile = @".\TestAssets\Sphere_Gold.3ds";
+            Size3D scale = new(5, 5, 5);
+            Matrix3D rotateTransform = Matrix3D.Identity;
+            TraceType traceType = TraceType.Odd;
+            TraceCount traceCount = TraceCount.Trace5;
+            TraceDirection traceDirection = TraceDirection.XYZ;
 
             // Basic model test...
             //var modelFile = @".\TestAssets\TwoSpheres.3ds";
@@ -182,24 +182,24 @@
             //var scale = new Size3D(200, 200, 200);
 
             // Complexity test...
-            //var modelFile = @".\TestAssets\buddha-fixed-bottom.stl";
+            //var modelFile = @".\TestAssets\buddha_fixed_bottom.stl";
             //var scale = new Size3D(0.78, 0.78, 0.78);
             //var rotateTransform = MeshHelper.TransformVector(new Vector3D(0, 0, 0), 180, 0, 0).Value;
 
-            var modelMaterials = new string[] { stoneMaterial.Id.SubtypeName, goldMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName };
-            var fillerMaterial = silverMaterial.Id.SubtypeName;
-            var asteroidFile = @".\TestOutput\test_sphere.vx2";
+            string[] modelMaterials = [stoneMaterial.Id.SubtypeName, goldMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName, stoneMaterial.Id.SubtypeName];
+            string fillerMaterial = silverMaterial.Id.SubtypeName;
+            string asteroidFile = @".\TestOutput\test_sphere.vx2";
 
-            var model = MeshHelper.Load(modelFile, ignoreErrors: true);
-            var info = new MyVoxelRayTracer.Model(model, scale, rotateTransform, stoneMaterial.Index);
+            Model3DGroup model = MeshHelper.Load(modelFile, ignoreErrors: true);
+            MyVoxelRayTracer.Model info = new(model, scale, rotateTransform, stoneMaterial.Index);
 
-            var voxelMap = MyVoxelRayTracer.GenerateVoxelMapFromModel(info, rotateTransform, traceType, traceCount, traceDirection,
+            MyVoxelMapBase voxelMap = MyVoxelRayTracer.GenerateVoxelMapFromModel(info, rotateTransform, traceType, traceCount, traceDirection,
                 ResetProgress, IncrementProgress, CompleteProgress, default);
             voxelMap.Save(asteroidFile);
 
             Assert.IsTrue(File.Exists(asteroidFile), "Generated file must exist");
 
-            var voxelFileLength = new FileInfo(asteroidFile).Length;
+            long voxelFileLength = new FileInfo(asteroidFile).Length;
 
             Assert.IsTrue(voxelFileLength > 0, "File must not be empty.");
 
@@ -214,22 +214,22 @@
             Assert.IsTrue(voxelMap.VoxCells > 0, "voxCells must be greater than zero.");
         }
 
-        #region helpers
+        #region Helpers
 
         private static double _counter;
         private static double _maximumProgress;
         private static int _percent;
-        private static System.Diagnostics.Stopwatch _timer;
+        private static Stopwatch _timer;
 
         public static void ResetProgress(double initial, double maximumProgress)
         {
             _percent = 0;
             _counter = initial;
             _maximumProgress = maximumProgress;
-            _timer = new System.Diagnostics.Stopwatch();
+            _timer = new Stopwatch();
             _timer.Start();
 
-            Debug.WriteLine("{0}%  {1:#,##0}/{2:#,##0}  {3}/Estimating", _percent, _counter, _maximumProgress, _timer.Elapsed);
+            SConsole.WriteLine($"{_percent}%  {_counter:#,##0}/{_maximumProgress:#,##0}  {_timer.Elapsed}/Estimating");
         }
 
         public static void IncrementProgress()
@@ -240,17 +240,17 @@
 
             if (_percent < p)
             {
-                var elapsed = _timer.Elapsed;
-                var estimate = new TimeSpan(p == 0 ? 0 : (long)((double)elapsed.Ticks / ((double)p / 100f)));
+                TimeSpan elapsed = _timer.Elapsed;
+                TimeSpan estimate = new(p == 0 ? 0 : (long)((double)elapsed.Ticks / ((double)p / 100f)));
                 _percent = p;
 
-                Debug.WriteLine("{0}%  {1:#,##0}/{2:#,##0}  {3}/{4}", _percent, _counter, _maximumProgress, elapsed, estimate);
+                SConsole.WriteLine($"{_percent}%  {_counter:#,##0}/{_maximumProgress:#,##0}  {elapsed}/{estimate}");
             }
         }
 
         public static void CompleteProgress()
         {
-            Debug.WriteLine("Complete Step finished.");
+            SConsole.WriteLine("Complete Step finished.");
         }
 
         #endregion

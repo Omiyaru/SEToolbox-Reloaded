@@ -1,10 +1,10 @@
-﻿namespace SEToolbox.Converters
-{
-    using System;
-    using System.Globalization;
-    using System.Windows.Controls;
-    using Res = SEToolbox.Properties.Resources;
+﻿using System;
+using System.Globalization;
+using System.Windows.Controls;
+using Res = SEToolbox.Properties.Resources;
 
+namespace SEToolbox.Converters
+{
     public class RangeRuleD : ValidationRule
     {
         public double Min { get; set; }
@@ -27,7 +27,7 @@
 
             if ((parseValue < Min) || (parseValue > Max))
             {
-                return new ValidationResult(false, string.Format("{0} {1} - {2}.", Res.ValidationInvalidRange, Min, Max));
+                return new ValidationResult(false, string.Format($"{Res.ValidationInvalidRange} { Min} - {Max}."));
             }
 
             return new ValidationResult(true, null);

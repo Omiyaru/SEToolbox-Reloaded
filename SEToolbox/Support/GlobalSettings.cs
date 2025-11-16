@@ -1,26 +1,38 @@
-﻿namespace SEToolbox.Support
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
+
+using System.Windows;
+using Microsoft.Win32;
+
+namespace SEToolbox.Support
 {
-    using System;
-    using System.Globalization;
-    using System.Linq;
-    using System.Reflection;
-    using System.Windows;
-
-    using Microsoft.Win32;
-
     public class GlobalSettings
     {
-        public static GlobalSettings Default = new GlobalSettings();
+        #region Fields
+
+        public static readonly GlobalSettings Default = new();
 
         /// <summary>
         /// Temporary property to reprompt user to game installation path.
         /// </summary>
         public bool PromptUser;
 
-        private bool _isLoaded;
 
         private const string BaseKey = @"SOFTWARE\MidSpace\SEToolbox";
+       
 
+        #endregion
+
+       
+
+        
+
+        #region Properties
         /// <summary>
         /// Temporary store for Game Version.
         /// </summary>
@@ -48,16 +60,22 @@
         public string CustomUserSavePaths { get; set; }
 
         public WindowState? WindowState { get; set; }
-        public double? WindowTop { get; set; }
-        public double? WindowLeft { get; set; }
-        public double? WindowWidth { get; set; }
-        public double? WindowHeight { get; set; }
+
+        public struct WindowDimension(double? left, double? top, double? width, double? height) 
+        {
+            public double? Left => left ??= 0;
+            public double? Top => top ??= 0;
+            public readonly double? Width => width ?? SystemParameters.PrimaryScreenWidth;
+            public readonly double? Height => height ?? SystemParameters.PrimaryScreenHeight;
+
+        }
+         private readonly Dictionary<double?, WindowDimension> _windowDimensions = [];
+        
 
         /// <summary>
         /// Indicates if Toolbox Version check should be ignored.
         /// </summary>
         public bool? AlwaysCheckForUpdates { get; set; }
-
         /// <summary>
         /// Ignore this specific version during Toolbox version check.
         /// </summary>
@@ -83,68 +101,132 @@
         /// </summary>
         public int? TimesStartedLastGameUpdate { get; set; }
 
+
+    public Dictionary<double?, WindowDimension> WindowDimensions => _windowDimensions;
+
+      public WindowDimension GetWindowDimension(double key)
+        {
+            
+            if (!_windowDimensions.TryGetValue(key, out var dimension))
+            {
+                _windowDimensions[key] = dimension;
+            }
+            return dimension;
+        }
+        public WindowDimension SetWindowDimension(double key, WindowDimension dimension = default)
+        {
+            GetWindowDimension(key);
+            var WindowsProperties = typeof(WindowDimension).GetProperties();
+            foreach (var propertyInfo in WindowsProperties)
+            {
+
+                var propertyValue = propertyInfo.GetValue(dimension);
+                if (propertyValue is double doubleValue)
+                {
+                    var validatedValue = ValidateWindowDimension(doubleValue);
+                    if (validatedValue.HasValue)
+                    {
+                        propertyInfo.SetValue(dimension, validatedValue);
+                    }
+                }
+            }
+
+            return dimension;
+        }
+        
+        private double? ValidateWindowDimension(double? value, WindowDimension dimension = default)
+        {
+            value ??= 0;
+
+            if (dimension.Width.HasValue && dimension.Height.HasValue)
+            {
+                var primaryScreenWidth = SystemParameters.PrimaryScreenWidth - dimension.Width.Value;
+                var primaryScreenHeight = SystemParameters.PrimaryScreenHeight - dimension.Height.Value;
+
+                if (value < 0 || value < double.MinValue || value > double.MaxValue)
+                {
+                    value = null;
+                }
+                else if (value > primaryScreenWidth || value > primaryScreenHeight)
+                {
+                    value = double.MaxValue;
+                }
+            }
+
+            return value.HasValue && value >= 0 && value >= double.MinValue && value <= double.MaxValue ? value : null;
+        }
+
+        private static readonly Type Settings = typeof(GlobalSettings);
+
+        #endregion
+
+        #region Methods
+
         public void Save()
         {
-            var key = Registry.CurrentUser.OpenSubKey(BaseKey, true) ?? Registry.CurrentUser.CreateSubKey(BaseKey);
+            var key = Registry.CurrentUser.OpenSubKey(BaseKey, true);
+            key ??= Registry.CurrentUser.CreateSubKey(BaseKey) ?? null;
 
-            UpdateValue(key, "SEVersion", SEVersion);
-            UpdateValue(key, "SEBinPath", SEBinPath);
-            UpdateValue(key, "CustomUserSavePaths", CustomUserSavePaths);
-            UpdateValue(key, "LanguageCode", LanguageCode);
-            UpdateValue(key, "WindowState", WindowState);
-            UpdateValue(key, "WindowTop", WindowTop);
-            UpdateValue(key, "WindowLeft", WindowLeft);
-            UpdateValue(key, "WindowWidth", WindowWidth);
-            UpdateValue(key, "WindowHeight", WindowHeight);
-            UpdateValue(key, "AlwaysCheckForUpdates", AlwaysCheckForUpdates);
-            UpdateValue(key, "UseCustomResource", UseCustomResource);
-            UpdateValue(key, "IgnoreUpdateVersion", IgnoreUpdateVersion);
-            UpdateValue(key, "CustomVoxelPath", CustomVoxelPath);
-            UpdateValue(key, "TimesStartedTotal", TimesStartedTotal);
-            UpdateValue(key, "TimesStartedLastReset", TimesStartedLastReset);
-            UpdateValue(key, "TimesStartedLastGameUpdate", TimesStartedLastGameUpdate);
+            if (key != null)
+            {
+                var properties = Settings.GetProperties(BindingFlags.Public | BindingFlags.Instance).ToDictionary(p => p.Name, p => p.GetValue(this));
+                foreach (var property in properties)
+                {
+                    UpdateValue(key, property.Key, property.Value);
+                }
+
+                var windowDimensions = ReadValue<Dictionary<double?, WindowDimension>>(key, nameof(WindowDimension), null);
+                if (windowDimensions != null)
+                {
+                    foreach (var dimension in windowDimensions)
+                    {
+                        ValidateWindowDimension(dimension.Key, dimension.Value);
+                    }
+                }
+            }
         }
+
 
         public void Load()
         {
             _isLoaded = true;
-
             var key = Registry.CurrentUser.OpenSubKey(BaseKey, false);
-
-            if (key == null)
+            key ??= Registry.CurrentUser.CreateSubKey(BaseKey) ?? null;
+            if (key != null)
             {
                 Reset();
                 return;
+            };
+
+            var properties = Settings.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var property in properties)
+            {
+                if (property == null)
+                {
+                    continue;
+                }
+                if (property.Name == nameof(LanguageCode))
+                {
+                    ReadValue(key, nameof(LanguageCode), CultureInfo.CurrentUICulture.IetfLanguageTag);
+                }
+                if (property.Name == nameof(WindowDimension))
+                {
+                    foreach (double? dimension in WindowDimensions.Keys)
+                    {
+                        SetWindowDimension(dimension ?? 0);
+                    }
+                }
+                var currentValue = property.GetValue(this);
+                var value = ReadValue(key, property.Name, currentValue);
+                if (value != null)
+                {
+                    property.SetValue(this, Convert.ChangeType(value, property.PropertyType));
+                }
+                else
+                {
+                    property.SetValue(this, currentValue);
+                }
             }
-
-            SEVersion = ReadValue<Version>(key, "SEVersion", null);
-            SEBinPath = ReadValue<string>(key, "SEBinPath", null);
-            LanguageCode = ReadValue<string>(key, "LanguageCode", CultureInfo.CurrentUICulture.IetfLanguageTag);
-            CustomUserSavePaths = ReadValue<string>(key, "CustomUserSavePaths", null);
-            WindowState = ReadValue<WindowState?>(key, "WindowState", null);
-            WindowTop = ReadValue<double?>(key, "WindowTop", null);
-            WindowLeft = ReadValue<double?>(key, "WindowLeft", null);
-            WindowWidth = ReadValue<double?>(key, "WindowWidth", null);
-            WindowHeight = ReadValue<double?>(key, "WindowHeight", null);
-            AlwaysCheckForUpdates = ReadValue<bool?>(key, "AlwaysCheckForUpdates", true);
-            UseCustomResource = ReadValue<bool?>(key, "UseCustomResource", true);
-            IgnoreUpdateVersion = ReadValue<string>(key, "IgnoreUpdateVersion", null);
-            CustomVoxelPath = ReadValue<string>(key, "CustomVoxelPath", null);
-            TimesStartedTotal = ReadValue<int?>(key, "TimesStartedTotal", null);
-            TimesStartedLastReset = ReadValue<int?>(key, "TimesStartedLastReset", null);
-            TimesStartedLastGameUpdate = ReadValue<int?>(key, "TimesStartedLastGameUpdate", null);
-
-            if (WindowTop.HasValue && (int.MinValue > WindowTop || WindowTop > int.MaxValue))
-                WindowTop = null;
-
-            if (WindowLeft.HasValue && (int.MinValue > WindowLeft || WindowLeft > int.MaxValue))
-                WindowLeft = null;
-
-            if (WindowWidth.HasValue && (0 > WindowWidth || WindowWidth > int.MaxValue))
-                WindowWidth = null;
-
-            if (WindowHeight.HasValue && (0 > WindowHeight || WindowHeight > int.MaxValue))
-                WindowHeight = null;
         }
 
         /// <summary>
@@ -152,21 +234,22 @@
         /// </summary>
         public void Reset()
         {
-            SEVersion = null;
-            SEBinPath = null;
-            LanguageCode = CultureInfo.CurrentUICulture.IetfLanguageTag;  // Display language (only applied on multi lingual deployment of Windows OS).
-            CustomUserSavePaths = null;
-            WindowState = null;
-            WindowTop = null;
-            WindowLeft = null;
-            WindowHeight = null;
-            WindowWidth = null;
-            AlwaysCheckForUpdates = true;
-            IgnoreUpdateVersion = null;
-            CustomVoxelPath = null;
-            // don't reset TimesStartedTotal.
-            TimesStartedLastReset = null;
-            // don't reset TimesStartedLastGameUpdate.
+            var properties = typeof(GlobalSettings).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+            foreach (var property in properties)
+            {
+                if (property.CanWrite)
+                {
+                    var defaultValue = property.PropertyType.IsValueType ? Activator.CreateInstance(property.PropertyType) : null;
+                    if (property.Name != nameof(TimesStartedTotal) && property.Name != nameof(TimesStartedLastGameUpdate))
+                    {
+                        property.SetValue(this, defaultValue);
+                    }
+                }
+                if (property.Name == nameof(LanguageCode))
+                {
+                    property.SetValue(this, CultureInfo.CurrentUICulture.IetfLanguageTag); //// Display language (only applied on multi lingual deployment of Windows OS).
+                }
+            }
         }
 
         public static Version GetAppVersion(bool ignoreBuildRevision = false)
@@ -180,65 +263,116 @@
 
             if (ignoreBuildRevision)
                 return new Version(version.Major, version.Minor, 0, 0);
-
+            
             return version;
         }
 
-        private static void UpdateValue(RegistryKey key, string subkey, object value)
+        #endregion
+
+        #region Helpers
+
+        private static void UpdateValue(RegistryKey key, string subkey, object value) => UpdateValue<object>(key, subkey, value);
+
+        private static void UpdateValue<T>(RegistryKey key, string subkey, object value)
         {
             if (value == null)
             {
                 key.DeleteValue(subkey, false);
+                return;
             }
-            else
+            var targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+            var underlyingType = targetType.IsGenericType ? targetType.GetGenericTypeDefinition() : targetType;
+            var typeCode = Type.GetTypeCode(underlyingType);
+            var kind = typeCode switch
             {
-                // Registry values need to be non-culture specific when written.
-                if (value is bool || value is int)
-                {
-                    key.SetValue(subkey, value, RegistryValueKind.DWord);
-                }
-                else if (value is double d)
-                {
-                    value = d.ToString(CultureInfo.InvariantCulture);
-                    key.SetValue(subkey, value);
-                }
-                else
-                {
-                    key.SetValue(subkey, value);
-                }
-            }
+                TypeCode.Int32 => RegistryValueKind.DWord,
+                TypeCode.Double => RegistryValueKind.QWord,
+                _ => RegistryValueKind.String,
+            };
+            var convert = TypeDescriptor.GetConverter(targetType).ConvertToString(value);
+            key.SetValue(subkey, typeCode == TypeCode.String ? value.ToString() : convert, kind);
         }
 
-        private static T ReadValue<T>(RegistryKey key, string subkey, T defaultValue)
+        private static T ReadValue<T>(RegistryKey key, string subkey, T defaultValue = default)
         {
-            var item = key.GetValue(subkey, defaultValue);
+            var item = key?.GetValue(subkey);
+            if (item == null)
+                return defaultValue;
+
+            var targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+            var rangeMin = double.MinValue;
+            var rangeMax = double.MaxValue;
 
             try
             {
-                if (item == null)
-                    return default;
-
-                if (typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(Nullable<>))
+                if (targetType.IsAssignableFrom(typeof(IComparable)))
                 {
-                    var baseType = typeof(T).GetGenericArguments()[0];
-
-                    if (baseType.BaseType == typeof(Enum))
-                        return (T)Enum.Parse(baseType, (string)item);
-
-                    // Registry values need to be non-culture specific when read.
-                    return (T)Convert.ChangeType(item, baseType, CultureInfo.InvariantCulture);
-                }
-                else if (typeof(T) == typeof(Version))
-                {
-                    item = new Version((string)item);
+                    var typeInfo = targetType.GetTypeInfo();
+                    var minAttr = typeInfo.GetCustomAttribute<RangeAttribute>();
+                    if (minAttr != null)
+                    {
+                        rangeMin = minAttr.Minimum;
+                        rangeMax = minAttr.Maximum;
+                    }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                item = defaultValue;
+                Console.WriteLine($"Error while reading range for {typeof(T)}: {ex.Message}");
             }
 
-            return (T)item;
+            try
+            {
+                switch (item)
+                {
+                    case T t:
+                        return t;
+                    case string itemString when targetType == typeof(Version):
+                        return (T)(object)new Version(itemString);
+                    case string itemString when targetType.IsEnum:
+                        return (T)Enum.Parse(targetType, itemString, true);
+                    case object when targetType.IsValueType || targetType.IsClass:
+                        return (T)Convert.ChangeType(item, targetType, CultureInfo.InvariantCulture);    
+                    default:
+                        break;
+                }
+
+                return defaultValue;
+            }
+            catch (Exception ex)
+            {
+                var message = ex.Message;
+                switch (ex)
+                {
+                    case ArgumentOutOfRangeException when message.Contains("Value out of range"):
+                    case OverflowException when message.Contains("Value was too large") || message.Contains("Value too small"):
+                        SConsole.WriteLine($"Value out of range for registry key '{subkey}'. Expected range: {rangeMin} to {rangeMax}. Actual value: {item}: {ex.Message}" + Environment.NewLine + ex.StackTrace);
+                        break;
+                    case InvalidCastException when message.Contains("Cannot cast from source type") || message.Contains("Invalid cast"):
+                        SConsole.WriteLine($"Type mismatch for registry key '{subkey}'. Expected type: {typeof(T).Name}, Actual type: {item?.GetType().Name}: {message}" + Environment.NewLine + ex.StackTrace);
+                        break;
+                    case ArgumentException argEx when argEx.ParamName == nameof(key) || argEx.ParamName == nameof(subkey) || message.Contains("Value cannot be null"):
+                    case FormatException when message.Contains("Input string was not in a correct format"):
+                    case KeyNotFoundException when message.Contains("Key not found"):
+                    case ArgumentException when message.Contains("Invalid Argument"):
+                    default:
+
+                        SConsole.WriteLine($"{ex.GetType().Name} occurred while reading registry key '{subkey}': {message}" + Environment.NewLine + ex.StackTrace);
+                        throw new Exception(message, ex);
+                }
+            }
+            return defaultValue;
         }
+
+
+        [AttributeUsage(AttributeTargets.Parameter)]
+        public class RangeAttribute(int minimum, int maximum) : Attribute
+        {
+            public int Minimum { get; } = minimum;
+            public int Maximum { get; } = maximum;
+
+        }
+
+        #endregion
     }
 }

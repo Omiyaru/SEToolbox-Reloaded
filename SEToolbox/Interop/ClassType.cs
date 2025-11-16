@@ -1,6 +1,6 @@
 ﻿namespace SEToolbox.Interop
 {
-    public enum ClassType 
+    public enum ClassType
     {
         Unknown,
         Character,
@@ -34,7 +34,29 @@
 
     public enum ImportArmorType
     {
-        Light,
-        Heavy
+
+        Heavy, Light,
+        Round, Angled,
+        Corner, Slope,
+        HeavyRounded, LightRounded,
+        HeavyAngled, LightAngled,
+        HeavyCorner, LightCorner,
+        HeavySlope, LightSlope
+
+
+
+    };
+    
+    public enum Materials
+    {
+        Ice,
+        Stone,
+        Nickel,
+        Iron,
+        Platnum,
+        Cobalt,
+        Silicon,
+        Silver,
+        Uranium,
     };
 }

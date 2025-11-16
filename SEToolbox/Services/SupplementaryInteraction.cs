@@ -1,9 +1,9 @@
-﻿namespace SEToolbox.Services
-{
-    using System.Collections.Generic;
-    using System.Windows;
-    using Microsoft.Xaml.Behaviors;
+﻿using System.Collections.Generic;
+using System.Windows;
+using Microsoft.Xaml.Behaviors;
 
+namespace SEToolbox.Services
+{
     public class Behaviors : List<Behavior>
     {
     }
@@ -47,7 +47,8 @@
         private static void OnPropertyTriggersChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var triggers = Interaction.GetTriggers(d);
-            foreach (var trigger in e.NewValue as Triggers) triggers.Add(trigger);
+            foreach (var trigger in e.NewValue as Triggers) 
+            triggers.Add(trigger);
         }
     }
 }

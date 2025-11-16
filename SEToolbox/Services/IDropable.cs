@@ -1,7 +1,7 @@
-﻿namespace SEToolbox.Services
-{
-    using System;
+﻿using System;
 
+namespace SEToolbox.Services
+{
     interface IDropable
     {
         /// <summary>

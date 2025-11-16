@@ -1,17 +1,17 @@
-﻿namespace SEToolbox.Models
-{
-    using System;
-    using System.Windows.Media.Media3D;
+﻿using System;
+using System.Windows.Media.Media3D;
 
+namespace SEToolbox.Models
+{
     public class BindableVector3DModel : BaseModel
     {
-        #region fields
+        #region Fields
 
         private Vector3D _vector;
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public BindableVector3DModel()
         {
@@ -56,84 +56,46 @@
 
         public double X
         {
-            get
-            {
-                return _vector.X;
-            }
+            get => _vector.X;
 
-            set
-            {
-                if (value != _vector.X)
-                {
-                    _vector.X = value;
-                    OnPropertyChanged(nameof(X));
-                }
-            }
+            set => SetProperty(_vector.X, value, nameof(X));
         }
 
         public double Y
         {
-            get
-            {
-                return _vector.Y;
-            }
+            get => _vector.Y;
 
-            set
-            {
-                if (value != _vector.Y)
-                {
-                    _vector.Y = value;
-                    OnPropertyChanged(nameof(Y));
-                }
-            }
+            set => SetProperty(_vector.Y, value, nameof(Y));
         }
+
+        
 
         public double Z
         {
-            get
-            {
-                return _vector.Z;
-            }
+            get => _vector.Z;
 
-            set
-            {
-                if (value != _vector.Z)
-                {
-                    _vector.Z = value;
-                    OnPropertyChanged(nameof(Z));
-                }
-            }
+            set => SetProperty(_vector.Z, value, nameof(Z));
         }
 
         public Vector3D Vector3D
         {
-            get
-            {
-                return _vector;
-            }
+            get => _vector;
 
-            set
-            {
-                if (value != _vector)
-                {
-                    _vector = value;
-                    OnPropertyChanged(nameof(Vector3D), nameof(X), nameof(Y), nameof(Z));
-                }
-            }
+            set => SetProperty(ref _vector, value, nameof(Vector3D));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public VRageMath.Vector3 ToVector3()
         {
-            return new VRageMath.Vector3(ToFloat(X), ToFloat(Y), ToFloat(Z));
+            return new(ToFloat(X), ToFloat(Y), ToFloat(Z));
         }
 
         public VRageMath.Vector3D ToVector3D()
         {
-            return new VRageMath.Vector3D(X, Y, Z);
+            return new(X, Y, Z);
         }
 
         private float ToFloat(double value)
@@ -152,7 +114,7 @@
 
         public override string ToString()
         {
-            return _vector.ToString();
+            return $"{_vector}";
         }
 
         public BindableVector3DModel Negate()
@@ -164,20 +126,15 @@
 
         public BindableVector3DModel RoundToAxis()
         {
-            Vector3D v = new Vector3D();
+            _ = new Vector3D();
 
-            if (Math.Abs(_vector.X) > Math.Abs(_vector.Y) && Math.Abs(_vector.X) > Math.Abs(_vector.Z))
-            {
-                v = new Vector3D(Math.Sign(_vector.X), 0, 0);
-            }
-            else if (Math.Abs(_vector.Y) > Math.Abs(_vector.X) && Math.Abs(_vector.Y) > Math.Abs(_vector.Z))
-            {
-                v = new Vector3D(0, Math.Sign(_vector.Y), 0);
-            }
-            else if (Math.Abs(_vector.Z) > Math.Abs(_vector.X) && Math.Abs(_vector.Z) > Math.Abs(_vector.Y))
-            {
-                v = new Vector3D(0, 0, Math.Sign(_vector.Z));
-            }
+            int axis = Math.Abs(_vector.X) > Math.Abs(_vector.Y) ?
+                      (Math.Abs(_vector.X) > Math.Abs(_vector.Z) ? 0 : 2) :
+                      (Math.Abs(_vector.Y) > Math.Abs(_vector.Z) ? 1 : 2);
+
+            Vector3D v = new(axis == 0 ? Math.Sign(_vector.X) : 0,
+                        axis == 1 ? Math.Sign(_vector.Y) : 0,
+                        axis == 2 ? Math.Sign(_vector.Z) : 0);
 
             return new BindableVector3DModel(v);
         }

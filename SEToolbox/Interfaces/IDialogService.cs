@@ -1,11 +1,11 @@
-﻿namespace SEToolbox.Interfaces
-{
-    using System;
-    using System.Collections.ObjectModel;
-    using System.Diagnostics.Contracts;
-    using System.Windows;
-    using System.Windows.Forms;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics.Contracts;
+using System.Windows;
+using System.Windows.Forms;
 
+namespace SEToolbox.Interfaces
+{
     /// <summary>
     /// Interface responsible for abstracting ViewModels from Views.
     /// </summary>

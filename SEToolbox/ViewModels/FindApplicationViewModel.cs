@@ -1,18 +1,18 @@
-﻿namespace SEToolbox.ViewModels
+﻿using System;
+using System.ComponentModel;
+using System.Diagnostics.Contracts;
+using System.IO;
+using System.Windows.Forms;
+using System.Windows.Input;
+
+using SEToolbox.Interfaces;
+using SEToolbox.Models;
+using SEToolbox.Services;
+using SEToolbox.Support;
+using Res = SEToolbox.Properties.Resources;
+
+namespace SEToolbox.ViewModels
 {
-    using System;
-    using System.ComponentModel;
-    using System.Diagnostics.Contracts;
-    using System.IO;
-    using System.Windows.Forms;
-    using System.Windows.Input;
-
-    using SEToolbox.Interfaces;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-    using SEToolbox.Support;
-    using Res = SEToolbox.Properties.Resources;
-
     // Do not inherit from BaseViewModel, as this implments part of Keen's assemblies, which we do not want for this VM.
     public class FindApplicationViewModel : INotifyPropertyChanged
     {
@@ -51,17 +51,17 @@
 
         public ICommand BrowseApplicationCommand
         {
-            get { return new DelegateCommand(BrowseApplicationExecuted, BrowseApplicationCanExecute); }
+            get => new DelegateCommand(BrowseApplicationExecuted, BrowseApplicationCanExecute);
         }
 
         public ICommand ContinueCommand
         {
-            get { return new DelegateCommand(ContinueExecuted, ContinueCanExecute); }
+            get => new DelegateCommand(ContinueExecuted, ContinueCanExecute);
         }
 
         public ICommand CancelCommand
         {
-            get { return new DelegateCommand(CancelExecuted, CancelCanExecute); }
+            get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         #endregion
@@ -73,7 +73,7 @@
         /// </summary>
         public bool? CloseResult
         {
-            get { return _closeResult; }
+            get => _closeResult;
 
             set
             {
@@ -84,27 +84,26 @@
 
         public string GameApplicationPath
         {
-            get { return _dataModel.GameApplicationPath; }
-            set { _dataModel.GameApplicationPath = value; }
+            get => _dataModel.GameApplicationPath;
+            set => _dataModel.GameApplicationPath = value;
         }
 
         public string GameBinPath
         {
-            get { return _dataModel.GameBinPath; }
-            set { _dataModel.GameBinPath = value; }
+            get => _dataModel.GameBinPath;
+            set => _dataModel.GameBinPath = value;
         }
-
 
         public bool IsValidApplication
         {
-            get { return _dataModel.IsValidApplication; }
-            set { _dataModel.IsValidApplication = value; }
+            get => _dataModel.IsValidApplication;
+            set => _dataModel.IsValidApplication = value;
         }
 
         public bool IsWrongApplication
         {
-            get { return _dataModel.IsWrongApplication; }
-            set { _dataModel.IsWrongApplication = value; }
+            get => _dataModel.IsWrongApplication;
+            set => _dataModel.IsWrongApplication = value;
         }
 
         #endregion
@@ -118,20 +117,20 @@
 
         public void BrowseApplicationExecuted()
         {
-            var startPath = GameApplicationPath;
+            string startPath = GameApplicationPath;
             if (string.IsNullOrEmpty(startPath))
             {
                 startPath = ToolboxUpdater.GetSteamFilePath();
                 if (!string.IsNullOrEmpty(startPath))
                 {
-                    startPath = Path.Combine(startPath, @"SteamApps\common");
+                    startPath = Path.Combine(startPath, @"steamapps\common");
                 }
             }
 
             IsValidApplication = false;
             IsWrongApplication = false;
 
-            var openFileDialog = _openFileDialogFactory();
+            IOpenFileDialog openFileDialog = _openFileDialogFactory();
             openFileDialog.CheckFileExists = true;
             openFileDialog.CheckPathExists = true;
             openFileDialog.DefaultExt = "exe";

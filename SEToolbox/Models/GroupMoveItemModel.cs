@@ -1,20 +1,20 @@
-﻿namespace SEToolbox.Models
-{
-    using SEToolbox.Interfaces;
+﻿using VRageMath;
 
+using SEToolbox.Interfaces;
+
+namespace SEToolbox.Models
+{
     public class GroupMoveItemModel : BaseModel
     {
         #region Fields
 
         private IStructureViewBase _item;
-
-        private double _newPositionX;
-
-        private double _newtPositionY;
-
-        private double _newPositionZ;
-
+        private double _positionX;
+        private double _positionY;
+        private double _positionZ;
         private double _playerDistance;
+        //private Vector3D _playerLocation;
+
 
         #endregion
 
@@ -22,89 +22,64 @@
 
         public IStructureViewBase Item
         {
-            get
-            {
-                return _item;
-            }
-
-            set
-            {
-                if (value != _item)
-                {
-                    _item = value;
-                    OnPropertyChanged(nameof(Item));
-                }
-            }
+            get => _item;
+            set => SetProperty(ref _item, value, nameof(Item));
         }
-
+        public Vector3D Position
+        {
+            get => new(x: _positionX, y: _positionY, z: _positionZ);
+        
+            set => SetProperty(ref _positionX, value.X, nameof(PositionX),
+                               _positionY, value.Y, nameof(PositionY),
+                                _positionZ, value.Z, nameof(PositionZ),
+                                nameof(Position));
+        } 
         public double PositionX
         {
-            get
-            {
-                return _newPositionX;
-            }
-
-            set
-            {
-                if (value != _newPositionX)
-                {
-                    _newPositionX = value;
-                    OnPropertyChanged(nameof(PositionX));
-                }
-            }
+            get => _positionX;
+            set => SetProperty(ref _positionX, value, nameof(PositionX));
         }
 
         public double PositionY
         {
-            get
-            {
-                return _newtPositionY;
-            }
-
-            set
-            {
-                if (value != _newtPositionY)
-                {
-                    _newtPositionY = value;
-                    OnPropertyChanged(nameof(PositionY));
-                }
-            }
+            get => _positionY;
+            set => SetProperty(ref _positionY, value, nameof(PositionY));
         }
 
         public double PositionZ
         {
-            get
-            {
-                return _newPositionZ;
-            }
-
-            set
-            {
-                if (value != _newPositionZ)
-                {
-                    _newPositionZ = value;
-                    OnPropertyChanged(nameof(PositionZ));
-                }
-            }
+            get => _positionZ;
+            set => SetProperty(ref _positionZ, value, nameof(PositionZ));
         }
 
         public double PlayerDistance
         {
-            get
-            {
-                return _playerDistance;
-            }
-
-            set
-            {
-                if (value != _playerDistance)
-                {
-                    _playerDistance = value;
-                    OnPropertyChanged(nameof(PlayerDistance));
-                }
-            }
+            get => _playerDistance;
+            set => SetProperty(ref _playerDistance, value, nameof(PlayerDistance));
+        }
+        public Vector3D PlayerPosition
+        {
+            get => new( _positionX, _positionY, _positionZ);
+            set => SetProperty(ref _positionX, value.X, nameof(PositionX),
+                               _positionY, value.Y, nameof(PositionY),
+                                _positionZ, value.Z, nameof(PositionZ),
+                                nameof(Position));
         }
 
-        #endregion
+
+        // public Vector3D PlayerLocation
+        // {
+        //     get => _playerLocation;
+        //     internal set
+        //     {
+        //         if (value != _playerLocation)
+        //         {
+        //             _playerLocation = value;
+        //             OnPropertyChanged(nameof(PlayerLocation));
+        //         }
+        //     }
+
+
+            #endregion
+        }
     }
-}

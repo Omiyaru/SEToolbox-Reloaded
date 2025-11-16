@@ -1,15 +1,15 @@
-﻿namespace SEToolbox.Services
-{
-    using System;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Windows;
-    using System.Windows.Input;
-    using Microsoft.Xaml.Behaviors;
+﻿using System;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Input;
+using Microsoft.Xaml.Behaviors;
 
+namespace SEToolbox.Services
+{
     public class CommandAction : TargetedTriggerAction<FrameworkElement>, ICommandSource
     {
-        #region DPs
+        #region Dependency Properties
 
         public static readonly DependencyProperty CommandProperty = DependencyProperty.Register("Command", typeof(ICommand), typeof(CommandAction), new PropertyMetadata(null, OnCommandChanged));
         public static readonly DependencyProperty CommandParameterProperty = DependencyProperty.Register("CommandParameter", typeof(object), typeof(CommandAction), new PropertyMetadata());
@@ -24,36 +24,36 @@
         [Category("Command Properties")]
         public ICommand Command
         {
-            get { return (ICommand)GetValue(CommandProperty); }
-            set { SetValue(CommandProperty, value); }
+            get => (ICommand)GetValue(CommandProperty);
+            set => SetValue(CommandProperty, value);
         }
 
         [Category("Command Properties")]
         public object CommandParameter
         {
-            get { return GetValue(CommandParameterProperty); }
-            set { SetValue(CommandParameterProperty, value); }
+            get => GetValue(CommandParameterProperty);
+            set => SetValue(CommandParameterProperty, value);
         }
 
         [Category("Command Properties")]
         public IInputElement CommandTarget
         {
-            get { return (IInputElement)GetValue(CommandTargetProperty); }
-            set { SetValue(CommandTargetProperty, value); }
+            get => (IInputElement)GetValue(CommandTargetProperty);
+            set => SetValue(CommandTargetProperty, value);
         }
 
         [Category("Command Properties")]
         public bool SyncOwnerIsEnabled
         {
-            get { return (bool)GetValue(SyncOwnerIsEnabledProperty); }
-            set { SetValue(SyncOwnerIsEnabledProperty, value); }
+            get => (bool)GetValue(SyncOwnerIsEnabledProperty);
+            set => SetValue(SyncOwnerIsEnabledProperty, value);
         }
 
         [Category("Command Properties")]
         public bool EventArgs
         {
-            get { return (bool)GetValue(EventArgsProperty); }
-            set { SetValue(EventArgsProperty, value); }
+            get => (bool)GetValue(EventArgsProperty);
+            set => SetValue(EventArgsProperty, value);
         }
 
         #endregion
@@ -71,7 +71,7 @@
             UpdateCanExecute();
         }
 
-        #region DP Event Handlers
+        #region Dependency Property Event Handlers
 
         private static void OnCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -89,8 +89,7 @@
         {
             if (Command != null)
             {
-                var comRouted = Command as RoutedCommand;
-                if (comRouted != null)
+                if (Command is RoutedCommand comRouted)
                 {
                     if (EventArgs)
                     {
@@ -119,7 +118,7 @@
 
         #endregion
 
-        #region Helper functions
+        #region Helper Functions
 
         private void OnCommandChanged(ICommand comOld, ICommand comNew)
         {
@@ -150,8 +149,7 @@
         {
             if (Command != null)
             {
-                RoutedCommand comRouted = Command as RoutedCommand;
-                if (comRouted != null)
+                if (Command is RoutedCommand comRouted)
                 {
                     // Is RoutedCommand
                     IsEnabled = comRouted.CanExecute(CommandParameter, CommandTarget);

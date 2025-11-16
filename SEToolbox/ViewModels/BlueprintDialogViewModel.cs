@@ -1,15 +1,15 @@
-﻿namespace SEToolbox.ViewModels
-{
-    using SEToolbox.Interfaces;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-    using System;
-    using System.Diagnostics.Contracts;
-    using System.IO;
-    using System.Windows.Forms;
-    using System.Windows.Input;
-    using Res = SEToolbox.Properties.Resources;
+﻿using SEToolbox.Interfaces;
+using SEToolbox.Models;
+using SEToolbox.Services;
+using System;
+using System.Diagnostics.Contracts;
+using System.IO;
+using System.Windows.Forms;
+using System.Windows.Input;
+using Res = SEToolbox.Properties.Resources;
 
+namespace SEToolbox.ViewModels
+{
     public class BlueprintDialogViewModel : BaseViewModel
     {
         #region Fields
@@ -21,7 +21,7 @@
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public BlueprintDialogViewModel(BaseViewModel parentViewModel, BlueprintDialogModel dataModel, IDialogService dialogService)
             : base(parentViewModel)
@@ -36,7 +36,7 @@
 
         #endregion
 
-        #region command properties
+        #region Command Properties
 
         public ICommand OkayCommand => new DelegateCommand(OkayExecuted, OkayCanExecute);
 
@@ -51,13 +51,10 @@
         /// </summary>
         public bool? CloseResult
         {
-            get { return _closeResult; }
+            get => _closeResult; 
 
-            set
-            {
-                _closeResult = value;
-                OnPropertyChanged(nameof(CloseResult));
-            }
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
+         
         }
 
         /// <summary>
@@ -65,45 +62,43 @@
         /// </summary>
         public bool IsBusy
         {
-            get { return _isBusy; }
+            get => _isBusy;
 
             set
             {
-                if (value != _isBusy)
-                {
-                    _isBusy = value;
-                    OnPropertyChanged(nameof(IsBusy));
+                    SetProperty(ref _isBusy, value, nameof(IsBusy));
                     if (_isBusy)
                     {
                         Application.DoEvents();
                     }
-                }
             }
         }
 
+      
+
         public string BlueprintName
         {
-            get { return _dataModel.BlueprintName; }
-            set { _dataModel.BlueprintName = value; }
+            get => _dataModel.BlueprintName;
+            set => _dataModel.BlueprintName = value;
         }
 
         public string DialogTitle
         {
-            get { return _dataModel.DialogTitle; }
-            set { _dataModel.DialogTitle = value; }
+            get => _dataModel.DialogTitle;
+            set => _dataModel.DialogTitle = value;
         }
 
         public bool CheckForExisting
         {
-            get { return _dataModel.CheckForExisting; }
-            set { _dataModel.CheckForExisting = value; }
+            get => _dataModel.CheckForExisting;
+            set => _dataModel.CheckForExisting = value;
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
-        #region commands
+        #region Commands
 
         public bool OkayCanExecute()
         {

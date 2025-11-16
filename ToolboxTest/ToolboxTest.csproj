@@ -5,7 +5,7 @@
     <TargetFramework>net48</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <UseWPF>true</UseWPF>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>preview</LangVersion>
     <SignAssembly>false</SignAssembly>
     <Title>ToolboxTest</Title>
     <Product>ToolboxTest</Product>
@@ -80,22 +80,22 @@
     <None Include="TestAssets\Arabian_Border_7.vx2">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestAssets\asteroid0moon4.vox">
+    <None Include="TestAssets\asteroid_0_moon_4.vox">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestAssets\asteroid0moon4.vx2">
+    <None Include="TestAssets\asteroid_0_moon_4.vx2">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestAssets\AsteroidV2Format.vx2">
+    <None Include="TestAssets\AsteroidFormat_V2.vx2">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestAssets\AsteroidV1Format.vx2">
+    <None Include="TestAssets\AsteroidFormat_V1.vx2">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestAssets\AsteroidV3Format.vx2">
+    <None Include="TestAssets\AsteroidFormat_V3.vx2">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestAssets\buddha-fixed-bottom.stl">
+    <None Include="TestAssets\buddha_fixed_bottom.stl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="TestAssets\cornell_box.mtl">
@@ -113,7 +113,7 @@
     <None Include="TestAssets\LibertyStatue.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestAssets\Sample World.sbw">
+    <None Include="TestAssets\SampleWorld.sbw">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="TestAssets\SANDBOX_0_0_0_.sbs">
@@ -125,7 +125,7 @@
     <None Include="TestAssets\SANDBOX_0_0_0_.XML.sbs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestAssets\small2_asteroids.vx2">
+    <None Include="TestAssets\asteroids_small2.vx2">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="TestAssets\Sphere_Gold.3ds">
@@ -140,10 +140,10 @@
     <None Include="TestAssets\test.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestAssets\test_cube2x2x2.vx2">
+    <None Include="TestAssets\test_cube_2x2x2.vx2">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestAssets\test_cube_mixed_2x2x2.vx2">
+    <None Include="TestAssets\test_cube_2x2x2_mixed.vx2">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="TestAssets\TwoSpheres.3ds">
@@ -152,11 +152,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HelixToolkit.Wpf" Version="2.25.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.6.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.6.1" />
+    <PackageReference Include="HelixToolkit.Wpf" Version="2.27.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.9.3" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.9.3" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.IO.Compression" Version="4.3.0" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
   </ItemGroup>
 </Project>

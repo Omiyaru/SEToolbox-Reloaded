@@ -1,77 +1,49 @@
-﻿namespace SEToolbox.Support
+﻿using System.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Windows.Media.Media3D;
+using System.Windows.Threading;
+
+using HelixToolkit.Wpf;
+using SEToolbox.Models;
+
+namespace SEToolbox.Support
 {
-    using System;
-    using System.IO;
-    using System.Windows.Media.Media3D;
-    using System.Windows.Threading;
-
-    using HelixToolkit.Wpf;
-
     public static class MeshHelper
     {
         public static Model3DGroup Load(string path, Dispatcher dispatcher = null, bool freeze = false, bool ignoreErrors = false)
         {
-            if (path == null)
+            if (string.IsNullOrEmpty(path))
             {
-                return null;
+               return null; 
             }
 
-            var defaultMaterial = Materials.Blue;
+            Material defaultMaterial = Materials.Blue;
 
-            if (dispatcher == null)
-            {
-                dispatcher = Dispatcher.CurrentDispatcher;
-            }
+            dispatcher ??= Dispatcher.CurrentDispatcher;
 
+            string ext = Path.GetExtension(path).ToLower();
             Model3DGroup model;
-            var ext = Path.GetExtension(path).ToLower();
 
-            switch (ext)
+            Dictionary<string, Func<Dispatcher, Material, bool, bool, Model3DGroup>> readers = new()
             {
-                case ".3ds":
-                    {
-                        var r = new StudioReader(dispatcher) { DefaultMaterial = defaultMaterial, Freeze = freeze };
-                        model = r.Read(path);
-                        break;
-                    }
 
-                case ".lwo":
-                    {
-                        var r = new LwoReader(dispatcher) { DefaultMaterial = defaultMaterial, Freeze = freeze };
-                        model = r.Read(path);
-                        break;
-                    }
+                { ".3ds",  (d, m, f, i) => new StudioReader(d).Read(path) },
+                { ".lwo",  (d, m, f, i) => new LwoReader(d).Read(path)  },
+                { ".obj",  (d, m, f, i) => new ObjReader(d).Read(path)  },
+                { ".objx", (d, m, f, i) => new ObjReader(d).ReadZ(path) },
+                { ".off",  (d, m, f, i) => new OffReader(d).Read(path)  },
+                { ".stl",  (d, m, f, i) => new StLReader(d).Read(path)  }
 
-                case ".obj":
-                    {
-                        var r = new ObjReader(dispatcher) { DefaultMaterial = defaultMaterial, Freeze = freeze, IgnoreErrors = ignoreErrors };
-                        model = r.Read(path);
-                        break;
-                    }
-
-                case ".objx":
-                    {
-                        var r = new ObjReader(dispatcher) { DefaultMaterial = defaultMaterial, Freeze = freeze, IgnoreErrors = ignoreErrors };
-                        model = r.ReadZ(path);
-                        break;
-                    }
-
-                case ".stl":
-                    {
-                        var r = new StLReader(dispatcher) { DefaultMaterial = defaultMaterial, Freeze = freeze };
-                        model = r.Read(path);
-                        break;
-                    }
-
-                case ".off":
-                    {
-                        var r = new OffReader(dispatcher) { DefaultMaterial = defaultMaterial, Freeze = freeze };
-                        model = r.Read(path);
-                        break;
-                    }
-
-                default:
-                    throw new InvalidOperationException("File format not supported.");
+            };
+            if (readers.TryGetValue(ext, out Func<Dispatcher, Material, bool, bool, Model3DGroup> readerFunc))
+            {
+                model = readerFunc.Invoke(dispatcher, defaultMaterial, freeze, ignoreErrors);
+            }
+            else
+            {
+                throw new InvalidOperationException("File format not supported.");
             }
 
             return model;
@@ -84,18 +56,19 @@
 
         public static void TransformScale(this Model3DGroup model, double scaleX, double scaleY, double scaleZ)
         {
-            foreach (GeometryModel3D gm in model.Children)
+            foreach (MeshGeometry3D g in from GeometryModel3D gm in model.Children
+                                         let g = gm.Geometry as MeshGeometry3D
+                                         where g != null
+                                         select g)
             {
-                var g = (MeshGeometry3D)gm.Geometry;
-
-                for (var i = 0; i < g.Positions.Count; i++)
+                for (int i = 0; i < g.Positions.Count; i++)
                 {
                     g.Positions[i] = new Point3D(g.Positions[i].X * scaleX, g.Positions[i].Y * scaleY, g.Positions[i].Z * scaleZ);
                 }
 
                 if (g.Normals != null)
                 {
-                    for (var i = 0; i < g.Normals.Count; i++)
+                    for (int i = 0; i < g.Normals.Count; i++)
                     {
                         g.Normals[i] = new Vector3D(g.Normals[i].X * scaleX, g.Normals[i].Y * scaleY, g.Normals[i].Z * scaleZ);
                         g.Normals[i].Normalize();
@@ -104,15 +77,20 @@
             }
         }
 
-        public static bool RayIntersectTriangle(Point3D p1, Point3D p2, Point3D p3, Point3D r1, Point3D r2, out Point3D intersection, out int norm)
+        public static Point3DCollection Point3DsToPoints3D(this IEnumerable<Point3D> point3Ds)
+        {
+            return [.. point3Ds.Select(p => new Point3D(p.X, p.Y, p.Z))];
+        }
+
+        public static bool RayIntersectTriangle(Point3DCollection rayPoints, Point3D roundPointA, Point3D roundPointB,out Point3D intersection, out int norm)
         {
             // http://gamedev.stackexchange.com/questions/5585/line-triangle-intersection-last-bits
 
-            intersection = default(Point3D);
+            intersection = default;
             norm = 0;
 
             // Find Triangle Normal
-            var normal = Vector3D.CrossProduct(p2 - p1, p3 - p1);
+            Vector3D normal = Vector3D.CrossProduct(rayPoints[1] - rayPoints[0], rayPoints[2] - rayPoints[0]);
             normal.Normalize();
 
             // not a triangle. Two or more points may occupy the same place.
@@ -122,8 +100,8 @@
             }
 
             // Find distance from LP1 and LP2 to the plane defined by the triangle
-            var dist1 = Vector3D.DotProduct(r1 - p1, normal);
-            var dist2 = Vector3D.DotProduct(r2 - p1, normal);
+            double dist1 = Vector3D.DotProduct(roundPointA - rayPoints[0], normal);
+            double dist2 = Vector3D.DotProduct(roundPointB - rayPoints[0], normal);
 
             if ((dist1 * dist2) >= 0.0f)
             {
@@ -136,32 +114,70 @@
                 // line and plane are parallel
                 return false;
             }
-
+    
             // Find point on the line that intersects with the plane.
-            var intersectPos = r1 + (r2 - r1) * (-dist1 / (dist2 - dist1));
+            bool complexCalc = false;
+            Point3D intersectPos = default;
+            switch (complexCalc)
+            {
+                case false:
+                    intersectPos = roundPointA + (roundPointB - roundPointA) * (-dist1 / (dist2 - dist1));
+                    break;
+                case true:// Alternate calculation, but slower.
+                    intersectPos = roundPointA + Vector3D.DotProduct(normal,rayPoints[0] - roundPointA) / Vector3D.DotProduct(normal,roundPointB - roundPointA) * (roundPointB - roundPointA);
+                    break;
 
-            // Alternate calculation, but slower.
-            //var intersectPos = r1 + (Vector3D.DotProduct(normal, p1 - r1) / Vector3D.DotProduct(normal, r2 - r1)) * (r2 - r1);
+            }
 
             // Find if the interesection point lies inside the triangle by testing it against all edges
-            var vTest = Vector3D.CrossProduct(normal, p2 - p1);
-            var dTest = Vector3D.DotProduct(vTest, intersectPos - p1);
+            Vector3D vTest;
+            switch (vTest = Vector3D.CrossProduct(normal, rayPoints[1] - rayPoints[0]))
+            {
+                case Vector3D when vTest.X < 0.0f:
+                    _ = Vector3D.DotProduct(vTest, intersectPos - rayPoints[0]);
+                    break;
+                case Vector3D when vTest.X < 0.0f:
+                    _ = Vector3D.DotProduct(vTest, intersectPos - rayPoints[1]);
+                    break;
+                case Vector3D when vTest.X < 0.0f:
+                    _ = Vector3D.DotProduct(vTest, intersectPos - rayPoints[2]);
+                    break;
+            }
+
+            double dTest;
+            switch (dTest = Vector3D.DotProduct(vTest, intersectPos - rayPoints[0]))
+            {
+                case double when dTest < 0.0f:
+                    Vector3D.DotProduct(vTest, intersectPos - rayPoints[0]);
+                    break;
+                case double when dTest < 0.0f:
+
+                    Vector3D.DotProduct(vTest, intersectPos - rayPoints[1]);
+                    break;
+                case double when dTest < 0.0f:
+                    Vector3D.DotProduct(vTest, intersectPos - rayPoints[2]);
+                    break;
+
+            }
+
+            vTest = Vector3D.CrossProduct(normal, rayPoints[0] - rayPoints[1]);
+            dTest = Vector3D.DotProduct(vTest, intersectPos - rayPoints[2]);
             if (dTest < 0.0f)
             {
                 // no intersect P2-P1
                 return false;
             }
 
-            vTest = Vector3D.CrossProduct(normal, p3 - p2);
-            dTest = Vector3D.DotProduct(vTest, intersectPos - p2);
+            vTest = Vector3D.CrossProduct(normal, rayPoints[2] - rayPoints[1]);
+            dTest = Vector3D.DotProduct(vTest, intersectPos - rayPoints[1]);
             if (dTest < 0.0f)
             {
                 // no intersect P3-P2
                 return false;
             }
 
-            vTest = Vector3D.CrossProduct(normal, p1 - p3);
-            dTest = Vector3D.DotProduct(vTest, intersectPos - p3);
+            vTest = Vector3D.CrossProduct(normal, rayPoints[0] - rayPoints[2]);
+            dTest = Vector3D.DotProduct(vTest, intersectPos - rayPoints[2]);
             if (dTest < 0.0f)
             {
                 // no intersect P1-P3
@@ -169,39 +185,39 @@
             }
 
             // Determine if Normal is facing towards or away from Ray.
-            norm = Math.Sign(Vector3D.DotProduct(r2 - r1, normal));
+            norm = Math.Sign(Vector3D.DotProduct(roundPointB - roundPointA, normal));
 
             intersection = intersectPos;
 
             return true;
         }
 
-        public static bool RayIntersectTriangleRound(Point3D p1, Point3D p2, Point3D p3, Point3D[] rays, out Point3D intersection, out int norm)
+
+        public static bool RayIntersectTriangleRound(Point3DCollection rayPoints, List<Point3D> rays, out Point3D intersection, out int norm)
         {
-            for (var i = 0; i < rays.Length; i += 2)
+            for (int i = 0; i < rays.Count; i += 2)
             {
-                if (RayIntersectTriangleRound(p1, p2, p3, rays[i], rays[i + 1], out intersection, out norm)) // Ray
-                    return true;
-                if (RayIntersectTriangleRound(p1, p2, p3, rays[i + 1], rays[i], out intersection, out norm)) // Reverse Ray
+                if (RayIntersectTriangleRound(rayPoints, rays[i], rays[i + 1], out intersection, out norm)|| // Ray
+                    RayIntersectTriangleRound(rayPoints, rays[i + 1], rays[i], out intersection, out norm)) // Reverse Ray
                     return true;
             }
 
-            intersection = default(Point3D);
+            intersection = default;
             norm = 0;
             return false;
         }
 
-        public static bool RayIntersectTriangleRound(Point3D p1, Point3D p2, Point3D p3, Point3D r1, Point3D r2, out Point3D intersection, out int norm)
+        public static bool RayIntersectTriangleRound(Point3DCollection rayPoints, Point3D roundPointA, Point3D roundPointB, out Point3D intersection, out int norm)
         {
             // http://gamedev.stackexchange.com/questions/5585/line-triangle-intersection-last-bits
 
-            intersection = default(Point3D);
+            intersection = default;
             norm = 0;
 
             const int rounding = 14;
 
             // Find Triangle Normal
-            var normal = CrossProductRound(Round(p2 - p1, rounding), Round(p3 - p1, rounding));
+            Vector3D normal = CrossProductRound(Round(rayPoints[1] - rayPoints[0], rounding), Round(rayPoints[2] - rayPoints[0], rounding));
             normal.Normalize();
 
             // not a triangle. Two or more points may occupy the same place.
@@ -211,8 +227,8 @@
             }
 
             // Find distance from LP1 and LP2 to the plane defined by the triangle
-            var dist1 = DotProductRound(Round(r1 - p1, rounding), normal);
-            var dist2 = DotProductRound(Round(r2 - p1, rounding), normal);
+            double dist1 = DotProductRound(Round(roundPointA - rayPoints[0], rounding), normal);
+            double dist2 = DotProductRound(Round( roundPointB - rayPoints[0], rounding), normal);
 
             if ((dist1 * dist2) >= 0.0f)
             {
@@ -228,39 +244,39 @@
 
             // Find point on the line that intersects with the plane
             // Rouding to correct for anonymous rounding issues! Damn doubles!
-            var intersectPos = r1 + (r2 - r1) * Math.Round(-dist1 / Math.Round(dist2 - dist1, rounding), rounding);
+            Point3D intersectPos =  roundPointA + (roundPointB - roundPointA) * Math.Round(-dist1 / Math.Round(dist2 - dist1, rounding), rounding);
 
             // Find if the interesection point lies inside the triangle by testing it against all edges
 
-            var vTest = Vector3D.CrossProduct(normal, p2 - p1);
-            //var vTest = CrossProductRound(normal, Round(p2 - p1, rounding));
-            //if (DotProductRound(vTest, Round(intersectPos - p1, rounding)) < 0.0f)
-            if (Math.Round(Vector3D.DotProduct(vTest, intersectPos - p1), 12) < 0.0f)
-            {
-                // No intersection on edge P2-P1.
-                return false;
-            }
+            Vector3D vTest = Vector3D.CrossProduct(normal, rayPoints[1] - rayPoints[0]);
+            //var vTest = CrossProductRound(normal, Round(rayPoints[1] - rayPoints[0], rounding));
+            if (DotProductRound(vTest, Round(intersectPos - rayPoints[0], rounding)) < 0.0f)
+                if (Math.Round(Vector3D.DotProduct(vTest, intersectPos - rayPoints[0]), 12) < 0.0f)
+                {
+                    // No intersection on edge P2-P1.
+                    return false;
+                }
 
-            vTest = Vector3D.CrossProduct(normal, p3 - p2);
-            //vTest = CrossProductRound(normal, Round(p3 - p2, rounding));
-            //if (DotProductRound(vTest, Round(intersectPos - p2, rounding)) < 0.0f)
-            if (Math.Round(Vector3D.DotProduct(vTest, intersectPos - p2), 12) < 0.0f)
+            vTest = Vector3D.CrossProduct(normal, rayPoints[0] - rayPoints[1]);
+            //vTest = CrossProductRound(normal, Round(rayPoints,[0] - rayPoints[1], rounding));
+            //if (DotProductRound(vTest, Round(intersectPos - rayPoints[1], rounding)) < 0.0f)
+            if (Math.Round(Vector3D.DotProduct(vTest, intersectPos - rayPoints[1]), 12) < 0.0f)
             {
                 // No intersection on edge P3-P2.
                 return false;
             }
 
-            vTest = Vector3D.CrossProduct(normal, p1 - p3);
-            //vTest =  CrossProductRound(normal, Round(p1 - p3, rounding));
-            //if (DotProductRound(vTest, Round(intersectPos - p1, rounding)) < 0.0f)
-            if (Math.Round(Vector3D.DotProduct(vTest, intersectPos - p1), 12) < 0.0f)
+            vTest = Vector3D.CrossProduct(normal, rayPoints[0] - rayPoints[0]);
+            //vTest =  CrossProductRound(normal, Round(rayPoints,[0] - rayPoints[0], rounding));
+            //if (DotProductRound(vTest, Round(intersectPos - rayPoints[0], rounding)) < 0.0f)
+            if (Math.Round(Vector3D.DotProduct(vTest, intersectPos - rayPoints[0]), 12) < 0.0f)
             {
                 // No intersection on edge P1-P3.
                 return false;
             }
 
             // Determine if Normal is facing towards or away from Ray.
-            norm = Math.Sign(DotProductRound(r2 - r1, normal));
+            norm = Math.Sign(DotProductRound(roundPointB - roundPointA, normal));
 
             intersection = intersectPos;
 
@@ -269,32 +285,44 @@
 
         public static Point3D Floor(this Point3D point)
         {
-            return new Point3D(Math.Floor(point.X), Math.Floor(point.Y), Math.Floor(point.Z));
+            return new(Math.Floor(point.X),
+                       Math.Floor(point.Y),
+                       Math.Floor(point.Z));
         }
 
         public static Point3D Ceiling(this Point3D point)
         {
-            return new Point3D(Math.Ceiling(point.X), Math.Ceiling(point.Y), Math.Ceiling(point.Z));
+            return new(Math.Ceiling(point.X),
+                       Math.Ceiling(point.Y),
+                       Math.Ceiling(point.Z));
         }
 
         internal static Vector3D Round(this Vector3D vector)
         {
-            return new Vector3D(Math.Round(vector.X), Math.Round(vector.Y), Math.Round(vector.Z));
+            return new(Math.Round(vector.X),
+                       Math.Round(vector.Y),
+                       Math.Round(vector.Z));
         }
 
         internal static Vector3D Round(this Vector3D vector, int places)
         {
-            return new Vector3D(Math.Round(vector.X, places), Math.Round(vector.Y, places), Math.Round(vector.Z, places));
+            return new(Math.Round(vector.X, places),
+                       Math.Round(vector.Y, places),
+                       Math.Round(vector.Z, places));
         }
 
         internal static Point3D Round(this Point3D point)
         {
-            return new Point3D(Math.Round(point.X), Math.Round(point.Y), Math.Round(point.Z));
+            return new(Math.Round(point.X),
+                       Math.Round(point.Y),
+                       Math.Round(point.Z));
         }
 
         internal static Point3D Round(this Point3D point, int places)
         {
-            return new Point3D(Math.Round(point.X, places), Math.Round(point.Y, places), Math.Round(point.Z, places));
+            return new(Math.Round(point.X, places),
+                       Math.Round(point.Y, places),
+                       Math.Round(point.Z, places));
         }
 
         internal static Vector3D CrossProductRound(Vector3D vector1, Vector3D vector2)
@@ -313,7 +341,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="origin"></param>
         /// <param name="roll"></param>
@@ -322,22 +350,26 @@
         /// <returns></returns>
         public static Transform3D TransformVector(Vector3D origin, double roll, double yaw, double pitch)
         {
-            var transform = new Transform3DGroup();
-            transform.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 0, 1), yaw))); // y angle
-            transform.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, -1, 0), roll))); // z angle
-            transform.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(-1, 0, 0), pitch))); // x angle
+            Transform3DGroup transform = new();
+            transform.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new(0, 0, 1), yaw))); // y angle
+            transform.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new(0, -1, 0), roll))); // z angle
+            transform.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new(-1, 0, 0), pitch))); // x angle
             transform.Children.Add(new TranslateTransform3D(origin));
             return transform;
         }
 
         public static Point3D Min(Point3D point1, Point3D point2, Point3D point3)
         {
-            return new Point3D(Math.Min(Math.Min(point1.X, point2.X), point3.X), Math.Min(Math.Min(point1.Y, point2.Y), point3.Y), Math.Min(Math.Min(point1.Z, point2.Z), point3.Z));
+            return new Point3D(Math.Min(Math.Min(point1.X, point2.X), point3.X),
+                               Math.Min(Math.Min(point1.Y, point2.Y), point3.Y),
+                               Math.Min(Math.Min(point1.Z, point2.Z), point3.Z));
         }
 
         public static Point3D Max(Point3D point1, Point3D point2, Point3D point3)
         {
-            return new Point3D(Math.Max(Math.Max(point1.X, point2.X), point3.X), Math.Max(Math.Max(point1.Y, point2.Y), point3.Y), Math.Max(Math.Max(point1.Z, point2.Z), point3.Z));
+            return new Point3D(Math.Max(Math.Max(point1.X, point2.X), point3.X),
+                               Math.Max(Math.Max(point1.Y, point2.Y), point3.Y),
+                               Math.Max(Math.Max(point1.Z, point2.Z), point3.Z));
         }
     }
 }

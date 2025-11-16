@@ -1,4 +1,4 @@
-﻿// Prism 4.1 
+﻿// Prism 4.1
 // http://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=28950
 //
 //===================================================================================
@@ -18,39 +18,33 @@
 // places, or events is intended or should be inferred.
 //===================================================================================
 
+using System;
+
+
 namespace SEToolbox.Services
 {
-    using System;
-
     /// <summary>
     /// Weak event handler implementation.
     /// </summary>
     /// <typeparam name="TInstance">The type of the object with the actual handler.</typeparam>
     /// <typeparam name="TSender">Type of the event sender.</typeparam>
     /// <typeparam name="TEventArgs">Type of the event arguments.</typeparam>
-    public class WeakEventHandler<TInstance, TSender, TEventArgs>
+    /// <remarks>
+    /// Initializes a new instance of the WeakEventHandler{TInstance, TSender, TEventArgs} class.
+    /// </remarks>
+    /// <param name="instance">The object with the actual handler, to which a weak reference will be held.</param>
+    /// <param name="handlerAction">An action to invoke the actual handler.</param>
+    /// <param name="detachAction">An action to detach the weak handler from the event.</param>
+    public class WeakEventHandler<TInstance, TSender, TEventArgs>(
+        TInstance instance,
+        Action<TInstance, TSender, TEventArgs> handlerAction,
+        Action<WeakEventHandler<TInstance, TSender, TEventArgs>> detachAction)
         where TInstance : class
     {
-        private readonly WeakReference _instanceReference;
-        private readonly Action<TInstance, TSender, TEventArgs> _handlerAction;
-        private Action<WeakEventHandler<TInstance, TSender, TEventArgs>> _detachAction;
-
-        /// <summary>
-        /// Initializes a new instance of the WeakEventHandler{TInstance, TSender, TEventArgs} class.
-        /// </summary>
-        /// <param name="instance">The object with the actual handler, to which a weak reference will be held.</param>
-        /// <param name="handlerAction">An action to invoke the actual handler.</param>
-        /// <param name="detachAction">An action to detach the weak handler from the event.</param>
-        public WeakEventHandler(
-            TInstance instance,
-            Action<TInstance, TSender, TEventArgs> handlerAction,
-            Action<WeakEventHandler<TInstance, TSender, TEventArgs>> detachAction)
-        {
-            _instanceReference = new WeakReference(instance);
-            _handlerAction = handlerAction;
-            _detachAction = detachAction;
-        }
-
+        private readonly WeakReference _instanceReference = new(instance);
+        private readonly Action<TInstance, TSender, TEventArgs> _handlerAction = handlerAction;
+        private Action<WeakEventHandler<TInstance, TSender, TEventArgs>> _detachAction = detachAction;
+    
         /// <summary>
         /// Removes the weak event handler from the event.
         /// </summary>
@@ -73,13 +67,9 @@ namespace SEToolbox.Services
         /// <param name="e">The event arguments.</param>
         public void OnEvent(TSender sender, TEventArgs e)
         {
-            var instance = _instanceReference.Target as TInstance;
-            if (instance != null)
+            if (_instanceReference.Target is TInstance instance)
             {
-                if (_handlerAction != null)
-                {
-                    _handlerAction((TInstance)_instanceReference.Target, sender, e);
-                }
+                _handlerAction.Invoke((TInstance)_instanceReference.Target, sender, e);
             }
             else
             {

@@ -1,10 +1,10 @@
-﻿namespace SEToolbox.Services
+﻿using System;
+using System.Diagnostics.Contracts;
+
+using SEToolbox.Interfaces;
+
+namespace SEToolbox.Services
 {
-    using System;
-    using System.Diagnostics.Contracts;
-
-    using SEToolbox.Interfaces;
-
     /// <summary>
     /// Class wrapping System.Windows.Forms.ColorDialog, making it accept a IColorDialog.
     /// </summary>

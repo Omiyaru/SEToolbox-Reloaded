@@ -1,29 +1,29 @@
-﻿namespace SEToolbox.Models
-{
-    using Interfaces;
-    using SEToolbox.Interop;
-    using SEToolbox.Interop.Asteroids;
-    using SEToolbox.Support;
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.IO;
-    using System.Linq;
-    using System.Runtime.Serialization;
-    using System.Xml.Serialization;
-    using VRage.Game;
-    using VRage.ObjectBuilders;
-    using VRage.Voxels;
-    using VRageMath;
-    using Res = SEToolbox.Properties.Resources;
+﻿using SEToolbox.Interfaces;
+using SEToolbox.Interop;
+using SEToolbox.Interop.Asteroids;
+using SEToolbox.Support;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using VRage.Game;
+using VRage.ObjectBuilders;
+using VRage.Voxels;
+using VRageMath;
+using Res = SEToolbox.Properties.Resources;
 
+namespace SEToolbox.Models
+{
     [Serializable]
     public class StructureVoxelModel : StructureBaseModel
     {
-        #region fields
+        #region Fields
 
-        private string _sourceVoxelFilepath;
-        private string _voxelFilepath;
+        private string _sourceVoxelFilePath;
+        private string _voxelFilePath;
         private Vector3I _size;
         private BoundingBoxI _contentBounds;
         private BoundingBoxI _inflatedContentBounds;
@@ -33,7 +33,7 @@
         private BackgroundWorker _asyncWorker;
 
         [NonSerialized]
-        private MyVoxelMap _voxelMap;
+        private  MyVoxelMapBase _voxelMap;
 
         [NonSerialized]
         private VoxelMaterialAssetModel _selectedMaterialAsset;
@@ -49,46 +49,51 @@
 
         [NonSerialized]
         private bool _isLoadingAsync;
+        // private readonly object _materialVolume;
+        // private readonly ContainmentType _containsMaterial;
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public StructureVoxelModel(MyObjectBuilder_EntityBase entityBase, string voxelPath)
             : base(entityBase)
         {
-            var contentPath = ToolboxUpdater.GetApplicationContentPath();
+            string contentPath = ToolboxUpdater.GetApplicationContentPath();
 
             if (voxelPath != null)
             {
-                VoxelFilepath = Path.Combine(voxelPath, Name + MyVoxelMap.V2FileExtension);
-                var previewFile = VoxelFilepath;
+                VoxelFilePath = Path.Combine(voxelPath, entityBase.Name +  MyVoxelMapBase.FileExtension.V2);
+                string previewFile = VoxelFilePath;
 
-                if (!File.Exists(VoxelFilepath))
+                if (!File.Exists(VoxelFilePath))
                 {
-                    var oldFilepath = Path.Combine(voxelPath, Name + MyVoxelMap.V1FileExtension);
-                    if (File.Exists(oldFilepath))
+                    string oldFilePath = Path.Combine(voxelPath, entityBase.Name +  MyVoxelMapBase.FileExtension.V1);
+                    if (File.Exists(oldFilePath))
                     {
-                        SourceVoxelFilepath = oldFilepath;
-                        previewFile = oldFilepath;
-                        SpaceEngineersCore.ManageDeleteVoxelList.Add(oldFilepath);
+                        SourceVoxelFilePath = oldFilePath;
+                        previewFile = oldFilePath;
+                        SpaceEngineersCore.ManageDeleteVoxelList.Add(oldFilePath);
                     }
                 }
 
                 // Has a huge upfront loading cost
-                //ReadVoxelDetails(previewFile);
+                ReadVoxelDetails(previewFile);
             }
 
-            var materialList = new Dictionary<string, string>();
-            foreach (MyVoxelMaterialDefinition item in SpaceEngineersCore.Resources.VoxelMaterialDefinitions.OrderBy(m => m.Id.SubtypeName))
+            Dictionary<string, string> materialList = [];
+            foreach (MyVoxelMaterialDefinition item in SpaceEngineersResources.VoxelMaterialDefinitions.OrderBy(m => m.Id.SubtypeName))
             {
                 string texture = item.GetVoxelDisplayTexture();
-                materialList.Add(item.Id.SubtypeName, texture == null ? null : SpaceEngineersCore.GetDataPathOrDefault(texture, Path.Combine(contentPath, texture)));
+                materialList.Add(item.Id.SubtypeName, texture != null ? SpaceEngineersCore.GetDataPathOrDefault(texture, Path.Combine(contentPath, texture)) : string.Empty);
             }
 
-            GameMaterialList = new List<VoxelMaterialAssetModel>(materialList.Select(m => new VoxelMaterialAssetModel { MaterialName = m.Key, DisplayName = m.Key, TextureFile = m.Value }));
-            EditMaterialList = new List<VoxelMaterialAssetModel> { new VoxelMaterialAssetModel { MaterialName = null, DisplayName = Res.CtlVoxelMnuRemoveMaterial } };
-            EditMaterialList.AddRange(materialList.Select(m => new VoxelMaterialAssetModel { MaterialName = m.Key, DisplayName = m.Key, TextureFile = m.Value }));
+            GameMaterialList = [.. materialList.Select(m => new VoxelMaterialAssetModel { MaterialName = m.Key, DisplayName = m.Key, TextureFile = m.Value })];
+            EditMaterialList =
+            [
+                new VoxelMaterialAssetModel { MaterialName = null, DisplayName = Res.CtlVoxelMnuRemoveMaterial },
+                .. materialList.Select(m => new VoxelMaterialAssetModel { MaterialName = m.Key, DisplayName = m.Key, TextureFile = m.Value }),
+            ];
         }
 
         #endregion
@@ -98,78 +103,48 @@
         [XmlIgnore]
         public MyObjectBuilder_VoxelMap VoxelMap
         {
-            get { return EntityBase as MyObjectBuilder_VoxelMap; }
+            get => EntityBase as MyObjectBuilder_VoxelMap;
         }
 
         [XmlIgnore]
         public string Name
         {
-            get { return VoxelMap.StorageName; }
-
-            set
-            {
-                if (value != VoxelMap.StorageName)
-                {
-                    VoxelMap.StorageName = value;
-                    OnPropertyChanged(nameof(Name));
-                }
-            }
+            get => VoxelMap.StorageName ?? string.Empty;
+            set => SetProperty(VoxelMap.StorageName, value, nameof(Name));
         }
 
         /// <summary>
         /// This is the location of the temporary source file for importing/generating a Voxel file.
         /// </summary>
-        public string SourceVoxelFilepath
+        public new string SourceVoxelFilePath
         {
-            get { return _sourceVoxelFilepath; }
+            get => _sourceVoxelFilePath;
+            set => SetProperty(ref _sourceVoxelFilePath, value, nameof(SourceVoxelFilePath), () =>
+                    ReadVoxelDetails(SourceVoxelFilePath));
 
-            set
-            {
-                if (value != _sourceVoxelFilepath)
-                {
-                    _sourceVoxelFilepath = value;
-                    OnPropertyChanged(nameof(SourceVoxelFilepath));
-                    ReadVoxelDetails(SourceVoxelFilepath);
-                }
-            }
         }
 
         /// <summary>
         /// This is the actual file/path for the Voxel file. It may not exist yet.
         /// </summary>
-        public string VoxelFilepath
+        public string VoxelFilePath
         {
-            get { return _voxelFilepath; }
+            get => _voxelFilePath ?? string.Empty;
 
-            set
-            {
-                if (value != _voxelFilepath)
-                {
-                    _voxelFilepath = value;
-                    OnPropertyChanged(nameof(VoxelFilepath));
-                }
-            }
+            set => SetProperty(ref _voxelFilePath, value, nameof(VoxelFilePath));
         }
 
         [XmlIgnore]
         public Vector3I Size
         {
-            get { return _size; }
-
-            set
-            {
-                if (value != _size)
-                {
-                    _size = value;
-                    OnPropertyChanged(nameof(Size));
-                }
-            }
+            get => _size;
+            set => SetProperty(ref _size, value, nameof(Size));
         }
 
         [XmlIgnore]
         public Vector3I ContentSize
         {
-            get { return _contentBounds.Size + 1; } // Content size
+            get => _contentBounds.Size + 1;  // Content size
         }
 
         /// <summary>
@@ -179,16 +154,9 @@
         [XmlIgnore]
         public BoundingBoxI ContentBounds
         {
-            get { return _contentBounds; }
+            get => _contentBounds;
 
-            set
-            {
-                if (value != _contentBounds)
-                {
-                    _contentBounds = value;
-                    OnPropertyChanged(nameof(ContentBounds));
-                }
-            }
+            set => SetProperty(ref _contentBounds, value, nameof(ContentBounds));
         }
 
         [XmlIgnore]
@@ -197,22 +165,15 @@
         [XmlIgnore]
         public long VoxCells
         {
-            get { return _voxCells; }
+            get => _voxCells;
 
-            set
-            {
-                if (value != _voxCells)
-                {
-                    _voxCells = value;
-                    OnPropertyChanged(nameof(VoxCells), nameof(Volume));
-                }
-            }
+            set => SetProperty(ref _voxCells, value, nameof(VoxCells));
         }
 
         [XmlIgnore]
         public double Volume
         {
-            get { return (double)_voxCells / 255; }
+            get => (double)_voxCells / 255;
         }
 
         /// <summary>
@@ -221,66 +182,38 @@
         [XmlIgnore]
         public List<VoxelMaterialAssetModel> MaterialAssets
         {
-            get { return _materialAssets; }
+            get => _materialAssets;
 
-            set
-            {
-                if (value != _materialAssets)
-                {
-                    _materialAssets = value;
-                    OnPropertyChanged(nameof(MaterialAssets));
-                }
-            }
+            set => SetProperty(ref _materialAssets, value, nameof(MaterialAssets));
         }
 
         [XmlIgnore]
         public VoxelMaterialAssetModel SelectedMaterialAsset
         {
-            get { return _selectedMaterialAsset; }
+            get => _selectedMaterialAsset;
 
-            set
-            {
-                if (value != _selectedMaterialAsset)
-                {
-                    _selectedMaterialAsset = value;
-                    OnPropertyChanged(nameof(SelectedMaterialAsset));
-                }
-            }
+            set => SetProperty(ref _selectedMaterialAsset, value, nameof(SelectedMaterialAsset));
         }
 
         [XmlIgnore]
         public List<VoxelMaterialAssetModel> GameMaterialList
         {
-            get { return _gameMaterialList; }
+            get => _gameMaterialList;
 
-            set
-            {
-                if (value != _gameMaterialList)
-                {
-                    _gameMaterialList = value;
-                    OnPropertyChanged(nameof(GameMaterialList));
-                }
-            }
+            set => SetProperty(ref _gameMaterialList, value, nameof(GameMaterialList));
         }
 
         [XmlIgnore]
         public List<VoxelMaterialAssetModel> EditMaterialList
         {
-            get { return _editMaterialList; }
+            get => _editMaterialList;
 
-            set
-            {
-                if (value != _editMaterialList)
-                {
-                    _editMaterialList = value;
-                    OnPropertyChanged(nameof(EditMaterialList));
-                }
-            }
+            set => SetProperty(ref _editMaterialList, value, nameof(EditMaterialList));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         [OnSerializing]
         private void OnSerializingMethod(StreamingContext context)
@@ -326,7 +259,7 @@
 
         public void LoadDetailsSync()
         {
-            ReadVoxelDetails(SourceVoxelFilepath ?? VoxelFilepath);
+            ReadVoxelDetails(SourceVoxelFilePath ?? VoxelFilePath);
 
             if (_voxelMap != null && (MaterialAssets == null || MaterialAssets.Count == 0))
             {
@@ -337,10 +270,10 @@
                 Center = new Vector3D(_voxelMap.ContentCenter.X + 0.5f + PositionX, _voxelMap.ContentCenter.Y + 0.5f + PositionY, _voxelMap.ContentCenter.Z + 0.5f + PositionZ);
 
                 var sum = details.Values.ToList().Sum();
-                var list = new List<VoxelMaterialAssetModel>();
+                var list = new VoxelMaterialAssetModel[details.Count].ToList();
 
-                foreach (var kvp in details)
-                    list.Add(new VoxelMaterialAssetModel {MaterialName = kvp.Key, Volume = (double) kvp.Value/255, Percent = (double) kvp.Value/(double) sum});
+                foreach (KeyValuePair<string, long> kvp in details)
+                    list.Add(new VoxelMaterialAssetModel { MaterialName = kvp.Key, Volume = (double)kvp.Value / 255, Percent = (double)kvp.Value / (double)sum });
 
                 MaterialAssets = list;
             }
@@ -354,12 +287,12 @@
             }
         }
 
-        private void ReadVoxelDetails(string filename)
+        private void ReadVoxelDetails(string fileName)
         {
-            if (_voxelMap == null && filename != null && File.Exists(filename))
+            if (_voxelMap == null && fileName != null && File.Exists(fileName))
             {
-                _voxelMap = new MyVoxelMap();
-                _voxelMap.Load(filename);
+                _voxelMap = new  MyVoxelMapBase();
+                _voxelMap.Load(fileName);
 
                 Size = _voxelMap.Size;
                 ContentBounds = _voxelMap.BoundingContent;
@@ -367,7 +300,7 @@
 
                 OnPropertyChanged(nameof(Size), nameof(ContentSize), nameof(IsValid));
                 Center = new Vector3D(_voxelMap.ContentCenter.X + 0.5f + PositionX, _voxelMap.ContentCenter.Y + 0.5f + PositionY, _voxelMap.ContentCenter.Z + 0.5f + PositionZ);
-                WorldAABB = new BoundingBoxD(PositionAndOrientation.Value.Position, PositionAndOrientation.Value.Position + new Vector3D(Size));
+                WorldAabb = new BoundingBoxD(PositionAndOrientation.Value.Position, PositionAndOrientation.Value.Position + new Vector3D(Size));
             }
         }
 
@@ -377,16 +310,15 @@
             if (IsValid)
             {
                 Center = new Vector3D(_voxelMap.ContentCenter.X + 0.5f + PositionX, _voxelMap.ContentCenter.Y + 0.5f + PositionY, _voxelMap.ContentCenter.Z + 0.5f + PositionZ);
-                WorldAABB = new BoundingBoxD(PositionAndOrientation.Value.Position, PositionAndOrientation.Value.Position + new Vector3D(Size));
+                WorldAabb = new BoundingBoxD(PositionAndOrientation.Value.Position, PositionAndOrientation.Value.Position + new Vector3D(Size));
             }
         }
-
-        public void UpdateNewSource(MyVoxelMap newMap, string fileName)
+       
+        public void UpdateNewSource( MyVoxelMapBase newMap, string fileName)
         {
-            if (_voxelMap != null)
-                _voxelMap.Dispose();
+            _voxelMap?.Dispose();
             _voxelMap = newMap;
-            SourceVoxelFilepath = fileName;
+            SourceVoxelFilePath = fileName;
 
             Size = _voxelMap.Size;
             ContentBounds = _voxelMap.BoundingContent;
@@ -394,161 +326,197 @@
 
             OnPropertyChanged(nameof(Size), nameof(ContentSize), nameof(IsValid));
             Center = new Vector3D(_voxelMap.ContentCenter.X + 0.5f + PositionX, _voxelMap.ContentCenter.Y + 0.5f + PositionY, _voxelMap.ContentCenter.Z + 0.5f + PositionZ);
-            WorldAABB = new BoundingBoxD(PositionAndOrientation.Value.Position, PositionAndOrientation.Value.Position + new Vector3D(Size));
+            WorldAabb = new BoundingBoxD(PositionAndOrientation.Value.Position, PositionAndOrientation.Value.Position + new Vector3D(Size));
         }
 
         public void RotateAsteroid(Quaternion quaternion)
         {
-            var sourceFile = SourceVoxelFilepath ?? VoxelFilepath;
-
-            var asteroid = new MyVoxelMap();
+            string sourceFile = SourceVoxelFilePath ?? VoxelFilePath;
+            bool changed;
+             MyVoxelMapBase asteroid = new();
             asteroid.Load(sourceFile);
 
-            var newAsteroid = new MyVoxelMap();
-            var newSize = asteroid.Size;
-            newAsteroid.Create(newSize, SpaceEngineersCore.Resources.GetDefaultMaterialIndex());
+             MyVoxelMapBase newAsteroid = new();
+            Vector3I newSize = asteroid.Size;
+            newAsteroid.Create(newSize, SpaceEngineersResources.GetDefaultMaterialIndex());
 
-            Vector3I block;
-            var halfSize = asteroid.Storage.Size / 2;
-            
+
+            Vector3I halfSize = asteroid.Storage.Size / 2;
+
             // Don't use anything smaller than 64 for smaller voxels, as it trashes the cache.
-            var cacheSize = new Vector3I(64); 
-            var halfCacheSize = new Vector3I(32); // This should only be used for the Transform, not the cache.
+
+            Vector3I cacheSize = new(64);
+
+            Vector3I halfCacheSize = new(32); // This should only be used for the Transform, not the cache.
 
             // read the asteroid in chunks of 64 to avoid the Arithmetic overflow issue.
-            for (block.Z = 0; block.Z < asteroid.Storage.Size.Z; block.Z += 64)
-                for (block.Y = 0; block.Y < asteroid.Storage.Size.Y; block.Y += 64)
-                    for (block.X = 0; block.X < asteroid.Storage.Size.X; block.X += 64)
-                    {
-                        #region source voxel
+            Vector3I block = Vector3I.Zero;
+            PRange.ProcessRange(block, asteroid.Storage.Size + 1 / 64);
+            
+            #region Source Voxel
 
-                        var cache = new MyStorageData();
-                        cache.Resize(cacheSize);
-                        // LOD1 is not detailed enough for content information on asteroids.
-                        asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, block, block + cacheSize - 1);
+            MyStorageData cache = new();
+            cache.Resize(cacheSize);
+            // LOD1 is not detailed enough for content information on asteroids.
+            asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, block, block + cacheSize - 1);
 
-                        #endregion
+            #endregion
 
-                        #region target Voxel
+            #region Target Voxel
 
-                        // the block is a cubiod. The entire space needs to rotate, to be able to gauge where the new block position starts from.
-                        var newBlockMin = Vector3I.Transform(block - halfSize, quaternion) + halfSize;
-                        var newBlockMax = Vector3I.Transform(block + 64 - halfSize, quaternion) + halfSize;
-                        var newBlock = Vector3I.Min(newBlockMin, newBlockMax);
+            // the block is a cubiod. The entire space needs to rotate, to be able to gauge where the new block position starts from.
+            var newBlockMin = Vector3I.Transform(block - halfSize, quaternion) + halfSize;
+            var newBlockMax = Vector3I.Transform(block + 64 - halfSize, quaternion) + halfSize;
+            var newBlock = Vector3I.Min(newBlockMin, newBlockMax);
 
-                        var newCache = new MyStorageData();
-                        newCache.Resize(cacheSize);
-                        newAsteroid.Storage.ReadRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, 0, newBlock, newBlock + cacheSize - 1);
+            MyStorageData newCache = new();
+            newCache.Resize(cacheSize);
+            newAsteroid.Storage.ReadRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, 0, newBlock, newBlock + cacheSize - 1);
 
-                        #endregion
+            #endregion
+            
+            Vector3I p = Vector3I.Zero;
+            PRange.ProcessRange(p, cacheSize);
 
-                        bool changed = false;
-                        Vector3I p;
-                        for (p.Z = 0; p.Z < cacheSize.Z; ++p.Z)
-                            for (p.Y = 0; p.Y < cacheSize.Y; ++p.Y)
-                                for (p.X = 0; p.X < cacheSize.X; ++p.X)
-                                {
-                                    byte volume = cache.Content(ref p);
-                                    byte cellMaterial = cache.Material(ref p);
+            byte volume = cache.Content(ref p);
+            byte cellMaterial = cache.Material(ref p);
 
-                                    var newP1 = Vector3I.Transform(p - halfCacheSize, quaternion) + halfCacheSize;
-                                    var newP2 = Vector3I.Transform(p + 1 - halfCacheSize, quaternion) + halfCacheSize;
-                                    var newP = Vector3I.Min(newP1, newP2);
+            Vector3I newP1 = Vector3I.Transform(p - halfCacheSize, quaternion) + halfCacheSize;
+            Vector3I newP2 = Vector3I.Transform(p + 1 - halfCacheSize, quaternion) + halfCacheSize;
+            Vector3I newP = Vector3I.Min(newP1, newP2);
 
-                                    newCache.Content(ref newP, volume);
-                                    newCache.Material(ref newP, cellMaterial);
-                                    changed = true;
-                                }
+            newCache.Content(ref newP, volume);
+            newCache.Material(ref newP, cellMaterial);
+            changed = true;
+            if (changed)
+                newAsteroid.Storage.WriteRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
 
-                        if (changed)
-                            newAsteroid.Storage.WriteRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
-                    }
+            SaveToFile(newAsteroid);
+        }
 
+        public void SaveToFile( MyVoxelMapBase newAsteroid)
+        {
 
-            var tempfilename = TempfileUtil.NewFilename(MyVoxelMap.V2FileExtension);
-            newAsteroid.Save(tempfilename);
+            string tempFileName = TempFileUtil.NewFileName( MyVoxelMapBase.FileExtension.V2);
+            newAsteroid.Save(tempFileName);
 
-            SourceVoxelFilepath = tempfilename;
+            SourceVoxelFilePath = tempFileName;
         }
 
         public bool ExtractStationIntersect(IMainView mainViewModel, bool tightIntersection)
         {
-            // Make a shortlist of station Entities in the bounding box of the asteroid.
-            var asteroidWorldAABB = new BoundingBoxD((Vector3D)ContentBounds.Min + PositionAndOrientation.Value.Position, (Vector3D)ContentBounds.Max + PositionAndOrientation.Value.Position);
-            var stations = mainViewModel.GetIntersectingEntities(asteroidWorldAABB).Where(e => e.ClassType == ClassType.LargeStation).Cast<StructureCubeGridModel>().ToList();
+            if (mainViewModel == null)
+                throw new ArgumentNullException(nameof(mainViewModel));
 
-            if (stations.Count == 0)
+            // Make a shortlist of station Entities in the bounding box of the asteroid.
+            BoundingBoxD asteroidWorldAabb = new((Vector3D)ContentBounds.Min + PositionAndOrientation.Value.Position, (Vector3D)ContentBounds.Max + PositionAndOrientation.Value.Position);
+            List<StructureCubeGridModel> stations = [.. mainViewModel.GetIntersectingEntities(asteroidWorldAabb).Where(static e => e != null && e.ClassType == ClassType.LargeStation).Cast<StructureCubeGridModel>()];
+            //List<StructureCubeGridModel> stations = [.. mainViewModel.GetIntersectingEntities(asteroidWorldAabb).Where(e => e.ClassType == ClassType.LargeStation).Cast<StructureCubeGridModel>()];
+
+            if (stations?.Count == 0)
                 return false;
 
-            var modified = false;
-            var sourceFile = SourceVoxelFilepath ?? VoxelFilepath;
-            var asteroid = new MyVoxelMap();
+            bool modified = false;
+            string sourceFile = SourceVoxelFilePath ?? VoxelFilePath;
+            if (string.IsNullOrEmpty(sourceFile))
+                throw new ArgumentException("Source voxel file path is null or empty.");
+             MyVoxelMapBase asteroid = new();
             asteroid.Load(sourceFile);
 
-            var total = stations.Sum(s => s.CubeGrid.CubeBlocks.Count);
-            mainViewModel.ResetProgress(0, total);
+
+            int totalBlocks = stations.Sum(s => s.CubeGrid.CubeBlocks.Count);
+            mainViewModel.ResetProgress(0, totalBlocks);
 
             // Search through station entities cubes for intersection with this voxel.
-            foreach (var station in stations)
+            foreach (StructureCubeGridModel station in stations)
             {
-                var quaternion = station.PositionAndOrientation.Value.ToQuaternion();
 
-                foreach (var cube in station.CubeGrid.CubeBlocks)
+                asteroid = new  MyVoxelMapBase();
+                asteroid.Load(sourceFile);
+                Quaternion quaternion = station.PositionAndOrientation.Value.ToQuaternion(); ;
+
+                foreach (MyObjectBuilder_CubeBlock cube in station.CubeGrid.CubeBlocks)
                 {
                     mainViewModel.IncrementProgress();
 
-                    var definition = SpaceEngineersApi.GetCubeDefinition(cube.TypeId, station.CubeGrid.GridSizeEnum, cube.SubtypeName);
+                    Sandbox.Definitions.MyCubeBlockDefinition definition = SpaceEngineersApi.GetCubeDefinition(cube.TypeId, station.CubeGrid.GridSizeEnum, cube.SubtypeName);
+                    Vector3I block = Vector3I.Zero;
+                    Vector3I orientSize = definition.Size.Transform(cube.BlockOrientation).Abs();
+                    Vector3 min = cube.Min.ToVector3() * station.CubeGrid.GridSizeEnum.ToLength();
+                    Vector3 max = (cube.Min + orientSize) * station.CubeGrid.GridSizeEnum.ToLength();
+                    Vector3D p1 = Vector3D.Transform(min, quaternion) + station.PositionAndOrientation.Value.Position - (station.CubeGrid.GridSizeEnum.ToLength() / 2);
+                    Vector3D p2 = Vector3D.Transform(max, quaternion) + station.PositionAndOrientation.Value.Position - (station.CubeGrid.GridSizeEnum.ToLength() / 2);
+                    BoundingBoxD cubeWorldAabb = new(Vector3.Min(p1, p2), Vector3.Max(p1, p2));
+                    bool changed = false;
 
-                    var orientSize = definition.Size.Transform(cube.BlockOrientation).Abs();
-                    var min = cube.Min.ToVector3() * station.CubeGrid.GridSizeEnum.ToLength();
-                    var max = (cube.Min + orientSize) * station.CubeGrid.GridSizeEnum.ToLength();
-                    var p1 = Vector3D.Transform(min, quaternion) + station.PositionAndOrientation.Value.Position - (station.CubeGrid.GridSizeEnum.ToLength() / 2);
-                    var p2 = Vector3D.Transform(max, quaternion) + station.PositionAndOrientation.Value.Position - (station.CubeGrid.GridSizeEnum.ToLength() / 2);
-                    var cubeWorldAABB = new BoundingBoxD(Vector3.Min(p1, p2), Vector3.Max(p1, p2));
-
-                    // find worldAABB of block.
-                    if (asteroidWorldAABB.Intersects(cubeWorldAABB))
+                    // find worldAabb of block.
+                    if (asteroidWorldAabb.Intersects(cubeWorldAabb))
                     {
-                        Vector3I block;
-                        var cacheSize = new Vector3I(64);
+                        Vector3I cacheSize = new(64);
                         Vector3D position = PositionAndOrientation.Value.Position;
 
                         // read the asteroid in chunks of 64 to avoid the Arithmetic overflow issue.
-                        for (block.Z = 0; block.Z < asteroid.Storage.Size.Z; block.Z += 64)
-                            for (block.Y = 0; block.Y < asteroid.Storage.Size.Y; block.Y += 64)
-                                for (block.X = 0; block.X < asteroid.Storage.Size.X; block.X += 64)
+                        PRange.ProcessRange(block, cacheSize);
+                        MyStorageData cache = new();
+                        cache.Resize(cacheSize);
+                        // LOD1 is not detailed enough for content information on asteroids.
+                        Vector3I maxRange = block + cacheSize - 1;
+                        asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.Content, 0, block, maxRange);
+
+                        changed = false;
+                        Vector3I p = Vector3I.Zero;
+                        float voxelVolume = 0f;
+                        PRange.ProcessRange(p, cacheSize);
+                        BoundingBoxD voxelCellBox = new(position + p + block, position + p + block + 1);
+                        ContainmentType contains = cubeWorldAabb.Contains(voxelCellBox);
+                        if (tightIntersection && contains != ContainmentType.Disjoint)
+                        {
+                            Vector3D voxelMin = voxelCellBox.Min;
+                            Vector3D voxelMax = voxelCellBox.Max;
+                          
+                            int x = 0, y = 0, z = 0;
+                            PRange.ProcessRange(p, x, y, z, cacheSize);
+
+                            Vector3 voxelCenter = new(x + block.X + 0.5f, y + block.Y + 0.5f, z + block.Z + 0.5f);
+                            if (cubeWorldAabb.Contains(voxelCenter) == ContainmentType.Contains)
+                                voxelVolume += 1;
+
+                        }
+                        float voxelContentVolume = voxelVolume / (cacheSize.X * cacheSize.Y * cacheSize.Z);
+                        if (voxelContentVolume > 0)
+                        {
+                            byte content = cache.Content(ref p);
+                            if (content > 0)
+                            {
+                                byte newContent = (byte)Math.Ceiling(content * voxelContentVolume);
+                                if (newContent < content)
                                 {
-                                    var cache = new MyStorageData();
-                                    cache.Resize(cacheSize);
-                                    // LOD1 is not detailed enough for content information on asteroids.
-                                    Vector3I maxRange = block + cacheSize - 1;
-                                    asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.Content, 0, block, maxRange);
-
-                                    bool changed = false;
-                                    Vector3I p;
-                                    for (p.Z = 0; p.Z < cacheSize.Z; ++p.Z)
-                                        for (p.Y = 0; p.Y < cacheSize.Y; ++p.Y)
-                                            for (p.X = 0; p.X < cacheSize.X; ++p.X)
-                                            {
-                                                BoundingBoxD voxelCellBox = new BoundingBoxD(position + p + block, position + p + block + 1);
-                                                ContainmentType contains = cubeWorldAABB.Contains(voxelCellBox);
-
-                                                // TODO: finish tightIntersection. Will require high interpretation of voxel content volumes.
-
-                                                if (contains == ContainmentType.Contains || contains == ContainmentType.Intersects)
-                                                {
-                                                    cache.Content(ref p, 0);
-                                                    changed = true;
-                                                }
-                                            }
-
-                                    if (changed)
-                                    {
-                                        asteroid.Storage.WriteRange(cache, MyStorageDataTypeFlags.Content, block, maxRange);
-                                        modified = true;
-                                    }
+                                    cache.Content(ref p, newContent);
+                                    changed = true;
                                 }
+                            }
+                        }
 
+                        else if (contains != ContainmentType.Disjoint)
+                        {
+                            byte content = cache.Content(ref p);
+                            if (content > 0)
+                            {
+                                cache.Content(ref p, 0);
+                                changed = true;
+                            }
+                        }
+                        else if (contains == ContainmentType.Contains || contains == ContainmentType.Intersects)
+                        {
+                            cache.Content(ref p, 0);
+                            changed = true;
+                        }
+
+                        if (changed)
+                        {
+                            asteroid.Storage.WriteRange(cache, MyStorageDataTypeFlags.Content, block, maxRange);
+                            modified = true;
+                        }
                     }
                 }
             }
@@ -557,16 +525,15 @@
 
             if (modified)
             {
-                var tempfilename = TempfileUtil.NewFilename(MyVoxelMap.V2FileExtension);
-                asteroid.Save(tempfilename);
+                string tempFileName = TempFileUtil.NewFileName( MyVoxelMapBase.FileExtension.V2);
+                asteroid.Save(tempFileName);
                 // replaces the existing asteroid file, as it is still the same size and dimentions.
-                UpdateNewSource(asteroid, tempfilename);
+                UpdateNewSource(asteroid, tempFileName);
                 MaterialAssets = null;
                 InitializeAsync();
             }
             return modified;
         }
-
         #endregion
     }
 }

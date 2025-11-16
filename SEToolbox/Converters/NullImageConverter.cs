@@ -1,24 +1,23 @@
-﻿namespace SEToolbox.Converters
-{
-    using System;
-    using System.Globalization;
-    using System.IO;
-    using System.Windows;
-    using System.Windows.Data;
-    using System.Windows.Media.Imaging;
+﻿using System;
+using System.Globalization;
+using System.IO;
+using System.Windows;
+using System.Windows.Data;
+using System.Windows.Media.Imaging;
 
+namespace SEToolbox.Converters
+{
     public class NullImageConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null)
-                return DependencyProperty.UnsetValue;
+            value ??= DependencyProperty.UnsetValue;
 
             if (!File.Exists(value as string))
                 return DependencyProperty.UnsetValue;
 
             // Load the image, and prevent locking of the existing file.
-            var bitmapImage = new BitmapImage();
+            BitmapImage bitmapImage = new();
             bitmapImage.BeginInit();
             bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
             bitmapImage.CreateOptions = BitmapCreateOptions.IgnoreImageCache;

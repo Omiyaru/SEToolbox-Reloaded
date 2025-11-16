@@ -1,25 +1,26 @@
-﻿namespace SEToolbox.ViewModels
-{
-    using System;
-    using System.Collections.ObjectModel;
-    using System.Diagnostics.Contracts;
-    using System.IO;
-    using System.Linq;
-    using System.Windows.Forms;
-    using System.Windows.Input;
-    using System.Windows.Media.Media3D;
-    using SEToolbox.Interfaces;
-    using SEToolbox.Interop;
-    using SEToolbox.Interop.Asteroids;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-    using SEToolbox.Support;
-    using VRage;
-    using VRage.Game;
-    using VRage.ObjectBuilders;
-    using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
-    using Res = SEToolbox.Properties.Resources;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics.Contracts;
+using System.IO;
+using System.Linq;
+using System.Windows.Forms;
+using System.Windows.Input;
+using System.Windows.Media.Media3D;
+using SEToolbox.Interfaces;
+using SEToolbox.Interop;
+using SEToolbox.Interop.Asteroids;
+using SEToolbox.Models;
+using SEToolbox.Services;
+using SEToolbox.Support;
+using VRage;
+using VRage.Game;
+using VRage.ObjectBuilders;
+using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
+using Res = SEToolbox.Properties.Resources;
+using Mod = SEToolbox.Support.Modelling;
 
+namespace SEToolbox.ViewModels
+{
     public class Import3DModelViewModel : BaseViewModel
     {
         #region Fields
@@ -61,34 +62,33 @@
 
         #endregion
 
-        #region command Properties
+        #region Command Properties
 
         public ICommand Browse3DModelCommand
         {
-            get { return new DelegateCommand(Browse3DModelExecuted, Browse3DModelCanExecute); }
+           get => new DelegateCommand(Browse3DModelExecuted, Browse3DModelCanExecute);
         }
 
         public ICommand CreateCommand
         {
-            get { return new DelegateCommand(CreateExecuted, CreateCanExecute); }
+           get => new DelegateCommand(CreateExecuted, CreateCanExecute); 
         }
 
         public ICommand CancelCommand
         {
-            get { return new DelegateCommand(CancelExecuted, CancelCanExecute); }
+           get => new DelegateCommand(CancelExecuted, CancelCanExecute); 
         }
 
         #endregion
 
-        #region properties
+        #region Properties
 
         /// <summary>
         /// Gets or sets the DialogResult of the View.  If True or False is passed, this initiates the Close().
         /// </summary>
         public bool? CloseResult
         {
-            get { return _closeResult; }
-
+            get => _closeResult;
             set
             {
                 _closeResult = value;
@@ -101,55 +101,50 @@
         /// </summary>
         public bool IsBusy
         {
-            get { return _isBusy; }
-
+            get => _isBusy;
             set
             {
-                if (value != _isBusy)
+                SetProperty( ref _isBusy, value, nameof(IsBusy), () =>
                 {
-                    _isBusy = value;
-                    OnPropertyChanged(nameof(IsBusy));
                     if (_isBusy)
                     {
                         Application.DoEvents();
                     }
-                }
-            }
+                }); }
         }
+            
 
-        public string Filename
+        public string FileName
         {
-            get { return _dataModel.Filename; }
-
+            get => _dataModel.FileName;
             set
             {
-                _dataModel.Filename = value;
-                FilenameChanged();
+                _dataModel.FileName = value;
+                FileNameChanged();
             }
         }
 
         public Model3D Model
         {
-            get { return _dataModel.Model; }
-            set { _dataModel.Model = value; }
+            get => _dataModel.Model;
+            set => _dataModel.Model = value;
         }
 
         public bool IsValidModel
         {
-            get { return _dataModel.IsValidModel; }
-            set { _dataModel.IsValidModel = value; }
+            get => _dataModel.IsValidModel;
+            set => _dataModel.IsValidModel = value;
         }
 
         public BindableSize3DModel OriginalModelSize
         {
-            get { return _dataModel.OriginalModelSize; }
-            set { _dataModel.OriginalModelSize = value; }
+            get => _dataModel.OriginalModelSize;
+            set => _dataModel.OriginalModelSize = value;
         }
 
         public BindableSize3DIModel NewModelSize
         {
-            get { return _dataModel.NewModelSize; }
-
+            get => _dataModel.NewModelSize;
             set
             {
                 _dataModel.NewModelSize = value;
@@ -159,38 +154,37 @@
 
         public BindablePoint3DModel NewModelScale
         {
-            get { return _dataModel.NewModelScale; }
-            set { _dataModel.NewModelScale = value; }
+            get => _dataModel.NewModelScale;
+            set => _dataModel.NewModelScale = value;
         }
 
         public BindablePoint3DModel Position
         {
-            get { return _dataModel.Position; }
-            set { _dataModel.Position = value; }
+            get => _dataModel.Position;
+            set => _dataModel.Position = value;
         }
 
         public BindableVector3DModel Forward
         {
-            get { return _dataModel.Forward; }
-            set { _dataModel.Forward = value; }
+            get => _dataModel.Forward;
+            set => _dataModel.Forward = value;
         }
 
         public BindableVector3DModel Up
         {
-            get { return _dataModel.Up; }
-            set { _dataModel.Up = value; }
+            get => _dataModel.Up;
+            set => _dataModel.Up = value;
         }
 
         public ModelTraceVoxel TraceType
         {
-            get { return _dataModel.TraceType; }
-            set { _dataModel.TraceType = value; }
+            get => _dataModel.TraceType;
+            set => _dataModel.TraceType = value;
         }
 
         public ImportModelClassType ClassType
         {
-            get { return _dataModel.ClassType; }
-
+            get => _dataModel.ClassType;
             set
             {
                 _dataModel.ClassType = value;
@@ -200,25 +194,24 @@
 
         public bool IsAsteroid
         {
-            get { return _dataModel.IsAsteroid; }
+           get => _dataModel.IsAsteroid; 
         }
 
         public bool IsShip
         {
-            get { return _dataModel.IsShip; }
+           get => _dataModel.IsShip;
         }
 
         public ImportArmorType ArmorType
         {
-            get { return _dataModel.ArmorType; }
-            set { _dataModel.ArmorType = value; }
+            get => _dataModel.ArmorType;
+            set => _dataModel.ArmorType = value;
         }
 
 
         public double MultipleScale
         {
-            get { return _dataModel.MultipleScale; }
-
+            get => _dataModel.MultipleScale;
             set
             {
                 _dataModel.MultipleScale = value;
@@ -228,8 +221,7 @@
 
         public double MaxLengthScale
         {
-            get { return _dataModel.MaxLengthScale; }
-
+            get => _dataModel.MaxLengthScale;
             set
             {
                 _dataModel.MaxLengthScale = value;
@@ -239,10 +231,7 @@
 
         public double BuildDistance
         {
-            get
-            {
-                return _dataModel.BuildDistance;
-            }
+            get => _dataModel.BuildDistance;
 
             set
             {
@@ -253,8 +242,7 @@
 
         public bool IsMultipleScale
         {
-            get { return _dataModel.IsMultipleScale; }
-
+            get => _dataModel.IsMultipleScale;
             set
             {
                 _dataModel.IsMultipleScale = value;
@@ -264,8 +252,7 @@
 
         public bool IsMaxLengthScale
         {
-            get { return _dataModel.IsMaxLengthScale; }
-
+            get => _dataModel.IsMaxLengthScale;
             set
             {
                 _dataModel.IsMaxLengthScale = value;
@@ -275,42 +262,42 @@
 
         public ObservableCollection<MaterialSelectionModel> OutsideMaterialsCollection
         {
-            get { return _dataModel.OutsideMaterialsCollection; }
+            get => _dataModel.OutsideMaterialsCollection;
         }
 
 
         public ObservableCollection<MaterialSelectionModel> InsideMaterialsCollection
         {
-            get { return _dataModel.InsideMaterialsCollection; }
+            get => _dataModel.InsideMaterialsCollection;
         }
 
         public MaterialSelectionModel OutsideStockMaterial
         {
-            get { return _dataModel.OutsideStockMaterial; }
-            set { _dataModel.OutsideStockMaterial = value; }
+            get => _dataModel.OutsideStockMaterial;
+            set => _dataModel.OutsideStockMaterial = value;
         }
 
         public MaterialSelectionModel InsideStockMaterial
         {
-            get { return _dataModel.InsideStockMaterial; }
-            set { _dataModel.InsideStockMaterial = value; }
+            get => _dataModel.InsideStockMaterial;
+            set => _dataModel.InsideStockMaterial = value;
         }
 
         public string SourceFile
         {
-            get { return _dataModel.SourceFile; }
-            set { _dataModel.SourceFile = value; }
+            get => _dataModel.SourceFile;
+            set => _dataModel.SourceFile = value;
         }
 
         public bool FillObject
         {
-            get { return _dataModel.FillObject; }
-            set { _dataModel.FillObject = value; }
+            get => _dataModel.FillObject;
+            set => _dataModel.FillObject = value;
         }
 
         #endregion
 
-        #region command methods
+        #region Command Methods
 
         public bool Browse3DModelCanExecute()
         {
@@ -321,20 +308,20 @@
         {
             IsValidModel = false;
 
-            var openFileDialog = _openFileDialogFactory();
+            IOpenFileDialog openFileDialog = _openFileDialogFactory();
             openFileDialog.Filter = AppConstants.ModelFilter;
             openFileDialog.Title = Res.DialogImportModelTitle;
 
             // Open the dialog
             if (_dialogService.ShowOpenFileDialog(this, openFileDialog) == DialogResult.OK)
             {
-                Filename = openFileDialog.FileName;
+                FileName = openFileDialog.FileName;
             }
         }
 
-        private void FilenameChanged()
+        private void FileNameChanged()
         {
-            ProcessFilename(Filename);
+            ProcessFileName(FileName);
         }
 
         public bool CreateCanExecute()
@@ -359,9 +346,9 @@
 
         #endregion
 
-        #region methods
+        #region Methods
 
-        private void ProcessFilename(string filename)
+        private void ProcessFileName(string fileName)
         {
             IsValidModel = false;
             IsBusy = true;
@@ -370,13 +357,12 @@
             NewModelSize = new BindableSize3DIModel(0, 0, 0);
             Position = new BindablePoint3DModel(0, 0, 0);
 
-            if (File.Exists(filename))
+            if (File.Exists(fileName))
             {
                 // validate file is a real model.
                 // read model properties.
-                Model3D model;
-                var bounds = Modelling.PreviewModelVolmetic(filename, out model);
-                var size = new BindableSize3DModel(bounds);
+                Rect3D bounds = Mod.PreviewVolumetricModel(fileName, out Model3D model);
+                BindableSize3DModel size = new(bounds);
                 Model = model;
 
                 if (size != null && size.Height != 0 && size.Width != 0 && size.Depth != 0)
@@ -397,7 +383,7 @@
             {
                 if (IsMaxLengthScale)
                 {
-                    var factor = MaxLengthScale / Math.Max(Math.Max(OriginalModelSize.Height, OriginalModelSize.Width), OriginalModelSize.Depth);
+                    double factor = MaxLengthScale / Math.Max(Math.Max(OriginalModelSize.Height, OriginalModelSize.Width), OriginalModelSize.Depth);
 
                     NewModelSize.Height = (int)(factor * OriginalModelSize.Height);
                     NewModelSize.Width = (int)(factor * OriginalModelSize.Width);
@@ -425,7 +411,7 @@
                 NewModelScale = new BindablePoint3DModel(NewModelSize.Width * scaleMultiplyer, NewModelSize.Height * scaleMultiplyer, NewModelSize.Depth * scaleMultiplyer);
 
                 // Figure out where the Character is facing, and plant the new construct right in front, by "10" units, facing the Character.
-                var vector = new BindableVector3DModel(_dataModel.CharacterPosition.Forward).Vector3D;
+                Vector3D vector = new BindableVector3DModel(_dataModel.CharacterPosition.Forward).Vector3D;
                 vector.Normalize();
                 vector = Vector3D.Multiply(vector, vectorDistance);
                 Position = new BindablePoint3DModel(Point3D.Add(new BindablePoint3DModel(_dataModel.CharacterPosition.Position).Point3D, vector));
@@ -440,25 +426,28 @@
 
         public MyObjectBuilder_CubeGrid BuildTestEntity()
         {
-            var entity = new MyObjectBuilder_CubeGrid
+            MyObjectBuilder_CubeGrid entity = new()
             {
                 EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ENTITY),
                 PersistentFlags = MyPersistentEntityFlags2.CastShadows | MyPersistentEntityFlags2.InScene,
-                Skeleton = new System.Collections.Generic.List<BoneInfo>(),
+                Skeleton = [],
                 LinearVelocity = new VRageMath.Vector3(0, 0, 0),
                 AngularVelocity = new VRageMath.Vector3(0, 0, 0),
                 GridSizeEnum = MyCubeSize.Large
             };
 
-            var blockPrefix = entity.GridSizeEnum.ToString();
-            var cornerBlockPrefix = entity.GridSizeEnum.ToString();
+            string blockPrefix = entity.GridSizeEnum.ToString();
+
+            string cornerBlockPrefix = entity.GridSizeEnum.ToString();
+            //string blockContains = entity.GridSizeEnum.ToString().contains();
+
 
             entity.IsStatic = false;
             blockPrefix += "BlockArmor";        // HeavyBlockArmor|BlockArmor;
             cornerBlockPrefix += "BlockArmor"; // HeavyBlockArmor|BlockArmor|RoundArmor_;
 
             // Figure out where the Character is facing, and plant the new constrcut right in front, by "10" units, facing the Character.
-            var vector = new BindableVector3DModel(_dataModel.CharacterPosition.Forward).Vector3D;
+            Vector3D vector = new BindableVector3DModel(_dataModel.CharacterPosition.Forward).Vector3D;
             vector.Normalize();
             vector = Vector3D.Multiply(vector, 6);
             Position = new BindablePoint3DModel(Point3D.Add(new BindablePoint3DModel(_dataModel.CharacterPosition.Position).Point3D, vector));
@@ -473,37 +462,46 @@
             };
 
             // Large|BlockArmor|Corner
-            // Large|RoundArmor_|Corner
+            // Large|RoundArmor|Corner
             // Large|HeavyBlockArmor|Block,
             // Small|BlockArmor|Slope,
             // Small|HeavyBlockArmor|Corner,
 
-            var blockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Block");
-            var slopeBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), cornerBlockPrefix + "Slope");
-            var cornerBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), cornerBlockPrefix + "Corner");
-            var inverseCornerBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), cornerBlockPrefix + "CornerInv");
+            SubtypeId blockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Block");
+            SubtypeId slopeBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), cornerBlockPrefix + "Slope");
+            SubtypeId cornerBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), cornerBlockPrefix + "Corner");
+            SubtypeId inverseCornerBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), cornerBlockPrefix + "CornerInv");
 
-            entity.CubeBlocks = new System.Collections.Generic.List<MyObjectBuilder_CubeBlock>();
 
-            //var smoothObject = true;
+            entity.CubeBlocks = [];
+
+            bool smoothObject = true;
+            bool subtractiveSmoothObject= false;
 
             // Read in voxel and set main cube space.
             //var ccubic = TestCreateSplayedDiagonalPlane();
             //var ccubic = TestCreateSlopedDiagonalPlane();
             //var ccubic = TestCreateStaggeredStar();
-            var ccubic = Modelling.TestCreateTrayShape();
-            //var ccubic = ReadModelVolmetic(@"..\..\..\..\..\..\building 3D\models\Rhino_corrected.obj", 10, null, ModelTraceVoxel.ThickSmoothedDown);
+            CubeType[][][] ccubic = Mod.TestCreateTrayShape();
+            //var ccubic = ReadVolumetricModel(@"..\..\..\..\..\..\building 3D\models\Rhino_corrected.obj", 10, null, ModelTraceVoxel.ThickSmoothedDown);
 
-            var fillObject = false;
+            bool fillObject = false;
 
-            //if (smoothObject)
-            //{
-            //    CalculateAddedInverseCorners(ccubic);
-            //    CalculateAddedSlopes(ccubic);
-            //    CalculateAddedCorners(ccubic);
-            //}
+            if (smoothObject)
+            {
+                Mod.CalculateAddedInverseCorners(ccubic);
+                Mod.CalculateAddedSlopes(ccubic);
+                Mod.CalculateAddedCorners(ccubic);
+            }
+            else
+            {
+                if (subtractiveSmoothObject)
+                    Mod.CalculateSubtractedCorners(ccubic);
+                    Mod.CalculateSubtractedSlopes(ccubic);
+                    Mod.CalculateSubtractedInverseCorners(ccubic);
+            }
 
-            Modelling.BuildStructureFromCubic(entity, ccubic, fillObject, blockType, slopeBlockType, cornerBlockType, inverseCornerBlockType);
+            Mod.BuildStructureFromCubic(entity, ccubic, fillObject, blockType, slopeBlockType, cornerBlockType, inverseCornerBlockType);
 
             return entity;
         }
@@ -524,17 +522,17 @@
 
         private MyObjectBuilder_VoxelMap BuildAsteroidEntity()
         {
-            var filenamepart = Path.GetFileNameWithoutExtension(Filename);
-            var filename = MainViewModel.CreateUniqueVoxelStorageName(filenamepart + MyVoxelMap.V2FileExtension);
+            string fileNamePart = Path.GetFileNameWithoutExtension(FileName);
+            string fileName = MainViewModel.CreateUniqueVoxelStorageName(fileNamePart +  MyVoxelMapBase.FileExtension.V2);
             Position = Position.RoundOff(1.0);
             Forward = Forward.RoundToAxis();
             Up = Up.RoundToAxis();
 
-            var entity = new MyObjectBuilder_VoxelMap(Position.ToVector3(), filename)
+            var entity = new MyObjectBuilder_VoxelMap(Position.ToVector3(), fileName)
             {
                 EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ASTEROID),
                 PersistentFlags = MyPersistentEntityFlags2.CastShadows | MyPersistentEntityFlags2.InScene,
-                StorageName = Path.GetFileNameWithoutExtension(filename)
+                StorageName = Path.GetFileNameWithoutExtension(fileName)
             };
 
             double multiplier;
@@ -548,11 +546,11 @@
             }
 
             var transform = MeshHelper.TransformVector(new Vector3D(0, 0, 0), 0, 0, 0);
-            SourceFile = TempfileUtil.NewFilename(MyVoxelMap.V2FileExtension);
+            SourceFile = TempFileUtil.NewFileName( MyVoxelMapBase.FileExtension.V2);
 
-            var baseMaterial = SpaceEngineersCore.Resources.VoxelMaterialDefinitions.FirstOrDefault(m => m.IsRare == false) ?? SpaceEngineersCore.Resources.VoxelMaterialDefinitions.FirstOrDefault();
+            var baseMaterial = SpaceEngineersResources.VoxelMaterialDefinitions.FirstOrDefault(m => m.IsRare == false) ?? SpaceEngineersResources.VoxelMaterialDefinitions.FirstOrDefault();
 
-            var voxelMap = MyVoxelBuilder.BuildAsteroidFromModel(true, Filename, OutsideStockMaterial.MaterialIndex.Value, baseMaterial.Index, InsideStockMaterial.Value != null, InsideStockMaterial.MaterialIndex, ModelTraceVoxel.ThinSmoothed, multiplier, transform, MainViewModel.ResetProgress, MainViewModel.IncrementProgress);
+            var voxelMap = MyVoxelBuilder.BuildAsteroidFromModel(true, FileName, OutsideStockMaterial.MaterialIndex.Value, baseMaterial.Index, InsideStockMaterial.Value != null, InsideStockMaterial.MaterialIndex, ModelTraceVoxel.ThinSmoothed, multiplier, transform, MainViewModel.ResetProgress, MainViewModel.IncrementProgress);
             voxelMap.Save(SourceFile);
 
             MainViewModel.ClearProgress();
@@ -571,16 +569,16 @@
 
         private MyObjectBuilder_CubeGrid BuildShipEntity()
         {
-            var entity = new MyObjectBuilder_CubeGrid
+            MyObjectBuilder_CubeGrid entity = new()
             {
                 EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ENTITY),
                 PersistentFlags = MyPersistentEntityFlags2.CastShadows | MyPersistentEntityFlags2.InScene,
-                Skeleton = new System.Collections.Generic.List<BoneInfo>(),
+                Skeleton = [],
                 LinearVelocity = new VRageMath.Vector3(0, 0, 0),
                 AngularVelocity = new VRageMath.Vector3(0, 0, 0)
             };
 
-            var blockPrefix = "";
+            string blockPrefix = "";
             switch (ClassType)
             {
                 case ImportModelClassType.SmallShip:
@@ -617,11 +615,28 @@
             switch (ArmorType)
             {
                 case ImportArmorType.Heavy: blockPrefix += "HeavyBlockArmor"; break;
-                case ImportArmorType.Light: blockPrefix += "BlockArmor"; break;
+                case ImportArmorType.Light: blockPrefix += "BlockArmor"; break;                // Currently in development, and only specified as 'Light' on the 'Large' structures.
+                //Round Armor
+                case ImportArmorType.HeavyRounded:
+                case ImportArmorType.LightRounded:
+                    blockPrefix += "Rounded"; break;
 
-                // TODO: Rounded Armor.
-                // Currently in development, and only specified as 'Light' on the 'Large' structures.
-                //case ImportArmorType.Round: blockPrefix += "RoundArmor_"; break;
+                // Angled
+                case ImportArmorType.HeavyAngled:
+                case ImportArmorType.LightAngled:
+                    blockPrefix += "Angled"; break;
+
+                // Slope
+                case ImportArmorType.HeavySlope:
+                case ImportArmorType.LightSlope:
+                    blockPrefix += "Slope"; break;
+
+                // Corner
+                case ImportArmorType.HeavyCorner:
+                case ImportArmorType.LightCorner:
+                    blockPrefix += "Corner"; break;
+
+
             }
 
             // Large|BlockArmor|Corner
@@ -630,12 +645,18 @@
             // Small|BlockArmor|Slope,
             // Small|HeavyBlockArmor|Corner,
 
-            var blockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Block");
-            var slopeBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Slope");
-            var cornerBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Corner");
-            var inverseCornerBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "CornerInv");
+            SubtypeId blockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Block");
+            SubtypeId smallBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "SmallBlock");
+            SubtypeId heavyBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "SmallHeavyBlock");
+            SubtypeId largeBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "BlockArmor");
+            SubtypeId roundBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "ArmorRound");
+            SubtypeId angledBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Angled");
+            SubtypeId slopeBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Slope");
+            SubtypeId cornerBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Corner");
+            SubtypeId inverseCornerBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "CornerInv");
 
-            entity.CubeBlocks = new System.Collections.Generic.List<MyObjectBuilder_CubeBlock>();
+
+            entity.CubeBlocks = [];
 
             double multiplier;
             if (IsMultipleScale)
@@ -647,9 +668,9 @@
                 multiplier = MaxLengthScale / Math.Max(Math.Max(OriginalModelSize.Height, OriginalModelSize.Width), OriginalModelSize.Depth);
             }
 
-            var ccubic = Modelling.ReadModelVolmetic(Filename, multiplier, null, TraceType, MainViewModel.ResetProgress, MainViewModel.IncrementProgress);
+            CubeType[][][] ccubic = Mod.ReadVolumetricModel(FileName, multiplier, null, TraceType, MainViewModel.ResetProgress, MainViewModel.IncrementProgress);
 
-            Modelling.BuildStructureFromCubic(entity, ccubic, FillObject, blockType, slopeBlockType, cornerBlockType, inverseCornerBlockType);
+            Mod.BuildStructureFromCubic(entity, ccubic, FillObject, blockType, slopeBlockType, cornerBlockType, inverseCornerBlockType);
 
             MainViewModel.ClearProgress();
 

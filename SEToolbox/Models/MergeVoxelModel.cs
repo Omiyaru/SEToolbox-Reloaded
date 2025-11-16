@@ -1,8 +1,8 @@
-﻿namespace SEToolbox.Models
-{
-    using SEToolbox.Interfaces;
-    using SEToolbox.Support;
+﻿using SEToolbox.Interfaces;
+using SEToolbox.Support;
 
+namespace SEToolbox.Models
+{
     public class MergeVoxelModel : BaseModel
     {
         #region Fields
@@ -25,48 +25,30 @@
         /// </summary>
         public bool IsBusy
         {
-            get { return _isBusy; }
-
-            set
-            {
-                if (value != _isBusy)
-                {
-                    _isBusy = value;
-                    OnPropertyChanged(nameof(IsBusy));
-                    if (_isBusy)
+            get => _isBusy;
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
                     {
-                        System.Windows.Forms.Application.DoEvents();
-                    }
-                }
-            }
+                        if (_isBusy)
+                        {
+                            System.Windows.Forms.Application.DoEvents();
+                        }
+                    });
         }
+
+
+
+
 
         public IStructureBase SelectionLeft
         {
-            get { return _selectionLeft; }
-
-            set
-            {
-                if (value != _selectionLeft)
-                {
-                    _selectionLeft = value;
-                    OnPropertyChanged(nameof(SelectionLeft));
-                }
-            }
+            get => _selectionLeft;
+            set => SetProperty(ref _selectionLeft, value, nameof(SelectionLeft));
         }
 
         public IStructureBase SelectionRight
         {
-            get { return _selectionRight; }
-
-            set
-            {
-                if (value != _selectionRight)
-                {
-                    _selectionRight = value;
-                    OnPropertyChanged(nameof(SelectionRight));
-                }
-            }
+            get => _selectionRight;
+            set => SetProperty(ref _selectionRight, value, nameof(SelectionRight));
         }
 
         /// <summary>
@@ -74,77 +56,37 @@
         /// </summary>
         public bool IsValidMerge
         {
-            get { return _isValidMerge; }
-
-            set
-            {
-                if (value != _isValidMerge)
-                {
-                    _isValidMerge = value;
-                    OnPropertyChanged(nameof(IsValidMerge));
-                }
-            }
+            get => _isValidMerge;
+            set => SetProperty(ref _isValidMerge, value, nameof(IsValidMerge));
         }
 
         public string SourceFile
         {
-            get { return _sourceFile; }
-
-            set
-            {
-                if (value != _sourceFile)
-                {
-                    _sourceFile = value;
-                    OnPropertyChanged(nameof(SourceFile));
-                }
-            }
+            get => _sourceFile;
+            set => SetProperty(ref _sourceFile, value, nameof(SourceFile));
         }
 
         public VoxelMergeType VoxelMergeType
         {
-            get { return _voxelMergeType; }
-
-            set
-            {
-                if (value != _voxelMergeType)
-                {
-                    _voxelMergeType = value;
-                    OnPropertyChanged(nameof(VoxelMergeType));
-                }
-            }
+            get => _voxelMergeType;
+            set => SetProperty(ref _voxelMergeType, value, nameof(VoxelMergeType));
         }
 
         public string MergeFileName
         {
-            get { return _mergeFileName; }
-
-            set
-            {
-                if (value != _mergeFileName)
-                {
-                    _mergeFileName = value;
-                    OnPropertyChanged(nameof(MergeFileName));
-                }
-            }
+            get => _mergeFileName;
+            set => SetProperty(ref _mergeFileName, value, nameof(MergeFileName));
         }
 
         public bool RemoveOriginalAsteroids
         {
-            get { return _removeOriginalAsteroids; }
-
-            set
-            {
-                if (value != _removeOriginalAsteroids)
-                {
-                    _removeOriginalAsteroids = value;
-                    OnPropertyChanged(nameof(RemoveOriginalAsteroids));
-                }
-            }
+            get => _removeOriginalAsteroids;
+            set => SetProperty(ref _removeOriginalAsteroids, value, nameof(RemoveOriginalAsteroids));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public void Load(IStructureBase selection1, IStructureBase selection2)
         {
@@ -154,7 +96,7 @@
             var modelLeft = (StructureVoxelModel)SelectionLeft;
             var modelRight = (StructureVoxelModel)SelectionRight;
 
-            IsValidMerge = modelLeft.WorldAABB.Intersects(modelRight.WorldAABB);
+            IsValidMerge = modelLeft.WorldAabb.Intersects(modelRight.WorldAabb);
         }
 
         #endregion

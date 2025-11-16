@@ -1,13 +1,13 @@
-﻿namespace SEToolbox.Support
-{
-    using SEToolbox.Interop;
-    using System;
-    using System.Collections.Generic;
-    using Res = SEToolbox.Properties.Resources;
+﻿using SEToolbox.Interop;
+using System;
+using System.Collections.Generic;
+using Res = SEToolbox.Properties.Resources;
 
-    internal class AppConstants
+namespace SEToolbox.Support
+{
+    internal static class AppConstants
     {
-        internal static Dictionary<string, string> SupportedLanguages = new Dictionary<string, string>()
+        internal static Dictionary<string, string> SupportedLanguages = new()
         {
             // The following local code must match those from the game, or they will be considered new.
             {"en", "flag_great_britain"},
@@ -104,11 +104,14 @@
         /// </summary>
         ThickSmoothedUp,
 
-        ///// <summary>
-        ///// Thick Shell calculation, subtractive slope additions.
-        ///// </summary>
-        //ThickSmoothedDown,
+        /// <summary>
+        /// Thick Shell calculation, subtractive slope additions.
+        /// </summary>
+        ThickSmoothedDown,
 
+        /// <summary>
+        /// Surface calculation.
+        /// </summary>
         //SurfaceCalculated
     };
 
@@ -182,13 +185,8 @@
     };
 
 
-    // TODO: Temporary enum, before creating a proper registrable fill types.
-    public enum AsteroidFillType
-    {
-        None,
-        ByteFiller
-    }
-
+   // Updated: Now supports registration of custom fill types at runtime.
+   //moved to AsteroidFillTypes.cs
     public enum ReportType
     {
         Unknown,
@@ -198,7 +196,7 @@
     }
 
     [Flags]
-    public enum GridConnectionType
+    public enum GridConnectionTypes
     {
         None = 0x00,
 

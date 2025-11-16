@@ -1,18 +1,18 @@
-﻿namespace SEToolbox.Support
-{
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 
-    public static class TempfileUtil
+namespace SEToolbox.Support
+{
+    public static class TempFileUtil
     {
-        private static readonly List<string> Tempfiles;
+        private static readonly List<string> TempFiles;
         public static readonly string TempPath;
 
-        static TempfileUtil()
+        static TempFileUtil()
         {
-            Tempfiles = new List<string>();
+            TempFiles = [];
             TempPath = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location));
             if (!Directory.Exists(TempPath))
                 Directory.CreateDirectory(TempPath);
@@ -22,9 +22,9 @@
         /// Generates a temporary filename in the 'c:\users\%username%\AppData\Local\Temp\%ApplicationName%' path.
         /// </summary>
         /// <returns></returns>
-        public static string NewFilename()
+        public static string NewFileName()
         {
-            return NewFilename(null);
+            return NewFileName(null);
         }
 
         /// <summary>
@@ -32,22 +32,22 @@
         /// </summary>
         /// <param name="fileExtension">optional file extension in the form '.ext'</param>
         /// <returns></returns>
-        public static string NewFilename(string fileExtension)
+        public static string NewFileName(string fileExtension)
         {
-            string filename;
+            string fileName;
 
             if (string.IsNullOrEmpty(fileExtension))
             {
-                filename = Path.Combine(TempPath, Guid.NewGuid() + ".tmp");
+               fileName = Path.Combine(TempPath, Guid.NewGuid() + ".tmp");
             }
             else
             {
-                filename = Path.Combine(TempPath, Guid.NewGuid() + fileExtension);
+               fileName = Path.Combine(TempPath, Guid.NewGuid() + fileExtension);
             }
 
-            Tempfiles.Add(filename);
+            TempFiles.Add(fileName);
 
-            return filename;
+            return fileName;
         }
 
         /// <summary>
@@ -55,28 +55,27 @@
         /// </summary>
         public static void Dispose()
         {
-            foreach (var filename in Tempfiles)
+            foreach (var fileName in TempFiles)
             {
-                if (File.Exists(filename))
+                if (File.Exists(fileName))
                 {
                     try
                     {
-                        File.Delete(filename);
+                        File.Delete(fileName);
                     }
                     catch
                     {
-                        // Unable to delete any locked files.
+                        // Unable to dispose file
                     }
                 }
             }
 
-            Tempfiles.Clear();
+            TempFiles.Clear();
         }
 
         public static void DestroyTempFiles()
         {
-            var basePath = new DirectoryInfo(TempPath);
-
+            DirectoryInfo basePath = new(TempPath);
             foreach (FileInfo file in basePath.GetFiles())
             {
                 try

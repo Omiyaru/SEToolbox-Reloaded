@@ -1,43 +1,61 @@
-﻿namespace SEToolbox.Interop
+﻿
+using SEToolbox.Support;
+
+using System;
+using System.Linq;
+using System.Reflection;
+using VRage.Game.ModAPI;
+
+namespace SEToolbox.Interop
 {
-    using System;
-    using System.Linq;
 
     public static class VoxelMapLoader
     {
         static VoxelMapLoader()
         {
-            //var t = typeof(IMyVoxelMap);
-            //var t2 = typeof(Sandbox.Definitions.MyCubeDefinition);
-            ////var t2 = typeof(Sandbox.Engine.Voxels.IMyStorage);
-            //var t3 = typeof(Sandbox.ModAPI.Interfaces.IMyStorage);
+            // This is a refined approach to get only the necessary types for loading the voxel map.
+            Type voxelMapType = typeof(IMyVoxelMap);
+            Type cubeDefinitionType = typeof(Sandbox.Definitions.MyCubeDefinition);
+            Type storageType = typeof(Sandbox.Engine.Voxels.MyOctreeStorage);
+            Type modApiStorageType = typeof(VRage.ModAPI.IMyStorage);
 
-            //var a = t2.Assembly;
-            //Type[] ts;
+            Assembly assembly = cubeDefinitionType.Assembly;
+            Type[] exportedTypes = assembly.GetExportedTypes();
             try
             {
+                // Get all exported types from the assembly
+                // Filter types that are assignable to IMyStorage without loading unnecessary assemblies
+                Type[] assignableTypes = [..assembly.GetTypes()
+                    .Where(type => voxelMapType.IsAssignableFrom(type)
+                                   || cubeDefinitionType.IsAssignableFrom(type)
+                                   || storageType.IsAssignableFrom(type)
+                                   || modApiStorageType.IsAssignableFrom(type))];
+                //Todo identify any other types as needed
 
-                //ts = a.GetExportedTypes();
-                //var ts = t2.Assembly.GetTypes();
-
-                var type = typeof(VRage.ModAPI.IMyStorage);
-                var types = AppDomain.CurrentDomain.GetAssemblies()
-                    .SelectMany(s => s.GetTypes())
-                    .Where(p => type.IsAssignableFrom(p));
-                var c = types.Count();
+                // Count of relevant types
+                int count = assignableTypes.Count();
+                
             }
-            catch (Exception)
+
+            catch (ReflectionTypeLoadException ex)
+            {
+                // Handle the exception and log the loader exceptions if needed
+                foreach (Exception loaderException in ex.LoaderExceptions)
+                {
+                    Console.WriteLine(loaderException.Message);
+                }
+            }
+            catch (Exception ex)
             {
                 // The types required to load the current asteroid files are in the Sandbox.Game.dll.
                 // Trying to iterate through the types in the Sandbox.Game assembly, will practically cause it to load every other assembly in the game.
-                // Unless there is another way to ignore types dependant on other assemblies I can't even progress with this 'idea' to load asteroids.
+                SConsole.WriteLine(ex.Message);
             }
-            
         }
 
-        public static void Load(string filename)
+        public static void Load(string fileName) 
         {
-
+            throw new NotImplementedException();//todo: Implement loading the voxel map from the specifiedfileName.
         }
     }
 }

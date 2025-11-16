@@ -1,11 +1,12 @@
-﻿namespace SEToolbox.ViewModels
+﻿
+using System.Collections.ObjectModel;
+using System.Windows.Input;
+
+using SEToolbox.Models;
+using SEToolbox.Services;
+
+namespace SEToolbox.ViewModels
 {
-    using System.Collections.ObjectModel;
-    using System.Windows.Input;
-
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-
     public class RegeneratePlanetViewModel : BaseViewModel
     {
         #region Fields
@@ -16,12 +17,11 @@
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public RegeneratePlanetViewModel(BaseViewModel parentViewModel, RegeneratePlanetModel dataModel)
             : base(parentViewModel)
         {
-
             _dataModel = dataModel;
             // Will bubble property change events from the Model to the ViewModel.
             _dataModel.PropertyChanged += (sender, e) => OnPropertyChanged(e.PropertyName);
@@ -29,16 +29,16 @@
 
         #endregion
 
-        #region command properties
+        #region Command Properties
 
         public ICommand OkayCommand
         {
-            get { return new DelegateCommand(OkayExecuted, OkayCanExecute); }
+            get => new DelegateCommand(OkayExecuted, OkayCanExecute);
         }
 
         public ICommand CancelCommand
         {
-            get { return new DelegateCommand(CancelExecuted, CancelCanExecute); }
+            get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         #endregion
@@ -50,10 +50,7 @@
         /// </summary>
         public bool? CloseResult
         {
-            get
-            {
-                return _closeResult;
-            }
+            get => _closeResult;
 
             set
             {
@@ -67,48 +64,41 @@
         /// </summary>
         public bool IsBusy
         {
-            get
-            {
-                return _isBusy;
-            }
+            get => _isBusy;
 
             set
             {
-                if (value != _isBusy)
+                SetProperty( ref _isBusy, value, nameof(IsBusy));
+                if (_isBusy)
                 {
-                    _isBusy = value;
-                    OnPropertyChanged(nameof(IsBusy));
-                    if (_isBusy)
-                    {
-                        System.Windows.Forms.Application.DoEvents();
-                    }
+                    System.Windows.Forms.Application.DoEvents();
                 }
             }
         }
 
         public int Seed
         {
-            get { return _dataModel.Seed; }
-            set { _dataModel.Seed = value; }
+            get => _dataModel.Seed;
+            set => _dataModel.Seed = value;
         }
 
         public decimal Diameter
         {
-            get { return _dataModel.Diameter; }
-            set { _dataModel.Diameter = value; }
+            get => _dataModel.Diameter;
+            set => _dataModel.Diameter = value;
         }
 
         public bool InvalidKeenRange
         {
-            get { return _dataModel.InvalidKeenRange; }
-            set { _dataModel.InvalidKeenRange = value; }
+            get => _dataModel.InvalidKeenRange;
+            set => _dataModel.InvalidKeenRange = value;
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
-        #region commands
+        #region Commands
 
         public bool OkayCanExecute()
         {

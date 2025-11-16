@@ -1,29 +1,30 @@
-﻿namespace SEToolbox.ViewModels
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel;
-    using System.Diagnostics.Contracts;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
-    using System.Windows;
-    using System.Windows.Data;
-    using System.Windows.Input;
-    using System.Windows.Media.Media3D;
-    using SEToolbox.Interfaces;
-    using SEToolbox.Interop;
-    using SEToolbox.Models;
-    using SEToolbox.Services;
-    using SEToolbox.Support;
-    using SEToolbox.Views;
-    using VRage.Game;
-    using Res = SEToolbox.Properties.Resources;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics.Contracts;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Windows;
+using System.Windows.Data;
+using System.Windows.Input;
+using System.Windows.Media.Media3D;
+using SEToolbox.Interfaces;
+using SEToolbox.Interop;
+using SEToolbox.Models;
+using SEToolbox.Services;
+using SEToolbox.Support;
+using SEToolbox.Views;
+using VRage.Game;
+using Sandbox.Game.Entities.Inventory;
+using Res = SEToolbox.Properties.Resources;
 
+namespace SEToolbox.ViewModels
+{
     public class StructureCubeGridViewModel : StructureBaseViewModel<StructureCubeGridModel>
     {
-        #region fields
+        #region Fields
 
         private readonly IDialogService _dialogService;
         private readonly Func<IColorDialog> _colorDialogFactory;
@@ -34,12 +35,12 @@
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public StructureCubeGridViewModel(BaseViewModel parentViewModel, StructureCubeGridModel dataModel)
             : this(parentViewModel, dataModel, ServiceLocator.Resolve<IDialogService>(), ServiceLocator.Resolve<IColorDialog>)
         {
-            Selections = new ObservableCollection<CubeItemViewModel>();
+            Selections = [];
         }
 
         public StructureCubeGridViewModel(BaseViewModel parentViewModel, StructureCubeGridModel dataModel, IDialogService dialogService, Func<IColorDialog> colorDialogFactory)
@@ -51,16 +52,15 @@
             _dialogService = dialogService;
             _colorDialogFactory = colorDialogFactory;
 
-            Func<CubeItemModel, CubeItemViewModel> viewModelCreator = model => new CubeItemViewModel(this, model);
-            Func<ObservableCollection<CubeItemViewModel>> collectionCreator =
-                () => new ObservableViewModelCollection<CubeItemViewModel, CubeItemModel>(dataModel.CubeList, viewModelCreator);
+            CubeItemViewModel viewModelCreator(CubeItemModel model) => new(this, model);
+            ObservableCollection<CubeItemViewModel> collectionCreator() => new ObservableViewModelCollection<CubeItemViewModel, CubeItemModel>(dataModel.CubeList, viewModelCreator);
             _cubeList = new Lazy<ObservableCollection<CubeItemViewModel>>(collectionCreator);
 
-            DataModel.PropertyChanged += delegate(object sender, PropertyChangedEventArgs e)
+            DataModel.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
             {
                 if (e.PropertyName == "CubeList")
                 {
-                    collectionCreator.Invoke();
+                    collectionCreator();
                     _cubeList = new Lazy<ObservableCollection<CubeItemViewModel>>(collectionCreator);
                 }
                 // Will bubble property change events from the Model to the ViewModel.
@@ -70,9 +70,17 @@
 
         #endregion
 
-        #region command Properties
+        #region Command Properties
 
         public ICommand OptimizeObjectCommand => new DelegateCommand(OptimizeObjectExecuted, OptimizeObjectCanExecute);
+
+        public ICommand FindOverlappingBlocksCommand => new DelegateCommand(FindOverlappingBlocksExecuted, FindOverlappingBlocksCanExecute);
+
+        public ICommand RemoveOverlappingBlocksCommand => new DelegateCommand(RemoveOverlappingBlocksExecuted, RemoveOverlappingBlocksCanExecute);
+
+        public ICommand MoveOverlappingBlocksCommand => new DelegateCommand(MoveOverlappingBlocksExecuted, MoveOverlappingBlocksCanExecute);
+
+        public ICommand ToggleExclusionsCommand => new DelegateCommand(ToggleExcludedBlocksExecuted, ToggleExcludedBlocksCanExecute);
 
         public ICommand RepairObjectCommand => new DelegateCommand(RepairObjectExecuted, RepairObjectCanExecute);
 
@@ -170,13 +178,12 @@
 
         public ObservableCollection<CubeItemViewModel> CubeList
         {
-            get { return _cubeList.Value; }
+            get => _cubeList.Value;
         }
 
         public ObservableCollection<CubeItemViewModel> Selections
         {
-            get { return _selections; }
-
+            get => _selections;
             set
             {
                 if (value != _selections)
@@ -189,8 +196,7 @@
 
         public CubeItemViewModel SelectedCubeItem
         {
-            get { return _selectedCubeItem; }
-
+            get => _selectedCubeItem;
             set
             {
                 if (value != _selectedCubeItem)
@@ -203,34 +209,45 @@
 
         protected new StructureCubeGridModel DataModel
         {
-            get { return base.DataModel as StructureCubeGridModel; }
+            get => base.DataModel as StructureCubeGridModel;
+        }
+
+        public bool ToggleExcludedBlocks //why did i put this here??
+        {
+            get => DataModel.ToggleExcludedBlocks;
+            set
+            {
+                DataModel.ToggleExcludedBlocks = value;
+                MainViewModel.IsModified = true;
+                OnPropertyChanged(nameof(ToggleExcludedBlocks));
+            }
         }
 
         public bool IsDamaged
         {
-            get { return DataModel.IsDamaged; }
+            get => DataModel.IsDamaged;
         }
 
         public int DamageCount
         {
-            get { return DataModel.DamageCount; }
+            get => DataModel.DamageCount;
         }
 
         public MyCubeSize GridSize
         {
-            get { return DataModel.GridSize; }
-            set { DataModel.GridSize = value; }
+            get => DataModel.GridSize;
+            set => DataModel.GridSize = value;
         }
 
         public bool IsStatic
         {
-            get { return DataModel.IsStatic; }
-            set { DataModel.IsStatic = value; }
+            get => DataModel.IsStatic;
+            set => DataModel.IsStatic = value;
         }
 
         public bool Dampeners
         {
-            get { return DataModel.Dampeners; }
+            get => DataModel.Dampeners;
 
             set
             {
@@ -241,8 +258,7 @@
 
         public bool Destructible
         {
-            get { return DataModel.Destructible; }
-
+            get => DataModel.Destructible;
             set
             {
                 DataModel.Destructible = value;
@@ -252,116 +268,113 @@
 
         public Point3D Min
         {
-            get { return DataModel.Min; }
-            set { DataModel.Min = value; }
+            get => DataModel.Min;
+            set => DataModel.Min = value;
         }
 
         public Point3D Max
         {
-            get { return DataModel.Max; }
-            set { DataModel.Max = value; }
+            get => DataModel.Max;
+            set => DataModel.Max = value;
         }
 
         public Vector3D Scale
         {
-            get { return DataModel.Scale; }
-            set { DataModel.Scale = value; }
+            get => DataModel.Scale;
+            set => DataModel.Scale = value;
         }
 
-        public BindableSize3DModel Size
-        {
-            get { return new BindableSize3DModel(DataModel.Size); }
-        }
+        public BindableSize3DModel Size => new(DataModel.Size);
 
         public BindableVector3DModel Center
         {
-            get { return new BindableVector3DModel(DataModel.Center); }
-            set { DataModel.Center = value.ToVector3(); }
+            get => new(DataModel.Center);
+            set => DataModel.Center = value.ToVector3();
         }
 
         public bool IsPiloted
         {
-            get { return DataModel.IsPiloted; }
+            get => DataModel.IsPiloted;
         }
 
         public override double LinearVelocity
         {
-            get { return DataModel.LinearVelocity; }
+            get => DataModel.LinearVelocity;
         }
 
         public double AngularVelocity
         {
-            get { return DataModel.AngularVelocity; }
+            get => DataModel.AngularVelocity;
         }
 
         public TimeSpan TimeToProduce
         {
-            get { return DataModel.TimeToProduce; }
-            set { DataModel.TimeToProduce = value; }
+            get => DataModel.TimeToProduce;
+            set => DataModel.TimeToProduce = value;
         }
 
         public int PCUToProduce
         {
-            get { return DataModel.PCUToProduce; }
-            set { DataModel.PCUToProduce = value; }
+            get => DataModel.PCUToProduce;
+            set => DataModel.PCUToProduce = value;
         }
 
         public string CockpitOrientation
         {
-            get { return DataModel.CockpitOrientation; }
+            get => DataModel.CockpitOrientation;
         }
 
         public List<CubeAssetModel> CubeAssets
         {
-            get { return DataModel.CubeAssets; }
-            set { DataModel.CubeAssets = value; }
+            get => DataModel.CubeAssets;
+            set => DataModel.CubeAssets = value;
         }
 
         public List<CubeAssetModel> ComponentAssets
         {
-            get { return DataModel.ComponentAssets; }
-            set { DataModel.ComponentAssets = value; }
+            get => DataModel.ComponentAssets;
+            set => DataModel.ComponentAssets = value;
         }
 
         public List<OreAssetModel> IngotAssets
         {
-            get { return DataModel.IngotAssets; }
-            set { DataModel.IngotAssets = value; }
+            get => DataModel.IngotAssets;
+            set => DataModel.IngotAssets = value;
         }
 
         public List<OreAssetModel> OreAssets
         {
-            get { return DataModel.OreAssets; }
-            set { DataModel.OreAssets = value; }
+            get => DataModel.OreAssets;
+            set => DataModel.OreAssets = value;
         }
 
         public string ActiveComponentFilter
         {
-            get { return DataModel.ActiveComponentFilter; }
-            set { DataModel.ActiveComponentFilter = value; }
+            get => DataModel.ActiveComponentFilter;
+            set => DataModel.ActiveComponentFilter = value;
         }
 
         public string ComponentFilter
         {
-            get { return DataModel.ComponentFilter; }
-            set { DataModel.ComponentFilter = value; }
+            get => DataModel.ComponentFilter;
+            set => DataModel.ComponentFilter = value;
         }
 
         public bool IsConstructionNotReady
         {
-            get { return DataModel.IsConstructionNotReady; }
-            set { DataModel.IsConstructionNotReady = value; }
+            get => DataModel.IsConstructionNotReady;
+            set => DataModel.IsConstructionNotReady = value;
         }
 
         public bool IsSubsSystemNotReady
         {
-            get { return DataModel.IsSubsSystemNotReady; }
-            set { DataModel.IsSubsSystemNotReady = value; }
+            get => DataModel.IsSubsSystemNotReady;
+            set => DataModel.IsSubsSystemNotReady = value;
         }
 
         #endregion
 
-        #region command methods
+        #region Command Methods
 
         public bool OptimizeObjectCanExecute()
         {
@@ -373,6 +386,57 @@
             MainViewModel.OptimizeModel(this);
             IsSubsSystemNotReady = true;
             DataModel.InitializeAsync();
+        }
+
+        public static bool FindOverlappingBlocksCanExecute() => true;
+
+        public void FindOverlappingBlocksExecuted()
+        {
+            MainViewModel.FindOverlappingBlocks(this);
+            IsSubsSystemNotReady = true;
+            DataModel.InitializeAsync();
+        }
+
+        public static bool RemoveOverlappingBlocksCanExecute()
+        {
+            return true;
+            }
+
+        public void RemoveOverlappingBlocksExecuted()
+        {
+            MainViewModel.RemoveOverlappingBlocks(this);
+            IsSubsSystemNotReady = true;
+            DataModel.InitializeAsync();
+            MainViewModel.IsModified = true;
+        }
+
+        public static bool MoveOverlappingBlocksCanExecute()
+        {
+            return true; 
+        }
+
+        public void MoveOverlappingBlocksExecuted()
+        {
+
+            MainViewModel.MoveOverlappingBlocks(this);
+            IsSubsSystemNotReady = true;
+            DataModel.InitializeAsync();
+            MainViewModel.IsModified = true;
+        }
+
+        public bool ToggleExcludedBlocksCanExecute()
+        {
+            return DataModel != null && MainViewModel != null;
+            }
+        // Ensure the DataModel is valid and exclusions can be toggled
+
+        public void ToggleExcludedBlocksExecuted()
+        {
+            if (MainViewModel.ToggleExcludedBlocks(this))
+            {
+                IsSubsSystemNotReady = true;
+                DataModel.InitializeAsync();
+            }
         }
 
         public bool RepairObjectCanExecute()
@@ -437,8 +501,7 @@
 
         public void MaxVelocityAtPlayerExecuted()
         {
-
-            var position = MainViewModel.ThePlayerCharacter.PositionAndOrientation.Value.Position;
+            VRage.SerializableVector3D position = MainViewModel.ThePlayerCharacter.PositionAndOrientation.Value.Position;
             DataModel.MaxVelocityAtPlayer(position);
             MainViewModel.IsModified = true;
         }
@@ -448,8 +511,9 @@
             return true;
         }
 
-        public void ConvertGridExecuted()
+        public static void ConvertGridExecuted()
         {
+            //placeholder
         }
 
         public bool ConvertGridToHeavyArmorCanExecute()
@@ -475,18 +539,18 @@
             MainViewModel.IsBusy = true;
             MainViewModel.ResetProgress(0, Selections.Count);
 
-            var contentPath = ToolboxUpdater.GetApplicationContentPath();
+            string contentPath = ToolboxUpdater.GetApplicationContentPath();
             bool changes = false;
-            foreach (var cubeVm in Selections)
+            foreach (CubeItemViewModel cubeVm in Selections)
             {
                 MainViewModel.Progress++;
                 if (cubeVm.ConvertFromLightToHeavyArmor())
                 {
                     changes = true;
 
-                    var idx = DataModel.CubeGrid.CubeBlocks.IndexOf(cubeVm.Cube);
-                    var cubeDefinition = SpaceEngineersApi.GetCubeDefinition(cubeVm.Cube.TypeId, GridSize, cubeVm.Cube.SubtypeName);
-                    var newCube = cubeVm.CreateCube(cubeVm.Cube.TypeId, cubeVm.Cube.SubtypeName, cubeDefinition);
+                    int idx = DataModel.CubeGrid.CubeBlocks.IndexOf(cubeVm.Cube);
+                    Sandbox.Definitions.MyCubeBlockDefinition cubeDefinition = SpaceEngineersApi.GetCubeDefinition(cubeVm.Cube.TypeId, GridSize, cubeVm.Cube.SubtypeName);
+                    MyObjectBuilder_CubeBlock newCube = cubeVm.CreateCube(cubeVm.Cube.TypeId, cubeVm.Cube.SubtypeName, cubeDefinition);
                     cubeVm.TextureFile = (cubeDefinition.Icons == null || cubeDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(cubeDefinition.Icons.First(), Path.Combine(contentPath, cubeDefinition.Icons.First()));
 
                     DataModel.CubeGrid.CubeBlocks.RemoveAt(idx);
@@ -523,18 +587,18 @@
             MainViewModel.IsBusy = true;
             MainViewModel.ResetProgress(0, Selections.Count);
 
-            var contentPath = ToolboxUpdater.GetApplicationContentPath();
+            string contentPath = ToolboxUpdater.GetApplicationContentPath();
             bool changes = false;
-            foreach (var cubeVm in Selections)
+            foreach (CubeItemViewModel cubeVm in Selections)
             {
                 MainViewModel.Progress++;
                 if (cubeVm.ConvertFromHeavyToLightArmor())
                 {
                     changes = true;
 
-                    var idx = DataModel.CubeGrid.CubeBlocks.IndexOf(cubeVm.Cube);
-                    var cubeDefinition = SpaceEngineersApi.GetCubeDefinition(cubeVm.Cube.TypeId, GridSize, cubeVm.Cube.SubtypeName);
-                    var newCube = cubeVm.CreateCube(cubeVm.Cube.TypeId, cubeVm.Cube.SubtypeName, cubeDefinition);
+                    int idx = DataModel.CubeGrid.CubeBlocks.IndexOf(cubeVm.Cube);
+                    Sandbox.Definitions.MyCubeBlockDefinition cubeDefinition = SpaceEngineersApi.GetCubeDefinition(cubeVm.Cube.TypeId, GridSize, cubeVm.Cube.SubtypeName);
+                    MyObjectBuilder_CubeBlock newCube = cubeVm.CreateCube(cubeVm.Cube.TypeId, cubeVm.Cube.SubtypeName, cubeDefinition);
                     cubeVm.TextureFile = (cubeDefinition.Icons == null || cubeDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(cubeDefinition.Icons.First(), Path.Combine(contentPath, cubeDefinition.Icons.First()));
 
                     DataModel.CubeGrid.CubeBlocks.RemoveAt(idx);
@@ -553,7 +617,7 @@
             return true;
         }
 
-        public void ConvertGridFrameworkExecuted()
+        public static void ConvertGridFrameworkExecuted()
         {
             // placeholder for menu only.
         }
@@ -581,7 +645,7 @@
             MainViewModel.IsBusy = true;
             MainViewModel.ResetProgress(0, Selections.Count);
 
-            foreach (var cube in Selections)
+            foreach (CubeItemViewModel cube in Selections)
             {
                 MainViewModel.Progress++;
                 cube.UpdateBuildPercent(value);
@@ -888,70 +952,76 @@
 
         public void CopyDetailExecuted()
         {
-            var cubes = new StringBuilder();
+            StringBuilder cubes = new();
             if (CubeAssets != null)
             {
-                foreach (var mat in CubeAssets)
+                foreach (CubeAssetModel mat in CubeAssets)
                 {
-                    cubes.AppendFormat("{0}\t{1:#,##0}\t{2:#,##0.00} {3}\t{4:hh\\:mm\\:ss\\.ff}\t{5:#,##0.00}\r\n", mat.FriendlyName, mat.Count, mat.Mass, Res.GlobalSIMassKilogram, mat.Time, mat.PCU);
-                }
-            }
 
-            var components = new StringBuilder();
-            if (ComponentAssets != null)
-            {
-                foreach (var mat in ComponentAssets)
+                    cubes.AppendFormat($"{mat.FriendlyName}\t{mat.Count:#,##0}\t{mat.Mass:#,##0.00} {Res.GlobalSIMassKilogram}\t{mat.Time:hh\\:mm\\:ss\\.ff}\t{mat.PCU:#,##0.00}\r\n");
+                }
+
+                StringBuilder components = new();
+                if (ComponentAssets != null)
                 {
-                    components.AppendFormat("{0}\t{1:#,##0}\t{2:#,##0} {3}\t{4:#,##0.00} {5}\t{6:hh\\:mm\\:ss\\.ff}\r\n", mat.FriendlyName, mat.Count, mat.Mass, Res.GlobalSIMassKilogram, mat.Volume, Res.GlobalSIMassKilogram,  mat.Time);
+                    foreach (CubeAssetModel mat in ComponentAssets)
+                    {
+                        components.AppendFormat($"{mat.FriendlyName}\t{mat.Mass:#,##0.00} {Res.GlobalSIMassKilogram}\t{mat.Volume:#,##0.00} {Res.GlobalSIMassKilogram}\r\n");
+                    }
                 }
-            }
 
-            var ingots = new StringBuilder();
-            if (IngotAssets != null)
-            {
-                foreach (var mat in IngotAssets)
+                StringBuilder ingots = new();
+                if (IngotAssets != null)
                 {
-                    ingots.AppendFormat("{0}\t{1:#,##0.00}\t{2:#,##0.00} {3}\t{4:#,##0.00} {5}\t{6:hh\\:mm\\:ss\\.ff}\r\n", mat.FriendlyName, mat.Amount, mat.Mass, Res.GlobalSIMassKilogram, mat.Volume, Res.GlobalSIMassKilogram, mat.Time);
+                    foreach (OreAssetModel mat in IngotAssets)
+                    {
+                        ingots.AppendFormat($"{mat.FriendlyName}\t{mat.Amount:#,##0}\t{mat.Mass:#,##0.00} {Res.GlobalSIMassKilogram}\t{mat.Volume:#,##0.00} {Res.GlobalSIMassKilogram}\r\n");
+                    }
                 }
-            }
 
-            var ores = new StringBuilder();
-            if (OreAssets != null)
-            {
-                foreach (var mat in OreAssets)
+                StringBuilder ores = new();
+                if (OreAssets != null)
                 {
-                    ores.AppendFormat("{0}\t{1:#,##0}\t{2:#,##0.00} {3}\t{4:#,##0.00} {5}\r\n", mat.FriendlyName, mat.Amount, mat.Mass, Res.GlobalSIMassKilogram, mat.Volume, Res.GlobalSIMassKilogram);
+                    foreach (OreAssetModel mat in OreAssets)
+                    {
+                        ores.AppendFormat($"{mat.FriendlyName}\t{mat.Amount:#,##0}\t{mat.Mass:#,##0.00} {Res.GlobalSIMassKilogram}\t{mat.Volume:#,##0.00} {Res.GlobalSIMassKilogram}\r\n");
+                    }
                 }
-            }
 
-            var detail = string.Format(Properties.Resources.CtlCubeDetail,
-                DisplayName,
-                ClassType,
-                IsPiloted,
-                DamageCount,
-                LinearVelocity,
-                PlayerDistance,
-                Scale.X, Scale.Y, Scale.Z,
-                Size.Width, Size.Height, Size.Depth,
-                Mass,
-                BlockCount,
-                PositionAndOrientation.Value.Position.X, PositionAndOrientation.Value.Position.Y, PositionAndOrientation.Value.Position.Z,
-                PCUToProduce,
-                TimeToProduce,
-                cubes.ToString(),
-                components.ToString(),
-                ingots.ToString(),
-                ores.ToString());
+                string detail = string.Format(Properties.Resources.CtlCubeDetail,
+                    DisplayName,
+                    ClassType,
+                    IsPiloted,
+                    DamageCount,
+                    LinearVelocity,
+                    PlayerDistance,
+                    Scale.X, Scale.Y, Scale.Z,
+                    Size.Width, Size.Height, Size.Depth,
+                    Mass,
+                    BlockCount,
+                    PositionAndOrientation?.Position.X ?? 0d,
+                    PositionAndOrientation?.Position.Y ?? 0d,
+                    PositionAndOrientation?.Position.Z ?? 0d,
+                    Center.X,
+                    Center.Y,
+                    Center.Z,
+                    PCUToProduce,
+                    TimeToProduce,
+                    cubes.ToString(),
+                    components.ToString(),
+                    ingots.ToString(),
+                    ores.ToString());
 
-            try
-            {
-                Clipboard.Clear();
-                Clipboard.SetText(detail);
-            }
-            catch
-            {
-                // Ignore exception which may be generated by a Remote desktop session where Clipboard access has not been granted.
-            }
+                try
+                {
+                    Clipboard.Clear();
+                    Clipboard.SetText(detail);
+                }
+                catch
+                {
+                    // Ignore exception which may be generated by a Remote desktop session where Clipboard access has not been granted.
+                }
+            } 
         }
 
         public bool FilterStartCanExecute()
@@ -1003,7 +1073,7 @@
             while (Selections.Count > 0)
             {
                 MainViewModel.Progress++;
-                var cube = Selections[0];
+                CubeItemViewModel cube = Selections[0];
                 if (DataModel.CubeGrid.CubeBlocks.Remove(cube.Cube))
                     DataModel.CubeList.Remove(cube.DataModel);
             }
@@ -1017,8 +1087,9 @@
             return SelectedCubeItem != null;
         }
 
-        public void ConvertCubesExecuted()
+        public static void ConvertCubesExecuted()
         {
+            //placeholder
         }
 
         public bool ReplaceCubesCanExecute()
@@ -1028,27 +1099,27 @@
 
         public void ReplaceCubesExecuted()
         {
-            var model = new SelectCubeModel();
-            var loadVm = new SelectCubeViewModel(this, model);
+            SelectCubeModel model = new();
+            SelectCubeViewModel loadVm = new(this, model);
             model.Load(GridSize, SelectedCubeItem.Cube.TypeId, SelectedCubeItem.SubtypeId);
-            var result = _dialogService.ShowDialog<WindowSelectCube>(this, loadVm);
+            bool? result = _dialogService.ShowDialog<WindowSelectCube>(this, loadVm);
             if (result == true)
             {
                 MainViewModel.IsBusy = true;
-                var contentPath = ToolboxUpdater.GetApplicationContentPath();
-                var change = false;
+                string contentPath = ToolboxUpdater.GetApplicationContentPath();
+                bool change = false;
                 MainViewModel.ResetProgress(0, Selections.Count);
 
-                foreach (var cube in Selections)
+                foreach (CubeItemViewModel cube in Selections)
                 {
                     MainViewModel.Progress++;
                     if (cube.TypeId != model.CubeItem.TypeId || cube.SubtypeId != model.CubeItem.SubtypeId)
                     {
-                        var idx = DataModel.CubeGrid.CubeBlocks.IndexOf(cube.Cube);
+                        int idx = DataModel.CubeGrid.CubeBlocks.IndexOf(cube.Cube);
                         DataModel.CubeGrid.CubeBlocks.RemoveAt(idx);
 
-                        var cubeDefinition = SpaceEngineersApi.GetCubeDefinition(model.CubeItem.TypeId, GridSize, model.CubeItem.SubtypeId);
-                        var newCube = cube.CreateCube(model.CubeItem.TypeId, model.CubeItem.SubtypeId, cubeDefinition);
+                        Sandbox.Definitions.MyCubeBlockDefinition cubeDefinition = SpaceEngineersApi.GetCubeDefinition(model.CubeItem.TypeId, GridSize, model.CubeItem.SubtypeId);
+                        MyObjectBuilder_CubeBlock newCube = cube.CreateCube(model.CubeItem.TypeId, model.CubeItem.SubtypeId, cubeDefinition);
                         cube.TextureFile = (cubeDefinition.Icons == null || cubeDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(cubeDefinition.Icons.First(), Path.Combine(contentPath, cubeDefinition.Icons.First()));
                         DataModel.CubeGrid.CubeBlocks.Insert(idx, newCube);
 
@@ -1072,7 +1143,7 @@
 
         public void ColorCubesExecuted()
         {
-            var colorDialog = _colorDialogFactory();
+            IColorDialog colorDialog = _colorDialogFactory();
             colorDialog.FullOpen = true;
             colorDialog.BrushColor = SelectedCubeItem.Color as System.Windows.Media.SolidColorBrush;
             colorDialog.CustomColors = MainViewModel.CreativeModeColors;
@@ -1082,7 +1153,7 @@
                 MainViewModel.IsBusy = true;
                 MainViewModel.ResetProgress(0, Selections.Count);
 
-                foreach (var cube in Selections)
+                foreach (CubeItemViewModel cube in Selections)
                 {
                     MainViewModel.Progress++;
                     if (colorDialog.DrawingColor.HasValue)
@@ -1104,15 +1175,15 @@
 
         public void ConvertCubeToFrameworkDialogExecuted()
         {
-            var model = new FrameworkBuildModel { BuildPercent = SelectedCubeItem.BuildPercent * 100 };
-            var loadVm = new FrameworkBuildViewModel(this, model);
-            var result = _dialogService.ShowDialog<WindowFrameworkBuild>(this, loadVm);
+            FrameworkBuildModel model = new() { BuildPercent = SelectedCubeItem.BuildPercent * 100 };
+            FrameworkBuildViewModel loadVm = new(this, model);
+            bool? result = _dialogService.ShowDialog<WindowFrameworkBuild>(this, loadVm);
             if (result == true)
             {
                 MainViewModel.IsBusy = true;
                 MainViewModel.ResetProgress(0, Selections.Count);
 
-                foreach (var cube in Selections)
+                foreach (CubeItemViewModel cube in Selections)
                 {
                     MainViewModel.Progress++;
                     cube.UpdateBuildPercent(model.BuildPercent.Value / 100);
@@ -1131,17 +1202,19 @@
 
         public void SetOwnerExecuted()
         {
-            var model = new ChangeOwnerModel();
-            model.Title = Res.WnChangeOwnerTitle;
+            ChangeOwnerModel model = new()
+            {
+                Title = Res.WnChangeOwnerTitle
+            };
             model.Load(SelectedCubeItem.Owner);
-            var loadVm = new ChangeOwnerViewModel(this, model);
-            var result = _dialogService.ShowDialog<WindowChangeOwner>(this, loadVm);
+            ChangeOwnerViewModel loadVm = new(this, model);
+            bool? result = _dialogService.ShowDialog<WindowChangeOwner>(this, loadVm);
             if (result == true)
             {
                 MainViewModel.IsBusy = true;
                 MainViewModel.ResetProgress(0, Selections.Count);
 
-                foreach (var cube in Selections)
+                foreach (CubeItemViewModel cube in Selections)
                 {
                     MainViewModel.Progress++;
                     cube.ChangeOwner(model.SelectedPlayer.PlayerId);
@@ -1160,17 +1233,19 @@
 
         public void SetBuiltByExecuted()
         {
-            var model = new ChangeOwnerModel();
-            model.Title = Res.WnChangeBuiltByTitle;
+            ChangeOwnerModel model = new()
+            {
+                Title = Res.WnChangeBuiltByTitle
+            };
             model.Load(SelectedCubeItem.BuiltBy);
-            var loadVm = new ChangeOwnerViewModel(this, model);
-            var result = _dialogService.ShowDialog<WindowChangeOwner>(this, loadVm);
+            ChangeOwnerViewModel loadVm = new(this, model);
+            bool? result = _dialogService.ShowDialog<WindowChangeOwner>(this, loadVm);
             if (result == true)
             {
                 MainViewModel.IsBusy = true;
                 MainViewModel.ResetProgress(0, Selections.Count);
 
-                foreach (var cube in Selections)
+                foreach (CubeItemViewModel cube in Selections)
                 {
                     MainViewModel.Progress++;
                     cube.ChangeBuiltBy(model.SelectedPlayer.PlayerId);
@@ -1184,17 +1259,17 @@
 
         #endregion
 
-        #region methods
+        #region Methods
 
         private void ApplyCubeFilter()
         {
             // Prepare filter beforehand.
             if (string.IsNullOrEmpty(ActiveComponentFilter))
-                _filerView = new string[0];
+                _filerView = [];
             else
-                _filerView = ActiveComponentFilter.ToLowerInvariant().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
+                _filerView = [.. ActiveComponentFilter.ToLowerInvariant().Split([' '], StringSplitOptions.RemoveEmptyEntries).Distinct()];
 
-            var view = (CollectionView)CollectionViewSource.GetDefaultView(CubeList);
+            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(CubeList);
             view.Filter = UserFilter;
         }
 
@@ -1203,10 +1278,10 @@
             if (_filerView.Length == 0)
                 return true;
 
-            var cube = (CubeItemViewModel)item;
-            return _filerView.All(s => (cube.FriendlyName != null && cube.FriendlyName.ToLowerInvariant().Contains(s)) || cube.ColorText.ToLowerInvariant().Contains(s));
+            CubeItemViewModel cube = (CubeItemViewModel)item;
+            return _filerView.All(s => ( cube.FriendlyName.ToLowerInvariant().Contains(s)) || cube.ColorText.ToLowerInvariant().Contains(s));
         }
-
+        
         #endregion
     }
 }

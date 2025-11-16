@@ -1,11 +1,11 @@
-﻿namespace SEToolbox.Services
-{
-    using System;
-    using System.Diagnostics.Contracts;
-    using System.Windows.Forms;
-    using SEToolbox.Interfaces;
-    using WinFormsOpenFileDialog = System.Windows.Forms.OpenFileDialog;
+﻿using System;
+using System.Diagnostics.Contracts;
+using System.Windows.Forms;
+using SEToolbox.Interfaces;
+using WinFormsOpenFileDialog = System.Windows.Forms.OpenFileDialog;
 
+namespace SEToolbox.Services
+{
     /// <summary>
     /// Class wrapping System.Windows.Forms.OpenFileDialog, making it accept a IOpenFileDialog.
     /// </summary>
@@ -22,7 +22,7 @@
         {
             Contract.Requires(openFileDialog != null);
 
-            this._openFileDialog = openFileDialog;
+            _openFileDialog = openFileDialog;
 
             // Create concrete OpenFileDialog
             _concreteOpenFileDialog = new WinFormsOpenFileDialog
@@ -54,7 +54,7 @@
         {
             Contract.Requires(owner != null);
 
-            var result = _concreteOpenFileDialog.ShowDialog(owner);
+            DialogResult result = _concreteOpenFileDialog.ShowDialog(owner);
 
             // Update ViewModel
             _openFileDialog.FileName = _concreteOpenFileDialog.FileName;

@@ -41,16 +41,16 @@
                                        ColumnHeaderArrowUpTemplate="{StaticResource HeaderTemplateArrowUp}" ColumnHeaderArrowDownTemplate="{StaticResource HeaderTemplateArrowDown}">
                 <ListView.View>
                     <GridView>
-                        <controls:SortableGridViewColumn SortBinding="{Binding SessionName}" Header="{lex:Loc SEToolbox:Resources:WnLoadColName}" Width="240">
+                        <controls:SortableGridViewColumn SortBinding="{Binding SessionName}" Header="{lex:Loc WnLoadColName}" Width="240">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding SessionName}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </controls:SortableGridViewColumn>
-                        <GridViewColumn DisplayMemberBinding="{Binding LastSaveTime}" Header="{lex:Loc SEToolbox:Resources:WnLoadColSaved}"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding WorkshopId}" Header="{lex:Loc SEToolbox:Resources:WnLoadColWorkshop}"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding Version}" Header="{lex:Loc SEToolbox:Resources:WnLoadColVersion}"/>
+                        <GridViewColumn DisplayMemberBinding="{Binding LastSaveTime}" Header="{lex:Loc WnLoadColSaved}"/>
+                        <GridViewColumn DisplayMemberBinding="{Binding WorkshopId}" Header="{lex:Loc WnLoadColWorkshop}"/>
+                        <GridViewColumn DisplayMemberBinding="{Binding Version}" Header="{lex:Loc WnLoadColVersion}"/>
                     </GridView>
                 </ListView.View>
                 <ListView.GroupStyle>
@@ -86,12 +86,12 @@
                 </i:Interaction.Triggers>
                 <ListView.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="{lex:Loc SEToolbox:Resources:WnLoadContextOpenFolder}" Command="{Binding OpenFolderCommand}">
+                        <MenuItem Header="{lex:Loc WnLoadContextOpenFolder}" Command="{Binding OpenFolderCommand}">
                             <MenuItem.Icon>
                                 <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=folder}" />
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="{lex:Loc SEToolbox:Resources:WnLoadContextWorkshop}" Command="{Binding OpenWorkshopCommand}">
+                        <MenuItem Header="{lex:Loc WnLoadContextWorkshop}" Command="{Binding OpenWorkshopCommand}">
                             <MenuItem.Icon>
                                 <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=workshop16}" />
                             </MenuItem.Icon>
@@ -102,7 +102,7 @@
             <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="4"/>
             <Grid Grid.Column="2" Margin="8,0,0,0">
                 <StackPanel VerticalAlignment="Top">
-                    <Image HorizontalAlignment="Stretch" Source="{Binding Path=SelectedWorld.ThumbnailImageFilename, Converter={StaticResource NullImageConverter}}" Cursor="Hand" ToolTip="{lex:Loc WnLoadZoomInTooltip}">
+                    <Image HorizontalAlignment="Stretch" Source="{Binding Path=SelectedWorld.ThumbnailImageFileName, Converter={StaticResource NullImageConverter}}" Cursor="Hand" ToolTip="{lex:Loc WnLoadZoomInTooltip}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseUp">
                                 <commands:CommandAction Command="{Binding ZoomThumbnailCommand}"/>
@@ -118,14 +118,18 @@
                 </StackPanel>
             </Grid>
         </Grid>
-        <Border Visibility="{Binding ZoomThumbnail, FallbackValue=Hidden, Converter={StaticResource BooleanToVisibilityConverter}}" Background="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}" Cursor="Hand" ToolTip="{lex:Loc WnLoadZoomOutTooltip}">
-            <Image Source="{Binding Path=SelectedWorld.ThumbnailImageFilename, Converter={StaticResource NullImageConverter}}" IsHitTestVisible="False"/>
+        <Border Visibility="{Binding ZoomThumbnail, FallbackValue=Collapsed, Converter={StaticResource BooleanToVisibilityConverter}}" Background="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}" Cursor="Hand" ToolTip="{lex:Loc WnLoadZoomOutTooltip}">
+            <Image Source="{Binding Path=SelectedWorld.ThumbnailImageFileName, Converter={StaticResource NullImageConverter}}" IsHitTestVisible="False"/>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseUp">
                     <commands:CommandAction Command="{Binding ZoomThumbnailCommand}"/>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </Border>
-        <controls:BusyIndicator Visibility="{Binding IsBusy, FallbackValue=Hidden, Converter={StaticResource BooleanToVisibilityConverter}}" />
+       <controls:BusyIndicator Mode="Spinner"
+                         Visibility="{Binding IsBusy,
+             Converter={StaticResource BooleanToVisibilityConverter},
+             FallbackValue=Collapsed}"/>
+
     </Grid>
 </Window>

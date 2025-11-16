@@ -1,7 +1,7 @@
-﻿namespace SEToolbox.Interop
-{
-    using VRage.ObjectBuilders;
+﻿using VRage.ObjectBuilders;
 
+namespace SEToolbox.Interop
+{
     public class BlueprintRequirement
     {
         public decimal Amount { get; set; }

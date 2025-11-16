@@ -1,33 +1,29 @@
-﻿namespace SEToolbox.Interop
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using SEConsts = SEToolbox.Interop.SpaceEngineersConsts;
+namespace SEToolbox.Interop
 {
-    using System;
-    using System.IO;
 
-    public class UserDataPath
+
+    public class UserDataPath(string basePath, string savesPathPart, string modsPathPart, string blueprintsPathPart,string shaderPathPart = null, string modsCachePathPart = null )
     {
-        #region ctor
-
-        public UserDataPath(string basePath, string savesPathPart, string modsPathPart, string blueprintsPathPart)
-        {
-            DataPath = basePath;
-            SavesPath = Path.Combine(basePath, savesPathPart);
-            ModsPath = Path.Combine(basePath, modsPathPart);
-            if (blueprintsPathPart != null)
-                BlueprintsPath = Path.Combine(basePath, blueprintsPathPart);
-        }
+        #region Ctor
+        #region Properties
+        public string DataPath { get; set; } = basePath;
+        public string SavesPath { get; set; } = Path.Combine(basePath, savesPathPart);
+        public string ModsPath { get; set; } = Path.Combine(basePath, modsPathPart);
+        public string BlueprintsPath { get; set; } = blueprintsPathPart != null ? Path.Combine(basePath, blueprintsPathPart) : null;
+        //public string BackupsPath { get; set; } = Path.Combine(basePath, backupsPathPart);
+        public string ShaderPath { get; set; } = shaderPathPart != null ? Path.Combine(basePath, shaderPathPart) : null;
+        //or is it shaders2
+        public string ModsCache { get; set; } = modsCachePathPart != null ? Path.Combine(basePath, modsCachePathPart) : null;
+    
+        #endregion
 
         #endregion
 
-        #region properties
-
-        public string DataPath { get; set; }
-        public string SavesPath { get; set; }
-        public string ModsPath { get; set; }
-        public string BlueprintsPath { get; set; }
-
-        #endregion
-
-        #region methods
+        #region Methods
 
         /// <summary>
         /// Determine the correct UserDataPath for this save game if at all possible to allow finding the mods folder.
@@ -36,38 +32,64 @@
         /// <returns></returns>
         public static UserDataPath FindFromSavePath(string savePath)
         {
-            var dp = SpaceEngineersConsts.BaseLocalPath;
-            var basePath = GetPathBase(savePath, SpaceEngineersConsts.SavesFolder);
+            UserDataPath dataPath = SEConsts.BaseLocalPath;
+            string basePath = GetPathBase(savePath, SEConsts.Folders.SavesFolder);
             if (basePath != null)
             {
-                dp = new UserDataPath(basePath, SpaceEngineersConsts.SavesFolder, SpaceEngineersConsts.ModsFolder, SpaceEngineersConsts.BlueprintsFolder);
+                dataPath = new UserDataPath(basePath,
+                               SEConsts.Folders.SavesFolder,
+                               SEConsts.Folders.ModsFolder,
+                               SEConsts.Folders.BlueprintsFolder
+                               );
             }
 
-            return dp;
+            return dataPath;
         }
 
         #endregion
 
-        #region helpers
+        #region Helpers
 
         private static string GetPathBase(string path, string baseName)
         {
-            var parentPath = path;
-            var currentName = Path.GetFileName(parentPath);
-            while (currentName != null && !currentName.Equals(baseName, StringComparison.CurrentCultureIgnoreCase))
+            string parentPath = path;
+            string currentName = Path.GetFileName(parentPath);
+            while (!currentName.Equals(baseName, StringComparison.CurrentCultureIgnoreCase))
             {
                 parentPath = Path.GetDirectoryName(parentPath);
                 currentName = Path.GetFileName(parentPath);
             }
-
-            if (currentName != null && currentName.Equals(baseName, StringComparison.CurrentCultureIgnoreCase))
-            {
-                return Path.GetDirectoryName(parentPath);
-            }
-
-            return null;
+            return currentName.Equals(baseName, StringComparison.OrdinalIgnoreCase) ? parentPath : null;
         }
 
+    public string GetDataPathOrDefault(string key, string defaultValue)
+        {
+
+            // TODO: this code is obsolete and needs to be cleaned up.
+            // #31 https://github.com/midspace/SEToolbox/commit/354fd4cba31d1d8accac4c8188189dd1b114209b#diff-816c9c8868fbb3625db0cc45485797ef
+            //if deleted this breaks things, something else needs to be done.
+
+            var userDataPath = new UserDataPath(SEConsts.BaseLocalPath.DataPath, SEConsts.Folders.SavesFolder, SEConsts.Folders.ModsFolder, SEConsts.Folders.BlueprintsFolder);
+            string path = userDataPath.GetPathOrDefault(key);
+
+            if (string.IsNullOrWhiteSpace(path))
+                return defaultValue;
+
+            return path;
+        }
+        internal static readonly Dictionary<string, string> PathMap = new()
+        {
+            {SEConsts.Folders.ModsFolder, nameof(ModsPath)},
+            {SEConsts.Folders.BlueprintsFolder, nameof(BlueprintsPath)},
+            {SEConsts.Folders.ModsCacheFolder, nameof(ModsCache)},
+            {SEConsts.Folders.ShadersFolder, nameof(ShaderPath)},
+        };
+
+        internal string GetPathOrDefault(string key)
+        {
+            return PathMap.TryGetValue(key, out var value) ? value : null;
+        }
+        
         #endregion
     }
-}
+} 

@@ -2,7 +2,7 @@
 {
     public class BindablePoint3DIModel : BaseModel
     {
-        #region fields
+        #region Fields
 
         private int _x;
         private int _y;
@@ -10,7 +10,7 @@
 
         #endregion
 
-        #region ctor
+        #region Ctor
 
         public BindablePoint3DIModel()
         {
@@ -41,68 +41,43 @@
 
         public int X
         {
-            get
-            {
-                return _x;
-            }
+            get  => _x ;
 
             set
             {
-                if (value != _x)
-                {
-                    _x = value;
-                    OnPropertyChanged(nameof(X));
-                }
+                SetProperty(ref _x, value, nameof(X));
+
             }
         }
 
         public int Y
         {
-            get
-            {
-                return _y;
-            }
+            get  => _y;
 
-            set
-            {
-                if (value != _y)
-                {
-                    _y = value;
-                    OnPropertyChanged(nameof(Y));
-                }
-            }
+            set => SetProperty(ref _y, value, nameof(Y));
         }
 
         public int Z
         {
-            get
-            {
-                return _z;
-            }
+            get => _z;
 
-            set
-            {
-                if (value != _z)
-                {
-                    _z = value;
-                    OnPropertyChanged(nameof(Z));
-                }
-            }
+            set => SetProperty(ref _z, value, nameof(Z));
         }
 
         #endregion
 
-        #region methods
+        #region Methods
 
         public VRageMath.Vector3I ToVector3I()
         {
             return new VRageMath.Vector3I(X, Y, Z);
         }
 
-        public override string ToString()
+        public override string ToString() 
         {
-            return string.Format("{0},{1},{2}", X, Y, Z);
+            return string.Format($"{X},{Y},{Z}");
         }
+        
 
         #endregion
     }
