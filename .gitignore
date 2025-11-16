@@ -239,3 +239,7 @@ user.targets
 
 # Nothing in the .vs folder belongs in git
 .vs
+/.exc
+/.history
+/.vscode
+/SEToolbox/.vscode
