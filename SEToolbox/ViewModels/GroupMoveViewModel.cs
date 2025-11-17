@@ -74,7 +74,6 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _dataModel.IsBusy;
-
             set => _dataModel.IsBusy = value;
         }
 
@@ -181,14 +180,12 @@ namespace SEToolbox.ViewModels
         public ObservableCollection<GroupMoveItemModel> Selections
         {
             get => _dataModel.Selections;
-
             set => _dataModel.Selections = value;
         }
 
         public Vector3D CenterPosition
         {
             get => _dataModel.CenterPosition;
-
             set => _dataModel.CenterPosition = value;
         }
         #endregion

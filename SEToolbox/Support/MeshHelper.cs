@@ -131,33 +131,18 @@ namespace SEToolbox.Support
 
             // Find if the interesection point lies inside the triangle by testing it against all edges
             Vector3D vTest;
-            switch (vTest = Vector3D.CrossProduct(normal, rayPoints[1] - rayPoints[0]))
+              var vTest = Vector3D.CrossProduct(normal, rayPoints[1] - rayPoints[0]);
+            var dTest = Vector3D.DotProduct(vTest, intersectPos - rayPoints[0]);
+
+            if (dTest < 0.0f)
             {
-                case Vector3D when vTest.X < 0.0f:
-                    _ = Vector3D.DotProduct(vTest, intersectPos - rayPoints[0]);
-                    break;
-                case Vector3D when vTest.X < 0.0f:
-                    _ = Vector3D.DotProduct(vTest, intersectPos - rayPoints[1]);
-                    break;
-                case Vector3D when vTest.X < 0.0f:
-                    _ = Vector3D.DotProduct(vTest, intersectPos - rayPoints[2]);
-                    break;
+                return false;
             }
 
-            double dTest;
-            switch (dTest = Vector3D.DotProduct(vTest, intersectPos - rayPoints[0]))
+            if (Vector3D.DotProduct(vTest, intersectPos - rayPoints[1]) < 0.0f ||
+                Vector3D.DotProduct(vTest, intersectPos - rayPoints[2]) < 0.0f)
             {
-                case double when dTest < 0.0f:
-                    Vector3D.DotProduct(vTest, intersectPos - rayPoints[0]);
-                    break;
-                case double when dTest < 0.0f:
-
-                    Vector3D.DotProduct(vTest, intersectPos - rayPoints[1]);
-                    break;
-                case double when dTest < 0.0f:
-                    Vector3D.DotProduct(vTest, intersectPos - rayPoints[2]);
-                    break;
-
+                return false;
             }
 
             vTest = Vector3D.CrossProduct(normal, rayPoints[0] - rayPoints[1]);
@@ -217,7 +202,7 @@ namespace SEToolbox.Support
             const int rounding = 14;
 
             // Find Triangle Normal
-            Vector3D normal = CrossProductRound(Round(rayPoints[1] - rayPoints[0], rounding), Round(rayPoints[2] - rayPoints[0], rounding));
+            Vector3D normal = CrossProductRound(Round(rayPoints[2] - rayPoints[0], rounding), Round(rayPoints[2] - rayPoints[0], rounding));
             normal.Normalize();
 
             // not a triangle. Two or more points may occupy the same place.
@@ -228,7 +213,7 @@ namespace SEToolbox.Support
 
             // Find distance from LP1 and LP2 to the plane defined by the triangle
             double dist1 = DotProductRound(Round(roundPointA - rayPoints[0], rounding), normal);
-            double dist2 = DotProductRound(Round( roundPointB - rayPoints[0], rounding), normal);
+            double dist2 = DotProductRound(Round(roundPointB - rayPoints[0], rounding), normal);
 
             if ((dist1 * dist2) >= 0.0f)
             {
@@ -249,6 +234,7 @@ namespace SEToolbox.Support
             // Find if the interesection point lies inside the triangle by testing it against all edges
 
             Vector3D vTest = Vector3D.CrossProduct(normal, rayPoints[1] - rayPoints[0]);
+            //var vTest = CrossProductRound(normal, Round(p2 - p1, rounding));
             //var vTest = CrossProductRound(normal, Round(rayPoints[1] - rayPoints[0], rounding));
             if (DotProductRound(vTest, Round(intersectPos - rayPoints[0], rounding)) < 0.0f)
                 if (Math.Round(Vector3D.DotProduct(vTest, intersectPos - rayPoints[0]), 12) < 0.0f)

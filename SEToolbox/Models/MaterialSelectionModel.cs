@@ -19,14 +19,12 @@ namespace SEToolbox.Models
         public string DisplayName
         {
             get => _displayName;
-
             set => SetProperty(ref _displayName, value, nameof(DisplayName));
         }
 
         public string Value
         {
             get => _value;
-
             set => SetProperty(ref _value , value,nameof(Value));
         }
 
@@ -36,46 +34,38 @@ namespace SEToolbox.Models
         public bool IsRare
         {
             get => _isRare;
-
             set => SetProperty(ref _isRare, value, nameof(IsRare));
         }
 
         public float MinedRatio
         {
             get => _minedRatio;
-
             set => SetProperty(ref _minedRatio, value ,nameof(MinedRatio));
         }
 
         public string Name
         {
             get => _name;
-
             set => SetProperty(ref _name, value, nameof(Name));
         }
         
         public byte Radius
         {
             get => _radius;
-
             set => SetProperty(ref _radius, value, nameof(Radius));
         }
         
         public int Veins
         {
             get => _veins;
-
             set => SetProperty(ref _veins, value, nameof(Veins));
         }
         
        
-
         internal MaterialSelectionModel Clone()
         {
             return (MaterialSelectionModel)MemberwiseClone();
         }
-
-
 
         #endregion
     }

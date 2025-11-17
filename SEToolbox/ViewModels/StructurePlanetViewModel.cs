@@ -57,70 +57,60 @@ namespace SEToolbox.ViewModels
         public string Name
         {
             get => DataModel.Name;
-
             set => DataModel.Name = value;
         }
 
         public BindableVector3DModel Center
         {
             get => new(DataModel.Center);
-
             set => DataModel.Center = value.ToVector3();
         }
 
         public float Radius
         {
             get => DataModel.Radius;
-
             set => DataModel.Radius = value;
         }
 
         public bool HasAtmosphere
         {
             get => DataModel.HasAtmosphere;
-
             set => DataModel.HasAtmosphere = value;
         }
 
         public float AtmosphereRadius
         {
             get => DataModel.AtmosphereRadius;
-
             set => DataModel.AtmosphereRadius = value;
         }
 
         public float MinimumSurfaceRadius
         {
             get => DataModel.MinimumSurfaceRadius;
-
             set => DataModel.MinimumSurfaceRadius = value;
         }
 
         public float MaximumHillRadius
         {
             get => DataModel.MaximumHillRadius;
-
             set => DataModel.MaximumHillRadius = value;
         }
 
         public float GravityFalloff
         {
             get => DataModel.GravityFalloff;
-
             set => DataModel.GravityFalloff = value;
         }
 
         public float SurfaceGravity
         {
             get => DataModel.SurfaceGravity;
-
             set => DataModel.SurfaceGravity = value;
         }
 
         public bool SpawnsFlora
         {
             get => DataModel.SpawnsFlora;
-
             set => DataModel.SpawnsFlora = value;
         }
 
@@ -138,7 +128,6 @@ namespace SEToolbox.ViewModels
         public string PlanetGenerator
         {
             get => DataModel.PlanetGenerator;
-
             set => DataModel.PlanetGenerator = value;
         }
 

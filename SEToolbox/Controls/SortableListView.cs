@@ -30,8 +30,7 @@ namespace SEToolbox.Controls
         public DataTemplate ColumnHeaderArrowUpTemplate
         {
             get => (DataTemplate)GetValue(ColumnHeaderArrowUpTemplateProperty);
-
-            set => SetValue(ColumnHeaderArrowUpTemplateProperty, value);
+			set => SetValue(ColumnHeaderArrowUpTemplateProperty, value);
         }
         #endregion
 
@@ -43,8 +42,7 @@ namespace SEToolbox.Controls
         public DataTemplate ColumnHeaderArrowDownTemplate
         {
             get => (DataTemplate)GetValue(ColumnHeaderArrowDownTemplateProperty);
-
-            set => SetValue(ColumnHeaderArrowDownTemplateProperty, value);
+			set => SetValue(ColumnHeaderArrowDownTemplateProperty, value);
         }
 
         #endregion
@@ -55,8 +53,7 @@ namespace SEToolbox.Controls
         public string DefaultSortColumn
         {
             get => (string)GetValue(DefaultSortColumnProperty);
-
-            set => SetValue(DefaultSortColumnProperty, value);
+			set => SetValue(DefaultSortColumnProperty, value);
         }
 
         public override void OnApplyTemplate()

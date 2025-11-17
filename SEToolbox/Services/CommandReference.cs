@@ -21,8 +21,7 @@ namespace SEToolbox.Services
         public ICommand Command
         {
             get => (ICommand)GetValue(CommandProperty);
-
-            set => SetValue(CommandProperty, value);
+			set => SetValue(CommandProperty, value);
         }
 
         #region ICommand Members

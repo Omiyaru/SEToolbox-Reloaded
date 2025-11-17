@@ -53,7 +53,6 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-
             set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
@@ -82,7 +81,6 @@ namespace SEToolbox.ViewModels
         public ComponentItemModel CubeItem
         {
             get => _dataModel.CubeItem;
-
             set => _dataModel.CubeItem = value;
         }
 

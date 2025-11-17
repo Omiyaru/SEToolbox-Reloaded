@@ -54,28 +54,24 @@ namespace SEToolbox.Models
         public ObservableCollection<AsteroidByteFillProperties> VoxelCollection
         {
             get => _voxelCollection;
-
             set => SetProperty(ref _voxelCollection, value, nameof(VoxelCollection));
         }
 
         public int MinimumRange
         {
             get => _minimumRange;
-
             set => SetProperty(ref _minimumRange, value, nameof(MinimumRange));
         }
 
         public int MaximumRange
         {
             get => _maximumRange;
-
             set => SetProperty(ref _maximumRange, value, nameof(MaximumRange));
         }
 
         public ObservableCollection<GenerateVoxelDetailModel> VoxelFileList
         {
             get => _voxelFileList;
-
             set => SetProperty(ref _voxelFileList, value, nameof(VoxelFileList));
         }
 
@@ -94,28 +90,24 @@ namespace SEToolbox.Models
         public double CenterPositionX
         {
             get => _centerPositionX;
-
             set => SetProperty(ref _centerPositionX, value, nameof(CenterPositionX));
         }
 
         public double CenterPositionY
         {
             get => _centerPositionY;
-
             set => SetProperty(ref _centerPositionY, value, nameof(CenterPositionY));
         }
 
         public double CenterPositionZ
         {
             get => _centerPositionZ;
-
             set => SetProperty(ref _centerPositionZ, value, nameof(CenterPositionZ));
         }
 
         public AsteroidFillType.AsteroidFills AsteroidFillType
         {
             get => _asteroidFillType;
-
             set => SetProperty(ref _asteroidFillType, value, nameof(AsteroidFillType));
         }
 

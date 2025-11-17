@@ -29,7 +29,6 @@ namespace SEToolbox.Models
         public string Model
         {
             get => _model;
-
             set => SetProperty(ref _model, value, nameof(Model));
         }
 

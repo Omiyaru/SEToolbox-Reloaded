@@ -48,7 +48,7 @@ namespace SEToolbox.Services
         {
             var triggers = Interaction.GetTriggers(d);
             foreach (var trigger in e.NewValue as Triggers) 
-            triggers.Add(trigger);
+            	triggers.Add(trigger);
         }
     }
 }

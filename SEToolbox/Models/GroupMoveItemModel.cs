@@ -23,7 +23,6 @@ namespace SEToolbox.Models
         public IStructureViewBase Item
         {
             get => _item;
-
             set => SetProperty(ref _item, value, nameof(Item));
         }
         public Vector3D Position
@@ -38,35 +37,30 @@ namespace SEToolbox.Models
         public double PositionX
         {
             get => _positionX;
-
             set => SetProperty(ref _positionX, value, nameof(PositionX));
         }
 
         public double PositionY
         {
             get => _positionY;
-
             set => SetProperty(ref _positionY, value, nameof(PositionY));
         }
 
         public double PositionZ
         {
             get => _positionZ;
-
             set => SetProperty(ref _positionZ, value, nameof(PositionZ));
         }
 
         public double PlayerDistance
         {
             get => _playerDistance;
-
             set => SetProperty(ref _playerDistance, value, nameof(PlayerDistance));
         }
         
         public Vector3D PlayerPosition
         {
             get => new( _positionX, _positionY, _positionZ);
-
             set => SetProperty(ref _positionX, value.X, nameof(PositionX),
                                    _positionY, value.Y, nameof(PositionY),
                                    _positionZ, value.Z, nameof(PositionZ),

@@ -107,7 +107,6 @@ namespace SEToolbox.Models
         public string Name
         {
             get => _name;
-
             set => SetProperty(ref _name, value, nameof(Name));
         }
 
@@ -115,7 +114,6 @@ namespace SEToolbox.Models
         public bool IsValid
         {
             get => _isValid;
-
             set => SetProperty(ref _isValid, value, nameof(IsValid));
         }
 
@@ -123,7 +121,6 @@ namespace SEToolbox.Models
         public ObservableCollection<InventoryModel> Items
         {
             get => _items;
-
             set => SetProperty(ref _items, value, nameof(Items));
         }
 
@@ -131,7 +128,6 @@ namespace SEToolbox.Models
         public InventoryModel SelectedRow
         {
             get => _selectedRow;
-
             set => SetProperty(ref _selectedRow, value, nameof(SelectedRow));
         }
 
@@ -139,7 +135,6 @@ namespace SEToolbox.Models
         public double TotalVolume
         {
             get => _totalVolume;
-
             set => SetProperty(ref _totalVolume, value, nameof(TotalVolume));
         }
 
@@ -147,7 +142,6 @@ namespace SEToolbox.Models
         public double TotalMass
         {
             get => _totalMass;
-
             set => SetProperty(ref _totalMass, value, nameof(TotalMass));
         }
 
@@ -155,7 +149,6 @@ namespace SEToolbox.Models
         public float MaxVolume
         {
             get => _maxVolume;
-
             set => SetProperty(ref _maxVolume, value, nameof(MaxVolume));
         }
 

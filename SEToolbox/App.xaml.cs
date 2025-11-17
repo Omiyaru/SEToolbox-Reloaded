@@ -129,6 +129,7 @@ namespace SEToolbox
         private static void CheckForUpdates(string[] args)
         {
             Log.Info("Checking for updates.");
+            
             string delimiter = "/"??"-";
             if (args.Length == 0 || (args.Length == 1 && args[0].Equals($"{delimiter}U", StringComparison.OrdinalIgnoreCase)))
             {

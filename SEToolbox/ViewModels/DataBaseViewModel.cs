@@ -20,7 +20,6 @@ namespace SEToolbox.ViewModels
         public IStructureBase DataModel
         {
             get => _dataModel;
-
             set => SetProperty(ref _dataModel, value, nameof(DataModel));
         }
         #endregion

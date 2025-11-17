@@ -51,7 +51,6 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-
             set => SetProperty( ref _closeResult, value, nameof(CloseResult));
         }
 
@@ -61,7 +60,6 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _isBusy;
-
             set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
                 
@@ -75,21 +73,18 @@ namespace SEToolbox.ViewModels
         public int Seed
         {
             get => _dataModel.Seed;
-
             set => _dataModel.Seed = value;
         }
 
         public decimal Diameter
         {
             get => _dataModel.Diameter;
-
             set => _dataModel.Diameter = value;
         }
 
         public bool InvalidKeenRange
         {
             get => _dataModel.InvalidKeenRange;
-
             set => _dataModel.InvalidKeenRange = value;
         }
 

@@ -154,7 +154,6 @@ td.right { text-align: right; }";
         public bool IsActive
         {
             get => _isActive;
-
             set => SetProperty(ref _isActive, value, nameof(IsActive));
         }
 
@@ -163,28 +162,24 @@ td.right { text-align: right; }";
         public bool IsReportReady
         {
             get => _isReportReady;
-
             set => SetProperty(ref _isReportReady, value, nameof(IsReportReady));
         }
 
         public string ReportHtml
         {
             get => _reportHtml;
-
             set => SetProperty(ref _reportHtml, value, nameof(ReportHtml));
         }
 
         public bool ShowProgress
         {
             get => _showProgress;
-
             set => SetProperty(ref _showProgress, value, nameof(ShowProgress));
         }
 
         public double Progress
         {
             get => _progress;
-
             set => SetProperty(ref _progress, value, () =>
                     {
 
@@ -198,7 +193,6 @@ td.right { text-align: right; }";
         public double MaximumProgress
         {
             get => _maximumProgress;
-
             set => SetProperty(ref _maximumProgress, value, nameof(MaximumProgress));
         }
 
@@ -993,8 +987,8 @@ td.right { text-align: right; }";
                 Ext.RenderTagStart(writer, "tr");
                 writer.RenderElement("td", item.MaterialName);
                 writer.AddAttribute( "class", "right");
-                  writer.RenderElement("td", $"{ item.Volume:#,##0.000}");
-                Ext.RenderTag(writer, "tr", false);
+                writer.RenderElement("td", $"{ item.Volume:#,##0.000}");
+                Ext.RenderTagEnd(writer, "tr");
             }
             writer.EndTable();
 
@@ -1076,7 +1070,7 @@ td.right { text-align: right; }";
             writer.RenderElement("h3", Res.ClsReportHeaderTotalCubes);
             writer.BeginTable("1", "3", "0", [Res.ClsReportColCount, Res.ClsReportColPCU]);
 
-            Ext.RenderTag(writer,"tr", true);
+            Ext.RenderTagStart(writer,"tr");
             writer.AddAttribute( "class", "right");
             writer.RenderElement("td", $"{_totalCubes:#,##0}");
 
@@ -1090,8 +1084,8 @@ td.right { text-align: right; }";
             writer.BeginTable("1", "3", "0", [Res.ClsReportColIcon, Res.ClsReportColCubeName, Res.ClsReportColCount, Res.ClsReportColMass + " " + Res.GlobalSIMassKilogram, Res.ClsReportColTime, Res.ClsReportColPCU]);
             foreach (ComponentItemModel item in _allCubes)
             {
-                Ext.RenderTag(writer,"tr", true);
-                Ext.RenderTag(writer,"td", true);
+                Ext.RenderTagStart(writer,"tr");
+                Ext.RenderTagStart(writer,"td");
                 if (item.TextureFile != null)
                 {
                     string texture = GetTextureToBase64(item.TextureFile, 32, 32);
@@ -1101,7 +1095,7 @@ td.right { text-align: right; }";
                         writer.AddAttribute("width", "32");
                         writer.AddAttribute("height", "32");
                         writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(item.TextureFile));
-                        Ext.RenderTag(writer,"img", true);
+                        Ext.RenderTagStart(writer,"img");
                         Ext.RenderTagEnd(writer, "tr");
                     }
                 }
@@ -1134,7 +1128,7 @@ td.right { text-align: right; }";
                         writer.AddAttribute("width", "32");
                         writer.AddAttribute("height", "32");
                         writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(item.TextureFile));
-                        Ext.RenderTag(writer,"img", true);
+                        Ext.RenderTagStart(writer,"img", true);
                         Ext.RenderTagEnd(writer, "tr");
                     }
                 }
@@ -1161,7 +1155,7 @@ td.right { text-align: right; }";
             foreach (ComponentItemModel item in _allItems)
             {
                 Ext.RenderTagStart(writer, "tr");
-                Ext.RenderTag(writer,"td", true);
+                Ext.RenderTagStart(writer,"td");
                 if (item.TextureFile != null)
                 {
                     string texture = GetTextureToBase64(item.TextureFile, 32, 32);
@@ -1205,7 +1199,7 @@ td.right { text-align: right; }";
                 int inx = 0;
                 foreach (VoxelMaterialAssetModel item in asteroid.UntouchedOreList ?? [])
                 {
-                    Ext.RenderTag(writer,"tr", true);
+                    Ext.RenderTagStart(writer,"tr");
                     if (inx == 0)
                     {
                         writer.AddAttribute("rowspan", $"{asteroid.UntouchedOreList.Count}");
@@ -1247,7 +1241,7 @@ td.right { text-align: right; }";
                 writer.RenderElement("td", $"{ship.Mass:#,##0.000}");
                 writer.AddAttribute( "class", "right");
                 writer.RenderElement("td", $"{ship.Volume:#,##0.000}");
-                Ext.RenderTag(writer, "tr", false); // Tr
+                Ext.RenderTagEnd(writer, "tr"); // Tr
             }
             writer.EndTable();
 

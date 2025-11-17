@@ -26,7 +26,6 @@ namespace SEToolbox.ViewModels
         public bool IsSelected
         {
             get => _isSelected;
-
             set => SetProperty(ref _isSelected, value, nameof(IsSelected));
         }
         /// <summary>
@@ -35,28 +34,24 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => DataModel.IsBusy;
-
             set => DataModel.IsBusy = value;
         }
 
         public long EntityId
         {
             get => DataModel.EntityId;
-
             set => SetProperty( DataModel.EntityId, value, nameof(EntityId));
         }
 
         public MyPositionAndOrientation? PositionAndOrientation
         {
             get => DataModel.PositionAndOrientation;
-
             set => SetProperty( DataModel.PositionAndOrientation, value, nameof(PositionAndOrientation));
         }
 
         public ClassType ClassType
         {
             get => DataModel.ClassType;
-
             set => SetProperty( DataModel.ClassType, value, nameof(ClassType));
         }
 
@@ -73,35 +68,30 @@ namespace SEToolbox.ViewModels
         public string Description
         {
             get => DataModel.Description;
-
             set => DataModel.Description = value;
         }
 
         public double PlayerDistance
         {
             get => DataModel.PlayerDistance;
-
             set => DataModel.PlayerDistance = value;
         }
 
         public double Mass
         {
             get => DataModel.Mass;
-
             set => DataModel.Mass = value;
         }
 
         public int BlockCount
         {
             get => DataModel.BlockCount;
-
             set => DataModel.BlockCount = value;
         }
 
         public virtual double LinearVelocity
         {
             get => DataModel.LinearVelocity;
-
             set => DataModel.LinearVelocity = value;
         }
 

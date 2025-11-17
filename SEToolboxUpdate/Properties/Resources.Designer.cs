@@ -58,7 +58,6 @@ namespace SEToolboxUpdate.Properties
         internal static global::System.Globalization.CultureInfo Culture
         {
             get => resourceCulture;
-
             set => resourceCulture = value;
         }
 

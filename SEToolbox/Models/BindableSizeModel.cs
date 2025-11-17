@@ -30,21 +30,18 @@ namespace SEToolbox.Models
         public int Width
         {
             get => _size.Width;
-
             set => SetProperty(_size.Width, value, nameof(Width));
         }
 
         public int Height
         {
             get => _size.Height;
-
             set => SetProperty(_size.Height, value, nameof(Height));
         }
 
         public Size Size
         {
             get => _size;
-
             set => SetProperty(ref _size, value, nameof(Size));
         }
 

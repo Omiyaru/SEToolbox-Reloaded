@@ -51,7 +51,6 @@ namespace SEToolbox.ViewModels
         public MyObjectBuilder_InventoryItem Item
         {
             get => DataModel.Item;
-
             set => DataModel.Item = value;
         }
 
@@ -63,7 +62,6 @@ namespace SEToolbox.ViewModels
         public double? Volume
         {
             get => DataModel.Volume;
-
             set => DataModel.Volume = value;
         }
 

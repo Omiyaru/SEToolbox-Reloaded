@@ -20,7 +20,6 @@ namespace SEToolbox.ViewModels
         public virtual BaseViewModel OwnerViewModel
         {
             get => _ownerViewModel;
-
             set => SetProperty(ref _ownerViewModel, value, nameof(OwnerViewModel));
         }
 

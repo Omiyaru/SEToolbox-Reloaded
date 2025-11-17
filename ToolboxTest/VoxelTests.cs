@@ -855,12 +855,13 @@ namespace ToolboxTest
 
             Vector3I size = new(length, length, length);
 
-            int[][] buildparams = [
-                [min, 0],
-                [min + 1, 1],
-                [max, 0],
-                [max - 1, -1]
-            ];
+            int[][] buildparams = 
+            			[
+                			[min, 0],
+                			[min + 1, 1],
+                			[max, 0],
+                			[max - 1, -1]
+            			];
 
             void CellAction(ref MyVoxelBuilderArgs e)
             {

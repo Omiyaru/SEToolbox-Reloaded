@@ -16,28 +16,24 @@
         public string BlueprintName
         {
             get => _blueprintName;
-
             set => SetProperty(ref _blueprintName, value, nameof(BlueprintName));
         }
 
         public string DialogTitle
         {
             get => _dialogTitle;
-
             set => SetProperty(ref _dialogTitle, value, nameof(DialogTitle));
         }
 
         public bool CheckForExisting
         {
             get => _checkForExisting;
-
             set => SetProperty( ref _checkForExisting, value, nameof(CheckForExisting));
         }
 
         public string LocalBlueprintsFolder
         {
             get => _localBlueprintsFolder;
-
             set => SetProperty(ref _localBlueprintsFolder, value, nameof(LocalBlueprintsFolder));
         }
 

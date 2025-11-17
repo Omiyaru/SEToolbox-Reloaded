@@ -53,14 +53,12 @@
         public int Y
         {
             get  => _y;
-
             set => SetProperty(ref _y, value, nameof(Y));
         }
 
         public int Z
         {
             get => _z;
-
             set => SetProperty(ref _z, value, nameof(Z));
         }
 

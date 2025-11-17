@@ -24,8 +24,7 @@ namespace SEToolbox.Controls
         public Indicator Mode
         {
             get => (Indicator)GetValue(ModeProperty);
-
-            set => SetValue(ModeProperty, value);
+			set => SetValue(ModeProperty, value);
         }
 
         public static readonly DependencyProperty IsBusyProperty =
@@ -38,8 +37,7 @@ namespace SEToolbox.Controls
         public bool IsBusy
         {
             get => (bool)GetValue(IsBusyProperty);
-
-            set => SetValue(IsBusyProperty, value);
+			set => SetValue(IsBusyProperty, value);
         }
 
         public static readonly DependencyProperty ModeProperty =

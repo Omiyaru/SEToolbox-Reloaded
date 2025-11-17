@@ -22,7 +22,6 @@ namespace SEToolbox.Models
         public string Name
         {
             get => _name;
-
             set => SetProperty( ref _name, value,() => 
             	   FriendlyName == SpaceEngineersApi.GetResourceName(Name),
                      nameof(Name), 
@@ -60,7 +59,6 @@ namespace SEToolbox.Models
         public string OreName
         {
             get => _oreName;
-
             set =>  SetProperty(ref _oreName, value,() => 
             		FriendlyOreName == SpaceEngineersApi.GetResourceName(OreName),
                      nameof(OreName),

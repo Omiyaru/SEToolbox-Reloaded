@@ -50,7 +50,6 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-
             set => SetProperty( ref _closeResult, value, nameof(CloseResult));
         }
 
@@ -60,7 +59,6 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
              get => _isBusy;
-
             set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
                 if (_isBusy)
@@ -73,7 +71,6 @@ namespace SEToolbox.ViewModels
         public double? BuildPercent
         {
             get => _dataModel.BuildPercent;
-
             set => _dataModel.BuildPercent = value;
         }
 

@@ -47,14 +47,12 @@ namespace SEToolbox.Models
         public WorldResource SelectedWorld
         {
             get => _selectedWorld;
-
             set => SetProperty(ref _selectedWorld, value, nameof(SelectedWorld));
         }
 
         public ObservableCollection<WorldResource> Worlds
         {
             get => _worlds;
-
             set => SetProperty(ref _worlds, value, nameof(Worlds));
         }
 

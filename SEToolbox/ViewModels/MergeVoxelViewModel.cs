@@ -66,7 +66,6 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-
             set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
@@ -76,14 +75,12 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _dataModel.IsBusy;
-
             set => _dataModel.IsBusy = value;
         }
 
         public bool IsValidMerge
         {
             get => _dataModel.IsValidMerge;
-
             set => _dataModel.IsValidMerge = value;
         }
 
@@ -92,42 +89,36 @@ namespace SEToolbox.ViewModels
         public StructureVoxelModel SelectionLeft
         {
             get => (StructureVoxelModel)_dataModel.SelectionLeft;
-
             set => _dataModel.SelectionLeft = value;
         }
 
         public StructureVoxelModel SelectionRight
         {
             get => (StructureVoxelModel)_dataModel.SelectionRight;
-
             set => _dataModel.SelectionRight = value;
         }
 
         public string SourceFile
         {
             get => _dataModel.SourceFile;
-
             set => _dataModel.SourceFile = value;
         }
 
         public VoxelMergeType VoxelMergeType
         {
             get => _dataModel.VoxelMergeType;
-
             set => _dataModel.VoxelMergeType = value;
         }
 
         public string MergeFileName
         {
             get => _dataModel.MergeFileName;
-
             set => _dataModel.MergeFileName = value;
         }
 
         public bool RemoveOriginalAsteroids
         {
             get => _dataModel.RemoveOriginalAsteroids;
-
             set => _dataModel.RemoveOriginalAsteroids = value;
         }
 

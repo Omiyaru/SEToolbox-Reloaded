@@ -53,7 +53,6 @@ namespace SEToolbox.Models.Asteroids
         public ObservableCollection<GenerateVoxelDetailModel> VoxelFileList
         {
             get => _voxelFileList;
-
             set => SetProperty(ref _voxelFileList, value, nameof(VoxelFileList));
 
         }
@@ -62,14 +61,12 @@ namespace SEToolbox.Models.Asteroids
         public List<MaterialSelectionModel> MaterialsList
         {
             get => _materialsList = [.. MaterialsData.Select(x => x.Value.Material)];
-
             set => SetProperty( ref _materialsList, value, nameof(MaterialsList));
         }
 
         public GenerateVoxelDetailModel VoxelFile
         {
             get => _voxelFile;
-
             set => SetProperty(ref _voxelFile, value, nameof(VoxelFile));
         }
 
@@ -77,168 +74,144 @@ namespace SEToolbox.Models.Asteroids
         public int Index
         {
             get => _index;
-
             set => SetProperty(ref _index, value, nameof(Index));
         }
 
         public MaterialSelectionModel MainMaterial
         {
             get => _mainMaterial;
-
             set => SetProperty(ref _mainMaterial, value, nameof(MainMaterial));
         }
 
         public MaterialSelectionModel FirstMaterial
         {
             get => _firstMaterial;
-
             set => SetProperty(ref _firstMaterial, value, nameof(FirstMaterial));
         }
 
         public int FirstVeins
         {
             get => _firstVeins == 0 ? 1 : _firstVeins;
-
             set => _firstVeins = value;
         }
 
         public double FirstRadius
         {
             get => _firstRadius == 0 ? 1 : _firstRadius;
-
             set => _firstRadius = value;
         }
 
         public MaterialSelectionModel SecondMaterial
         {
             get => _secondMaterial;
-
             set => SetProperty(ref _secondMaterial, value, nameof(SecondMaterial));
         }
 
         public int SecondVeins
         {
             get => _secondVeins == 0 ? 1 : _secondVeins;
-
             set => _secondVeins = value;
         }
 
         public double SecondRadius
         {
             get => _secondRadius == 0 ? 1 : _secondRadius;
-
             set => _secondRadius = value;
         }
 
         public MaterialSelectionModel ThirdMaterial
         {
             get => _thirdMaterial;
-
             set => SetProperty(ref _thirdMaterial, value, nameof(ThirdMaterial));
         }
 
         public int ThirdVeins
         {
             get => _thirdVeins == 0 ? 1 : _thirdVeins;
-
             set => _thirdVeins = value;
         }
 
         public double ThirdRadius
         {
             get => _thirdRadius == 0 ? 1 : _thirdRadius;
-
             set => _thirdRadius = value;
         }
 
         public MaterialSelectionModel FourthMaterial
         {
             get => _fourthMaterial;
-
             set => SetProperty(ref _fourthMaterial, value, nameof(FourthMaterial));
         }
 
         public int FourthVeins
         {
             get => _fourthVeins == 0 ? 1 : _fourthVeins;
-
             set => _fourthVeins = value;
         }
 
         public double FourthRadius
         {
             get => _fourthRadius == 0 ? 1 : _fourthRadius;
-
             set => _fourthRadius = value;
         }
 
         public MaterialSelectionModel FifthMaterial
         {
             get => _fifthMaterial;
-
             set => SetProperty(ref _fifthMaterial, value, nameof(FifthMaterial));
         }
 
         public int FifthVeins
         {
             get => _fifthVeins == 0 ? 1 : _fifthVeins;
-
             set => _fifthVeins = value;
         }
 
         public double FifthRadius
         {
             get => _fifthRadius == 0 ? 1 : _fifthRadius;
-
             set => _fifthRadius = value;
         }
 
         public MaterialSelectionModel SixthMaterial
         {
             get => _sixthMaterial;
-
             set => SetProperty(ref _sixthMaterial, value, nameof(SixthMaterial));
         }
 
         public int SixthVeins
         {
             get => _sixthVeins == 0 ? 1 : _sixthVeins;
-
             set => _sixthVeins = value;
         }
 
         public double SixthRadius
         {
             get => _sixthRadius == 0 ? 1 : _sixthRadius;
-
             set => _sixthRadius = value;
         }
 
         public MaterialSelectionModel SeventhMaterial
         {
             get => _seventhMaterial;
-
             set => SetProperty(ref _seventhMaterial, value, nameof(SeventhMaterial));
+	  }
 
-        }
-
-        public int SeventhVeins
+       	public int SeventhVeins
         {
             get => _seventhVeins == 0 ? 1 : _seventhVeins;
-
             set => _seventhVeins = value;
         }
 
         public double SeventhRadius
         {
             get => _seventhRadius == 0 ? 1 : _seventhRadius;
-
             set => _seventhRadius = value;
         }
+        
         public List<VoxelMaterialAssetModel> MaterialsAssets
         {
             get => _materialsAssets;
-
             set => _materialsAssets = value;
         }
 

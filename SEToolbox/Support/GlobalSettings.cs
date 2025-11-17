@@ -28,10 +28,6 @@ namespace SEToolbox.Support
 
         #endregion
 
-       
-
-        
-
         #region Properties
         /// <summary>
         /// Temporary store for Game Version.

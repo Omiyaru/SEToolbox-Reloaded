@@ -48,7 +48,7 @@ namespace SEToolbox
             return true;
         }
         public string[] validApplications = [
-               "SpaceEngineers.exe",
+               	"SpaceEngineers.exe",
                 "SpaceEngineersDedicated.exe",
                 //"MedievalEngineers.exe",
                 //"MedievalEngineersDedicated.exe"
@@ -78,21 +78,23 @@ namespace SEToolbox
 
                 if (faWindow?.ShowDialog() == true)
                 {
-                    filePath = faModel.GameBinPath;
+                    filePath = faModel.gameBinPath;
                 }
                 else
                 {
                     return false;
                 }
+             
             }
 
             if (string.IsNullOrEmpty(filePath))
             {
+            	
                 filePath = Default.SEBinPath;
             }
 
             // Update and save user path.
-            Default.SEBinPath = filePath;
+            Default.SEBinPath = gameBinDir;
             Default.Save();
 
             return true;
@@ -108,11 +110,12 @@ namespace SEToolbox
             // Go looking for any changes in the Dependant Space Engineers assemblies and immediately attempt to update.
             if (!ignoreUpdates && !altDlls && ToolboxUpdater.IsBaseAssembliesChanged() && !Debugger.IsAttached)
             {
+            	Log.Info("Running non-elevated update process.");
                 ToolboxUpdater.RunElevated(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "SEToolboxUpdate"), $"{delimiter}/B " + String.Join(" ", args), false, false);
                 return Task.FromResult(false);
             }
 
-            Process proc = Process.GetCurrentProcess();
+            var proc = Process.GetCurrentProcess();
             if (Process.GetProcessesByName(proc.ProcessName).Length == 1)
             {
                 // Clean up Temp files if this is the only instance running.
@@ -120,6 +123,7 @@ namespace SEToolbox
             }
            return Task.FromResult(true);
         }
+        
         // Do not load any of the Space Engineers assemblies or dependent classes before this point.
         // ============================================
 
@@ -331,51 +335,15 @@ namespace SEToolbox
             }
         }
 
-        public static bool ValidateLoadState(WindowExplorer eWindow)
-        {
-            if (!Default.TimesStartedTotal.HasValue)
-                Default.TimesStartedTotal = Default.TimesStartedTotal.GetValueOrDefault() + 1;
-            Default.TimesStartedLastReset = Default.TimesStartedLastReset.GetValueOrDefault() + 1;
-            Default.TimesStartedLastGameUpdate = Default.TimesStartedLastGameUpdate.GetValueOrDefault() + 1;
-            Default.Save();
-            eWindow?.ShowDialog();
-            bool isInsideDesktop = workingAreaRect.Contains(windowRect);
-            bool hasWindowDimensions = Default?.WindowDimensions?.Count > 0;
-            foreach (Screen screen in Screen.AllScreens)
-            {
-                try
-                {
-                    isInsideDesktop |= screen.WorkingArea.IntersectsWith(windowRect);
-                }
-                catch
-                {
-                    // some virtual screens have been know to cause issues.
-                }
-            }
-
-            if (!isInsideDesktop && hasWindowDimensions)
-            {
-                eWindow.Dispatcher.Invoke(() =>
-                {
-                    Default.WindowDimensions?.Keys
-                        .Where(key => key.HasValue)
-                        .ForEach(key => Default.SetWindowDimension(key.Value));
-                    if (Default.WindowState.HasValue)
-                    {
-                        eWindow.WindowState = Default.WindowState.GetValueOrDefault();
-                    }
-                });
-            }
-        }
-
+       
 
         public static bool ValidateLoadState(WindowExplorer eWindow)
         {
             if (!Default.TimesStartedTotal.HasValue)
                 Default.TimesStartedTotal = Default.TimesStartedTotal.GetValueOrDefault() + 1;
-            Default.TimesStartedLastReset = Default.TimesStartedLastReset.GetValueOrDefault() + 1;
-            Default.TimesStartedLastGameUpdate = Default.TimesStartedLastGameUpdate.GetValueOrDefault() + 1;
-            Default.Save();
+            	Default.TimesStartedLastReset = Default.TimesStartedLastReset.GetValueOrDefault() + 1;
+            	Default.TimesStartedLastGameUpdate = Default.TimesStartedLastGameUpdate.GetValueOrDefault() + 1;
+            	Default.Save();
             eWindow?.ShowDialog();
 
             return true;
@@ -409,7 +377,8 @@ namespace SEToolbox
 
             Default.Save();
         }
-
+		
+		//move this??
         Assembly ResolveAssembly(object sender, ResolveEventArgs args)
         {
 

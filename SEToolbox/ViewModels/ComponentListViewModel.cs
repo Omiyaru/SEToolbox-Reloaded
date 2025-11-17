@@ -66,7 +66,6 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-
             set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
@@ -76,42 +75,36 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _dataModel.IsBusy;
-
             set => _dataModel.IsBusy = value;
         }
 
         public ObservableCollection<ComponentItemModel> CubeAssets
         {
             get => _dataModel.CubeAssets;
-
             set => _dataModel.CubeAssets = value;
         }
 
         public ObservableCollection<ComponentItemModel> ComponentAssets
         {
             get => _dataModel.ComponentAssets;
-
             set => _dataModel.ComponentAssets = value;
         }
 
         public ObservableCollection<ComponentItemModel> ItemAssets
         {
             get => _dataModel.ItemAssets;
-
             set => _dataModel.ItemAssets = value;
         }
 
         public ObservableCollection<ComponentItemModel> MaterialAssets
         {
             get => _dataModel.MaterialAssets;
-
             set => _dataModel.MaterialAssets = value;
         }
 
         public ComponentItemModel SelectedCubeAsset
         {
             get => _dataModel.SelectedCubeAsset;
-
             set => _dataModel.SelectedCubeAsset = value;
         }
 

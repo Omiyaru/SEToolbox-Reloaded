@@ -63,49 +63,42 @@ namespace SEToolbox.ViewModels
         public ObservableCollection<InventoryModel> Selections
         {
             get => _selections;
-
             set => SetProperty(ref _selections, value, nameof(Selections));
         }
 
         public ObservableCollection<InventoryModel> Items
         {
             get => _dataModel.Items;
-
             set => _dataModel.Items = value;
         }
 
         public InventoryModel SelectedRow
         {
             get => _dataModel.SelectedRow;
-
             set => _dataModel.SelectedRow = value;
         }
 
         public double TotalVolume
         {
             get => _dataModel.TotalVolume;
-
             set => _dataModel.TotalVolume = value;
         }
 
         public float MaxVolume
         {
             get => _dataModel.MaxVolume;
-
             set => _dataModel.MaxVolume = value;
         }
 
         public string Name
         {
             get => _dataModel.Name;
-
             set => _dataModel.Name = value;
         }
 
         public bool IsValid
         {
             get => _dataModel.IsValid;
-
             set => _dataModel.IsValid = value;
         }
 
