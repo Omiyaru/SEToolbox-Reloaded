@@ -42,7 +42,7 @@ namespace SEToolbox.Interop
                 // Handle the exception and log the loader exceptions if needed
                 foreach (Exception loaderException in ex.LoaderExceptions)
                 {
-                    Console.WriteLine(loaderException.Message);
+                    SConsole.WriteLine(loaderException.Message);
                 }
             }
             catch (Exception ex)

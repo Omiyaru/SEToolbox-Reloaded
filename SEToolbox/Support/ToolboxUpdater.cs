@@ -168,7 +168,6 @@ namespace SEToolbox.Support
         /// Checks for key directory names from the game bin folder.
         /// </summary>
         /// <param name="installationPath"></param>
-        /// <param name="installationPath"></param>
         /// <returns></returns>
 
         public static bool ValidateSpaceEngineersInstall(string installationPath)
