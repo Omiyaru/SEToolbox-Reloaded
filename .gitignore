@@ -243,3 +243,4 @@ user.targets
 /.history
 /.vscode
 /SEToolbox/.vscode
+*.bak
