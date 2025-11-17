@@ -29,7 +29,6 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-
             set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 

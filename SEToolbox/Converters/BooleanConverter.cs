@@ -12,7 +12,6 @@ namespace SEToolbox.Converters
         public bool IsInverse
         {
             get => _isInverse;
-
             set => _isInverse = value;
         }
 

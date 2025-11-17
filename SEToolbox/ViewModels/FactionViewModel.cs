@@ -59,21 +59,18 @@ namespace SEToolbox.ViewModels
         public Dictionary<long, MyFaction> Factions
         {
             get => _factionModel.Factions;
-
             set => SetProperty(_factionModel.Factions, value, nameof(Factions));
         }
 
         public MyFaction SelectedFaction
         {
             get => _factionModel.SelectedFaction;
-
             set => SetProperty(_factionModel.SelectedFaction, value, nameof(SelectedFaction));
         }
 
         public MyFactionMember SelectedMember
         {
             get => _factionModel.SelectedMember;
-
             set => SetProperty(_factionModel.SelectedMember, value, nameof(SelectedMember));
         }
 

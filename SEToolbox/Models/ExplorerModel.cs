@@ -70,7 +70,7 @@ namespace SEToolbox.Models
         private double _maximumProgress;
 
         private List<int> _customColors;
-        private readonly Dictionary<long, GridEntityNode> GridEntityNodes = [];
+        private Dictionary<long, GridEntityNode> GridEntityNodes = [];
 
         #endregion
 
@@ -93,14 +93,12 @@ namespace SEToolbox.Models
         public ObservableCollection<IStructureBase> Structures
         {
             get => _structures;
-
             set => SetProperty(_structures = value, value, nameof(Structures));
         }
 
         public StructureCharacterModel ThePlayerCharacter
         {
             get => _thePlayerCharacter;
-
             set => SetProperty(ref _thePlayerCharacter, value, nameof(ThePlayerCharacter));
         }
 
@@ -115,7 +113,6 @@ namespace SEToolbox.Models
         public bool IsActive
         {
             get => _isActive;
-
             set => SetProperty(ref _isActive, value, nameof(IsActive));
         }
 
@@ -125,7 +122,6 @@ namespace SEToolbox.Models
         public bool IsBusy
         {
             get => _isBusy;
-
             set => SetProperty(ref _isBusy, value, nameof(IsBusy), ()=>
                 {
 
@@ -145,7 +141,6 @@ namespace SEToolbox.Models
         public bool IsModified
         {
             get => _isModified;
-
             set => SetProperty(ref _isModified, value, nameof(IsModified));
         }
 
@@ -155,21 +150,18 @@ namespace SEToolbox.Models
         public bool IsBaseSaveChanged
         {
             get => _isBaseSaveChanged;
-
             set => SetProperty(ref _isBaseSaveChanged, value, nameof(IsBaseSaveChanged));
         }
 
         public bool ShowProgress
         {
             get => _showProgress;
-
             set => SetProperty(ref _showProgress, value, nameof(ShowProgress));
         }
 
         public double Progress
         {
             get => _progress;
-
             set =>
                     SetProperty(ref _progress, value, () =>
                      {
@@ -189,21 +181,18 @@ namespace SEToolbox.Models
         public TaskbarItemProgressState ProgressState
         {
             get => _progressState;
-
             set => SetProperty(ref _progressState, value, nameof(ProgressState));
         }
 
         public double ProgressValue
         {
             get => _progressValue;
-
             set => SetProperty(ref _progressValue, value, nameof(ProgressValue));
         }
 
         public double MaximumProgress
         {
             get => _maximumProgress;
-
             set => SetProperty(ref _maximumProgress, value, nameof(MaximumProgress));
         }
 
@@ -212,7 +201,6 @@ namespace SEToolbox.Models
         public string SelectedScriptPath
         {
             get => _selectedScriptPath;
-
             set => SetProperty(ref _selectedScriptPath, value, nameof(SelectedScriptPath));
 
         }
@@ -655,8 +643,8 @@ namespace SEToolbox.Models
         public bool ContainsVoxelFileName(string fileName, MyObjectBuilder_EntityBase[] additionalList)
         {
             var voxelFileNameUpper = Path.GetFileNameWithoutExtension(fileName).ToUpperInvariant();
-            bool contains = Structures.Any(s => s is StructureVoxelModel model && model.Name.ToUpperInvariant() == voxelFileNameUpper)
-            || SpaceEngineersCore.ManageDeleteVoxelList.Any(f => Path.GetFileNameWithoutExtension(f).ToUpperInvariant() == voxelFileNameUpper);
+            bool contains = Structures.Any(s => s is StructureVoxelModel model && model.Name.ToUpperInvariant() == voxelFileNameUpper || 
+            				SpaceEngineersCore.ManageDeleteVoxelList.Any(f => Path.GetFileNameWithoutExtension(f).ToUpperInvariant() == voxelFileNameUpper);
 
             if (contains || additionalList == null)
             {
@@ -748,7 +736,7 @@ namespace SEToolbox.Models
 
             var toolbarType = typeof(MyObjectBuilder_Toolbar);
             var functionalTypes = new HashSet<Type>([
-              typeof(MyObjectBuilder_ButtonPanel),//MyObjectBuilder_FunctionalBlock
+              	typeof(MyObjectBuilder_ButtonPanel),//MyObjectBuilder_FunctionalBlock
                 typeof(MyObjectBuilder_TimerBlock),//MyObjectBuilder_FunctionalBlock
                 typeof(MyObjectBuilder_SensorBlock),//MyObjectBuilder_FunctionalBlock
                 typeof(MyObjectBuilder_ShipController)//,//MyObjectBuilder_FunctionalBlock
@@ -1590,13 +1578,13 @@ namespace SEToolbox.Models
 
         public List<MyObjectBuilder_CubeGrid> GetConnectedGridNodes(StructureCubeGridModel structureCubeGrid, GridConnectionTypes minimumConnectionType)
         {
-            List<MyObjectBuilder_CubeGrid> list = [];
+            var list = new List<MyObjectBuilder_CubeGrid>();
             GridEntityNode parentNode = GridEntityNodes[structureCubeGrid.EntityId];
             if (parentNode != null)
             {
-                IEnumerable<MyObjectBuilder_CubeGrid> remoteEntities = parentNode.CubeEntityNodes
-                .Where(e => minimumConnectionType.HasFlag(e.Value.GridConnectionType) && e.Value.RemoteParentEntity != null)
-                .Select(e => e.Value.RemoteParentEntity ?? throw new InvalidOperationException("RemoteParentEntity is null"));
+                var remoteEntities = parentNode.CubeEntityNodes
+                			.Where(e => minimumConnectionType.HasFlag(e.Value.GridConnectionType) && e.Value.RemoteParentEntity != null)
+                			.Select(e => e.Value.RemoteParentEntity ?? throw new InvalidOperationException("RemoteParentEntity is null"));
                 foreach (MyObjectBuilder_CubeGrid cubeGrid in remoteEntities)
                 {
                     if (cubeGrid != null && !list.Contains(cubeGrid))

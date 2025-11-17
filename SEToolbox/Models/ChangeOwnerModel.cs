@@ -30,7 +30,6 @@ namespace SEToolbox.Models
         public ObservableCollection<OwnerModel> PlayerList
         {
             get => _playerList;
-
             set => SetProperty( ref _playerList, value ,nameof(PlayerList));
         }
 

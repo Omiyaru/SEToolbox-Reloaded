@@ -49,7 +49,6 @@ namespace SEToolbox.Models
         public SerializableVector3 Color
         {
             get => Character.ColorMaskHSV;
-
             set => SetProperty(Character?.ColorMaskHSV, value, nameof(Color), () => UpdateGeneralFromEntityBase());
 
         }
@@ -58,7 +57,6 @@ namespace SEToolbox.Models
         public bool Light
         {
             get => Character.LightEnabled;
-
             set => SetProperty(Character.LightEnabled, value, nameof(Light));
         }
 
@@ -66,7 +64,6 @@ namespace SEToolbox.Models
         public bool JetPack
         {
             get => Character.JetpackEnabled;
-
             set => SetProperty(Character.JetpackEnabled, value, nameof(JetPack));
         }
 
@@ -74,7 +71,6 @@ namespace SEToolbox.Models
         public bool Dampeners
         {
             get => Character.DampenersEnabled;
-
             set => SetProperty(Character.DampenersEnabled, value, nameof(Dampeners));
         }
 
@@ -83,7 +79,6 @@ namespace SEToolbox.Models
         public float BatteryCapacity // Character.Battery.CurrentCapacity ?? 0;
         {
             get => Character.Battery.CurrentCapacity;
-
             set => SetProperty(Character.Battery.CurrentCapacity, value, nameof(BatteryCapacity));
         }
 
@@ -91,7 +86,6 @@ namespace SEToolbox.Models
         public float? Health
         {
             get => Character.Health;
-
             set => SetProperty(Character.Health, value, nameof(Health));
         }
 
@@ -147,7 +141,6 @@ namespace SEToolbox.Models
         public bool IsPlayer
         {
             get => _isPlayer;
-
             set => SetProperty(ref _isPlayer, value, nameof(IsPlayer));
         }
 
@@ -162,7 +155,6 @@ namespace SEToolbox.Models
         public bool IsPilot
         {
             get => _isPilot;
-
             set => SetProperty(ref _isPilot, value, nameof(IsPilot));
            
         }
@@ -171,7 +163,6 @@ namespace SEToolbox.Models
         public InventoryEditorModel Inventory
         {
             get => _inventory;
-
             set => SetProperty(ref _inventory, value, nameof(Inventory));
         }
 

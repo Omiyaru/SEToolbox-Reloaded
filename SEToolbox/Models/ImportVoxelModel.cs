@@ -61,14 +61,12 @@ namespace SEToolbox.Models
         public string FileName
         {
             get => _fileName;
-
             set => SetProperty(ref _fileName, value, nameof(FileName));
         }
 
         public string SourceFile
         {
             get => _sourceFile;
-
             set => SetProperty(ref _sourceFile, value,nameof(SourceFile), ()=>
                 {StockMaterial ??= MaterialsCollection[0];});
                 
@@ -78,35 +76,30 @@ namespace SEToolbox.Models
         public bool IsValidVoxelFile
         {
             get => _isValidVoxelFile;
-
             set => SetProperty(ref _isValidVoxelFile, value, nameof(IsValidVoxelFile));
         }
 
         public BindablePoint3DModel Position
         {
             get => _position;
-
             set => SetProperty(ref _position, value, nameof(Position));
         }
 
         public BindableVector3DModel Forward
         {
             get => _forward;
-
             set => SetProperty(ref _forward, value, nameof(Forward));
         }
 
         public BindableVector3DModel Up
         {
             get => _up;
-
             set => SetProperty(ref _up, value, nameof(Up));
         }
 
         public MyPositionAndOrientation CharacterPosition
         {
             get => _characterPosition;
-
             set => SetProperty(ref _characterPosition, value, nameof(CharacterPosition));
                 //if (value != characterPosition) // Unable to check for equivilence, without long statement. And, mostly uncessary.
            
@@ -115,21 +108,18 @@ namespace SEToolbox.Models
         public bool IsStockVoxel
         {
             get => _isStockVoxel;
-
             set => SetProperty(ref _isStockVoxel, value, nameof(IsStockVoxel));
         }
 
         public bool IsFileVoxel
         {
             get => _isFileVoxel;
-
             set => SetProperty(ref _isFileVoxel, value, nameof(IsFileVoxel));
         }
 
         public bool IsSphere
         {
             get => _isSphere;
-
             set => SetProperty(ref _isSphere,value,nameof(IsSphere));
 
         }
@@ -137,7 +127,6 @@ namespace SEToolbox.Models
         public GenerateVoxelDetailModel StockVoxel
         {
             get => _stockVoxel;
-
             set => SetProperty(ref _stockVoxel, value, nameof(StockVoxel), () =>
                     {
                     IsStockVoxel = true;
@@ -148,7 +137,6 @@ namespace SEToolbox.Models
         public List<GenerateVoxelDetailModel> VoxelFileList
         {
             get => _voxelFileList;
-
             set => SetProperty(ref _voxelFileList, value, nameof(VoxelFileList));
         }
 
@@ -160,21 +148,18 @@ namespace SEToolbox.Models
         public MaterialSelectionModel StockMaterial
         {
             get => _stockMaterial;
-
             set => SetProperty(ref _stockMaterial, value, nameof(StockMaterial));
         }
 
         public int SphereRadius
         {
             get => _sphereRadius;
-
             set => SetProperty(ref _sphereRadius, value, nameof(SphereRadius));
         }
 
         public int SphereShellRadius
         {
             get => _sphereShellRadius;
-
             set => SetProperty(ref _sphereShellRadius, value, nameof(SphereShellRadius));
         }
 

@@ -73,7 +73,7 @@ namespace SEToolbox.Support
 
         internal static void RenderElement(this StringWriter writer, string tagName, string text, string format, params object[] arg)
         {
-            RenderTag(writer, tagName, true);
+            RenderTagStart(writer, tagName);
             if (text != null)
             {
                 var index = text.IndexOfAny(_htmlChars);
@@ -89,7 +89,7 @@ namespace SEToolbox.Support
             }
             if (format != null)
                 writer.Write(string.Format(format, arg));
-            RenderTag(writer, tagName, false);
+            RenderTagEnd(writer, tagName);
         }
 
         internal static void AddAttribute(this StringWriter writer, string attributeName, string attributeValue)
@@ -120,10 +120,10 @@ namespace SEToolbox.Support
             return result.ToString();
         }
 
-        internal static void RenderTag(this StringWriter writer, string tagName, bool start = true)
-        {
-            writer.Write((start ? "<" : "</") + tagName + ">");
-        }
+       // internal static void RenderTag(this StringWriter writer, string tagName, bool start = true)
+       // {
+       //       writer.Write((start ? "<" : "</") + tagName + ">");
+        //}
         internal static void RenderTagStart(this StringWriter writer, string tagName)
         {
             writer.Write("<" + tagName + ">");

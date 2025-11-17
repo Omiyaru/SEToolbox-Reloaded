@@ -18,7 +18,6 @@ namespace SEToolbox.Support
         public static Window Splash
         {
             get => _splash;
-
             set => _splash = value;
         }
         /// <summary>
@@ -27,10 +26,9 @@ namespace SEToolbox.Support
         public static void ShowSplash()
         {
             
-
-                _splash?.Show();
-                System.Windows.Forms.Application.DoEvents();
-            }
+			_splash?.Show();
+            System.Windows.Forms.Application.DoEvents();
+         }
     
         /// <summary>
         /// Closes the splash screen if it is set.

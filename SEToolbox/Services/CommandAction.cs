@@ -25,40 +25,35 @@ namespace SEToolbox.Services
         public ICommand Command
         {
             get => (ICommand)GetValue(CommandProperty);
-
-            set => SetValue(CommandProperty, value);
+			set => SetValue(CommandProperty, value);
         }
 
         [Category("Command Properties")]
         public object CommandParameter
         {
             get => GetValue(CommandParameterProperty);
-
-            set => SetValue(CommandParameterProperty, value);
+			set => SetValue(CommandParameterProperty, value);
         }
 
         [Category("Command Properties")]
         public IInputElement CommandTarget
         {
             get => (IInputElement)GetValue(CommandTargetProperty);
-
-            set => SetValue(CommandTargetProperty, value);
+			set => SetValue(CommandTargetProperty, value);
         }
 
         [Category("Command Properties")]
         public bool SyncOwnerIsEnabled
         {
             get => (bool)GetValue(SyncOwnerIsEnabledProperty);
-
-            set => SetValue(SyncOwnerIsEnabledProperty, value);
+			set => SetValue(SyncOwnerIsEnabledProperty, value);
         }
 
         [Category("Command Properties")]
         public bool EventArgs
         {
             get => (bool)GetValue(EventArgsProperty);
-
-            set => SetValue(EventArgsProperty, value);
+			set => SetValue(EventArgsProperty, value);
         }
 
         #endregion

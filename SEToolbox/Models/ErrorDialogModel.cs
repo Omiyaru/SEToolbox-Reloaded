@@ -15,21 +15,18 @@
         public string ErrorDescription
         {
             get => _errorDescription;
-
             set => SetProperty(ref _errorDescription, value, nameof(ErrorDescription));
         }
 
         public string ErrorText
         {
             get => _errorText;
-
             set => SetProperty(ref _errorText, value, nameof(ErrorText));
         }
 
         public bool CanContinue
         {
             get => _canContinue;
-
             set => SetProperty(ref _canContinue, value, nameof(CanContinue));
         }
 

@@ -42,7 +42,6 @@ namespace SEToolbox.Models
         public MyObjectBuilder_InventoryItem Item
         {
             get => FloatingObject.Item;
-
             set => SetProperty(FloatingObject.Item, value, nameof(Item));
         }
 
@@ -50,7 +49,6 @@ namespace SEToolbox.Models
         public double? Volume
         {
             get => _volume;
-
             set => SetProperty(ref _volume, value, nameof(Volume));
         }
 
@@ -58,7 +56,6 @@ namespace SEToolbox.Models
         public decimal? Units
         {
             get => _units;
-
             set => SetProperty(ref _units, value, nameof(Units));
         }
 

@@ -33,16 +33,14 @@ namespace SEToolbox.Services
         public bool AllowDropToSource
         {
             get => (bool)GetValue(AllowDropToSourceProperty);
-
-            set => SetValue(AllowDropToSourceProperty, value);
+			set => SetValue(AllowDropToSourceProperty, value);
         }
 
         public static readonly DependencyProperty ShowDropIndicatorProperty = DependencyProperty.Register("ShowDropIndicator", typeof(bool), typeof(ListBoxDropBehavior), new PropertyMetadata(true));
         public bool ShowDropIndicator
         {
             get => (bool)GetValue(ShowDropIndicatorProperty);
-
-            set => SetValue(ShowDropIndicatorProperty, value);
+			set => SetValue(ShowDropIndicatorProperty, value);
         }
 
         public static readonly DependencyProperty DropTypeProperty = DependencyProperty.Register("DropType", typeof(Type), typeof(ListBoxDropBehavior));
@@ -52,8 +50,7 @@ namespace SEToolbox.Services
         public Type DropType
         {
             get => (Type)GetValue(DropTypeProperty);
-
-            set => SetValue(DropTypeProperty, value);
+			set => SetValue(DropTypeProperty, value);
         }
 
         #endregion

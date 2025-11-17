@@ -53,7 +53,6 @@ namespace SEToolbox.Interop
         public static WorldResource WorldResource
         {
             get => _singleton?._worldResource;
-
             set => _singleton?._worldResource = value;
         }
 

@@ -250,8 +250,8 @@ namespace SEToolbox.Interop
                 {
                     if (entity is MyObjectBuilder_CubeGrid cubeGrid)
                     {
-                        MyObjectBuilder_Cockpit[] list = [.. cubeGrid.CubeBlocks.OfType<MyObjectBuilder_Cockpit>()];
-                        for (int i = 0; i < list.Length; i++)
+                        var list = new List<MyObjectBuilder_Cockpit>(cubeGrid.CubeBlocks.OfType<MyObjectBuilder_Cockpit>());
+                        for (int i = 0; i < list.Count; i++)
                         {
                             character = list[i].GetHierarchyCharacters().FirstOrDefault();
                             if (character != null)
@@ -352,7 +352,7 @@ namespace SEToolbox.Interop
         public bool IsDead { get; set; }
 
     }
-        private static Int64 MergeId(long currentId, IDType type, ref Dictionary<Int64, Int64> idReplacementTable)
+        private static long MergeId(long currentId, IDType type, ref Dictionary<Int64, Int64> idReplacementTable)
         {
             if (currentId == 0)
                 return 0;

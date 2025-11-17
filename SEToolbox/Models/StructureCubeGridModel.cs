@@ -234,7 +234,6 @@ namespace SEToolbox.Models
         public List<CubeAssetModel> CubeAssets
         {
             get => _cubeAssets;
-
             set => SetProperty(ref _cubeAssets, value, nameof(CubeAssets));
         }
 

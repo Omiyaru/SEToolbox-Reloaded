@@ -98,7 +98,6 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-
             set => SetProperty(ref _closeResult, value, nameof(CloseResult)); 
         }
 
@@ -116,21 +115,18 @@ namespace SEToolbox.ViewModels
         public bool IsValidImage
         {
             get => _dataModel.IsValidImage;
-
             set => _dataModel.IsValidImage = value;
         }
 
         public Size OriginalImageSize
         {
             get => _dataModel.OriginalImageSize;
-
             set => _dataModel.OriginalImageSize = value;
         }
 
         public BindableSizeModel NewImageSize
         {
             get => _dataModel.NewImageSize;
-
             set => SetProperty( _dataModel.NewImageSize, value, nameof(NewImageSize), () => ProcessImage());
         }
             
@@ -138,7 +134,6 @@ namespace SEToolbox.ViewModels
         public BindablePoint3DModel Position
         {
             get => _dataModel.Position;
-
             set => _dataModel.Position = value;
         }
 
@@ -150,14 +145,12 @@ namespace SEToolbox.ViewModels
         public BindableVector3DModel Up
         {
             get => _dataModel.Up;
-
             set => _dataModel.Up = value;
         }
 
         public ImportImageClassType ClassType
         {
             get => _dataModel.ClassType;
-
             set => _dataModel.ClassType = value;
         }
 
@@ -169,7 +162,6 @@ namespace SEToolbox.ViewModels
         public BitmapImage NewImage
         {
             get => _newImage;
-
             set => SetProperty(ref _newImage, value, nameof(NewImage));
         }
 
@@ -179,7 +171,6 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _isBusy;
-
             set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
                  if(_isBusy)
@@ -192,28 +183,24 @@ namespace SEToolbox.ViewModels
         public int AlphaLevel
         {
             get => _dataModel.AlphaLevel;
-
             set => _dataModel.AlphaLevel = value;
         }
 
         public System.Windows.Media.Color KeyColor
         {
             get => _dataModel.KeyColor;
-
             set => _dataModel.KeyColor = value;
         }
 
         public bool IsAlphaLevel
         {
             get => _dataModel.IsAlphaLevel;
-
             set => _dataModel.IsAlphaLevel = value;
         }
 
         public bool IsKeyColor
         {
             get => _dataModel.IsKeyColor;
-
             set => _dataModel.IsKeyColor = value;
         }
 

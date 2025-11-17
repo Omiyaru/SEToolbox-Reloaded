@@ -61,7 +61,6 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-
             set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
@@ -71,7 +70,6 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _isBusy;
-
             set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
                 {
                     if (_isBusy)
@@ -88,77 +86,66 @@ namespace SEToolbox.ViewModels
         public ComponentItemModel StockItem
         {
             get => _dataModel.StockItem;
-
             set => _dataModel.StockItem = value;
         }
 
         public bool IsValidItemToImport
         {
             get => _dataModel.IsValidItemToImport;
-
             set => _dataModel.IsValidItemToImport = value;
         }
 
         public double? Volume
         {
             get => _dataModel.Volume;
-
             set => _dataModel.Volume = value;
         }
 
         public double? Mass
         {
             get => _dataModel.Mass;
-
             set => _dataModel.Mass = value;
         }
 
         public int? Units
         {
             get => _dataModel.Units;
-
             set => _dataModel.Units = value;
         }
 
         public decimal? DecimalUnits
         {
             get => _dataModel.DecimalUnits;
-
             set => _dataModel.DecimalUnits = value;
         }
 
         public bool IsDecimal
         {
             get => _dataModel.IsDecimal;
-
             set => _dataModel.IsDecimal = value;
         }
 
         public bool IsInt
         {
             get => _dataModel.IsInt;
-
             set => _dataModel.IsInt = value;
         }
 
         public bool IsUnique
         {
             get => _dataModel.IsUnique;
-
             set => _dataModel.IsUnique = value;
         }
 
         public int Multiplier
         {
             get => _dataModel.Multiplier;
-
             set => _dataModel.Multiplier = value;
         }
 
         public float MaxFloatingObjects
         {
             get => _dataModel.MaxFloatingObjects;
-
             set => _dataModel.MaxFloatingObjects = value;
         }
 

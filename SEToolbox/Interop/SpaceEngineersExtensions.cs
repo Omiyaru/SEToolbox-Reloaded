@@ -40,7 +40,7 @@ namespace SEToolbox.Interop
                           (yMirror == Support.Mirror.EvenDown ? -1 : 0);
             int offsetZ =  zMirror == Support.Mirror.Odd ? -vecAxisZ : 0;
                 offsetZ += zMirror == Support.Mirror.EvenUp ? 1 :
-                      (zMirror == Support.Mirror.EvenDown ? -1 : 0);  
+                          (zMirror == Support.Mirror.EvenDown ? -1 : 0);  
                 
             Vector3I newVector = new(vector.X + offsetX,
                                      vector.Y + offsetY,

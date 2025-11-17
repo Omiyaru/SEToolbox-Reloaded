@@ -79,7 +79,6 @@ namespace SEToolbox.Models
         public string Name
         {
             get => Planet.StorageName;
-
             set => SetProperty(Planet.StorageName, value, nameof(Name));
         }
 
@@ -103,7 +102,6 @@ namespace SEToolbox.Models
         public string VoxelFilePath
         {
             get => _voxelFilePath;
-
             set => SetProperty(ref _voxelFilePath, value, nameof(VoxelFilePath));
             
         }
@@ -112,7 +110,6 @@ namespace SEToolbox.Models
         public Vector3I Size
         {
             get => _size;
-
             set => SetProperty(ref _size, value, nameof(Size));
         }
 
@@ -120,7 +117,6 @@ namespace SEToolbox.Models
         public int Seed
         {
             get => Planet.Seed;
-
             set => SetProperty(Planet.Seed, value, nameof(Seed));
         }
 
@@ -129,14 +125,12 @@ namespace SEToolbox.Models
         public float Radius
         {
             get => Planet.Radius;
-
             set => SetProperty(Planet.Radius, value, nameof(Radius));
         }
 
         public bool HasAtmosphere
         {
             get => Planet.HasAtmosphere;
-
             set => SetProperty(Planet.HasAtmosphere, value, nameof(HasAtmosphere));
         }
 
@@ -144,7 +138,6 @@ namespace SEToolbox.Models
         public float AtmosphereRadius
         {
             get => Planet.AtmosphereRadius;
-
             set => SetProperty(Planet.AtmosphereRadius, value, nameof(AtmosphereRadius));
         }
 
@@ -152,7 +145,6 @@ namespace SEToolbox.Models
         public float MinimumSurfaceRadius
         {
             get => Planet.MinimumSurfaceRadius;
-
             set => SetProperty(Planet.MinimumSurfaceRadius, value, nameof(MinimumSurfaceRadius));
         }
 
@@ -160,7 +152,6 @@ namespace SEToolbox.Models
         public float MaximumHillRadius
         {
             get => Planet.MaximumHillRadius;
-
             set => SetProperty(Planet.MaximumHillRadius, value, nameof(MaximumHillRadius));
         }
 
@@ -168,7 +159,6 @@ namespace SEToolbox.Models
         public float GravityFalloff
         {
             get => Planet.GravityFalloff;
-
             set => SetProperty(Planet.GravityFalloff, value, nameof(GravityFalloff));
         }
 
@@ -176,7 +166,6 @@ namespace SEToolbox.Models
         public float SurfaceGravity
         {
             get => Planet.SurfaceGravity;
-
             set => SetProperty(Planet.SurfaceGravity, value, nameof(SurfaceGravity));
         }
 
@@ -184,7 +173,6 @@ namespace SEToolbox.Models
         public bool SpawnsFlora
         {
             get => Planet.SpawnsFlora;
-
             set => SetProperty(Planet.SpawnsFlora, value, nameof(SpawnsFlora));
         }
 
@@ -192,7 +180,6 @@ namespace SEToolbox.Models
         public bool ShowGPS
         {
             get => Planet.ShowGPS;
-
             set => SetProperty(Planet.ShowGPS, value, nameof(ShowGPS));
         }
 
@@ -200,7 +187,6 @@ namespace SEToolbox.Models
         public string PlanetGenerator
         {
             get => Planet.PlanetGenerator;
-
             set => SetProperty(Planet.PlanetGenerator, value, nameof(PlanetGenerator));
         }
 

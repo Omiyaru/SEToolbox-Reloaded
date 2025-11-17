@@ -18,28 +18,24 @@ namespace SEToolbox.Models
         public string Name
         {
             get => _name;
-
             set => SetProperty(ref _name, value, nameof(Name));
         }
 
         public string SourceFileName
         {
             get => _sourceFileName;
-
             set => SetProperty(ref _sourceFileName, value, nameof(SourceFileName));
         }
 
         public string VoxelFileName
         {
             get => _voxelFileName;
-
             set => SetProperty(ref _voxelFileName, value, nameof(VoxelFileName));
         }
 
         public Vector3I Size
         {
             get => _size;
-
             set => SetProperty(ref _size, value, nameof(Size));
         }
 

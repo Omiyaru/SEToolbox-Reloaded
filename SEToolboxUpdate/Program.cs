@@ -22,7 +22,7 @@ namespace SEToolboxUpdate
         private const int UacDenied = 2;
 
         private const string logFilePath = "updater-log.txt";
-        private static readonly string errorMsg = "Failed to copy one or more game files. Error:" ?? string.Empty;
+        
         private static readonly string delimiter = "/" ?? "-";
 
 
@@ -88,19 +88,25 @@ namespace SEToolboxUpdate
         
         private static void UpdateBaseLibrariesFromSpaceEngineers(string[] args)
         {
-              Log.Info("Updater task is update game files.");
+              SConsole.WriteLine("Updating game files.");
+              
             bool attemptedAlready = args.Any(a => a.Equals(installMap.Keys.FirstOrDefault()));
             string appDirectory = Path.GetDirectoryName(updaterExePath);
-
+             
 
             if (!ToolboxUpdater.IsRunningElevated())
             {
+				SConsole.WriteLine("Toolbox Updater is not running as an elevated process");
                 // Does not have elevated permission to run.
                 if (!attemptedAlready)
                 {
+				    SConsole.WriteLine("Toolbox Updater: Initializing first run");
                     MessageBox.Show(Res.UpdateRequiredUACMessage, Res.UpdateRequiredTitle, MessageBoxButton.OK, MessageBoxImage.Information);
+                    
+                    
 
                     int? ret = ToolboxUpdater.RunElevated(updaterExePath,$"{join} {installMap.Keys.FirstOrDefault()}", elevate: true, waitForExit: true);
+				
 
                     // Don't run toolbox from the elevated process, do it here.
                     if (ret.HasValue)
@@ -113,7 +119,7 @@ namespace SEToolboxUpdate
             {
                 if (!attemptedAlready)
                     MessageBox.Show(Res.UpdateRequiredMessage, Res.UpdateRequiredTitle, MessageBoxButton.OK, MessageBoxImage.Information);
-
+				string errorMsg = "Failed to copy one or more game files. Error:" ?? string.Empty;
                 // Is running elevated permission, update the files.
                 bool wasUpdated = UpdateBaseFiles(appDirectory, out Exception ex).GetAwaiter().GetResult();
                 string errorMsgLog = $"{errorMsg}\n{File.ReadAllText(logFilePath)}";
@@ -128,6 +134,7 @@ namespace SEToolboxUpdate
                 if (!attemptedAlready)
                     LaunchToolbox(errorCode);
                 else // Don't run toolbox from the elevated process, return to the original updater process.
+					SConsole.WriteLine($"Sutting down Updater Process {errorCode}: {ex?.Message}");
                     Environment.Exit(errorCode);
             }
         }
@@ -164,6 +171,8 @@ namespace SEToolboxUpdate
                     SConsole.WriteLine(Res.UpdateErrorMessage);
                     if (MessageBox.Show(Res.UpdateErrorTitle, Res.UpdateErrorMessage, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                     {
+					    SConsole.WriteLine($"Starting process : ignoring updates.");
+
                         // X = Ignore updates.
                         ToolboxUpdater.RunElevated(toolboxExePath, installMap.Keys.FirstOrDefault(k => k.Equals(arg)), elevate: false, waitForExit: false);
                     }
@@ -173,6 +182,7 @@ namespace SEToolboxUpdate
                     Environment.Exit(errorCode);
                     break;
             }
+            SConsole.WriteLine($"Shutting down Toolbox Updater Process: {errorCode}");
         }
     
 
@@ -183,9 +193,15 @@ namespace SEToolboxUpdate
         /// <returns>True if it succeeded, False if there was an issue that blocked it.</returns>
         private static Task<bool> UpdateBaseFiles(string appFilePath, out Exception exception)
         {
+		  SConsole.WriteLine("Updating game files.");
+
             exception = null;
 
             Process[] liveProcesses = Process.GetProcessesByName("SEToolbox");
+            
+ 				if (liveProcesses.Length > 0)
+
+                SConsole.WriteLine("Waiting for one or more Toolbox processes to exit.");
 
             // Wait until SEToolbox is shut down.
             Task allCompletedTask = Task.WhenAll(liveProcesses.Select(item => Task.Run(() => item.WaitForExit())));

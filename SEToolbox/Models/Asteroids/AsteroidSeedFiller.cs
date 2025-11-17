@@ -191,13 +191,10 @@ namespace SEToolbox.Models.Asteroids
                     asteroid.SeedMaterialSphere(material.MaterialIndex.Value, radius);
                 }
             }
-            //look into surface materials
+            //look into SurfaceMaterials??
 
             // Hide the surface materials up to depth of 2 cells.
             asteroid.ForceShellMaterial(properties.MainMaterial.Value, 2);
-
-
-            // The following code blocks contain alternative methods for material manipulation, currently not in use 
 
             // This recovers material assigning ability for most roids (could be specific to indestructibleContent property?)
             // And not for all, apparently :(

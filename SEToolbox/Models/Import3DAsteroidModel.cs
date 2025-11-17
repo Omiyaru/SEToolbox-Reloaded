@@ -81,14 +81,12 @@ namespace SEToolbox.Models
         public string FileName
         {
             get => _fileName;
-
             set => SetProperty(ref _fileName, value, nameof(FileName));
         }
 
         public Model3D Model
         {
             get  => _model;
-
             set => SetProperty(ref _model, value, nameof(Model));
         }
 
@@ -98,7 +96,6 @@ namespace SEToolbox.Models
         public bool IsValidModel
         {
             get => _isValidModel;
-
             set => SetProperty(ref _isValidModel, value, nameof(IsValidModel));
         }
 
@@ -108,49 +105,42 @@ namespace SEToolbox.Models
         public bool IsValidEntity
         {
             get => _isValidEntity;
-
             set => SetProperty(ref _isValidEntity, value, nameof(IsValidEntity));
         }
 
         public BindableSize3DModel OriginalModelSize
         {
             get => _originalModelSize;
-
             set => SetProperty(ref _originalModelSize, value, nameof(OriginalModelSize));
         }
 
         public BindableSize3DIModel NewModelSize
         {
             get => _newModelSize;
-
             set => SetProperty(ref _newModelSize, value, nameof(NewModelSize));
         }
 
         public BindablePoint3DModel NewModelScale
         {
             get => _newModelScale;
-
             set => SetProperty(ref _newModelScale, value, nameof(NewModelScale));
         }
 
         public BindablePoint3DModel Position
         {
             get => _position;
-
             set => SetProperty(ref _position, value, nameof(Position));
         }
 
         public BindableVector3DModel Forward
         {
             get => _forward;
-
             set => SetProperty(ref _forward, value, nameof(Forward));
         }
 
         public BindableVector3DModel Up
         {
             get => _up;
-
             set => SetProperty(ref _up, value, nameof(Up));
         }
 
@@ -164,70 +154,60 @@ namespace SEToolbox.Models
         public TraceType TraceType
         {
             get => _traceType;
-
             set => SetProperty(ref _traceType, value, nameof(TraceType));
         }
 
         public TraceCount TraceCount
         {
             get => _traceCount;
-
             set => SetProperty(ref _traceCount, value, nameof(TraceCount));
         }
 
         public TraceDirection TraceDirection
         {
             get => _traceDirection;
-
             set => SetProperty(ref _traceDirection, value, nameof(TraceDirection));
         }
 
         public double MultipleScale
         {
             get => _multipleScale;
-
             set => SetProperty(ref _multipleScale, value, nameof(MultipleScale));
         }
 
         public double MaxLengthScale
         {
             get => _maxLengthScale;
-
             set => SetProperty(ref _maxLengthScale, value, nameof(MaxLengthScale));
         }
 
         public double BuildDistance
         {
             get => _buildDistance;
-
             set => SetProperty(ref _buildDistance, value, nameof(BuildDistance));
         }
 
         public bool IsMultipleScale
         {
             get => _isMultipleScale;
-
             set => SetProperty(ref _isMultipleScale, value, nameof(IsMultipleScale));
         }
 
         public bool IsMaxLengthScale
         {
             get => _isMaxLengthScale;
-
             set => SetProperty(ref _isMaxLengthScale, value, nameof(IsMaxLengthScale));
         }
 
         public bool IsAbsolutePosition
         {
             get => _isAbsolutePosition;
-
             set => SetProperty(ref _isAbsolutePosition, value, nameof(IsAbsolutePosition));
         }
 
         public bool IsInfrontofPlayer
         {
             get => _isInfrontofPlayer;
-
             set => SetProperty(ref _isInfrontofPlayer, value, nameof(IsInfrontofPlayer));
         }
 
@@ -238,7 +218,6 @@ namespace SEToolbox.Models
         public int OutsideMaterialDepth
         {
             get => _outsideMaterialDepth;
-
             set => SetProperty(ref _outsideMaterialDepth, value, nameof(OutsideMaterialDepth));
         }
 
@@ -250,35 +229,30 @@ namespace SEToolbox.Models
         public MaterialSelectionModel OutsideStockMaterial
         {
             get => _outsideStockMaterial;
-
             set => SetProperty(ref _outsideStockMaterial, value, nameof(OutsideStockMaterial));
         }
 
         public MaterialSelectionModel InsideStockMaterial
         {
             get => _insideStockMaterial;
-
             set => SetProperty(ref _insideStockMaterial, value, nameof(InsideStockMaterial));
         }
 
         public string SourceFile
         {
             get => _sourceFile;
-
             set => SetProperty(ref _sourceFile, value, nameof(SourceFile));
         }
 
         public double RotateYaw
         {
             get => _rotateYaw;
-
             set => SetProperty(ref _rotateYaw, value, nameof(RotateYaw));
         }
 
         public double RotatePitch
         {
             get => _rotatePitch;
-
             set => SetProperty(ref _rotatePitch, value, nameof(RotatePitch));
         }
 
@@ -292,28 +266,24 @@ namespace SEToolbox.Models
         public bool BeepWhenFinished
         {
             get => _beepWhenFinished;
-
             set => SetProperty(ref _beepWhenFinished, value, nameof(BeepWhenFinished));
         }
 
         public bool SaveWhenFinsihed
         {
             get => _saveWhenFinsihed;
-
             set => SetProperty(ref _saveWhenFinsihed, value, nameof(SaveWhenFinsihed));
         }
 
         public bool ShutdownWhenFinished
         {
             get => _shutdownWhenFinished;
-
             set => SetProperty(ref _shutdownWhenFinished, value, nameof(ShutdownWhenFinished));
         }
 
         public bool RunInLowPrioity 
         {
             get  => _runInLowPrioity;
-
             set => SetProperty(ref _runInLowPrioity, value, nameof(RunInLowPrioity));
         }
 

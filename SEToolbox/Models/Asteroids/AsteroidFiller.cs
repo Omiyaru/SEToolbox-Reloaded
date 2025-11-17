@@ -31,28 +31,24 @@ namespace SEToolbox.Models.Asteroids
         public int Index
         {
             get => _index;
-
             set => SetProperty( ref _index, value, nameof(Index));
         }
 
         public GenerateVoxelDetailModel VoxelFile
         {
             get => _voxelFile;
-
             set => SetProperty( ref _voxelFile, value, nameof(VoxelFile));
         }
 
         public IMyVoxelFiller FillMethod
         {
             get => _fillMethod;
-
             set => SetProperty( ref _fillMethod, value, nameof(FillMethod));
         }
 
         public List<GenerateVoxelDetailModel> VoxelFileList
         {
             get => _voxelFileList;
-
             set => SetProperty( ref _voxelFileList, value, nameof(VoxelFileList));
         }
 
@@ -61,7 +57,7 @@ namespace SEToolbox.Models.Asteroids
         #endregion
 
 
-        // GenerateVoxelFieldViewModel.cs has  SelectedRow and VoxelCollection, dataModel.BaseMaterial,MaterialsCollection, VoxelFileList,
+        // GenerateVoxelFieldViewModel.cs has SelectedRow and VoxelCollection, dataModel.BaseMaterial,MaterialsCollection, VoxelFileList,
         // GenerateVoxelFieldModel.cs Has BaseMaterial
 
         public static void CreateFillProperties(AsteroidByteFillProperties SelectedRow, ObservableCollection<AsteroidByteFillProperties> VoxelCollection)

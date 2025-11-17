@@ -42,7 +42,6 @@ namespace SEToolbox.Models
         public MyObjectBuilder_InventoryItem Item
         {
             get => Meteor.Item;
-
             set => SetProperty(Meteor.Item, value, nameof(Item));
         }
 
@@ -50,7 +49,6 @@ namespace SEToolbox.Models
         public float Integrity
         {
             get => Meteor.Integrity;
-
             set => SetProperty(Meteor.Integrity, value, nameof(Integrity));
         }
 
@@ -58,7 +56,6 @@ namespace SEToolbox.Models
         public double? Volume
         {
             get => _volume;
-
             set => SetProperty(ref _volume, value, nameof(Volume));
         }
 

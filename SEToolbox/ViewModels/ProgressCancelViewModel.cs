@@ -57,48 +57,41 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-
             set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         public string Title
         {
             get => _dataModel.Title;
-
             set => _dataModel.Title = value;
         }
         public string SubTitle
         {
             get => _dataModel.SubTitle;
-
             set => _dataModel.SubTitle = value;
         }
 
         public string DialogText
         {
             get => _dataModel.DialogText;
-
             set => _dataModel.DialogText = value;
         }
 
         public double Progress
         {
             get => _dataModel.Progress;
-
             set => _dataModel.Progress = value;
         }
 
         public double MaximumProgress
         {
             get => _dataModel.MaximumProgress;
-
             set => _dataModel.MaximumProgress = value;
         }
 
         public TimeSpan? EstimatedTimeLeft
         {
             get => _dataModel.EstimatedTimeLeft;
-
             set => _dataModel.EstimatedTimeLeft = value;
         }
 

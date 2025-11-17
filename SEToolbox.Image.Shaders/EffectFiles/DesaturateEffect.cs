@@ -63,8 +63,7 @@ namespace SEToolbox.ImageShaders.EffectFiles
         public Brush Input
         {
             get => (Brush)GetValue(InputProperty);
-
-            set => SetValue(InputProperty, value);
+			set => SetValue(InputProperty, value);
         }
     }
 }

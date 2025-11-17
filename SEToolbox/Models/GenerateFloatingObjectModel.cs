@@ -59,42 +59,36 @@ namespace SEToolbox.Models
         public ObservableCollection<ComponentItemModel> StockItemList
         {
             get => _stockItemList;
-
             set => SetProperty(ref _stockItemList, value, nameof(StockItemList));
         }
 
         public ComponentItemModel StockItem
         {
             get => _stockItem;
-
             set => SetProperty(ref _stockItem, value, nameof(StockItem));
         }
 
         public bool IsValidItemToImport
         {
             get => _isValidItemToImport;
-
             set => SetProperty(ref _isValidItemToImport, value, nameof(IsValidItemToImport));
         }
 
         public double? Volume
         {
             get => _volume;
-
             set => SetProperty(ref _volume, value, nameof(Volume));
         }
 
         public double? Mass
         {
             get => _mass;
-
             set => SetProperty(ref _mass, value, nameof(Mass));
         }
 
         public int? Units
         {
             get => _units;
-
             set => SetProperty(ref _units, value, nameof(Units), () => SetMassVolume());
                    
 
@@ -103,28 +97,24 @@ namespace SEToolbox.Models
         public decimal? DecimalUnits
         {
             get => _decimalUnits;
-
             set => SetProperty(ref _decimalUnits, value, nameof(DecimalUnits), ()=>{ SetMassVolume()});
         }
 
         public bool IsDecimal
         {
             get => _isDecimal;
-
             set => SetProperty(ref _isDecimal, value, nameof(IsDecimal));
         }
 
         public bool IsInt
         {
             get => _isInt;
-
             set => SetProperty(ref _isInt, value, nameof(IsInt));
         }
 
         public bool IsUnique
         {
             get => _isUnique;
-
             set => SetProperty(ref _isUnique, value, nameof(IsUnique));
         }
 
@@ -134,7 +124,6 @@ namespace SEToolbox.Models
         public int Multiplier
         {
             get => _multiplier;
-
             set => SetProperty(ref _multiplier, value, nameof(Multiplier));
         }
 
@@ -144,7 +133,6 @@ namespace SEToolbox.Models
         public float MaxFloatingObjects
         {
             get => _maxFloatingObjects;
-
             set => SetProperty(ref _maxFloatingObjects, value, nameof(MaxFloatingObjects));
         }
 

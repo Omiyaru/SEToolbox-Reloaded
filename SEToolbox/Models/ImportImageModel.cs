@@ -53,7 +53,6 @@ namespace SEToolbox.Models
         public Size OriginalImageSize
         {
             get => _originalImageSize;
-
             set => SetProperty(ref _originalImageSize, value, nameof(OriginalImageSize));
         }
 

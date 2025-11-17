@@ -110,7 +110,6 @@ namespace SEToolbox.Models
         public string Name
         {
             get => VoxelMap.StorageName ?? string.Empty;
-
             set => SetProperty(VoxelMap.StorageName, value, nameof(Name));
         }
 
@@ -120,7 +119,6 @@ namespace SEToolbox.Models
         public new string SourceVoxelFilePath
         {
             get => _sourceVoxelFilePath;
-
             set => SetProperty(ref _sourceVoxelFilePath, value, nameof(SourceVoxelFilePath), () =>
                     ReadVoxelDetails(SourceVoxelFilePath));
 
@@ -132,7 +130,6 @@ namespace SEToolbox.Models
         public string VoxelFilePath
         {
             get => _voxelFilePath ?? string.Empty;
-
             set => SetProperty(ref _voxelFilePath, value, nameof(VoxelFilePath));
         }
 
@@ -140,7 +137,6 @@ namespace SEToolbox.Models
         public Vector3I Size
         {
             get => _size;
-
             set => SetProperty(ref _size, value, nameof(Size));
         }
 
@@ -158,7 +154,6 @@ namespace SEToolbox.Models
         public BoundingBoxI ContentBounds
         {
             get => _contentBounds;
-
             set => SetProperty(ref _contentBounds, value, nameof(ContentBounds));
         }
 
@@ -169,7 +164,6 @@ namespace SEToolbox.Models
         public long VoxCells
         {
             get => _voxCells;
-
             set => SetProperty(ref _voxCells, value, nameof(VoxCells));
         }
 
@@ -186,7 +180,6 @@ namespace SEToolbox.Models
         public List<VoxelMaterialAssetModel> MaterialAssets
         {
             get => _materialAssets;
-
             set => SetProperty(ref _materialAssets, value, nameof(MaterialAssets));
         }
 
@@ -194,7 +187,6 @@ namespace SEToolbox.Models
         public VoxelMaterialAssetModel SelectedMaterialAsset
         {
             get => _selectedMaterialAsset;
-
             set => SetProperty(ref _selectedMaterialAsset, value, nameof(SelectedMaterialAsset));
         }
 
@@ -202,7 +194,6 @@ namespace SEToolbox.Models
         public List<VoxelMaterialAssetModel> GameMaterialList
         {
             get => _gameMaterialList;
-
             set => SetProperty(ref _gameMaterialList, value, nameof(GameMaterialList));
         }
 
@@ -210,7 +201,6 @@ namespace SEToolbox.Models
         public List<VoxelMaterialAssetModel> EditMaterialList
         {
             get => _editMaterialList;
-
             set => SetProperty(ref _editMaterialList, value, nameof(EditMaterialList));
         }
 

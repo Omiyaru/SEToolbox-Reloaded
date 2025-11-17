@@ -191,7 +191,6 @@ namespace SEToolbox.ViewModels
         {
 
             get => _closeResult;
-
             set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
@@ -199,7 +198,6 @@ namespace SEToolbox.ViewModels
         public ObservableCollection<IFactionBase> Factions
         {
             get => _factions;
-
             set => SetProperty(ref _factions, value, nameof(Factions));
         }
 
@@ -207,35 +205,30 @@ namespace SEToolbox.ViewModels
         public IFactionBase SelectedFaction
         {
             get => _selectedFaction;
-
             set => SetProperty(ref _selectedFaction, value, nameof(SelectedFaction));
         }
 
         public IFactionBase SelectedMember
         {
             get => _selectedMember;
-
             set => SetProperty(ref _selectedMember, value, nameof(SelectedMember));
         }
 
         public ObservableCollection<IFactionBase> Members
         {
             get => _members;
-
             set => SetProperty(ref _members, value, nameof(Members));
         }
 
         public ObservableCollection<IStructureViewBase> Structures
         {
             get => _structures;
-
             set => SetProperty(ref _structures, value, nameof(Structures));
         }
 
         public IStructureViewBase SelectedStructure
         {
             get => _selectedStructure;
-
             set => SetProperty(ref _selectedStructure, value, () => 
                         {   
                             if (_selectedStructure != null && !_ignoreUpdateSelection && _selectedStructure == value)
@@ -246,7 +239,6 @@ namespace SEToolbox.ViewModels
         public ObservableCollection<IStructureViewBase> Selections
         {
             get => _selections;
-
             set => SetProperty(ref _selections, value, nameof(Selections));
         }
 
@@ -257,7 +249,6 @@ namespace SEToolbox.ViewModels
         public WorldResource ActiveWorld
         {
             get => _dataModel.ActiveWorld;
-
             set => _dataModel.ActiveWorld = value;
         }
 
@@ -272,7 +263,6 @@ namespace SEToolbox.ViewModels
         public bool IsActive
         {
             get => _dataModel.IsActive;
-
             set => _dataModel.IsActive = value;
         }
 
@@ -282,7 +272,6 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _dataModel.IsBusy;
-
             set => _dataModel.IsBusy = value;
         }
 
@@ -294,14 +283,12 @@ namespace SEToolbox.ViewModels
         public bool IsModified
         {
             get => _dataModel.IsModified;
-
             set => _dataModel.IsModified = value;
         }
 
         public bool IsBaseSaveChanged
         {
             get => _dataModel.IsBaseSaveChanged;
-
             set => _dataModel.IsBaseSaveChanged = value;
         }
 
@@ -316,7 +303,6 @@ namespace SEToolbox.ViewModels
         public bool EnableExcludedBlocks
         {
             get => _dataModel.EnableExclusions;
-
             set => SetProperty( _dataModel.EnableExclusions, value, nameof(EnableExcludedBlocks));
         }
 
@@ -2357,35 +2343,30 @@ namespace SEToolbox.ViewModels
         public bool ShowProgress
         {
             get => _dataModel.ShowProgress;
-
             set => _dataModel.ShowProgress = value;
         }
 
         public double Progress
         {
             get => _dataModel.Progress;
-
             set => _dataModel.Progress = value;
         }
 
         public TaskbarItemProgressState ProgressState
         {
             get => _dataModel.ProgressState;
-
             set => _dataModel.ProgressState = value;
         }
 
         public double ProgressValue
         {
             get => _dataModel.ProgressValue;
-
             set => _dataModel.ProgressValue = value;
         }
 
         public double MaximumProgress
         {
             get => _dataModel.MaximumProgress;
-
             set => _dataModel.MaximumProgress = value;
         }
 
@@ -2407,7 +2388,6 @@ namespace SEToolbox.ViewModels
         public MyObjectBuilder_Checkpoint Checkpoint
         {
             get => ActiveWorld.Checkpoint;
-
             set => ActiveWorld.Checkpoint = value;
         }
 
@@ -2417,7 +2397,6 @@ namespace SEToolbox.ViewModels
         public int[] CreativeModeColors
         {
             get => _dataModel.CreativeModeColors;
-
             set => _dataModel.CreativeModeColors = value;
         }
 

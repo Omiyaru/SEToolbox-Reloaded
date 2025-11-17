@@ -164,7 +164,7 @@ namespace SEToolbox.Interop.Asteroids
             
                 {
                     CubeType cube = volumetricMap[e.CoordinatePoint.X - 6][e.CoordinatePoint.Y - 6][e.CoordinatePoint.Z - 6];
-                    CubeType cube = volumetricMap[e.CoordinatePoint.X - 6][e.CoordinatePoint.Y - 6][e.CoordinatePoint.Z - 6];
+
 
 
                     e.Volume = cube switch
@@ -239,8 +239,6 @@ namespace SEToolbox.Interop.Asteroids
 
             MyVoxelMapBase.UpdateContentBounds(voxelMap);
 
-
-
             SConsole.WriteLine($" Done. | {timer.Elapsed}  | VoxCells {voxelMap.VoxCells:#,##0}");
         }
 
@@ -254,8 +252,6 @@ namespace SEToolbox.Interop.Asteroids
 
             Vector3I cacheSize = Vector3I.Min(new(cellSize), voxelMap.Storage.Size);
             MyStorageData oldCache = new();
-            Vector3I cacheSize = Vector3I.Min(new(cellSize), voxelMap.Storage.Size);
-            MyStorageData oldCache = new();
 
             oldCache.Resize(cacheSize);
 
@@ -267,9 +263,6 @@ namespace SEToolbox.Interop.Asteroids
 
             Vector3I p = Vector3I.Zero;
             PRange.ProcessRange(p, cacheSize);
-
-
-
             byte volume = 0;
             byte cellMaterial = materialIndex;
 
@@ -372,8 +365,6 @@ namespace SEToolbox.Interop.Asteroids
 }
 
 #endregion
-
-
 
 private static Vector3I CalcRequiredSize(int size)
         {

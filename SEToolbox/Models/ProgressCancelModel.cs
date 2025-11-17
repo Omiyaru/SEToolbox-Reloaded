@@ -43,21 +43,18 @@ namespace SEToolbox.Models
         public string Title
         {
             get => _title;
-
             set => SetProperty(ref _title, value, nameof(Title));
         }
 
         public string SubTitle
         {
             get => _subTitle;
-
             set => SetProperty(ref _subTitle, value, nameof(SubTitle));
         }
 
         public string DialogText
         {
             get => _dialogText;
-
             set => SetProperty(ref _dialogText, value, nameof(DialogText));
         }
 
@@ -81,14 +78,12 @@ namespace SEToolbox.Models
         public double MaximumProgress
         {
             get => _maximumProgress;
-
             set => SetProperty(ref _maximumProgress, value, nameof(MaximumProgress));
         }
 
         public TimeSpan? EstimatedTimeLeft
         {
             get => _estimatedTimeLeft;
-
             set => SetProperty(ref _estimatedTimeLeft, value, nameof(EstimatedTimeLeft)); 
         }
 

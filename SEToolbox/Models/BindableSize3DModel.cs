@@ -36,14 +36,12 @@ namespace SEToolbox.Models
         public double Width
         {
             get => _size.X;
-
             set => SetProperty(_size.X , value, nameof(Width));
         }
 
         public double Height
         {
             get => _size.Y;
-
             set => SetProperty(_size.Y = value, value, nameof(Height));
         
         }
@@ -51,7 +49,6 @@ namespace SEToolbox.Models
         public double Depth
         {
             get => _size.Z;
-
             set => SetProperty(_size.Z = value, value, nameof(Depth));
         }
 

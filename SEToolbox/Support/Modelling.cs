@@ -203,7 +203,7 @@ namespace SEToolbox.Support
                             }
                             catch (Exception e)
                             {
-                                Console.WriteLine(e.Message);
+                                SConsole.WriteLine(e.Message);
                             }
                         }
                     }
@@ -242,7 +242,7 @@ namespace SEToolbox.Support
                             }
                             catch (Exception e)
                             {
-                                Console.WriteLine(e.Message);
+                                SConsole.WriteLine(e.Message);
                             }
                         }
                     }
@@ -306,7 +306,6 @@ namespace SEToolbox.Support
 
         #region ReadVolumetricModelAlt
 
-
         // WIP.
         public static CubeType[][][] ReadVolumetricModelAlt(string modelFile)
         {
@@ -325,7 +324,7 @@ namespace SEToolbox.Support
             int yCount = yMax - yMin;
             int zCount = zMax - zMin;
 
-            CubeType[][][] ccubic = ArrayHelper.Create<CubeType>(xCount, yCount, zCount);
+            var ccubic = ArrayHelper.Create<CubeType>(xCount, yCount, zCount);
             
             Dictionary<Point3D, byte[]> blockDict = [];
 
@@ -337,7 +336,7 @@ namespace SEToolbox.Support
                 Point3DCollection rayPoints = [];
                 for (int t = 0; t < g.TriangleIndices.Count; t += 3)
                 {
-                     rayPoints[0] = g.Positions[g.TriangleIndices[t]];
+                    rayPoints[0] = g.Positions[g.TriangleIndices[t]];
                     rayPoints[1] = g.Positions[g.TriangleIndices[t + 1]];
                     rayPoints[2] = g.Positions[g.TriangleIndices[t + 2]];
 
@@ -912,7 +911,6 @@ namespace SEToolbox.Support
                         incrementProgress?.Invoke();
                         if (cubic[x][y][z] == CubeType.Cube)
                         {
-
                             CubeType result = DetermineSubtractedCornerType(cubic, x, y, z, xCount, yCount, zCount);
                            
                         if (result != CubeType.Cube)

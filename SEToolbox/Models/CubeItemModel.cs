@@ -68,21 +68,18 @@ namespace SEToolbox.Models
         public MyObjectBuilder_CubeBlock Cube
         {
             get => _cube;
-
             set => SetProperty(ref _cube, value, nameof(Cube));
             }
 
         public long Owner
         {
             get => _cube.Owner;
-
             set => SetProperty(ref _cube.Owner, value, nameof(Owner));
         }
 
         public long BuiltBy
         {
             get => Cube.BuiltBy;
-
             set => SetProperty(Cube.BuiltBy, value, nameof(BuiltBy));
 
         }
@@ -90,84 +87,72 @@ namespace SEToolbox.Models
         public MyObjectBuilderType TypeId
         {
             get => _typeId;
-
             set => SetProperty(ref _typeId, value, nameof(TypeId));
         }
 
         public string SubtypeId
         {
             get => _subtypeId;
-
             set => SetProperty(ref _subtypeId, value, nameof(SubtypeId));
         }
 
         public string TextureFile
         {
             get => _textureFile;
-
             set => SetProperty(ref _textureFile, value, nameof(TextureFile));
         }
 
         public MyCubeSize CubeSize
         {
             get => _cubeSize;
-
             set => SetProperty(ref _cubeSize, value, nameof(CubeSize));
         }
 
         public string FriendlyName
         {
             get => _friendlyName;
-
             set => SetProperty(ref _friendlyName, value, nameof(FriendlyName));
         }
 
         public string OwnerName
         {
             get => _ownerName;
-
             set => SetProperty(ref _ownerName, value, nameof(OwnerName));
         }
 
         public string BuiltByName
         {
             get => _builtByName;
-
             set => SetProperty(ref _builtByName, value, nameof(BuiltByName));
         }
 
         public string ColorText
         {
             get => _colorText;
-
             set => SetProperty(ref _colorText, value, nameof(ColorText));
         }
 
         public float ColorHue
         {
             get => _colorHue;
-
             set => SetProperty(ref _colorHue, value, nameof(ColorHue));
         }
 
         public float ColorSaturation
         {
             get => _colorSaturation;
-
             set => SetProperty(ref _colorSaturation, value, nameof(ColorSaturation));
         }
 
         public float ColorLuminance
         {
             get => _colorLuminance;
-
             set => SetProperty(ref _colorLuminance, value, nameof(ColorLuminance));
         }
 
         public BindablePoint3DIModel Position
         {
             get => _position;
-
             set => SetProperty(ref _position, value, nameof(Position));
         }
 
@@ -179,28 +164,24 @@ namespace SEToolbox.Models
         public double BuildPercent
         {
             get => _buildPercent;
-
             set => SetProperty(ref _buildPercent, value, nameof(BuildPercent));
         }
 
         public System.Windows.Media.Brush Color
         {
             get => _color;
-
             set => SetProperty(ref _color, value, nameof(Color));
         }
 
         public int PCU
         {
             get => _pcu;
-
             set => SetProperty(ref _pcu, value, nameof(PCU));
         }
 
         public ObservableCollection<InventoryEditorModel> Inventory
         {
             get => _inventory;
-
             set => SetProperty(ref _inventory, value, nameof(Inventory));
         }
 
@@ -230,6 +211,7 @@ namespace SEToolbox.Models
             BuildPercent = Cube.BuildPercent;
         }
 
+
         public static bool ConvertFromLightToHeavyArmor(MyObjectBuilder_CubeBlock cube)
         {
             var resource = SpaceEngineersResources.CubeBlockDefinitions.FirstOrDefault(b => b.Id.TypeId == cube.TypeId && b.Id.SubtypeName == cube.SubtypeName);
@@ -242,9 +224,11 @@ namespace SEToolbox.Models
             var newSubTypeName = resource.Id.SubtypeName switch
             {
                 { } SubTypeName when resource.Id.SubtypeName.StartsWith("LargeBlockArmor") => SubTypeName.Replace("LargeBlockArmor", "LargeHeavyBlockArmor"),
-                { } SubTypeName when resource.Id.SubtypeName.StartsWith("Large") && (resource.Id.SubtypeName.EndsWith("HalfArmorBlock") || resource.Id.SubtypeName.EndsWith("HalfSlopeArmorBlock")) => SubTypeName.Replace("LargeHalf", "LargeHeavyHalf"),
+                { } SubTypeName when resource.Id.SubtypeName.StartsWith("Large") && (resource.Id.SubtypeName.EndsWith("HalfArmorBlock") || 
+                                     resource.Id.SubtypeName.EndsWith("HalfSlopeArmorBlock")) => SubTypeName.Replace("LargeHalf", "LargeHeavyHalf"),
                 { } SubTypeName when resource.Id.SubtypeName.StartsWith("SmallBlockArmor") => SubTypeName.Replace("SmallBlockArmor", "SmallHeavyBlockArmor"),
-                { } SubTypeName when !resource.Id.SubtypeName.StartsWith("Large") && (resource.Id.SubtypeName.EndsWith("HalfArmorBlock") || resource.Id.SubtypeName.EndsWith("HalfSlopeArmorBlock")) => Regex.Replace(SubTypeName, "^(Half)(.*)", "HeavyHalf$2", RegexOptions.IgnoreCase),
+                { } SubTypeName when !resource.Id.SubtypeName.StartsWith("Large") && (resource.Id.SubtypeName.EndsWith("HalfArmorBlock") ||
+                                     resource.Id.SubtypeName.EndsWith("HalfSlopeArmorBlock")) => Regex.Replace(SubTypeName, "^(Half)(.*)", "HeavyHalf$2", RegexOptions.IgnoreCase),
                 _ => null
             };
 
@@ -265,9 +249,11 @@ namespace SEToolbox.Models
             var newSubTypeId = subTypeId switch
             {
                 { } SubTypeId when subTypeId.StartsWith("LargeHeavyBlockArmor") => SubTypeId.Replace("LargeHeavyBlockArmor", "LargeBlockArmor"),
-                { } SubTypeId when subTypeId.StartsWith("Large") && (subTypeId.EndsWith("HalfArmorBlock") || subTypeId.EndsWith("HalfSlopeArmorBlock")) => SubTypeId.Replace("LargeHeavyHalf", "LargeHalf"),
+                { } SubTypeId when subTypeId.StartsWith("Large") && (subTypeId.EndsWith("HalfArmorBlock") || 
+                                   subTypeId.EndsWith("HalfSlopeArmorBlock")) => SubTypeId.Replace("LargeHeavyHalf", "LargeHalf"),
                 { } SubTypeId when subTypeId.StartsWith("SmallHeavyBlockArmor") => SubTypeId.Replace("SmallHeavyBlockArmor", "SmallBlockArmor"),
-                { } SubTypeId when !subTypeId.StartsWith("Large") && (subTypeId.EndsWith("HalfArmorBlock") || subTypeId.EndsWith("HalfSlopeArmorBlock")) => Regex.Replace(SubTypeId, "^(HeavyHalf)(.*)", "Half$2", RegexOptions.IgnoreCase),
+                { } SubTypeId when !subTypeId.StartsWith("Large") && (subTypeId.EndsWith("HalfArmorBlock") || 
+                                   subTypeId.EndsWith("HalfSlopeArmorBlock")) => Regex.Replace(SubTypeId, "^(HeavyHalf)(.*)", "Half$2", RegexOptions.IgnoreCase),
                 _ => null
             };
 
