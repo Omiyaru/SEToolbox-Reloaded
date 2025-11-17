@@ -72,17 +72,17 @@ namespace SEToolbox.Models
             set => SetProperty(ref _cube, value, nameof(Cube));
             }
 
-        
-
         public long Owner
         {
             get => _cube.Owner;
+
             set => SetProperty(ref _cube.Owner, value, nameof(Owner));
         }
 
         public long BuiltBy
         {
             get => Cube.BuiltBy;
+
             set => SetProperty(Cube.BuiltBy, value, nameof(BuiltBy));
 
         }

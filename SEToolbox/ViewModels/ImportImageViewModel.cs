@@ -99,11 +99,7 @@ namespace SEToolbox.ViewModels
         {
             get => _closeResult;
 
-            set
-            {
-                _closeResult = value;
-                OnPropertyChanged(nameof(CloseResult));
-            }
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult)); 
         }
 
         public string FileName
@@ -120,12 +116,14 @@ namespace SEToolbox.ViewModels
         public bool IsValidImage
         {
             get => _dataModel.IsValidImage;
+
             set => _dataModel.IsValidImage = value;
         }
 
         public Size OriginalImageSize
         {
             get => _dataModel.OriginalImageSize;
+
             set => _dataModel.OriginalImageSize = value;
         }
 
@@ -133,16 +131,14 @@ namespace SEToolbox.ViewModels
         {
             get => _dataModel.NewImageSize;
 
-            set
-            {
-                _dataModel.NewImageSize = value;
-                ProcessImage();
-            }
+            set => SetProperty( _dataModel.NewImageSize, value, nameof(NewImageSize), () => ProcessImage());
         }
+            
 
         public BindablePoint3DModel Position
         {
             get => _dataModel.Position;
+
             set => _dataModel.Position = value;
         }
 
@@ -154,12 +150,14 @@ namespace SEToolbox.ViewModels
         public BindableVector3DModel Up
         {
             get => _dataModel.Up;
+
             set => _dataModel.Up = value;
         }
 
         public ImportImageClassType ClassType
         {
             get => _dataModel.ClassType;
+
             set => _dataModel.ClassType = value;
         }
 
@@ -172,14 +170,7 @@ namespace SEToolbox.ViewModels
         {
             get => _newImage;
 
-            set
-            {
-                if (value != _newImage)
-                {
-                    _newImage = value;
-                    OnPropertyChanged(nameof(NewImage));
-                }
-            }
+            set => SetProperty(ref _newImage, value, nameof(NewImage));
         }
 
         /// <summary>
@@ -189,37 +180,40 @@ namespace SEToolbox.ViewModels
         {
             get => _isBusy;
 
-            set
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
-                 SetProperty(ref _isBusy, value, nameof(IsBusy));
                  if(_isBusy)
                  {
                     Application.DoEvents();
                  }
-            }
+            });
         }
 
         public int AlphaLevel
         {
             get => _dataModel.AlphaLevel;
+
             set => _dataModel.AlphaLevel = value;
         }
 
         public System.Windows.Media.Color KeyColor
         {
             get => _dataModel.KeyColor;
+
             set => _dataModel.KeyColor = value;
         }
 
         public bool IsAlphaLevel
         {
             get => _dataModel.IsAlphaLevel;
+
             set => _dataModel.IsAlphaLevel = value;
         }
 
         public bool IsKeyColor
         {
             get => _dataModel.IsKeyColor;
+
             set => _dataModel.IsKeyColor = value;
         }
 

@@ -51,11 +51,7 @@ namespace SEToolbox.ViewModels
         {
             get => _closeResult;
 
-            set
-            {
-                _closeResult = value;
-                OnPropertyChanged(nameof(CloseResult));
-            }
+            set => SetProperty( ref _closeResult, value, nameof(CloseResult));
         }
 
         /// <summary>

@@ -25,6 +25,7 @@ namespace SEToolbox.Services
         public ICommand Command
         {
             get => (ICommand)GetValue(CommandProperty);
+
             set => SetValue(CommandProperty, value);
         }
 
@@ -32,6 +33,7 @@ namespace SEToolbox.Services
         public object CommandParameter
         {
             get => GetValue(CommandParameterProperty);
+
             set => SetValue(CommandParameterProperty, value);
         }
 
@@ -39,6 +41,7 @@ namespace SEToolbox.Services
         public IInputElement CommandTarget
         {
             get => (IInputElement)GetValue(CommandTargetProperty);
+
             set => SetValue(CommandTargetProperty, value);
         }
 
@@ -46,6 +49,7 @@ namespace SEToolbox.Services
         public bool SyncOwnerIsEnabled
         {
             get => (bool)GetValue(SyncOwnerIsEnabledProperty);
+
             set => SetValue(SyncOwnerIsEnabledProperty, value);
         }
 
@@ -53,6 +57,7 @@ namespace SEToolbox.Services
         public bool EventArgs
         {
             get => (bool)GetValue(EventArgsProperty);
+
             set => SetValue(EventArgsProperty, value);
         }
 

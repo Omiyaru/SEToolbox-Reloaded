@@ -93,33 +93,29 @@ namespace SEToolbox.Models
         public ObservableCollection<IStructureBase> Structures
         {
             get => _structures;
+
             set => SetProperty(_structures = value, value, nameof(Structures));
         }
 
         public StructureCharacterModel ThePlayerCharacter
         {
             get => _thePlayerCharacter;
+
             set => SetProperty(ref _thePlayerCharacter, value, nameof(ThePlayerCharacter));
         }
 
         public WorldResource ActiveWorld
         {
             get => SpaceEngineersCore.WorldResource;
-            set
-            {
-                if (value.Equals(SpaceEngineersCore.WorldResource) == false)
-                {
-                    SetProperty(SpaceEngineersCore.WorldResource, value, nameof(ActiveWorld));
-                }
-            }
+            set => SetProperty(SpaceEngineersCore.WorldResource, value,nameof(ActiveWorld));
         }
-
         /// <summary>
         /// Gets or sets a value indicating whether the View is available.  This is based on the IsInError and IsBusy properties
         /// </summary>
         public bool IsActive
         {
             get => _isActive;
+
             set => SetProperty(ref _isActive, value, nameof(IsActive));
         }
 
@@ -129,18 +125,18 @@ namespace SEToolbox.Models
         public bool IsBusy
         {
             get => _isBusy;
-            set
-            {
-                SetProperty(ref _isBusy, value, nameof(IsBusy));
 
-                SetActiveStatus();
-                if (_isBusy)
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), ()=>
                 {
-                    System.Windows.Forms.Application.DoEvents();
-                }
-            }
 
+                    SetActiveStatus();
+                    if (_isBusy)
+                    {
+                        System.Windows.Forms.Application.DoEvents();
+                    }
+                });
         }
+        
 
 
         /// <summary>
@@ -149,6 +145,7 @@ namespace SEToolbox.Models
         public bool IsModified
         {
             get => _isModified;
+
             set => SetProperty(ref _isModified, value, nameof(IsModified));
         }
 
@@ -158,38 +155,32 @@ namespace SEToolbox.Models
         public bool IsBaseSaveChanged
         {
             get => _isBaseSaveChanged;
+
             set => SetProperty(ref _isBaseSaveChanged, value, nameof(IsBaseSaveChanged));
         }
 
         public bool ShowProgress
         {
             get => _showProgress;
-            set
-            {
-                if (value != _showProgress)
-                {
-                    _showProgress = value;
-                    OnPropertyChanged(nameof(ShowProgress));
-                }
-            }
+
+            set => SetProperty(ref _showProgress, value, nameof(ShowProgress));
         }
 
         public double Progress
         {
             get => _progress;
+
             set =>
-                    SetProperty(ref _progress, value,
-                     () =>
+                    SetProperty(ref _progress, value, () =>
                      {
-                         if (!_timer.IsRunning || _timer.ElapsedMilliseconds > 200)
+                         if (!_timer.IsRunning || _timer.ElapsedMilliseconds > 200 && value == _progress)
                          {
-                             if (value == _progress)
-                             {
+          
                                  ProgressValue = _progressValue;
                                  DispatcherHelper.DoEvents();
                                  _timer.Restart();
                              }
-                         }
+                         
                      }, nameof(Progress), nameof(ProgressValue)
                 );
         }
@@ -198,18 +189,21 @@ namespace SEToolbox.Models
         public TaskbarItemProgressState ProgressState
         {
             get => _progressState;
+
             set => SetProperty(ref _progressState, value, nameof(ProgressState));
         }
 
         public double ProgressValue
         {
             get => _progressValue;
+
             set => SetProperty(ref _progressValue, value, nameof(ProgressValue));
         }
 
         public double MaximumProgress
         {
             get => _maximumProgress;
+
             set => SetProperty(ref _maximumProgress, value, nameof(MaximumProgress));
         }
 
@@ -218,6 +212,7 @@ namespace SEToolbox.Models
         public string SelectedScriptPath
         {
             get => _selectedScriptPath;
+
             set => SetProperty(ref _selectedScriptPath, value, nameof(SelectedScriptPath));
 
         }

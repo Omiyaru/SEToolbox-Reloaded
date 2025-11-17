@@ -29,11 +29,8 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set
-            {
-                _closeResult = value;
-                OnPropertyChanged(nameof(CloseResult));
-            }
+
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         public ICommand OpenLinkCommand
@@ -42,7 +39,7 @@ namespace SEToolbox.ViewModels
         }
 
         public ICommand CloseCommand
-          { 
+        { 
              get => new DelegateCommand(CloseExecuted, CloseCanExecute);
         }
 

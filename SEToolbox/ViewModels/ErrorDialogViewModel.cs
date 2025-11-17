@@ -58,7 +58,8 @@ namespace SEToolbox.ViewModels
         {
             get => _isBusy;
 
-            set => SetProperty(ref _isBusy ,value, nameof(IsBusy),() => {
+            set => SetProperty(ref _isBusy ,value, nameof(IsBusy), () => 
+            {
                 if(_isBusy)
                 {
                     Application.DoEvents();
@@ -66,33 +67,31 @@ namespace SEToolbox.ViewModels
             });
         }
        
-        
-                
-
-
-
-
         public string ErrorDescription
         {
             get => _dataModel.ErrorDescription;
+
             set => _dataModel.ErrorDescription = value;
         }
 
         public string ErrorText
         {
             get => _dataModel.ErrorText;
+
             set => _dataModel.ErrorText = value;
         }
 
         public bool IsWarning
         {
             get => _dataModel.CanContinue;
+
             set => _dataModel.CanContinue = value;
         }
 
         public bool IsError
         {
             get => !_dataModel.CanContinue;
+
             set => _dataModel.CanContinue = !value;
         }
 

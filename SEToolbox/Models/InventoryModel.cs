@@ -34,6 +34,7 @@ namespace SEToolbox.Models
         public string Name
         {
             get => _name;
+
             set => SetProperty(ref _name, value, nameof(Name),  FriendlyName == SpaceEngineersApi.GetResourceName(Name), nameof(FriendlyName));
         }
 
@@ -45,7 +46,8 @@ namespace SEToolbox.Models
             get => _amount;
             set
             {
-                SetProperty(ref _amount, value, nameof(Amount), () => UpdateMassVolume());
+                SetProperty(ref _amount, value, nameof(Amount), () => 
+                UpdateMassVolume());
             }
         }
 
@@ -70,6 +72,7 @@ namespace SEToolbox.Models
         public double VolumeMultiplier
         {
             get => _volumeMultiplier;
+
             set => SetProperty(ref _volumeMultiplier, value, nameof(VolumeMultiplier), () => UpdateMassVolume());
         }
 

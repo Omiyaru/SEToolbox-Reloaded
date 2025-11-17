@@ -92,11 +92,8 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set
-            {
-                _closeResult = value;
-                OnPropertyChanged(nameof(CloseResult));
-            }
+
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         /// <summary>
@@ -105,6 +102,7 @@ namespace SEToolbox.ViewModels
         public bool IsActive
         {
             get => _dataModel.IsActive;
+
             set => _dataModel.IsActive = value;
         }
 
@@ -114,36 +112,42 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _dataModel.IsBusy;
+
             set => _dataModel.IsBusy = value;
         }
 
         public bool IsReportReady
         {
             get => _dataModel.IsReportReady;
+
             set => _dataModel.IsReportReady = value;
         }
 
         public string ReportHtml
         {
             get => _dataModel.ReportHtml;
+
             set => _dataModel.ReportHtml = value;
         }
 
         public bool ShowProgress
         {
             get => _dataModel.ShowProgress;
+
             set => _dataModel.ShowProgress = value;
         }
 
         public double Progress
         {
             get => _dataModel.Progress;
+
             set => _dataModel.Progress = value;
         }
 
         public double MaximumProgress
         {
             get => _dataModel.MaximumProgress;
+
             set => _dataModel.MaximumProgress = value;
         }
 

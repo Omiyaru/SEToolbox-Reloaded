@@ -30,6 +30,7 @@ namespace SEToolbox.Controls
         public DataTemplate ColumnHeaderArrowUpTemplate
         {
             get => (DataTemplate)GetValue(ColumnHeaderArrowUpTemplateProperty);
+
             set => SetValue(ColumnHeaderArrowUpTemplateProperty, value);
         }
         #endregion
@@ -42,6 +43,7 @@ namespace SEToolbox.Controls
         public DataTemplate ColumnHeaderArrowDownTemplate
         {
             get => (DataTemplate)GetValue(ColumnHeaderArrowDownTemplateProperty);
+
             set => SetValue(ColumnHeaderArrowDownTemplateProperty, value);
         }
 
@@ -53,6 +55,7 @@ namespace SEToolbox.Controls
         public string DefaultSortColumn
         {
             get => (string)GetValue(DefaultSortColumnProperty);
+
             set => SetValue(DefaultSortColumnProperty, value);
         }
 

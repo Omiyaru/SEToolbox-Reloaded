@@ -25,18 +25,24 @@ namespace SEToolbox.Models
         public int Seed
         {
             get => _seed;
+
             set => SetProperty(ref _seed, value, nameof(Seed));
         }
 
         public decimal Diameter
         {
             get => _diameter;
-            set => SetProperty(ref _diameter, value, nameof(Diameter),InvalidKeenRange = _diameter < 19000 || _diameter > 120000);
+
+            set => SetProperty(ref _diameter, value, nameof(Diameter), ()=> 
+            {
+            InvalidKeenRange = _diameter < 19000 || _diameter > 120000;
+            });
         }
 
         public bool InvalidKeenRange
         {
             get => _invalidKeenRange;
+
             set => SetProperty(ref _invalidKeenRange, value, nameof(InvalidKeenRange));
         }
 

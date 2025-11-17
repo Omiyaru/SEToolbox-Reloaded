@@ -54,32 +54,29 @@ namespace SEToolbox.Models
         public ObservableCollection<AsteroidByteFillProperties> VoxelCollection
         {
             get => _voxelCollection;
+
             set => SetProperty(ref _voxelCollection, value, nameof(VoxelCollection));
         }
 
         public int MinimumRange
         {
             get => _minimumRange;
+
             set => SetProperty(ref _minimumRange, value, nameof(MinimumRange));
         }
 
         public int MaximumRange
         {
             get => _maximumRange;
+
             set => SetProperty(ref _maximumRange, value, nameof(MaximumRange));
         }
 
         public ObservableCollection<GenerateVoxelDetailModel> VoxelFileList
         {
             get => _voxelFileList;
-            set
-            {
-                if (value != _voxelFileList)
-                {
-                    _voxelFileList = value;
-                    OnPropertyChanged(nameof(VoxelFileList));
-                }
-            }
+
+            set => SetProperty(ref _voxelFileList, value, nameof(VoxelFileList));
         }
 
         public ObservableCollection<MaterialSelectionModel> MaterialsCollection
@@ -97,24 +94,28 @@ namespace SEToolbox.Models
         public double CenterPositionX
         {
             get => _centerPositionX;
+
             set => SetProperty(ref _centerPositionX, value, nameof(CenterPositionX));
         }
 
         public double CenterPositionY
         {
             get => _centerPositionY;
+
             set => SetProperty(ref _centerPositionY, value, nameof(CenterPositionY));
         }
 
         public double CenterPositionZ
         {
             get => _centerPositionZ;
+
             set => SetProperty(ref _centerPositionZ, value, nameof(CenterPositionZ));
         }
 
         public AsteroidFillType.AsteroidFills AsteroidFillType
         {
             get => _asteroidFillType;
+
             set => SetProperty(ref _asteroidFillType, value, nameof(AsteroidFillType));
         }
 
@@ -232,13 +233,13 @@ namespace SEToolbox.Models
             {
                 Index = index,
                 VoxelFile = firstVoxelFile,
-                MainMaterial = firstMaterial,
-                SecondMaterial = firstMaterial,
-                ThirdMaterial = firstMaterial,
-                FourthMaterial = firstMaterial,
-                FifthMaterial = firstMaterial,
-                SixthMaterial = firstMaterial,
-                SeventhMaterial = firstMaterial,
+                MainMaterial = MaterialsCollection[0],
+                SecondMaterial = MaterialsCollection[0],
+                ThirdMaterial = MaterialsCollection[0],
+                FourthMaterial = MaterialsCollection[0],
+                FifthMaterial = MaterialsCollection[0],
+                SixthMaterial = MaterialsCollection[0],
+                SeventhMaterial = MaterialsCollection[0],
             };
         }
         

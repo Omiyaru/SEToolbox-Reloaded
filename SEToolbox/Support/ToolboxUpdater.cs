@@ -96,7 +96,6 @@ namespace SEToolbox.Support
             {
                 // We use the Bin64 Path, as these assemblies are marked "AllCPU", and will work regardless of processor architecture.
                 gamePath = GetGameRegistryFilePath();
-
                 if (!string.IsNullOrEmpty(gamePath))
                     gamePath = Path.Combine(gamePath, "Bin64");
             }
@@ -157,6 +156,7 @@ namespace SEToolbox.Support
                 {
                     return (string)key.GetValue("InstallPath");
                 }
+        
             }
             return null;
         }
@@ -168,6 +168,7 @@ namespace SEToolbox.Support
         /// Checks for key directory names from the game bin folder.
         /// </summary>
         /// <param name="installationPath"></param>
+        /// <param name="installationPath"></param>
         /// <returns></returns>
 
         public static bool ValidateSpaceEngineersInstall(string installationPath)
@@ -175,11 +176,11 @@ namespace SEToolbox.Support
             const string executableName = "SpaceEngineers.exe";
             const string contentPath = @"..\Content";
 
-            if (string.IsNullOrWhiteSpace(installationPath)
-                && string.IsNullOrEmpty(installationPath)
+            if (string.IsNullOrWhiteSpace(installationPath)||
+                 string.IsNullOrEmpty(installationPath)
                 && !Directory.Exists(installationPath)
                 && !Directory.Exists(Path.Combine(installationPath, contentPath))
-                && CoreSpaceEngineersFiles.Any(fileName => !File.Exists(Path.Combine(installationPath, fileName)))
+            
                 && !File.Exists(Path.Combine(executableName)))
             {
                 return false;
@@ -222,6 +223,9 @@ namespace SEToolbox.Support
                             .Where(f => !existingFiles.Contains(f))
                             .Select(f => new { Source = Path.Combine(appFilePath, f), Destination = Path.Combine(baseFilePath, f) })
                             .ToList();
+
+            if (filesToCopy.Count == 0)
+                return false;
             foreach (var file in filesToCopy)
             {
                   File.Copy(file.Source, file.Destination, true);
@@ -242,6 +246,7 @@ namespace SEToolbox.Support
         /// <summary> 
         /// Compares two files, returning true if they differ.
         /// </summary>
+
         public static bool DoFilesDiffer(string fileAPath, string fileBPath)
         {
             using var stream1 = File.Exists(fileAPath) ? new FileStream(fileAPath, FileMode.Open, FileAccess.Read) : null;
@@ -312,7 +317,6 @@ namespace SEToolbox.Support
                 if (ConditionNot(null,elevate, process, waitForExit))
                 {
                     process.WaitForExit();
-
                     return process.ExitCode;
                 }
 
@@ -336,4 +340,3 @@ namespace SEToolbox.Support
         #endregion
     }
 }
-

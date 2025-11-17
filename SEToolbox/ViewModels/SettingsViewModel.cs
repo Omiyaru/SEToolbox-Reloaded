@@ -83,34 +83,34 @@ namespace SEToolbox.ViewModels
         {
             get => _closeResult;
 
-            set
-            {
-                _closeResult = value;
-                OnPropertyChanged(nameof(CloseResult));
-            }
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         public string SEBinPath
         {
             get => _dataModel.SEBinPath;
+
             set => _dataModel.SEBinPath = value;
         }
 
         public string CustomVoxelPath
         {
             get => _dataModel.CustomVoxelPath;
+
             set => _dataModel.CustomVoxelPath = value;
         }
 
         public bool? AlwaysCheckForUpdates
         {
             get => _dataModel.AlwaysCheckForUpdates;
+
             set => _dataModel.AlwaysCheckForUpdates = value;
         }
 
         public bool? UseCustomResource
         {
             get => _dataModel.UseCustomResource;
+
             set => _dataModel.UseCustomResource = value;
         }
 

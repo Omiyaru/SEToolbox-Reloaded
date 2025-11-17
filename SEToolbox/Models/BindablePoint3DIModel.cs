@@ -73,7 +73,7 @@
             return new VRageMath.Vector3I(X, Y, Z);
         }
 
-        public override string ToString() 
+        public override string ToString()
         {
             return string.Format($"{X},{Y},{Z}");
         }

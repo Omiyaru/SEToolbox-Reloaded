@@ -19,6 +19,7 @@ using MOBTypeIds = SEToolbox.Interop.SpaceEngineersTypes.MOBTypeIds;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Media3D = System.Windows.Media.Media3D;
 
+
 namespace SEToolbox.Interop
 {
     /// <summary>
@@ -38,10 +39,10 @@ namespace SEToolbox.Interop
                 offsetY += yMirror == Support.Mirror.EvenUp ? 1 :
                           (yMirror == Support.Mirror.EvenDown ? -1 : 0);
             int offsetZ =  zMirror == Support.Mirror.Odd ? -vecAxisZ : 0;
-            offsetZ += zMirror == Support.Mirror.EvenUp ? 1 :
+                offsetZ += zMirror == Support.Mirror.EvenUp ? 1 :
                       (zMirror == Support.Mirror.EvenDown ? -1 : 0);  
                 
-                Vector3I newVector = new(vector.X + offsetX,
+            Vector3I newVector = new(vector.X + offsetX,
                                      vector.Y + offsetY,
                                      vector.Z + offsetZ);
             return newVector;
@@ -151,7 +152,6 @@ namespace SEToolbox.Interop
                        (float)size3D.Z);
         }
 
-
         public static Vector3D ToVector3D(this Media3D.Size3D size3D)
         {
             return new(size3D.X, size3D.Y, size3D.Z);
@@ -200,6 +200,7 @@ namespace SEToolbox.Interop
         {
             var matrix = Matrix.CreateFromDir(Base6Directions.GetVector(orientation.Forward),
                                               Base6Directions.GetVector(orientation.Up));
+
             return Vector3.Transform(vector, matrix);
         }
 
@@ -207,6 +208,7 @@ namespace SEToolbox.Interop
         {
             var matrix = MatrixD.CreateFromDir(Base6Directions.GetVector(orientation.Forward),
                                                Base6Directions.GetVector(orientation.Up));
+           
             return Vector3D.Transform(vector, matrix);
         }
 
@@ -214,6 +216,7 @@ namespace SEToolbox.Interop
         {
             var matrix = Matrix.CreateFromDir(Base6Directions.GetVector(orientation.Forward),
                                               Base6Directions.GetVector(orientation.Up));
+
             var rotation = Quaternion.CreateFromRotationMatrix(matrix);
             return Vector3I.Transform(size.ToVector3I(), rotation);
         }
@@ -222,18 +225,25 @@ namespace SEToolbox.Interop
         {
             var matrix = Matrix.CreateFromDir(Base6Directions.GetVector(orientation.Forward),
                                               Base6Directions.GetVector(orientation.Up));
+
             var rotation = Quaternion.CreateFromRotationMatrix(matrix);
             return Vector3I.Transform(size, rotation);
         }
 
         public static SerializableVector3I Add(this SerializableVector3I size, int value)
         {
-            return new(size.X + value, size.Y + value, size.Z + value);
+            return new(size.X + value, 
+                       size.Y + value,
+                       size.Z + value);
+
         }
 
         public static Vector3I Add(this Vector3I size, int value)
         {
-            return new(size.X + value, size.Y + value, size.Z + value);
+            return new(size.X + value, 
+                       size.Y + value,
+                       size.Z + value);
+
         }
 
         public static Vector3I Abs(this Vector3I size)
@@ -241,6 +251,7 @@ namespace SEToolbox.Interop
             return new(Math.Abs(size.X),
                        Math.Abs(size.Y),
                        Math.Abs(size.Z));
+
         }
 
         public static Vector3D ToVector3D(this Vector3I vector)
@@ -251,6 +262,7 @@ namespace SEToolbox.Interop
         public static BoundingBoxD ToBoundingBoxD(this BoundingBoxI box)
         {
             return new(box.Min, box.Max);
+
         }
 
         public static SerializableVector3 RoundOff(this SerializableVector3 vector, float roundTo)
@@ -265,6 +277,7 @@ namespace SEToolbox.Interop
             return  new(Math.Round(vector.X / roundTo, 0, MidpointRounding.ToEven) * roundTo,
                         Math.Round(vector.Y / roundTo, 0, MidpointRounding.ToEven) * roundTo,
                         Math.Round(vector.Z / roundTo, 0, MidpointRounding.ToEven) * roundTo);
+
         }
 
         public static MatrixD ToMatrixD(this QuaternionD value)
@@ -292,6 +305,7 @@ namespace SEToolbox.Interop
                 2.0d * (yz - wx),
                 1.0d - 2.0d * (xx + yy),
                 0d, 0d, 0d, 0d, 1d);
+              
             return result;
         }
 
@@ -366,7 +380,6 @@ namespace SEToolbox.Interop
                     r1 = 0; g1 = 0; b1 = 0;
                     break;
             }
-
             decimal m = value - chroma;
 
             // round off (not up or truncate down) values to correct for aberration.
@@ -377,12 +390,14 @@ namespace SEToolbox.Interop
 
         public static System.Drawing.Color FromHsvMaskToPaletteColor(this SerializableVector3 hsv)
         {
+
             FromHsvMaskToPaletteColor(hsv, out int r, out int g, out int b);
             return System.Drawing.Color.FromArgb(r, g, b);
         }
 
         public static System.Windows.Media.Color FromHsvMaskToPaletteMediaColor(this SerializableVector3 hsv)
         {
+           
             FromHsvMaskToPaletteColor(hsv, out int r, out int g, out int b);
             return System.Windows.Media.Color.FromArgb(255, (byte)r, (byte)g, (byte)b);
         }
@@ -405,6 +420,7 @@ namespace SEToolbox.Interop
                            max == g ? (b - r) / chroma + 2 :
                            ((r - g) / chroma) + 4;
 
+
             decimal hue = 60 * hue1;
             decimal value = max;
             decimal saturation = 0;
@@ -414,6 +430,7 @@ namespace SEToolbox.Interop
 
             return new((float)hue / 360, (float)saturation - MyColorPickerConstants.SATURATION_DELTA,
                        (float)value - MyColorPickerConstants.VALUE_DELTA + MyColorPickerConstants.VALUE_COLORIZE_DELTA);
+
         }
 
         public static SerializableVector3 FromPaletteColorToHsvMask(this System.Drawing.Color color)
@@ -421,6 +438,7 @@ namespace SEToolbox.Interop
             return FromPaletteColorToHsvMask((decimal)color.R / 255,
                                              (decimal)color.G / 255,
                                              (decimal)color.B / 255);
+
         }
 
         public static SerializableVector3 FromPaletteColorToHsvMask(this System.Windows.Media.Color color)
@@ -428,6 +446,7 @@ namespace SEToolbox.Interop
             return FromPaletteColorToHsvMask((decimal)color.R / 255,
                                              (decimal)color.G / 255,
                                              (decimal)color.B / 255);
+
         }
 
         /// <summary>
@@ -491,7 +510,8 @@ namespace SEToolbox.Interop
                     vectors.Add(new(vector.X, vector.Y, vector.Z));
                 }
 
-                if (MeshHelper.RayIntersectTriangleRound(vectors, position.ToPoint3D(), rayTo.ToPoint3D(), out Point3D intersection, out int normal))
+                if (MeshHelper.RayIntersectTriangleRound(vectors, position.ToPoint3D(), rayTo.ToPoint3D(), 
+                                                         out Point3D intersection, out int normal))
                 {
                     return intersection.ToVector3D();
                 }
@@ -505,6 +525,7 @@ namespace SEToolbox.Interop
             return new SerializableVector3UByte((byte)(vector.X + 127),
                                                 (byte)(vector.Y + 127),
                                                 (byte)(vector.Z + 127));
+
         }
 
         public static Vector3D Transform(this Vector3D value, QuaternionD rotation)
@@ -576,7 +597,7 @@ namespace SEToolbox.Interop
 
         public static List<MyObjectBuilder_Character> GetHierarchyCharacters(this MyObjectBuilder_CubeBlock cube)
         {
-            var list = new List<MyObjectBuilder_Character>();
+            List<MyObjectBuilder_Character> list = [];
 
             if (cube is not MyObjectBuilder_Cockpit cockpit)
                 return list;
@@ -600,6 +621,7 @@ namespace SEToolbox.Interop
             bool retValue = false;
 
             MyObjectBuilder_ComponentContainer.ComponentData hierarchyComponentBase = cockpit.ComponentContainer?.Components?.FirstOrDefault(e => e.TypeId == "MyHierarchyComponentBase");
+
             if (hierarchyComponentBase?.Component is MyObjectBuilder_HierarchyComponentBase hierarchyBase && hierarchyBase.Children.Count > 0)
             {
                 for (int i = 0; i < hierarchyBase.Children.Count; i++)
@@ -641,7 +663,7 @@ namespace SEToolbox.Interop
 
         public static ObservableCollection<InventoryEditorModel> GetInventory(this MyObjectBuilder_ComponentContainer componentContainer, MyCubeBlockDefinition definition = null)
         {
-            var inventoryEditors = new ObservableCollection<InventoryEditorModel>();
+            ObservableCollection<InventoryEditorModel> inventoryEditors = [];
 
             if (componentContainer != null)
             {
@@ -668,7 +690,7 @@ namespace SEToolbox.Interop
                 }
             }
             return inventoryEditors;
-        }
+    }
 
         private static InventoryEditorModel ParseInventory(MyObjectBuilder_Inventory inventory, MyCubeBlockDefinition definition, MyObjectBuilder_Character character = null)
         {

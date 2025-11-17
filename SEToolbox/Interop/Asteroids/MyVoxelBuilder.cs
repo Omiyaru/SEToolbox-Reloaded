@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
 
+
 using SEToolbox.Support;
 using VRage.Voxels;
 using VRageMath;
@@ -25,6 +26,7 @@ namespace SEToolbox.Interop.Asteroids
             voxelMap.Dispose();
         }
 
+
         public static void StripMaterial(string loadFile, string saveFile, string stripMaterial, string replaceFillMaterial)
         {
             MyVoxelMapBase voxelMap = new();
@@ -33,17 +35,17 @@ namespace SEToolbox.Interop.Asteroids
             voxelMap.Save(saveFile);
             voxelMap.Dispose();
         }
-
+        
         #region BuildAsteroid Standard Tools
 
         public static MyVoxelMapBase BuildAsteroidCube(bool multiThread, int width, int height, int depth,
             byte materialIndex, byte faceMaterialIndex, bool hollow = false, int shellWidth = 0, float safeSize = 0f)
         {
             // offset by 1, to allow for the 3 faces on the origin side.
-            var size = new Vector3I(width, height, depth) + 1;
+            Vector3I size = new Vector3I(width, height, depth) + 1;
 
             // offset by 1, to allow for the 3 faces on opposite side.
-            var buildSize = size + 1;
+            Vector3I buildSize = size + 1;
 
             void CellAction(ref MyVoxelBuilderArgs e)
             {
@@ -63,6 +65,7 @@ namespace SEToolbox.Interop.Asteroids
                      e.CoordinatePoint.X >= size.X - (safeSize + shellWidth) ||
                      e.CoordinatePoint.Y >= size.Y - (safeSize + shellWidth) ||
                      e.CoordinatePoint.Z >= size.Z - (safeSize + shellWidth)))
+                    
                 {
                     e.Volume = 0xFF;
                 }
@@ -82,7 +85,7 @@ namespace SEToolbox.Interop.Asteroids
         public static MyVoxelMapBase BuildAsteroidCube(bool multiThread, Vector3I min, Vector3I max, byte materialIndex, byte faceMaterialIndex)
         {
             // correct for allowing sizing.
-            var buildSize = CalcRequiredSize(max);
+            Vector3I buildSize = CalcRequiredSize(max);
 
             void CellAction(ref MyVoxelBuilderArgs e)
             {
@@ -104,8 +107,8 @@ namespace SEToolbox.Interop.Asteroids
             bool hollow = false, int shellWidth = 0)
         {
             int length = (int)((radius * 2) + 2);
-            var buildSize = CalcRequiredSize(length);
-            var origin = new Vector3I(buildSize.X / 2, buildSize.Y / 2, buildSize.Z / 2);
+            Vector3I buildSize = CalcRequiredSize(length);
+            Vector3I origin = new(buildSize.X / 2, buildSize.Y / 2, buildSize.Z / 2);
 
             void CellAction(ref MyVoxelBuilderArgs e)
             {
@@ -158,7 +161,9 @@ namespace SEToolbox.Interop.Asteroids
                     (e.CoordinatePoint.X <= volumetricMap.Length + 5) &&
                     (e.CoordinatePoint.Y <= volumetricMap[0].Length + 5) &&
                     (e.CoordinatePoint.Z <= volumetricMap[0][0].Length + 5))
+            
                 {
+                    CubeType cube = volumetricMap[e.CoordinatePoint.X - 6][e.CoordinatePoint.Y - 6][e.CoordinatePoint.Z - 6];
                     CubeType cube = volumetricMap[e.CoordinatePoint.X - 6][e.CoordinatePoint.Y - 6][e.CoordinatePoint.Z - 6];
 
 
@@ -171,7 +176,8 @@ namespace SEToolbox.Interop.Asteroids
                         CubeType c when c.ToString().StartsWith("NormalCorner") => 0x2B,// 16% "00101011"
                         _ => 0x00,// 0% "00000000"
                     };
-                }
+
+                                 }
                 else
                 {
                     e.Volume = 0x00;
@@ -193,7 +199,7 @@ namespace SEToolbox.Interop.Asteroids
         {
             var voxelMap = new MyVoxelMapBase();
 
-            var buildSize = CalcRequiredSize(size);
+            Vector3I buildSize = CalcRequiredSize(size);
             voxelMap.Create(buildSize, materialIndex);
             ProcessAsteroid(voxelMap, multiThread, materialIndex, func, true);
 
@@ -214,12 +220,13 @@ namespace SEToolbox.Interop.Asteroids
         /// Processes an asteroid Voxel using function callbacks.
         /// This allows for muti-threading, and generating content via algorithims.
         /// </summary>
+
         public static void ProcessAsteroid(MyVoxelMapBase voxelMap, bool multiThread, byte materialIndex, VoxelBuilderAction func, bool readWrite = true)
         {
             // Debug.Write($"Building Asteroid : {0.0:000},");
             SConsole.Write($"Building Asteroid : {0.0:000},");
 
-            var timer = Stopwatch.StartNew();
+            Stopwatch timer = Stopwatch.StartNew();
 
             if (multiThread)
                 ProcessAsteroidMultiThread(voxelMap, materialIndex, func, readWrite);
@@ -233,6 +240,7 @@ namespace SEToolbox.Interop.Asteroids
             MyVoxelMapBase.UpdateContentBounds(voxelMap);
 
 
+
             SConsole.WriteLine($" Done. | {timer.Elapsed}  | VoxCells {voxelMap.VoxCells:#,##0}");
         }
 
@@ -244,6 +252,8 @@ namespace SEToolbox.Interop.Asteroids
 
             const int cellSize = 64;
 
+            Vector3I cacheSize = Vector3I.Min(new(cellSize), voxelMap.Storage.Size);
+            MyStorageData oldCache = new();
             Vector3I cacheSize = Vector3I.Min(new(cellSize), voxelMap.Storage.Size);
             MyStorageData oldCache = new();
 
@@ -303,7 +313,7 @@ namespace SEToolbox.Interop.Asteroids
             long counter = 0;
             decimal progress = 0;
 
-            const int cellSize = 64;
+                const int cellSize = 64;
 
             Vector3I cacheSize = Vector3I.Min(new(cellSize), voxelMap.Storage.Size);
             var block = Vector3I.Zero;
@@ -363,6 +373,8 @@ namespace SEToolbox.Interop.Asteroids
 
 #endregion
 
+
+
 private static Vector3I CalcRequiredSize(int size)
         {
             // the size of 4x4x4 is too small. the game allows it, but the physics is broken.
@@ -380,3 +392,4 @@ private static Vector3I CalcRequiredSize(int size)
         }
     }
 }
+

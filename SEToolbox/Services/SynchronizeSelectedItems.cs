@@ -50,6 +50,7 @@ namespace SEToolbox.Services
         public IList Selections
         {
             get => (IList)GetValue(SelectionsProperty);
+
             set => SetValue(SelectionsProperty, value);
         }
 

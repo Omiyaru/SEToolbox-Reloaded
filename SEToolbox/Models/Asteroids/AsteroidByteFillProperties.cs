@@ -138,6 +138,7 @@ namespace SEToolbox.Models.Asteroids
         public int SixthPercent
         {
             get => _sixthPercent;
+
             set => SetProperty(ref _sixthPercent, value, nameof(SixthPercent), () => UpdateTotal());
         }
 

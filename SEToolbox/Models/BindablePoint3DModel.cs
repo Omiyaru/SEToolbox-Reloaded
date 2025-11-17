@@ -120,9 +120,9 @@ namespace SEToolbox.Models
 
         public BindablePoint3DModel RoundOff(double roundTo)
         {
-            Point3D v = new(Math.Round(_point.X / roundTo, 0,MidpointRounding.ToEven) * roundTo,
-                    Math.Round(_point.Y / roundTo, 0, MidpointRounding.ToEven) * roundTo,
-                    Math.Round(_point.Z / roundTo, 0, MidpointRounding.ToEven) * roundTo);
+            Point3D v = new(Math.Round(_point.X / roundTo, 0, MidpointRounding.ToEven) * roundTo,
+                            Math.Round(_point.Y / roundTo, 0, MidpointRounding.ToEven) * roundTo,
+                            Math.Round(_point.Z / roundTo, 0, MidpointRounding.ToEven) * roundTo);
             return new BindablePoint3DModel(v);
         }
 

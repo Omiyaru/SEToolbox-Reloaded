@@ -15,6 +15,8 @@
 // using TexUtil = SEToolbox.ImageLibrary.ImageTextureUtil;
 // using VRageMath.PackedVector;
 
+//boredom got the better of me 
+
 // namespace SEToolbox.Interop.Models
 // {
 
@@ -26,12 +28,7 @@
 //         internal const string C_POSTFIX_NORMAL_SPECULAR = "_ns";
 //         internal const string C_POSTFIX_MASK_EMISSIVE = "_me";
 
-
-
 //         #region LoadModel3d
-
-
-
 
 //         public static Model3DGroup LoadModel3d(string fileName)
 //         {
@@ -53,7 +50,8 @@
 
 //             // SE .fbx models appear to have a X rotation of -90, and yet I cannot find anything in the .mwm file to indicate this.
 //             var transform = MeshHelper.TransformVector(new Vector3D(0, 0, 0), -90, -90, 0);
-//             myModel.Transform = transform;
+// 
+            myModel.Transform = transform;
 
 //             LoadModel3d(myModel, fileName);
 

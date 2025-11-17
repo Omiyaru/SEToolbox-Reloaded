@@ -48,12 +48,14 @@ namespace SEToolbox.Models
         public string GroupDescription
         {
             get => _groupDescription;
+
             set => SetProperty(ref _groupDescription, value, nameof(GroupDescription));
         }
 
         public SaveWorldType SaveType
         {
             get => _saveType;
+
             set => SetProperty(ref _saveType, value, nameof(SaveType));
         }
 
@@ -63,18 +65,21 @@ namespace SEToolbox.Models
         public string UserName
         {
             get => _userName;
+
             set => SetProperty(ref _userName, value, nameof(UserName));
         }
 
         public string SaveName
         {
             get => _saveName;
+
             set => SetProperty(ref _saveName, value, nameof(SaveName));
         }
 
         public string SavePath
         {
             get => _savePath;
+
             set => SetProperty(ref _savePath, value, nameof(SavePath));
         }
 
@@ -100,8 +105,6 @@ namespace SEToolbox.Models
                         {
                             try
                             {
-
-
                                 var str = _checkpoint.AppVersion.ToString(CultureInfo.InvariantCulture);
                                 str = str.Substring(0, str.Length - 6) + "." + str.Substring(str.Length - 6, 3) + "." + str.Substring(str.Length - 3);
                                 _version = new Version(str);
@@ -129,12 +132,14 @@ namespace SEToolbox.Models
         public string SessionName
         {
             get => _sessionName;
+
             set => SetProperty(ref _sessionName, value, nameof(SessionName));
         }
 
         public DateTime LastSaveTime
         {
             get => _lastSaveTime;
+
             set => SetProperty(ref _lastSaveTime, value, nameof(LastSaveTime));
 
         }
@@ -142,6 +147,7 @@ namespace SEToolbox.Models
         public Version Version
         {
             get => _version;
+
             set => SetProperty(ref _version, value, nameof(Version));
         }
 
@@ -150,6 +156,7 @@ namespace SEToolbox.Models
         public ulong? WorkshopId
         {
             get => _workshopId;
+
             set => SetProperty(ref _workshopId, value, nameof(WorkshopId));
   
         }
@@ -157,6 +164,7 @@ namespace SEToolbox.Models
         public bool IsValid
         {
             get => _isValid;
+
             set => SetProperty(ref _isValid, value, nameof(IsValid));
         }
 
@@ -170,6 +178,7 @@ namespace SEToolbox.Models
         public MyObjectBuilder_Sector SectorData
         {
             get => _sectorData;
+
             set => SetProperty(ref _sectorData, value, nameof(SectorData));
         }
 
@@ -390,7 +399,7 @@ namespace SEToolbox.Models
                 else
                     LastSaveTime = DateTime.MinValue;
 
-                if ( workshopId != null && ulong.TryParse(workshopId.Value, out ulong tmp))
+                if (workshopId != null && ulong.TryParse(workshopId.Value, out ulong tmp))
                     WorkshopId = tmp;
 
                 if (appVersion == null || appVersion?.Value == "0")

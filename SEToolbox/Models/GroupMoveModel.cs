@@ -43,6 +43,7 @@ namespace SEToolbox.Models
         public ObservableCollection<GroupMoveItemModel> Selections
         {
             get => _selections;
+
             set => SetProperty(ref _selections, value, nameof(Selections));
         }
 
@@ -67,60 +68,70 @@ namespace SEToolbox.Models
         public float GlobalOffsetPositionX
         {
             get => _globalOffsetPositionX;
+
             set => SetProperty(ref _globalOffsetPositionX, value, nameof(GlobalOffsetPositionX));
         }
 
         public float GlobalOffsetPositionY
         {
             get => _globalOffsetPositionY;
+
             set => SetProperty(ref _globalOffsetPositionY, value, nameof(GlobalOffsetPositionY));
         }
 
         public float GlobalOffsetPositionZ
         {
             get => _globalOffsetPositionZ;
+
             set => SetProperty(ref _globalOffsetPositionZ, value, nameof(GlobalOffsetPositionZ));
         }
 
         public bool IsGlobalOffsetPosition
         {
             get => _isGlobalOffsetPosition;
+
             set => SetProperty(ref _isGlobalOffsetPosition, value, nameof(IsGlobalOffsetPosition));
         }
 
         public float SinglePositionX
         {
             get => _singlePositionX;
+
             set => SetProperty(ref _singlePositionX, value, nameof(SinglePositionX));
         }
 
         public float SinglePositionY
         {
             get => _singlePositionY;
+
             set => SetProperty(ref _singlePositionY, value, nameof(SinglePositionY));
         }
 
         public float SinglePositionZ
         {
             get => _singlePositionZ;
+
             set => SetProperty(ref _singlePositionZ, value, nameof(SinglePositionZ));
         }
 
         public bool IsSinglePosition
         {
             get => _isSinglePosition;
+
             set => SetProperty(ref _isSinglePosition, value, nameof(IsSinglePosition));
         }
 
         public Vector3D CenterPosition
         {
             get => _centerPosition;
+
             set => SetProperty(ref _centerPosition, value, nameof(CenterPosition));
         }
 
         public bool IsRelativePosition
         {
             get => _isRelativePosition;
+
             set => SetProperty(ref _isRelativePosition, value, nameof(IsRelativePosition));
         }
        

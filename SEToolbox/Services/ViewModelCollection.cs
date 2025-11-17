@@ -135,6 +135,7 @@ namespace SEToolbox.Services
         public TViewModel this[int index]
         {
             get => _list[index];
+
             set => _list[index] = value;
         }
 

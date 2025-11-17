@@ -75,12 +75,14 @@ namespace SEToolbox.ViewModels
         public bool IsPilot
         {
             get => DataModel.IsPilot;
+
             set => DataModel.IsPilot = value;
         }
 
         public bool IsPlayer
         {
             get => DataModel.IsPlayer;
+
             set => DataModel.IsPlayer = value;
         }
 
@@ -132,38 +134,36 @@ namespace SEToolbox.ViewModels
         public float BatteryCapacity
         {
             get => DataModel.BatteryCapacity * 100000;
+
             set => DataModel.BatteryCapacity = value / 100000;
         }
 
         public float? Health
         {
             get => DataModel.Health;
+
             set => DataModel.Health = value;
         }
 
         public float OxygenLevel
         {
             get => DataModel.OxygenLevel;
+
             set => DataModel.OxygenLevel = value;
         }
 
         public float HydrogenLevel
         {
             get => DataModel.HydrogenLevel;
+
             set => DataModel.HydrogenLevel = value;
         }
 
         public InventoryEditorViewModel Inventory
         {
             get => _inventory;
-            set
-            {
-                if (value != _inventory)
-                {
-                    _inventory = value;
-                    OnPropertyChanged(nameof(Inventory));
-                }
-            }
+
+            set => SetProperty(ref _inventory, value, nameof(Inventory));
         }
 
         #endregion

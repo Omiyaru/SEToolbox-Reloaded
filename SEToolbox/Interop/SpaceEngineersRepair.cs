@@ -309,7 +309,6 @@ namespace SEToolbox.Interop
 
                             if (item.PlayerId == 0)
                             {
-
                                 item.PlayerId = SpaceEngineersApi.GenerateEntityId();
                                 world.Checkpoint.AllPlayers.Add(new PlayerItem(item.PlayerId, "Repair", false, item.SteamID, null));
                                 if (item.PlayerId == 0)

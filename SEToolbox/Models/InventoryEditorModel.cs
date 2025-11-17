@@ -115,6 +115,7 @@ namespace SEToolbox.Models
         public bool IsValid
         {
             get => _isValid;
+
             set => SetProperty(ref _isValid, value, nameof(IsValid));
         }
 
@@ -130,6 +131,7 @@ namespace SEToolbox.Models
         public InventoryModel SelectedRow
         {
             get => _selectedRow;
+
             set => SetProperty(ref _selectedRow, value, nameof(SelectedRow));
         }
 

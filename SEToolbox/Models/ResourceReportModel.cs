@@ -137,7 +137,7 @@ td.right { text-align: right; }";
             get => _isBusy;
             set
             {
-                SetProperty(ref _isBusy, value, nameof(IsBusy),() =>
+                SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
                 {
                     SetActiveStatus();
                 if (_isBusy)
@@ -154,6 +154,7 @@ td.right { text-align: right; }";
         public bool IsActive
         {
             get => _isActive;
+
             set => SetProperty(ref _isActive, value, nameof(IsActive));
         }
 
@@ -162,24 +163,28 @@ td.right { text-align: right; }";
         public bool IsReportReady
         {
             get => _isReportReady;
+
             set => SetProperty(ref _isReportReady, value, nameof(IsReportReady));
         }
 
         public string ReportHtml
         {
             get => _reportHtml;
+
             set => SetProperty(ref _reportHtml, value, nameof(ReportHtml));
         }
 
         public bool ShowProgress
         {
             get => _showProgress;
+
             set => SetProperty(ref _showProgress, value, nameof(ShowProgress));
         }
 
         public double Progress
         {
             get => _progress;
+
             set => SetProperty(ref _progress, value, () =>
                     {
 
@@ -193,6 +198,7 @@ td.right { text-align: right; }";
         public double MaximumProgress
         {
             get => _maximumProgress;
+
             set => SetProperty(ref _maximumProgress, value, nameof(MaximumProgress));
         }
 

@@ -16,12 +16,14 @@
         public string IetfLanguageTag
         {
             get => _ietfLanguageTag;
+
             set => SetProperty(ref _ietfLanguageTag,value, nameof(IetfLanguageTag));
         }
 
         public string ImageName
         {
             get => _imageName;
+
             set => SetProperty(ref _imageName, value, nameof(ImageName));
 
         }

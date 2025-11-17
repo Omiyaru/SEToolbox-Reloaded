@@ -218,6 +218,7 @@ namespace SEToolbox.Models
         public MaterialSelectionModel OutsideStockMaterial 
         {
             get => _outsideStockMaterial;
+
             set => SetProperty(ref _outsideStockMaterial, value, nameof(OutsideStockMaterial));
         }
 

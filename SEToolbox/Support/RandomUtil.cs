@@ -15,6 +15,7 @@ namespace SEToolbox.Support
         public static Random MyRandom
         {
             get => _threadLocalRandom.Value;
+
             set => _threadLocalRandom.Value = value;
         }
 

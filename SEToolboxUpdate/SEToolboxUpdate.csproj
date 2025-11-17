@@ -34,6 +34,9 @@
     <Compile Include="..\SEToolbox\Support\GlobalSettings.cs">
       <Link>Support\GlobalSettings.cs</Link>
     </Compile>
+        <Compile Include="..\SEToolbox\Support\Log.cs">
+      <Link>Support\Log.cs</Link>
+    </Compile>
     <Compile Include="..\SEToolbox\Support\SConsole.cs">
       <Link>Support\SConsole.cs</Link>
     </Compile>

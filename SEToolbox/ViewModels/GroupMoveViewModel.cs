@@ -65,11 +65,7 @@ namespace SEToolbox.ViewModels
             get => _closeResult;
 
 
-            set
-            {
-                _closeResult = value;
-                OnPropertyChanged(nameof(CloseResult));
-            }
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         /// <summary>
@@ -185,12 +181,14 @@ namespace SEToolbox.ViewModels
         public ObservableCollection<GroupMoveItemModel> Selections
         {
             get => _dataModel.Selections;
+
             set => _dataModel.Selections = value;
         }
 
         public Vector3D CenterPosition
         {
             get => _dataModel.CenterPosition;
+
             set => _dataModel.CenterPosition = value;
         }
         #endregion

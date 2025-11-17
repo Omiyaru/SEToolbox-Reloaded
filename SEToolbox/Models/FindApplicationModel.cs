@@ -20,25 +20,32 @@ namespace SEToolbox.Models
         public string GameApplicationPath
         {
             get => _gameApplicationPath;
-            set => SetProperty(ref _gameApplicationPath, value, nameof(GameApplicationPath), () => { Validate();});
+
+            set => SetProperty(ref _gameApplicationPath, value, nameof(GameApplicationPath), () => 
+            { 
+                Validate();
+            });
            
         }
 
         public string GameBinPath
         {
             get => _gameBinPath;
+
             set => SetProperty(ref _gameBinPath, value, nameof(GameBinPath));
         }
 
         public bool IsValidApplication
         {
             get => _isValidApplication;
+
             set => SetProperty(ref _isValidApplication, value, nameof(IsValidApplication));
         }
 
         public bool IsWrongApplication
         {
             get => _isWrongApplication;
+
             set => SetProperty(ref _isWrongApplication, value, nameof(IsWrongApplication));
         }
 
@@ -53,7 +60,8 @@ namespace SEToolbox.Models
             IsWrongApplication = false;
 
             if (string.IsNullOrEmpty(GameApplicationPath))
-                return;
+                	IsValidApplication = ToolboxUpdater.ValidateSpaceEngineersInstall(GameBinPath);
+                    IsWrongApplication = !IsValidApplication;
 
             try
             {
@@ -61,8 +69,7 @@ namespace SEToolbox.Models
                 if (File.Exists(fullPath))
                 {
                     GameBinPath = Path.GetDirectoryName(fullPath);
-                    IsValidApplication = ToolboxUpdater.ValidateSpaceEngineersInstall(GameBinPath);
-                    IsWrongApplication = !IsValidApplication;
+                    
                 }
             }
             catch { }

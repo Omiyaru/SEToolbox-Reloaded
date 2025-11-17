@@ -78,32 +78,21 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set
-            {
-                if (_closeResult != value)
-                {
-                    _closeResult = value;
-                    OnPropertyChanged(nameof(CloseResult));
-                }
-            }
+
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         public bool ZoomThumbnail
         {
             get => _zoomThumbnail;
-            set
-            {
-                if (_zoomThumbnail != value)
-                {
-                    _zoomThumbnail = value;
-                    OnPropertyChanged(nameof(ZoomThumbnail));
-                }
-            }
+
+            set => SetProperty(ref _zoomThumbnail, value, nameof(ZoomThumbnail));
         }
 
         public WorldResource SelectedWorld
         {
             get => _dataModel.SelectedWorld;
+
             set => _dataModel.SelectedWorld = value;
         }
 
@@ -118,6 +107,7 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _dataModel.IsBusy;
+
             set => _dataModel.IsBusy = value;
         }
 

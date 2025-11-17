@@ -116,8 +116,8 @@ namespace ToolboxTest
                         convertDiffers.Add(file);
                     }
 
-                    //Assert.AreEqual(originalBytes.Length, newBytes.Length, "File {0} Bytestream content must equal", file);
-                    //Assert.IsTrue(originalBytes.SequenceEqual(newBytes), "File {0} Bytestream content must equal", file);
+                    //Assert.AreEqual(originalBytes.Length, newBytes.Length, $"File {file} Bytestream content must equal");
+                    //Assert.IsTrue(originalBytes.SequenceEqual(newBytes), $"File {file} Bytestream content must equal");
                 }
             }
 

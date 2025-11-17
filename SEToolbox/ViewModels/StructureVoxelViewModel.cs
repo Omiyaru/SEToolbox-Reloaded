@@ -129,6 +129,7 @@ namespace SEToolbox.ViewModels
         public string Name
         {
             get => DataModel.Name;
+
             set => DataModel.Name = value;
         }
 

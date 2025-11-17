@@ -89,11 +89,8 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set
-            {
-                _closeResult = value;
-                OnPropertyChanged(nameof(CloseResult));
-            }
+
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         /// <summary>
@@ -127,18 +124,21 @@ namespace SEToolbox.ViewModels
         public Model3D Model
         {
             get => _dataModel.Model;
+
             set => _dataModel.Model = value;
         }
 
         public bool IsValidModel
         {
             get => _dataModel.IsValidModel;
+
             set => _dataModel.IsValidModel = value;
         }
 
         public BindableSize3DModel OriginalModelSize
         {
             get => _dataModel.OriginalModelSize;
+
             set => _dataModel.OriginalModelSize = value;
         }
 
@@ -155,30 +155,35 @@ namespace SEToolbox.ViewModels
         public BindablePoint3DModel NewModelScale
         {
             get => _dataModel.NewModelScale;
+
             set => _dataModel.NewModelScale = value;
         }
 
         public BindablePoint3DModel Position
         {
             get => _dataModel.Position;
+
             set => _dataModel.Position = value;
         }
 
         public BindableVector3DModel Forward
         {
             get => _dataModel.Forward;
+
             set => _dataModel.Forward = value;
         }
 
         public BindableVector3DModel Up
         {
             get => _dataModel.Up;
+
             set => _dataModel.Up = value;
         }
 
         public ModelTraceVoxel TraceType
         {
             get => _dataModel.TraceType;
+
             set => _dataModel.TraceType = value;
         }
 
@@ -205,6 +210,7 @@ namespace SEToolbox.ViewModels
         public ImportArmorType ArmorType
         {
             get => _dataModel.ArmorType;
+
             set => _dataModel.ArmorType = value;
         }
 
@@ -274,24 +280,28 @@ namespace SEToolbox.ViewModels
         public MaterialSelectionModel OutsideStockMaterial
         {
             get => _dataModel.OutsideStockMaterial;
+
             set => _dataModel.OutsideStockMaterial = value;
         }
 
         public MaterialSelectionModel InsideStockMaterial
         {
             get => _dataModel.InsideStockMaterial;
+
             set => _dataModel.InsideStockMaterial = value;
         }
 
         public string SourceFile
         {
             get => _dataModel.SourceFile;
+
             set => _dataModel.SourceFile = value;
         }
 
         public bool FillObject
         {
             get => _dataModel.FillObject;
+
             set => _dataModel.FillObject = value;
         }
 

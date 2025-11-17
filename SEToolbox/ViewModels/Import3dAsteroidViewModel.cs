@@ -132,6 +132,7 @@ namespace SEToolbox.ViewModels
         public Model3D Model
         {
             get => _dataModel.Model;
+
             set => _dataModel.Model = value;
         }
 
@@ -148,6 +149,7 @@ namespace SEToolbox.ViewModels
         public bool IsValidEntity
         {
             get => _dataModel.IsValidEntity;
+
             set => _dataModel.IsValidEntity = value;
         }
 
@@ -159,6 +161,7 @@ namespace SEToolbox.ViewModels
         public BindableSize3DModel OriginalModelSize
         {
             get => _dataModel.OriginalModelSize;
+
             set => _dataModel.OriginalModelSize = value;
         }
 
@@ -171,42 +174,49 @@ namespace SEToolbox.ViewModels
         public BindablePoint3DModel NewModelScale
         {
             get => _dataModel.NewModelScale;
+
             set => _dataModel.NewModelScale = value;
         }
 
         public BindablePoint3DModel Position
         {
             get => _dataModel.Position;
+
             set => _dataModel.Position = value;
         }
 
         public BindableVector3DModel Forward
         {
             get => _dataModel.Forward;
+
             set => _dataModel.Forward = value;
         }
 
         public BindableVector3DModel Up
         {
             get => _dataModel.Up;
+
             set => _dataModel.Up = value;
         }
 
         public TraceType TraceType
         {
             get => _dataModel.TraceType;
+
             set => _dataModel.TraceType = value;
         }
 
         public TraceCount TraceCount
         {
             get => _dataModel.TraceCount;
+
             set => _dataModel.TraceCount = value;
         }
 
         public TraceDirection TraceDirection
         {
             get => _dataModel.TraceDirection;
+
             set => _dataModel.TraceDirection = value;
         }
 
@@ -243,12 +253,14 @@ namespace SEToolbox.ViewModels
         public bool IsAbsolutePosition
         {
             get => _dataModel.IsAbsolutePosition;
+
             set => _dataModel.IsAbsolutePosition = value;
         }
 
         public bool IsInfrontofPlayer
         {
             get => _dataModel.IsInfrontofPlayer;
+
             set => _dataModel.IsInfrontofPlayer = value;
         }
 
@@ -260,6 +272,7 @@ namespace SEToolbox.ViewModels
         public int OutsideMaterialDepth
         {
             get => _dataModel.OutsideMaterialDepth;
+
             set => _dataModel.OutsideMaterialDepth = value;
         }
 
@@ -271,18 +284,21 @@ namespace SEToolbox.ViewModels
         public MaterialSelectionModel OutsideStockMaterial
         {
             get => _dataModel.OutsideStockMaterial;
+
             set => _dataModel.OutsideStockMaterial = value;
         }
 
         public MaterialSelectionModel InsideStockMaterial
         {
             get => _dataModel.InsideStockMaterial;
+
             set => _dataModel.InsideStockMaterial = value;
         }
 
         public string SourceFile
         {
             get => _dataModel.SourceFile;
+
             set => _dataModel.SourceFile = value;
         }
 
@@ -307,24 +323,28 @@ namespace SEToolbox.ViewModels
         public bool BeepWhenFinished
         {
             get => _dataModel.BeepWhenFinished;
+
             set => _dataModel.BeepWhenFinished = value;
         }
 
         public bool SaveWhenFinsihed
         {
             get => _dataModel.SaveWhenFinsihed;
+
             set => _dataModel.SaveWhenFinsihed = value;
         }
 
         public bool ShutdownWhenFinished
         {
             get => _dataModel.ShutdownWhenFinished;
+
             set => _dataModel.ShutdownWhenFinished = value;
         }
 
         public bool RunInLowPrioity
         {
             get => _dataModel.RunInLowPrioity;
+
             set => _dataModel.RunInLowPrioity = value;
         }
 

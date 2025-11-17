@@ -53,6 +53,7 @@ namespace SEToolbox.Services
         public string Message
         {
             get => (string)GetValue(MessageProperty);
+
             set => SetValue(MessageProperty, value);
         }
 

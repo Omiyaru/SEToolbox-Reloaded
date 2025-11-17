@@ -201,7 +201,6 @@ namespace SEToolbox.Models.Asteroids
 
             // This recovers material assigning ability for most roids (could be specific to indestructibleContent property?)
             // And not for all, apparently :(
-
             //asteroid.ForceVoxelFaceMaterial(_dataModel.BaseMaterial.DisplayName); // don't change mattype
 
             // Doesn't help
@@ -210,7 +209,6 @@ namespace SEToolbox.Models.Asteroids
             // Alt ends
 
         }
-		
-	}
+    }
 }
 

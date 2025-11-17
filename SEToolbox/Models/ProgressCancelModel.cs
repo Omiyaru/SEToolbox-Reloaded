@@ -43,18 +43,21 @@ namespace SEToolbox.Models
         public string Title
         {
             get => _title;
+
             set => SetProperty(ref _title, value, nameof(Title));
         }
 
         public string SubTitle
         {
             get => _subTitle;
+
             set => SetProperty(ref _subTitle, value, nameof(SubTitle));
         }
 
         public string DialogText
         {
             get => _dialogText;
+
             set => SetProperty(ref _dialogText, value, nameof(DialogText));
         }
 
@@ -65,11 +68,12 @@ namespace SEToolbox.Models
             set 
             {
               
-            if (!_progressTimer.IsRunning || _progressTimer.ElapsedMilliseconds > 200)
-                {
-                    SetProperty(ref _progress, value, nameof(Progress));
-                    System.Windows.Forms.Application.DoEvents();
-                    _progressTimer.Restart();
+            
+                    SetProperty(!_progressTimer.IsRunning || _progressTimer.ElapsedMilliseconds > 200 ,ref _progress, value, nameof(Progress), ()=>
+                    {
+                   
+                	{System.Windows.Forms.Application.DoEvents();
+                    _progressTimer.Restart();});
                 }
             }
         }

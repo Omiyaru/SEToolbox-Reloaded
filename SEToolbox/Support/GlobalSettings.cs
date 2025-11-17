@@ -189,7 +189,7 @@ namespace SEToolbox.Support
 
         public void Load()
         {
-            _isLoaded = true;
+
             var key = Registry.CurrentUser.OpenSubKey(BaseKey, false);
             key ??= Registry.CurrentUser.CreateSubKey(BaseKey) ?? null;
             if (key != null)

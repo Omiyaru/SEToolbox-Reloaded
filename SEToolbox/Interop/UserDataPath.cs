@@ -52,17 +52,24 @@ namespace SEToolbox.Interop
 
         private static string GetPathBase(string path, string baseName)
         {
-            string parentPath = path;
-            string currentName = Path.GetFileName(parentPath);
-            while (!currentName.Equals(baseName, StringComparison.CurrentCultureIgnoreCase))
+            string currentPath = path;
+            while (true)
             {
-                parentPath = Path.GetDirectoryName(parentPath);
-                currentName = Path.GetFileName(parentPath);
+                string currentName = Path.GetFileName(currentPath);
+                if (currentName.Equals(baseName, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    return currentPath;
+                }
+                string parentPath = Path.GetDirectoryName(currentPath);
+                if (parentPath == null || parentPath == currentPath)
+                {
+                    return null;
+                }
+                currentPath = parentPath;
             }
-            return currentName.Equals(baseName, StringComparison.OrdinalIgnoreCase) ? parentPath : null;
         }
 
-    public string GetDataPathOrDefault(string key, string defaultValue)
+        public string GetDataPathOrDefault(string key, string defaultValue)
         {
 
             // TODO: this code is obsolete and needs to be cleaned up.

@@ -20,14 +20,8 @@ namespace SEToolbox.ViewModels
         public virtual BaseViewModel OwnerViewModel
         {
             get => _ownerViewModel;
-            set
-            {
-                if (_ownerViewModel != value)
-                {
-                    _ownerViewModel = value;
-                    OnPropertyChanged(nameof(OwnerViewModel));
-                }
-            }
+
+            set => SetProperty(ref _ownerViewModel, value, nameof(OwnerViewModel));
         }
 
         public IMainView MainViewModel
@@ -56,8 +50,11 @@ namespace SEToolbox.ViewModels
             }
         }
         BaseModel baseModel = new();
-        public void SetProperty( bool? field, bool? value, string propertyName) => baseModel.SetProperty(field, value, propertyName);
+        
+        public void SetProperty(bool? field, bool? value, params object[] parameters) => baseModel.SetProperty(field, value, parameters);
+        
         public void SetProperty(ref bool? field, bool? value, string propertyName) => baseModel.SetProperty(ref field, value, propertyName);
+        public void SetProperty<T>(T field, T value, params object[] parameters) => baseModel.SetProperty(field, value, parameters);
          public void SetProperty<T>(ref T field, T value, object obj,  params object[] parameters) => baseModel.SetProperty(ref field, value, obj, parameters);
         #endregion
 

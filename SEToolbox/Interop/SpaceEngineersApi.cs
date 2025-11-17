@@ -113,7 +113,7 @@ namespace SEToolbox.Interop
              Array.Copy(buffer1, buffer2, buffer1.Length);
 
              isCompressed = buffer1.SequenceEqual(buffer2);
-                if (snapshot)
+                if(snapshot)
                 {
                     File.Delete(tempFileName);
                 }

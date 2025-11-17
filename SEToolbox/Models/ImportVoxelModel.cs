@@ -61,144 +61,95 @@ namespace SEToolbox.Models
         public string FileName
         {
             get => _fileName;
+
             set => SetProperty(ref _fileName, value, nameof(FileName));
         }
 
         public string SourceFile
         {
             get => _sourceFile;
-            set
-            {
-                if (value != _sourceFile)
-                {
-                    _sourceFile = value;
-                    OnPropertyChanged(nameof(SourceFile));
-                    StockMaterial ??= MaterialsCollection[0];
-                }
-            }
+
+            set => SetProperty(ref _sourceFile, value,nameof(SourceFile), ()=>
+                {StockMaterial ??= MaterialsCollection[0];});
+                
+            
         }
 
         public bool IsValidVoxelFile
         {
             get => _isValidVoxelFile;
-            set
-            {
-                if (value != _isValidVoxelFile)
-                {
-                    _isValidVoxelFile = value;
-                    OnPropertyChanged(nameof(IsValidVoxelFile));
-                }
-            }
+
+            set => SetProperty(ref _isValidVoxelFile, value, nameof(IsValidVoxelFile));
         }
 
         public BindablePoint3DModel Position
         {
             get => _position;
-            set
-            {
-                if (value != _position)
-                {
-                    _position = value;
-                    OnPropertyChanged(nameof(Position));
-                }
-            }
+
+            set => SetProperty(ref _position, value, nameof(Position));
         }
 
         public BindableVector3DModel Forward
         {
             get => _forward;
-            set
-            {
-                if (value != _forward)
-                {
-                    _forward = value;
-                    OnPropertyChanged(nameof(Forward));
-                }
-            }
+
+            set => SetProperty(ref _forward, value, nameof(Forward));
         }
 
         public BindableVector3DModel Up
         {
             get => _up;
+
             set => SetProperty(ref _up, value, nameof(Up));
         }
 
         public MyPositionAndOrientation CharacterPosition
         {
             get => _characterPosition;
-            set
-            {
+
+            set => SetProperty(ref _characterPosition, value, nameof(CharacterPosition));
                 //if (value != characterPosition) // Unable to check for equivilence, without long statement. And, mostly uncessary.
-                _characterPosition = value;
-                OnPropertyChanged(nameof(CharacterPosition));
-            }
+           
         }
 
         public bool IsStockVoxel
         {
             get => _isStockVoxel;
-            set
-            {
-                if (value != _isStockVoxel)
-                {
-                    _isStockVoxel = value;
-                    OnPropertyChanged(nameof(IsStockVoxel));
-                }
-            }
+
+            set => SetProperty(ref _isStockVoxel, value, nameof(IsStockVoxel));
         }
 
         public bool IsFileVoxel
         {
             get => _isFileVoxel;
-            set
-            {
-                if (value != _isFileVoxel)
-                {
-                    _isFileVoxel = value;
-                    OnPropertyChanged(nameof(IsFileVoxel));
-                }
-            }
+
+            set => SetProperty(ref _isFileVoxel, value, nameof(IsFileVoxel));
         }
 
         public bool IsSphere
         {
             get => _isSphere;
-            set
-            {
-                if (value != _isSphere)
-                {
-                    _isSphere = value;
-                    OnPropertyChanged(nameof(IsSphere));
-                }
-            }
+
+            set => SetProperty(ref _isSphere,value,nameof(IsSphere));
+
         }
 
         public GenerateVoxelDetailModel StockVoxel
         {
             get => _stockVoxel;
-            set
-            {
-                if (value != _stockVoxel)
-                {
-                    _stockVoxel = value;
-                    OnPropertyChanged(nameof(StockVoxel));
+
+            set => SetProperty(ref _stockVoxel, value, nameof(StockVoxel), () =>
+                    {
                     IsStockVoxel = true;
                     StockMaterial ??= MaterialsCollection[0];
-                }
-            }
+                    });
         }
 
         public List<GenerateVoxelDetailModel> VoxelFileList
         {
             get => _voxelFileList;
-            set
-            {
-                if (value != _voxelFileList)
-                {
-                    _voxelFileList = value;
-                    OnPropertyChanged(nameof(VoxelFileList));
-                }
-            }
+
+            set => SetProperty(ref _voxelFileList, value, nameof(VoxelFileList));
         }
 
         public ObservableCollection<MaterialSelectionModel> MaterialsCollection
@@ -209,42 +160,22 @@ namespace SEToolbox.Models
         public MaterialSelectionModel StockMaterial
         {
             get => _stockMaterial;
-            set
-            {
-                if (value != _stockMaterial)
-                {
-                    _stockMaterial = value;
-                    OnPropertyChanged(nameof(StockMaterial));
-                }
-            }
+
+            set => SetProperty(ref _stockMaterial, value, nameof(StockMaterial));
         }
 
         public int SphereRadius
         {
             get => _sphereRadius;
 
-            set
-            {
-                if (value != _sphereRadius)
-                {
-                    _sphereRadius = value;
-                    OnPropertyChanged(nameof(SphereRadius));
-                }
-            }
+            set => SetProperty(ref _sphereRadius, value, nameof(SphereRadius));
         }
 
         public int SphereShellRadius
         {
             get => _sphereShellRadius;
 
-            set
-            {
-                if (value != _sphereShellRadius)
-                {
-                    _sphereShellRadius = value;
-                    OnPropertyChanged(nameof(SphereShellRadius));
-                }
-            }
+            set => SetProperty(ref _sphereShellRadius, value, nameof(SphereShellRadius));
         }
 
         #endregion

@@ -110,6 +110,7 @@ namespace SEToolbox.Models
         public string Name
         {
             get => VoxelMap.StorageName ?? string.Empty;
+
             set => SetProperty(VoxelMap.StorageName, value, nameof(Name));
         }
 
@@ -119,6 +120,7 @@ namespace SEToolbox.Models
         public new string SourceVoxelFilePath
         {
             get => _sourceVoxelFilePath;
+
             set => SetProperty(ref _sourceVoxelFilePath, value, nameof(SourceVoxelFilePath), () =>
                     ReadVoxelDetails(SourceVoxelFilePath));
 
@@ -138,6 +140,7 @@ namespace SEToolbox.Models
         public Vector3I Size
         {
             get => _size;
+
             set => SetProperty(ref _size, value, nameof(Size));
         }
 

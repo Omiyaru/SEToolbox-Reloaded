@@ -21,14 +21,7 @@ namespace SEToolbox.ViewModels
         {
             get => _dataModel;
 
-            set
-            {
-                if (value != _dataModel)
-                {
-                    _dataModel = value;
-                    OnPropertyChanged(nameof(DataModel));
-                }
-            }
+            set => SetProperty(ref _dataModel, value, nameof(DataModel));
         }
         #endregion
 

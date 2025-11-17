@@ -38,7 +38,17 @@ namespace SEToolboxUpdate
 
         static void Main(string[] args)
         {
+  var logFileName = ToolboxUpdater.IsRunningElevated()
+                ? "./updater-elevated-log.txt"
+                : "./updater-log.txt";
 
+            Log.Init(logFileName, appendFile: false);
+            Log.Info("Updater started.");
+            Log.Debug("Loading settings");
+
+            GlobalSettings.Default.Load();
+
+            Log.Info("Setting UI culture");
             string install = installMap.Keys.FirstOrDefault(k => args.Any(a => a.Equals(k))) ?? string.Empty;
             object a = args.Any(a => a.Equals(delimiter + install, StringComparison.OrdinalIgnoreCase));
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfoByIetfLanguageTag(GlobalSettings.Default.LanguageCode);
@@ -78,6 +88,7 @@ namespace SEToolboxUpdate
         
         private static void UpdateBaseLibrariesFromSpaceEngineers(string[] args)
         {
+              Log.Info("Updater task is update game files.");
             bool attemptedAlready = args.Any(a => a.Equals(installMap.Keys.FirstOrDefault()));
             string appDirectory = Path.GetDirectoryName(updaterExePath);
 

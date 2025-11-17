@@ -184,27 +184,15 @@ namespace SEToolbox.ViewModels
         public ObservableCollection<CubeItemViewModel> Selections
         {
             get => _selections;
-            set
-            {
-                if (value != _selections)
-                {
-                    _selections = value;
-                    OnPropertyChanged(nameof(Selections));
-                }
-            }
+
+            set => SetProperty(ref _selections, value, nameof(Selections));
         }
 
         public CubeItemViewModel SelectedCubeItem
         {
             get => _selectedCubeItem;
-            set
-            {
-                if (value != _selectedCubeItem)
-                {
-                    _selectedCubeItem = value;
-                    OnPropertyChanged(nameof(SelectedCubeItem));
-                }
-            }
+
+            set => SetProperty(ref _selectedCubeItem, value, nameof(SelectedCubeItem));
         }
 
         protected new StructureCubeGridModel DataModel
@@ -215,12 +203,9 @@ namespace SEToolbox.ViewModels
         public bool ToggleExcludedBlocks //why did i put this here??
         {
             get => DataModel.ToggleExcludedBlocks;
-            set
-            {
-                DataModel.ToggleExcludedBlocks = value;
-                MainViewModel.IsModified = true;
-                OnPropertyChanged(nameof(ToggleExcludedBlocks));
-            }
+
+            set => SetProperty( DataModel.ToggleExcludedBlocks, value, () =>{ MainViewModel.IsModified = true;}, nameof(ToggleExcludedBlocks));
+          
         }
 
         public bool IsDamaged
@@ -236,12 +221,14 @@ namespace SEToolbox.ViewModels
         public MyCubeSize GridSize
         {
             get => DataModel.GridSize;
+
             set => DataModel.GridSize = value;
         }
 
         public bool IsStatic
         {
             get => DataModel.IsStatic;
+
             set => DataModel.IsStatic = value;
         }
 
@@ -269,18 +256,21 @@ namespace SEToolbox.ViewModels
         public Point3D Min
         {
             get => DataModel.Min;
+
             set => DataModel.Min = value;
         }
 
         public Point3D Max
         {
             get => DataModel.Max;
+
             set => DataModel.Max = value;
         }
 
         public Vector3D Scale
         {
             get => DataModel.Scale;
+
             set => DataModel.Scale = value;
         }
 
@@ -289,6 +279,7 @@ namespace SEToolbox.ViewModels
         public BindableVector3DModel Center
         {
             get => new(DataModel.Center);
+
             set => DataModel.Center = value.ToVector3();
         }
 
@@ -310,12 +301,14 @@ namespace SEToolbox.ViewModels
         public TimeSpan TimeToProduce
         {
             get => DataModel.TimeToProduce;
+
             set => DataModel.TimeToProduce = value;
         }
 
         public int PCUToProduce
         {
             get => DataModel.PCUToProduce;
+
             set => DataModel.PCUToProduce = value;
         }
 
@@ -327,48 +320,56 @@ namespace SEToolbox.ViewModels
         public List<CubeAssetModel> CubeAssets
         {
             get => DataModel.CubeAssets;
+
             set => DataModel.CubeAssets = value;
         }
 
         public List<CubeAssetModel> ComponentAssets
         {
             get => DataModel.ComponentAssets;
+
             set => DataModel.ComponentAssets = value;
         }
 
         public List<OreAssetModel> IngotAssets
         {
             get => DataModel.IngotAssets;
+
             set => DataModel.IngotAssets = value;
         }
 
         public List<OreAssetModel> OreAssets
         {
             get => DataModel.OreAssets;
+
             set => DataModel.OreAssets = value;
         }
 
         public string ActiveComponentFilter
         {
             get => DataModel.ActiveComponentFilter;
+
             set => DataModel.ActiveComponentFilter = value;
         }
 
         public string ComponentFilter
         {
             get => DataModel.ComponentFilter;
+
             set => DataModel.ComponentFilter = value;
         }
 
         public bool IsConstructionNotReady
         {
             get => DataModel.IsConstructionNotReady;
+
             set => DataModel.IsConstructionNotReady = value;
         }
 
         public bool IsSubsSystemNotReady
         {
             get => DataModel.IsSubsSystemNotReady;
+
             set => DataModel.IsSubsSystemNotReady = value;
         }
 

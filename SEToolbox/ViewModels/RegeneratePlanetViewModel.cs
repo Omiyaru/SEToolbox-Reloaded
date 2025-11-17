@@ -52,11 +52,7 @@ namespace SEToolbox.ViewModels
         {
             get => _closeResult;
 
-            set
-            {
-                _closeResult = value;
-                OnPropertyChanged(nameof(CloseResult));
-            }
+            set => SetProperty( ref _closeResult, value, nameof(CloseResult));
         }
 
         /// <summary>
@@ -66,31 +62,34 @@ namespace SEToolbox.ViewModels
         {
             get => _isBusy;
 
-            set
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
-                SetProperty( ref _isBusy, value, nameof(IsBusy));
+                
                 if (_isBusy)
                 {
                     System.Windows.Forms.Application.DoEvents();
                 }
-            }
+            });
         }
 
         public int Seed
         {
             get => _dataModel.Seed;
+
             set => _dataModel.Seed = value;
         }
 
         public decimal Diameter
         {
             get => _dataModel.Diameter;
+
             set => _dataModel.Diameter = value;
         }
 
         public bool InvalidKeenRange
         {
             get => _dataModel.InvalidKeenRange;
+
             set => _dataModel.InvalidKeenRange = value;
         }
 

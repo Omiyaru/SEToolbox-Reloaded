@@ -73,16 +73,13 @@ namespace SEToolbox.ViewModels
         {
             get => _closeResult;
 
-            set
-            {
-                _closeResult = value;
-                OnPropertyChanged(nameof(CloseResult));
-            }
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         public string FileName
         {
             get => _dataModel.FileName;
+
             set => _dataModel.FileName = value;
         }
 
@@ -99,24 +96,28 @@ namespace SEToolbox.ViewModels
         public bool IsValidVoxelFile
         {
             get => _dataModel.IsValidVoxelFile;
+
             set => _dataModel.IsValidVoxelFile = value;
         }
 
         public BindablePoint3DModel Position
         {
             get => _dataModel.Position;
+
             set => _dataModel.Position = value;
         }
 
         public BindableVector3DModel Forward
         {
             get => _dataModel.Forward;
+
             set => _dataModel.Forward = value;
         }
 
         public BindableVector3DModel Up
         {
             get => _dataModel.Up;
+
             set => _dataModel.Up = value;
         }
 
@@ -140,24 +141,28 @@ namespace SEToolbox.ViewModels
         public bool IsStockVoxel
         {
             get => _dataModel.IsStockVoxel;
+
             set => _dataModel.IsStockVoxel = value;
         }
 
         public bool IsFileVoxel
         {
             get => _dataModel.IsFileVoxel;
+
             set => _dataModel.IsFileVoxel = value;
         }
 
         public bool IsSphere
         {
             get => _dataModel.IsSphere;
+
             set => _dataModel.IsSphere = value;
         }
 
         public GenerateVoxelDetailModel StockVoxel
         {
             get => _dataModel.StockVoxel;
+
             set => _dataModel.StockVoxel = value;
         }
 
@@ -174,18 +179,21 @@ namespace SEToolbox.ViewModels
         public MaterialSelectionModel StockMaterial
         {
             get => _dataModel.StockMaterial;
+
             set => _dataModel.StockMaterial = value;
         }
 
         public int SphereRadius
         {
             get => _dataModel.SphereRadius;
+
             set => _dataModel.SphereRadius = value;
         }
 
         public int SphereShellRadius
         {
             get => _dataModel.SphereShellRadius;
+
             set => _dataModel.SphereShellRadius = value;
         }
 

@@ -50,15 +50,8 @@ namespace SEToolbox.Models
         {
             get => Character.ColorMaskHSV;
 
-            set
-            {
-                if (!EqualityComparer<SerializableVector3?>.Default.Equals(value, Character?.ColorMaskHSV))
-                {
-                    Character.ColorMaskHSV = value;
-                    OnPropertyChanged(nameof(Color));
-                    UpdateGeneralFromEntityBase();
-                }
-            }
+            set => SetProperty(Character?.ColorMaskHSV, value, nameof(Color), () => UpdateGeneralFromEntityBase());
+
         }
 
         [XmlIgnore]
@@ -239,7 +232,9 @@ namespace SEToolbox.Models
 
         public void ReverseVelocity()
         {
-            Character.LinearVelocity = new VRageMath.Vector3(Character.LinearVelocity.X * -1, Character.LinearVelocity.Y * -1, Character.LinearVelocity.Z * -1);
+            Character.LinearVelocity = new VRageMath.Vector3(Character.LinearVelocity.X * -1, 
+                                                             Character.LinearVelocity.Y * -1,
+                                                             Character.LinearVelocity.Z * -1);
             OnPropertyChanged(nameof(LinearVelocity));
         }
 

@@ -61,49 +61,42 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set
-                {
-                    _closeResult = value;
-                    OnPropertyChanged(nameof(CloseResult));
-                }
-            }
+
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the View is currently in the middle of an asynchonise operation.
         /// </summary>
         public bool IsBusy
         {
-            get  => _isBusy;
-            set
-            {
-                if (_isBusy != value)
+            get => _isBusy;
+
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
                 {
-                    _isBusy = value;
-                    OnPropertyChanged(nameof(IsBusy));
                     if (_isBusy)
                     {
                         System.Windows.Forms.Application.DoEvents();
                     }
-                }
-            }
+                });
         }
 
         public ObservableCollection<ComponentItemModel> StockItemList
         {
             get => _dataModel.StockItemList;
-            }
+        }
         public ComponentItemModel StockItem
         {
-            get =>  _dataModel.StockItem;
+            get => _dataModel.StockItem;
 
-            set =>  _dataModel.StockItem = value;
+            set => _dataModel.StockItem = value;
         }
 
         public bool IsValidItemToImport
         {
             get => _dataModel.IsValidItemToImport;
 
-            set =>  _dataModel.IsValidItemToImport = value;
+            set => _dataModel.IsValidItemToImport = value;
         }
 
         public double? Volume
@@ -131,28 +124,28 @@ namespace SEToolbox.ViewModels
         {
             get => _dataModel.DecimalUnits;
 
-            set =>  _dataModel.DecimalUnits = value;
+            set => _dataModel.DecimalUnits = value;
         }
 
         public bool IsDecimal
         {
             get => _dataModel.IsDecimal;
 
-            set =>  _dataModel.IsDecimal = value;
+            set => _dataModel.IsDecimal = value;
         }
 
         public bool IsInt
         {
             get => _dataModel.IsInt;
 
-            set =>  _dataModel.IsInt = value;
+            set => _dataModel.IsInt = value;
         }
 
         public bool IsUnique
         {
             get => _dataModel.IsUnique;
 
-            set =>  _dataModel.IsUnique = value;
+            set => _dataModel.IsUnique = value;
         }
 
         public int Multiplier
@@ -165,9 +158,10 @@ namespace SEToolbox.ViewModels
         public float MaxFloatingObjects
         {
             get => _dataModel.MaxFloatingObjects;
+
             set => _dataModel.MaxFloatingObjects = value;
         }
-    
+
 
         #endregion
 
@@ -218,28 +212,30 @@ namespace SEToolbox.ViewModels
             entity.Item.PhysicalContent = SpaceEngineersResources.CreateNewObject<MyObjectBuilder_PhysicalObject>(StockItem.TypeId, StockItem.SubtypeId);
 
 
-             /// <summary> See <see cref="Interop.SpaceEngineersTypeIds"/> for a list of all possible types.</summary
-          switch (StockItem.TypeId)
-           
-        
+            /// <summary> See <see cref="Interop.SpaceEngineersTypeIds"/> for a list of all possible types.</summary
+            switch (StockItem.TypeId)
+
+
             {
-              case var t when t == MOBTypeIds.Component:
-                break;
-                case var t when t == MOBTypeIds.AmmoMagazine:
-                break;
-              case var t when t == MOBTypeIds.Ingot:
-                break;
-            
-            case var t when t == MOBTypeIds.Ore:
-                break;
-              case var t  when t == MOBTypeIds.PhysicalGunObject: CreateGunEntity(entity); // MyObjectBuilder_PhysicalGunObject
+                case var t when t == MOBTypeIds.Component:
                     break;
-              case var t when t == MOBTypeIds.GasContainerObject: MyObjectBuilder_GasContainerObject gasContainer = entity.Item.PhysicalContent as MyObjectBuilder_GasContainerObject;
+                case var t when t == MOBTypeIds.AmmoMagazine:
+                    break;
+                case var t when t == MOBTypeIds.Ingot:
+                    break;
+
+                case var t when t == MOBTypeIds.Ore:
+                    break;
+                case var t when t == MOBTypeIds.PhysicalGunObject:
+                    CreateGunEntity(entity); // MyObjectBuilder_PhysicalGunObject
+                    break;
+                case var t when t == MOBTypeIds.GasContainerObject:
+                    MyObjectBuilder_GasContainerObject gasContainer = entity.Item.PhysicalContent as MyObjectBuilder_GasContainerObject;
                     _ = (gasContainer?.GasLevel = 1f); // MyObjectBuilder_GasContainerObject
 
-               break;
-              case var t when t == MOBTypeIds.OxygenContainerObject:
-               break; // MyObjectBuilder_OxygenContainerObject
+                    break;
+                case var t when t == MOBTypeIds.OxygenContainerObject:
+                    break; // MyObjectBuilder_OxygenContainerObject
                 default:
                     // As yet uncatered for items which may be new.
                     IsValidItemToImport = false;
@@ -274,13 +270,14 @@ namespace SEToolbox.ViewModels
                 entities.Add(newEntity);
             }
 
-             return [.. entities];
+            return [.. entities];
         }
 
-            // GunEntity makes each 'GunObject' unique through EntityId, so no stacking,
+        // GunEntity makes each 'GunObject' unique through EntityId, so no stacking,
         // and no ownership required. Only need to pre-generate EntityId for handled guns.
         // This is a hack approach for enums like AngleGrinderItem
-        void CreateGunEntity(MyObjectBuilder_FloatingObject entity){
+        void CreateGunEntity(MyObjectBuilder_FloatingObject entity)
+        {
 
             string enumName = StockItem.SubtypeId.Substring(0, StockItem.SubtypeId.Length - 4);
             if (Enum.TryParse(enumName, out MyObjectBuilderType itemEnum))

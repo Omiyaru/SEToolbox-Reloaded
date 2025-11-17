@@ -36,6 +36,7 @@ namespace SEToolbox.Controls
         public bool AutoGenerateAspects
         {
             get => (bool)GetValue(AutoGenerateAspectsProperty);
+
             set => SetValue(AutoGenerateAspectsProperty, value);
         }
 
@@ -49,6 +50,7 @@ namespace SEToolbox.Controls
         public bool ReflectionFallback
         {
             get => (bool)GetValue(ReflectionFallbackProperty);
+
             set => SetValue(ReflectionFallbackProperty, value);
         }
 
@@ -62,6 +64,7 @@ namespace SEToolbox.Controls
         public bool GroupByCategory
         {
             get => (bool)GetValue(GroupByCategoryProperty);
+
             set => SetValue(GroupByCategoryProperty, value);
         }
 
@@ -75,6 +78,7 @@ namespace SEToolbox.Controls
         public bool IncludeNonBrowsable
         {
             get => (bool)GetValue(IncludeNonBrowsableProperty);
+
             set => SetValue(IncludeNonBrowsableProperty, value);
         }
 
@@ -477,6 +481,7 @@ namespace SEToolbox.Controls
         public object Value
         {
             get => GetValue(ValueProperty);
+
             set => SetValue(ValueProperty, value);
         }
         public object Target { get; set; }

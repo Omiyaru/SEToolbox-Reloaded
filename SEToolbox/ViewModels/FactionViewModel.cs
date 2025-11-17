@@ -59,40 +59,22 @@ namespace SEToolbox.ViewModels
         public Dictionary<long, MyFaction> Factions
         {
             get => _factionModel.Factions;
-            set
-            {
-                if (!Equals(value, _factionModel.Factions))
-                {
-                    _factionModel.Factions = value;
-                    OnPropertyChanged(nameof(Factions));
-                }
-            }
+
+            set => SetProperty(_factionModel.Factions, value, nameof(Factions));
         }
 
         public MyFaction SelectedFaction
         {
             get => _factionModel.SelectedFaction;
-            set
-            {
-                if (value != _factionModel.SelectedFaction)
-                {
-                    _factionModel.SelectedFaction = value;
-                    OnPropertyChanged(nameof(SelectedFaction));
-                }
-            }
+
+            set => SetProperty(_factionModel.SelectedFaction, value, nameof(SelectedFaction));
         }
 
         public MyFactionMember SelectedMember
         {
             get => _factionModel.SelectedMember;
-            set
-            {
-                if (!Equals(value, _factionModel.SelectedMember))
-                {
-                    _factionModel.SelectedMember = value;
-                    OnPropertyChanged(nameof(SelectedMember));
-                }
-            }
+
+            set => SetProperty(_factionModel.SelectedMember, value, nameof(SelectedMember));
         }
 
         //public ICommand GetBalanceCommand { get; private set; }

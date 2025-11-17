@@ -64,14 +64,13 @@ namespace SEToolbox.ViewModels
         {
             get => _isBusy;
 
-            set
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
-                    SetProperty(ref _isBusy, value, nameof(IsBusy));
                     if (_isBusy)
                     {
                         Application.DoEvents();
                     }
-            }
+            });
         }
 
       
@@ -79,18 +78,21 @@ namespace SEToolbox.ViewModels
         public string BlueprintName
         {
             get => _dataModel.BlueprintName;
+
             set => _dataModel.BlueprintName = value;
         }
 
         public string DialogTitle
         {
             get => _dataModel.DialogTitle;
+
             set => _dataModel.DialogTitle = value;
         }
 
         public bool CheckForExisting
         {
             get => _dataModel.CheckForExisting;
+
             set => _dataModel.CheckForExisting = value;
         }
 

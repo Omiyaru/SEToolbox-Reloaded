@@ -48,8 +48,8 @@ namespace SEToolbox.Interop.Asteroids
             int yMax = (int)Math.Ceiling(tbounds.Y + tbounds.SizeY) + bufferSize;
             int zMax = (int)Math.Ceiling(tbounds.Z + tbounds.SizeZ) + bufferSize;
 
-            var min = new Vector3I(xMin, yMin, zMin);
-            var max = new Vector3I(xMax, yMax, zMax);
+            Vector3I min = new(xMin, yMin, zMin);
+            Vector3I max = new(xMax, yMax, zMax);
 
             // Do not round up the array size, as this really isn't required, and it increases the calculation time.
             int xCount = xMax - xMin;
@@ -78,7 +78,6 @@ namespace SEToolbox.Interop.Asteroids
                 complete?.Invoke();
                 return null;
             }
-
             var rotateMatrix = new MatrixD(rotationMatrix.M11, rotationMatrix.M12, rotationMatrix.M13, rotationMatrix.M14,
                                            rotationMatrix.M21, rotationMatrix.M22, rotationMatrix.M23, rotationMatrix.M24,
                                            rotationMatrix.M31, rotationMatrix.M32, rotationMatrix.M33, rotationMatrix.M34,
@@ -215,6 +214,7 @@ namespace SEToolbox.Interop.Asteroids
                 return null;
             }
             //lookintoSurcaceMaterial
+            
             Vector3I size = new(xCount, yCount, zCount);
             // TODO: At the moment the Mesh list is not complete, so the faceMaterial setting is kind of vague.
             byte? defaultMaterial = model.Meshes[0].MaterialIndex; // Use the FaceMaterial from the first Mesh in the object list.
@@ -236,7 +236,6 @@ namespace SEToolbox.Interop.Asteroids
                     args.CoordinatePoint.Y >= pointOffset.Y && args.CoordinatePoint.Y < pointOffset.Y + yCount &&
                     args.CoordinatePoint.Z >= pointOffset.Z && args.CoordinatePoint.Z < pointOffset.Z + zCount)
                 {
-                    var coord = args.CoordinatePoint - pointOffset;
 
                     args.Volume = finalCubic[coord.X, coord.Y, coord.Z];
                     args.MaterialIndex = finalMats[coord.X, coord.Y, coord.Z];
@@ -244,6 +243,7 @@ namespace SEToolbox.Interop.Asteroids
             }
 
             var voxelMap = MyVoxelBuilder.BuildAsteroid(true, size, defaultMaterial.Value, faceMaterial, CellAction);
+            MyVoxelMapBase voxelMap = MyVoxelBuilder.BuildAsteroid(true, size, defaultMaterial.Value, faceMaterial, CellAction);
 
             complete?.Invoke();
 
@@ -378,6 +378,7 @@ namespace SEToolbox.Interop.Asteroids
             Vector3 coordMin = axisMin + coordF;
             Vector3 coordMax = axisMax + coordF;
             var rayPoints = new Point3DCollection();
+            Point3DCollection rayPoints = [];
             foreach (MeshGeometery geometry in geometries)
             {
                 for (int t = 0; t < geometry.Triangles.Length; t += 3)

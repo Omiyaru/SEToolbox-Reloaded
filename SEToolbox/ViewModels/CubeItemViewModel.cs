@@ -128,114 +128,133 @@ namespace SEToolbox.ViewModels
         public bool IsSelected
         {
             get => _dataModel.IsSelected;
+
             set => _dataModel.IsSelected = value;
         }
 
         public MyObjectBuilder_CubeBlock Cube
         {
             get => _dataModel.Cube;
+
             set => _dataModel.Cube = value;
         }
 
         public MyObjectBuilderType TypeId
         {
             get => _dataModel.TypeId;
+
             set => _dataModel.TypeId = value;
         }
 
         public string SubtypeId
         {
             get => _dataModel.SubtypeId;
+
             set => _dataModel.SubtypeId = value;
         }
 
         public string TextureFile
         {
             get => _dataModel.TextureFile;
+
             set => _dataModel.TextureFile = value;
         }
 
         public MyCubeSize CubeSize
         {
             get => _dataModel.CubeSize;
+
             set => _dataModel.CubeSize = value;
         }
 
         public string FriendlyName
         {
             get => _dataModel.FriendlyName;
+
             set => _dataModel.FriendlyName = value;
         }
 
         public string OwnerName
         {
             get => _dataModel.OwnerName;
+
             set => _dataModel.OwnerName = value;
         }
 
         public long Owner
         {
             get => _dataModel.Owner;
+
             set => _dataModel.Owner = value;
         }
 
         public string BuiltByName
         {
             get => _dataModel.BuiltByName;
+
             set => _dataModel.BuiltByName = value;
         }
 
         public long BuiltBy
         {
             get => _dataModel.BuiltBy;
+
             set => _dataModel.BuiltBy = value;
         }
 
         public string ColorText
         {
             get => _dataModel.ColorText;
+
             set => _dataModel.ColorText = value;
         }
 
         public float ColorHue
         {
             get => _dataModel.ColorHue;
+
             set => _dataModel.ColorHue = value;
         }
 
         public float ColorSaturation
         {
             get => _dataModel.ColorSaturation;
+
             set => _dataModel.ColorSaturation = value;
         }
 
         public float ColorLuminance
         {
             get => _dataModel.ColorLuminance;
+
             set => _dataModel.ColorLuminance = value;
         }
 
         public BindablePoint3DIModel Position
         {
             get => _dataModel.Position;
+
             set => _dataModel.Position = value;
         }
 
         public double BuildPercent
         {
             get => _dataModel.BuildPercent;
+
             set => _dataModel.BuildPercent = value;
         }
 
         public System.Windows.Media.Brush Color
         {
             get => _dataModel.Color;
+
             set => _dataModel.Color = value;
         }
 
         public int PCU
         {
             get => _dataModel.PCU;
+
             set => _dataModel.PCU = value;
         }
 

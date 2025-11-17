@@ -33,6 +33,7 @@ namespace SEToolbox.Services
         public bool AllowDropToSource
         {
             get => (bool)GetValue(AllowDropToSourceProperty);
+
             set => SetValue(AllowDropToSourceProperty, value);
         }
 
@@ -40,6 +41,7 @@ namespace SEToolbox.Services
         public bool ShowDropIndicator
         {
             get => (bool)GetValue(ShowDropIndicatorProperty);
+
             set => SetValue(ShowDropIndicatorProperty, value);
         }
 
@@ -50,6 +52,7 @@ namespace SEToolbox.Services
         public Type DropType
         {
             get => (Type)GetValue(DropTypeProperty);
+
             set => SetValue(DropTypeProperty, value);
         }
 

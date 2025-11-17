@@ -23,8 +23,7 @@ namespace SEToolbox.Models
 
         public SelectCubeModel()
 	{
-        _cubeList = [];
-    
+        _cubeList = [];    
 	}
 
         #endregion

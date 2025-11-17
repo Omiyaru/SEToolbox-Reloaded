@@ -75,34 +75,34 @@ namespace SEToolbox.ViewModels
         {
             get => _closeResult;
 
-            set
-            {
-                _closeResult = value;
-                OnPropertyChanged(nameof(CloseResult));
-            }
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         public string GameApplicationPath
         {
             get => _dataModel.GameApplicationPath;
+
             set => _dataModel.GameApplicationPath = value;
         }
 
         public string GameBinPath
         {
             get => _dataModel.GameBinPath;
+
             set => _dataModel.GameBinPath = value;
         }
 
         public bool IsValidApplication
         {
             get => _dataModel.IsValidApplication;
+
             set => _dataModel.IsValidApplication = value;
         }
 
         public bool IsWrongApplication
         {
             get => _dataModel.IsWrongApplication;
+
             set => _dataModel.IsWrongApplication = value;
         }
 

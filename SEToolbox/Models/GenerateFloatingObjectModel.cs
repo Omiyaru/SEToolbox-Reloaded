@@ -104,7 +104,7 @@ namespace SEToolbox.Models
         {
             get => _decimalUnits;
 
-            set => SetProperty(ref _decimalUnits, value, nameof(DecimalUnits));
+            set => SetProperty(ref _decimalUnits, value, nameof(DecimalUnits), ()=>{ SetMassVolume()});
         }
 
         public bool IsDecimal

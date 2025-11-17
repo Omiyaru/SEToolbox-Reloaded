@@ -26,6 +26,7 @@ namespace SEToolbox.Models
         public bool IsBusy
         {
             get => _isBusy;
+
             set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
                     {
                         if (_isBusy)
@@ -35,19 +36,17 @@ namespace SEToolbox.Models
                     });
         }
 
-
-
-
-
         public IStructureBase SelectionLeft
         {
             get => _selectionLeft;
+
             set => SetProperty(ref _selectionLeft, value, nameof(SelectionLeft));
         }
 
         public IStructureBase SelectionRight
         {
             get => _selectionRight;
+
             set => SetProperty(ref _selectionRight, value, nameof(SelectionRight));
         }
 
@@ -57,30 +56,35 @@ namespace SEToolbox.Models
         public bool IsValidMerge
         {
             get => _isValidMerge;
+
             set => SetProperty(ref _isValidMerge, value, nameof(IsValidMerge));
         }
 
         public string SourceFile
         {
             get => _sourceFile;
+
             set => SetProperty(ref _sourceFile, value, nameof(SourceFile));
         }
 
         public VoxelMergeType VoxelMergeType
         {
             get => _voxelMergeType;
+
             set => SetProperty(ref _voxelMergeType, value, nameof(VoxelMergeType));
         }
 
         public string MergeFileName
         {
             get => _mergeFileName;
+
             set => SetProperty(ref _mergeFileName, value, nameof(MergeFileName));
         }
 
         public bool RemoveOriginalAsteroids
         {
             get => _removeOriginalAsteroids;
+
             set => SetProperty(ref _removeOriginalAsteroids, value, nameof(RemoveOriginalAsteroids));
         }
 

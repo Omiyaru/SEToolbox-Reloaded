@@ -79,6 +79,7 @@ namespace SEToolbox.Models
         public string Name
         {
             get => Planet.StorageName;
+
             set => SetProperty(Planet.StorageName, value, nameof(Name));
         }
 
@@ -102,6 +103,7 @@ namespace SEToolbox.Models
         public string VoxelFilePath
         {
             get => _voxelFilePath;
+
             set => SetProperty(ref _voxelFilePath, value, nameof(VoxelFilePath));
             
         }
@@ -110,6 +112,7 @@ namespace SEToolbox.Models
         public Vector3I Size
         {
             get => _size;
+
             set => SetProperty(ref _size, value, nameof(Size));
         }
 

@@ -21,6 +21,7 @@ namespace SEToolbox.Models
         public string Name
         {
             get => _name;
+            
             set => SetProperty(ref _name, value, nameof(Name), nameof(DisplayName));
         }
 
@@ -35,12 +36,14 @@ namespace SEToolbox.Models
         public long PlayerId
         {
             get => _playerId;
+            
             set => SetProperty(ref _playerId, value, nameof(PlayerId));
         }
 
         public bool IsPlayer
         {
             get => _isPlayer;
+            
             set => SetProperty(ref _isPlayer, value, nameof(IsPlayer), nameof(DisplayName));
         }
 

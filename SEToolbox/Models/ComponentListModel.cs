@@ -268,9 +268,9 @@ namespace SEToolbox.Models
 
                 foreach (var asset in CubeAssets)
                 {
-                    Ext.RenderTag(writer, "tr", true);
+                   Ext.RenderStartTag(writer, "td");
 
-                    Ext.RenderTag(writer, "td", true);
+                    Ext.RenderStartTag(writer, "td");
                     if (asset.TextureFile != null)
                     {
                         string texture = GetTextureToBase64(asset.TextureFile, 32, 32);
@@ -280,11 +280,11 @@ namespace SEToolbox.Models
                             writer.AddAttribute("width", "32");
                             writer.AddAttribute("height", "32");
                             writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
-                            Ext.RenderTag(writer, "img", true);
-                            Ext.RenderTag(writer, "tr", false);
+                            Ext.RenderStartTag(writer, "img");
+                            Ext.RenderEndTag(writer, "tr");
                         }
                     }
-                    Ext.RenderTag(writer, "td", false); // Td
+                    Ext.RenderTag(writer, "td"); // Td
 
                     writer.RenderElement("td", asset.FriendlyName);
                     writer.RenderElement("td", asset.TypeId);
@@ -299,9 +299,9 @@ namespace SEToolbox.Models
                     writer.RenderElement("td", $"{asset.Time:hh\\:mm\\:ss\\.ff}");
                     writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
 
-                    Ext.RenderTag(writer, "tr", false); // Tr
+                    Ext.RenderEndTag(writer, "tr"); // Tr
                 }
-                Ext.RenderTag(writer, "table", false); // Table
+                Ext.RenderEndTag(writer, "table"); // Table
 
                 #endregion
 
@@ -313,8 +313,8 @@ namespace SEToolbox.Models
 
                 foreach (ComponentItemModel asset in ComponentAssets)
                 {
-                    Ext.RenderTag(writer, "tr", true);
-                    Ext.RenderTag(writer, "td", true);
+                    Ext.RenderStartTag(writer, "td");
+                    Ext.RenderStartTag(writer, "td");
                     if (asset.TextureFile != null)
                     {
                         string texture = GetTextureToBase64(asset.TextureFile, 32, 32);
@@ -324,11 +324,11 @@ namespace SEToolbox.Models
                             writer.AddAttribute("width", "32");
                             writer.AddAttribute("height", "32");
                             writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
-                            Ext.RenderTag(writer, "img", true);
-                            Ext.RenderTag(writer, "tr", false);
+                            Ext.RenderStartTag(writer, "img";
+                            Ext.RenderEndTag(writer, "tr");
                         }
                     }
-                    Ext.RenderTag(writer, "td", false); // Td
+                    Ext.RenderTag(writer, "td"); // Td
 
                     writer.RenderElement("td", asset.FriendlyName);
                     writer.RenderElement("td", asset.TypeId);
@@ -342,9 +342,9 @@ namespace SEToolbox.Models
                     writer.RenderElement("td", $"{asset.Time:hh\\:mm\\:ss\\.ff}");
                     writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
 
-                    Ext.RenderTag(writer, "tr", false); // Tr
+                    Ext.RenderEndTag(writer, "tr"); // Tr
                 }
-                Ext.RenderTag(writer, "table", false); // Table
+                Ext.RenderEndTag(writer, "table"); // Table
 
                 #endregion
 
@@ -356,9 +356,9 @@ namespace SEToolbox.Models
 
                 foreach (ComponentItemModel asset in ItemAssets)
                 {
-                    Ext.RenderTag(writer, "tr", true);
+                   Ext.RenderStartTag(writer, "td");
 
-                    Ext.RenderTag(writer, "td", true);
+                    Ext.RenderStartTag(writer, "td");
                     if (asset.TextureFile != null)
                     {
                         string texture = GetTextureToBase64(asset.TextureFile, 32, 32);
@@ -368,11 +368,11 @@ namespace SEToolbox.Models
                             writer.AddAttribute("width", "32");
                             writer.AddAttribute("height", "32");
                             writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
-                            Ext.RenderTag(writer, "img", true);
-                            Ext.RenderTag(writer, "tr", false);
+                            Ext.RenderStartTag(writer, "img";
+                            Ext.RenderEndTag(writer, "tr");
                         }
                     }
-                    Ext.RenderTag(writer, "td", false); // Td
+                    Ext.RenderTag(writer, "td"); // Td
 
                     writer.RenderElement("td", asset.FriendlyName);
                     writer.RenderElement("td", asset.TypeId);
@@ -386,9 +386,9 @@ namespace SEToolbox.Models
                     writer.RenderElement("td", $"{ asset.Time:hh\\:mm\\:ss\\.ff}");
                     writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
 
-                    Ext.RenderTag(writer, "tr", false); // Tr
+                    Ext.RenderEndTag(writer, "tr"); // Tr
                 }
-                Ext.RenderTag(writer, "td", false); // Table
+                Ext.RenderTag(writer, "table")//td?; // Table
 
                 #endregion
 
@@ -400,9 +400,9 @@ namespace SEToolbox.Models
 
                 foreach (ComponentItemModel asset in MaterialAssets)
                 {
-                    Ext.RenderTag(writer, "tr", true);
+                   Ext.RenderStartTag(writer, "td");
 
-                    Ext.RenderTag(writer, "td", true);
+                    Ext.RenderStartTag(writer, "td");
                     if (asset.TextureFile != null)
                     {
                         string texture = GetTextureToBase64(asset.TextureFile, 32, 32, true);
@@ -412,11 +412,11 @@ namespace SEToolbox.Models
                             writer.AddAttribute("width", "32");
                             writer.AddAttribute("height", "32");
                             writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
-                            Ext.RenderTag(writer, "img", true);
-                            Ext.RenderTag(writer, "tr", false);
+                            Ext.RenderStartTag(writer, "img";
+                            Ext.RenderEndTag(writer, "tr");
                         }
                     }
-                    Ext.RenderTag(writer, "td", false); // Td
+                    Ext.RenderTag(writer, "td"); // Td
 
                     writer.RenderElement("td", asset.Name);
                     writer.RenderElement("td", asset.OreName);
@@ -424,9 +424,9 @@ namespace SEToolbox.Models
                     writer.RenderElement("td", $"{ asset.MineOreRatio:#,##0.00}");
                     writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
 
-                    Ext.RenderTag(writer, "tr", false); // Tr
+                    Ext.RenderEndTag(writer, "tr"); // Tr
                 }
-                Ext.RenderTag(writer, "table", false); // Table
+                Ext.RenderEndTag(writer, "table"); // Table
 
                 #endregion
 

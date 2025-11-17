@@ -18,6 +18,7 @@ namespace SEToolbox.Support
         public static Window Splash
         {
             get => _splash;
+
             set => _splash = value;
         }
         /// <summary>

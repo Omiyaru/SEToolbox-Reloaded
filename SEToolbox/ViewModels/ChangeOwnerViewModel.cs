@@ -52,11 +52,7 @@ namespace SEToolbox.ViewModels
         {
             get => _closeResult;
 
-            set
-            {
-                _closeResult = value;
-                OnPropertyChanged(nameof(CloseResult));
-            }
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         /// <summary>
@@ -66,18 +62,13 @@ namespace SEToolbox.ViewModels
         {
             get => _isBusy;
 
-            set
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
-                if (value != _isBusy)
-                {
-                    _isBusy = value;
-                    OnPropertyChanged(nameof(IsBusy));
                     if (_isBusy)
                     {
                         System.Windows.Forms.Application.DoEvents();
                     }
-                }
-            }
+            });
         }
 
         public ObservableCollection<OwnerModel> PlayerList
@@ -88,6 +79,7 @@ namespace SEToolbox.ViewModels
         public OwnerModel SelectedPlayer
         {
             get => _dataModel.SelectedPlayer;
+
             set => _dataModel.SelectedPlayer = value;
         }
 

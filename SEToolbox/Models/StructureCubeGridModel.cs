@@ -178,6 +178,7 @@ namespace SEToolbox.Models
         public bool IsDamaged
         {
             //check if any block is damaged per its IntegrityPercent
+            
             get => CubeGrid.CubeBlocks.Any(cube => cube.IntegrityPercent < 1);
         }
 
@@ -205,6 +206,7 @@ namespace SEToolbox.Models
         public TimeSpan TimeToProduce
         {
             get => _timeToProduce;
+            
             set => SetProperty(ref _timeToProduce, value, nameof(TimeToProduce));
         }
 
@@ -222,6 +224,7 @@ namespace SEToolbox.Models
         public string CockpitOrientation
         {
             get => _cockpitOrientation;
+            
             set => SetProperty(ref _cockpitOrientation, value, nameof(CockpitOrientation));
         }
 
@@ -241,6 +244,7 @@ namespace SEToolbox.Models
         public List<CubeAssetModel> ComponentAssets
         {
             get => _componentAssets;
+            
             set => SetProperty(ref _componentAssets, value, nameof(ComponentAssets));
 
         }
@@ -251,6 +255,7 @@ namespace SEToolbox.Models
         public List<OreAssetModel> IngotAssets
         {
             get => _ingotAssets;
+            
             set => SetProperty(ref _ingotAssets, value, nameof(IngotAssets));
         }
 
@@ -260,36 +265,42 @@ namespace SEToolbox.Models
         public List<OreAssetModel> OreAssets
         {
             get => _oreAssets;
+            
             set => SetProperty(ref _oreAssets, value, nameof(OreAssets));
         }
 
         public string ActiveComponentFilter
         {
             get => _activeComponentFilter;
+            
             set => SetProperty(ref _activeComponentFilter, value, nameof(ActiveComponentFilter));
         }
 
         public string ComponentFilter
         {
             get => _componentFilter;
+            
             set => SetProperty(ref _componentFilter, value, nameof(ComponentFilter));
         }
 
         public ObservableCollection<CubeItemModel> CubeList
         {
             get => _cubeList;
+            
             set => SetProperty(ref _cubeList, value, nameof(CubeList));
         }
 
         public bool IsSubsSystemNotReady
         {
             get => _isSubsSystemNotReady;
+            
             set => SetProperty(ref _isSubsSystemNotReady, value, nameof(IsSubsSystemNotReady));
         }
 
         public bool IsConstructionNotReady
         {
             get => _isConstructionNotReady;
+            
             set => SetProperty(ref _isConstructionNotReady, value, nameof(IsConstructionNotReady));
         }
 
@@ -1020,10 +1031,9 @@ namespace SEToolbox.Models
                     OnPropertyChanged(nameof(BlockCount));
                     return count > 0;
                 }
-
-                // Use the built-in Mirror plane defined in the game.
+            
                 switch (true)
-                {
+                {   
                     case var _ when CubeGrid.XMirroxPlane.HasValue:
                         xMirror = CubeGrid.XMirroxOdd ? Mirror.EvenDown : Mirror.Odd;
                         xAxis = CubeGrid.XMirroxPlane.Value.X;

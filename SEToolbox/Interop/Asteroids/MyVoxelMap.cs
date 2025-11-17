@@ -85,6 +85,7 @@ namespace SEToolbox.Interop.Asteroids
         public override IMyStorage Storage
         {
             get => m_storage;
+
             set => m_storage = value;
         }
 

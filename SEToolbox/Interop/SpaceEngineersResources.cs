@@ -32,7 +32,7 @@ namespace SEToolbox.Interop
         {
             // Call PreloadDefinitions(), to load DefinitionsToPreload.sbc file first.
             // otherwise LoadData() may throw an InvalidOperationException due to a modified collection.
-          List<ModItem> userMods =[];
+          	List<ModItem> userMods =[];
             userModsPath = SEConsts.BaseLocalPath.ModsPath;
             if (!string.IsNullOrEmpty(userModsPath)) 
             {
@@ -44,6 +44,7 @@ namespace SEToolbox.Interop
                         mods.Add(mod);
                     }
                 }
+                
                 MyDefinitionManager.Static.PreloadDefinitions();
                 MyDefinitionManager.Static.LoadData(mods);
                 MaterialIndex = [];

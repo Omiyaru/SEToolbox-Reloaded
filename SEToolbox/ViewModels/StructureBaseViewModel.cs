@@ -26,63 +26,38 @@ namespace SEToolbox.ViewModels
         public bool IsSelected
         {
             get => _isSelected;
-            set
-            {
-                if (value != _isSelected)
-                {
-                    _isSelected = value;
-                    OnPropertyChanged(nameof(IsSelected));
-                }
-            }
-        }
 
+            set => SetProperty(ref _isSelected, value, nameof(IsSelected));
+        }
         /// <summary>
         /// Gets or sets a value indicating whether the View is currently in the middle of an asynchonise operation.
         /// </summary>
         public bool IsBusy
         {
             get => DataModel.IsBusy;
+
             set => DataModel.IsBusy = value;
         }
 
         public long EntityId
         {
             get => DataModel.EntityId;
-            set
-            {
-                if (value != DataModel.EntityId)
-                {
-                    DataModel.EntityId = value;
-                    OnPropertyChanged(nameof(EntityId));
-                }
-            }
+
+            set => SetProperty( DataModel.EntityId, value, nameof(EntityId));
         }
 
         public MyPositionAndOrientation? PositionAndOrientation
         {
             get => DataModel.PositionAndOrientation;
-            set
-            {
-                if (!EqualityComparer<MyPositionAndOrientation?>.Default.Equals(value, DataModel.PositionAndOrientation))
-                //if (value != entityBase.PositionAndOrientation)
-                {
-                    DataModel.PositionAndOrientation = value;
-                    OnPropertyChanged(nameof(PositionAndOrientation));
-                }
-            }
+
+            set => SetProperty( DataModel.PositionAndOrientation, value, nameof(PositionAndOrientation));
         }
 
         public ClassType ClassType
         {
             get => DataModel.ClassType;
-            set
-            {
-                if (value != DataModel.ClassType)
-                {
-                    DataModel.ClassType = value;
-                    OnPropertyChanged(nameof(ClassType));
-                }
-            }
+
+            set => SetProperty( DataModel.ClassType, value, nameof(ClassType));
         }
 
         public string DisplayName
@@ -98,30 +73,35 @@ namespace SEToolbox.ViewModels
         public string Description
         {
             get => DataModel.Description;
+
             set => DataModel.Description = value;
         }
 
         public double PlayerDistance
         {
             get => DataModel.PlayerDistance;
+
             set => DataModel.PlayerDistance = value;
         }
 
         public double Mass
         {
             get => DataModel.Mass;
+
             set => DataModel.Mass = value;
         }
 
         public int BlockCount
         {
             get => DataModel.BlockCount;
+
             set => DataModel.BlockCount = value;
         }
 
         public virtual double LinearVelocity
         {
             get => DataModel.LinearVelocity;
+
             set => DataModel.LinearVelocity = value;
         }
 
