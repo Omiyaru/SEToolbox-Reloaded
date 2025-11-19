@@ -15,6 +15,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Web;
 using System.Xml;
@@ -140,10 +142,10 @@ td.right { text-align: right; }";
                 SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
                 {
                     SetActiveStatus();
-                if (_isBusy)
-                {
-                    System.Windows.Forms.Application.DoEvents();
-                }
+                    if (_isBusy)
+                    {
+                        System.Windows.Forms.Application.DoEvents();
+                    }
                 });
             }
         }
@@ -182,13 +184,12 @@ td.right { text-align: right; }";
             get => _progress;
             set => SetProperty(ref _progress, value, () =>
                     {
-
                         System.Windows.Forms.Application.DoEvents();
                         _timer.Restart();
                     }, nameof(Progress));
         }
 
-       
+
 
         public double MaximumProgress
         {
@@ -200,17 +201,17 @@ td.right { text-align: right; }";
 
         #region Methods
 
+        private static readonly Dictionary<string, ReportType> _reportTypeMap = new(StringComparer.OrdinalIgnoreCase)
+        {
+            { ".txt", ReportType.Text },
+            { ".htm", ReportType.Html },
+            { ".html", ReportType.Html },
+            { ".xml", ReportType.Xml },
+        };
+
         internal static ReportType GetReportType(string reportExtension)
         {
-            reportExtension = reportExtension.ToUpper() ?? string.Empty;
-
-            return reportExtension switch
-            {
-                ".TXT" => ReportType.Text,
-                ".HTM" or ".HTML" => ReportType.Html,
-                ".XML" => ReportType.Xml,
-                _ => ReportType.Unknown,
-            };
+            return _reportTypeMap.TryGetValue(reportExtension?.ToUpperInvariant() ?? string.Empty, out var result) ? result : ReportType.Unknown;
         }
 
         public void Load(string saveName, IList<IStructureBase> entities)
@@ -282,7 +283,7 @@ td.right { text-align: right; }";
 
                     try
                     {
-                        details =  MyVoxelMapBase.GetMaterialAssetDetails(fileName);
+                        details = MyVoxelMapBase.GetMaterialAssetDetails(fileName);
                     }
                     catch
                     {
@@ -356,7 +357,7 @@ td.right { text-align: right; }";
                 else if (entity is StructureCharacterModel character && !character.IsPilot && character.Character.Inventory != null) // ignore pilots,
                 {
 
-                    foreach (MyObjectBuilder_InventoryItem item in character.Character.Inventory.Items)
+                    foreach (var item in character.Character.Inventory.Items)
                     {
                         TallyItems(item.PhysicalContent.TypeId, item.PhysicalContent.SubtypeName, (decimal)item.Amount, contentPath, accumulatePlayerOres, accumulateItems, accumulateComponents);
                     }
@@ -427,7 +428,7 @@ td.right { text-align: right; }";
                             if (block.BuildPercent < 1f)
                             {
                                 // break down the components, to get a accurate counted on the number of components actually in the cube.
-                                List<MyComponentDefinition> componentList = [];
+                                var componentList = new List<MyComponentDefinition>();
 
                                 foreach (MyCubeBlockDefinition.Component component in cubeBlockDefinition.Components)
                                 {
@@ -461,7 +462,7 @@ td.right { text-align: right; }";
                             else
                             {
                                 // Fully armed and operational cube.
-                                foreach (MyCubeBlockDefinition.Component component in cubeBlockDefinition.Components)
+                                foreach (var component in cubeBlockDefinition.Components)
                                 {
                                     MyComponentDefinition cd = MyDefinitionManager.Static.GetDefinition(component.Definition.Id) as MyComponentDefinition;
                                     #region Used Ore Value
@@ -607,7 +608,7 @@ td.right { text-align: right; }";
                 double mass = Math.Round((double)amountDecimal * cd.Mass, 7);
                 double volume = Math.Round((double)amountDecimal * cd.Volume * SpaceEngineersConsts.VolumeMultiplyer, 7);
 
-                #region Unsed Ore Value
+                #region Unused Ore Value
 
                 string unusedKey = tallySubTypeId;
                 if (accumulateOres.TryGetValue(unusedKey, out OreContent oreValue))
@@ -646,7 +647,7 @@ td.right { text-align: right; }";
             {
                 double mass = Math.Round((double)amountDecimal * cd.Mass, 7);
                 double volume = Math.Round((double)amountDecimal * cd.Volume * SpaceEngineersConsts.VolumeMultiplyer, 7);
-                MyBlueprintDefinitionBase bp = SpaceEngineersApi.GetBlueprint(tallyTypeId, tallySubTypeId);
+                var bp = SpaceEngineersApi.GetBlueprint(tallyTypeId, tallySubTypeId);
                 TimeSpan timeToMake = TimeSpan.Zero;
 
                 // no blueprint, means the item is not built by players, but generated by the environment.
@@ -655,9 +656,9 @@ td.right { text-align: right; }";
                     timeToMake = TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds * (double)amountDecimal / (double)bp.Results[0].Amount);
                 }
 
-                #region Unsed Ore Value
+                #region Unused Ore Value
 
-                Dictionary<string, BlueprintRequirement> oreRequirements = [];
+                var oreRequirements = new Dictionary<string, BlueprintRequirement>();
                 SpaceEngineersApi.AccumulateCubeBlueprintRequirements(tallySubTypeId, tallyTypeId, amountDecimal, oreRequirements, out _);
 
                 foreach (KeyValuePair<string, BlueprintRequirement> item in oreRequirements)
@@ -693,12 +694,12 @@ td.right { text-align: right; }";
             {
                 double mass = Math.Round((double)amountDecimal * cd.Mass, 7);
                 double volume = Math.Round((double)amountDecimal * cd.Volume * SpaceEngineersConsts.VolumeMultiplyer, 7);
-                MyBlueprintDefinitionBase bp = SpaceEngineersApi.GetBlueprint(tallyTypeId, tallySubTypeId);
+                var bp = SpaceEngineersApi.GetBlueprint(tallyTypeId, tallySubTypeId);
                 TimeSpan timeToMake = TimeSpan.FromSeconds(bp == null ? 0 : bp.BaseProductionTimeInSeconds * (double)amountDecimal);
 
-                #region Unsed Ore Value
+                #region Unused Ore Value
 
-                Dictionary<string, BlueprintRequirement> oreRequirements = [];
+                var oreRequirements = new Dictionary<string, BlueprintRequirement>();
                 SpaceEngineersApi.AccumulateCubeBlueprintRequirements(tallySubTypeId, tallyTypeId, amountDecimal, oreRequirements, out _);
 
                 foreach (KeyValuePair<string, BlueprintRequirement> item in oreRequirements)
@@ -739,9 +740,9 @@ td.right { text-align: right; }";
                 if (bp != null)
                     timeToMake = TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds * (double)amountDecimal);
 
-                #region Unsed Ore Value
+                #region Unused Ore Value
 
-                Dictionary<string, BlueprintRequirement> oreRequirements = [];
+                var oreRequirements = new Dictionary<string, BlueprintRequirement>();
                 SpaceEngineersApi.AccumulateCubeBlueprintRequirements(tallySubTypeId, tallyTypeId, amountDecimal, oreRequirements, out _);
 
                 foreach (KeyValuePair<string, BlueprintRequirement> item in oreRequirements)
@@ -800,7 +801,7 @@ td.right { text-align: right; }";
                 if (accumulateItems != null)
                 {
                     string itemsKey = cd.DisplayNameText;
-                    if (accumulateItems.TryGetValue(itemsKey, out ComponentItemModel value))
+                    if (accumulateItems.TryGetValue(itemsKey, out var value))
                     {
                         value.Count += amountDecimal;
                         value.Mass += mass;
@@ -824,7 +825,7 @@ td.right { text-align: right; }";
                 _ => string.Empty,
             };
         }
-       
+
         internal string CreateTextReport()
         {
             StringBuilder bld = new();
@@ -847,42 +848,31 @@ td.right { text-align: right; }";
                 bld.AppendFormat($"{item.MaterialName}\t{item.Volume:#,##0.000}\r\n");
             }
 
-            bld.AppendLine();
-            bld.AppendLine(Res.ClsReportHeaderUnusedUnrefinedOre);
-            bld.AppendFormat($"{Res.ClsReportColOreName}\t{Res.ClsReportColMass} {Res.GlobalSIMassKilogram}\t{Res.ClsReportColVolume} {Res.GlobalSIVolumeLitre}\r\n");
-            foreach (OreContent item in _unusedOre)
+            Dictionary<string, List<OreContent>> oreHeaders = new()
             {
-                bld.AppendFormat($"{item.FriendlyName}\t{item.Mass:#,##0.000}\t{item.Volume:#,##0.000}\r\n");
-            }
-
-            bld.AppendLine();
-            bld.AppendLine(Res.ClsReportHeaderUnusedRefinerdOre);
-            bld.AppendFormat($"{Res.ClsReportColOreName}\t{Res.ClsReportColMass} {Res.GlobalSIMassKilogram}\t{Res.ClsReportColVolume} {Res.GlobalSIVolumeLitre}\r\n");
-            foreach (OreContent item in _usedOre)
+                {Res.ClsReportHeaderUnusedUnrefinedOre, _unusedOre},
+                {Res.ClsReportHeaderUnusedRefinerdOre, _usedOre},
+                {Res.ClsReportHeaderUsedPlayerOre, _playerOre},
+                {Res.ClsReportHeaderUsedNpcOre, _npcOre},
+            };
+            foreach (var oreHader in oreHeaders)
             {
-                bld.AppendFormat($"{item.FriendlyName}\t{item.Mass:#,##0.000}\t{item.Volume:#,##0.000}\r\n");
+
+                bld.AppendLine();
+                bld.AppendLine(oreHader.Key);
+                bld.AppendFormat($"{Res.ClsReportColOreName}\t{Res.ClsReportColMass} {Res.GlobalSIMassKilogram}\t{Res.ClsReportColVolume} {Res.GlobalSIVolumeLitre}\r\n");
+                foreach (OreContent item in oreHader.Value)
+                {
+                    bld.AppendFormat($"{item.FriendlyName}\t{item.Mass:#,##0.000}\t{item.Volume:#,##0.000}\r\n");
+                }
             }
-
-            bld.AppendLine();
-            bld.AppendLine(Res.ClsReportHeaderUsedPlayerOre);
-            bld.AppendFormat($"{Res.ClsReportColOreName}\t{Res.ClsReportColMass} {Res.GlobalSIMassKilogram}\t{Res.ClsReportColVolume} {Res.GlobalSIVolumeLitre}\r\n");
-           
-
-            foreach (OreContent item in _playerOre)
-            {
-                bld.AppendFormat($"{item.FriendlyName}\t{item.Mass:#,##0.000}\t{item.Volume:#,##0.000}\r\n");
-            }
-
-            bld.AppendLine();
-            bld.AppendLine(Res.ClsReportHeaderUsedNpcOre);
-            bld.AppendFormat($"{Res.ClsReportColOreName}\t{Res.ClsReportColMass} {Res.GlobalSIMassKilogram}\t{Res.ClsReportColVolume} {Res.GlobalSIVolumeLitre}\r\n");
-            foreach (OreContent item in _npcOre)
-            {
-                bld.AppendFormat($"{item.FriendlyName}\t{item.Mass:#,##0.000}\t{item.Volume:#,##0.000}\r\n");
-            }
-
             #endregion
-
+            Dictionary<string, (string, List<ComponentItemModel>)> allHeaders = new()
+            {
+                {Res.ClsReportHeaderAllCubes, (Res.ClsReportColCubeName, _allCubes)},
+                {Res.ClsReportHeaderAllComponents,(Res.ClsReportColComponentName, _allComponents)},
+                {Res.ClsReportHeaderAllItems, (Res.ClsReportColAllItemsName, _allItems)},
+            };
             #region In-Game Assets
 
             bld.AppendLine();
@@ -895,33 +885,18 @@ td.right { text-align: right; }";
             bld.AppendLine($"{_totalCubes:#,##0}\t{_totalPCU:#,##0}");
 
             bld.AppendLine();
-            bld.AppendLine(Res.ClsReportHeaderAllCubes);
-            bld.AppendLine($"{Res.ClsReportColCubeName}\t{Res.ClsReportColCount}\t{Res.ClsReportColMass} {Res.GlobalSIMassKilogram}\t{Res.ClsReportColTime}\t{Res.ClsReportColPCU}");
-            foreach (ComponentItemModel item in _allCubes)
+            foreach (var header in allHeaders)
             {
-                bld.AppendLine($"{item.FriendlyName}\t{item.Count:#,##0}\t{item.Mass:#,##0.000}\t{item.Time}\t{item.PCU:#,##0}");
+                foreach (ComponentItemModel item in header.Value.Item2)
+                {
+                    bld.AppendLine();
+                    bld.AppendLine(header.Key);
+                    if (header.Key == Res.ClsReportHeaderAllCubes)
+                        bld.AppendLine($"{Res.ClsReportColCubeName}\t{Res.ClsReportColCount}\t{Res.ClsReportColMass} {Res.GlobalSIMassKilogram}\t{Res.ClsReportColTime}\t{Res.ClsReportColPCU}");
+                    else
+                        bld.AppendFormat($"{item.FriendlyName}\t{item.Count:#,##0}\t{item.Mass:#,##0.000}\t{item.Volume:#,##0.000}\t{item.Time}\r\n");
+                }
             }
-
-            bld.AppendLine();
-            bld.AppendLine(Res.ClsReportHeaderAllComponents);
-
-            bld.AppendFormat($"{Res.ClsReportColComponentName}\t{Res.ClsReportColCount}\t{Res.ClsReportColMass} {Res.GlobalSIMassKilogram}\t{Res.ClsReportColVolume} {Res.GlobalSIVolumeLitre}\t{Res.ClsReportColTime}\r\n");
-            
-            foreach (ComponentItemModel item in _allComponents)
-            {
-                bld.AppendFormat($"{item.FriendlyName}\t{item.Count:#,##0}\t{item.Mass:#,##0.000}\t{item.Volume:#,##0.000}\t{item.Time}\r\n");
-
-            }
-
-            bld.AppendLine();
-            bld.AppendLine(Res.ClsReportHeaderAllItems);
-            bld.AppendFormat($"{Res.ClsReportColAllItemsName}\t{Res.ClsReportColCount}\t{Res.ClsReportColMass} {Res.GlobalSIMassKilogram}\t{Res.ClsReportColVolume} {Res.GlobalSIVolumeLitre}\t{Res.ClsReportColTime}\r\n");
-
-            foreach (ComponentItemModel item in _allItems)
-            {
-                bld.AppendFormat($"{item.FriendlyName}\t{item.Count:#,##0}\t{item.Mass:#,##0.000}\t{item.Volume:#,##0.000}\t{item.Time}\r\n");
-            }
-
 
             #endregion
 
@@ -936,7 +911,7 @@ td.right { text-align: right; }";
             {
                 foreach (VoxelMaterialAssetModel item in asteroid.UntouchedOreList ?? [])
                 {
-                    bld.AppendFormat($"{asteroid.Name}\t{item.MaterialName}\t{ item.Volume:#,##0.000}\r\n");
+                    bld.AppendFormat($"{asteroid.Name}\t{item.MaterialName}\t{item.Volume:#,##0.000}\r\n");
                 }
             }
 
@@ -947,7 +922,7 @@ td.right { text-align: right; }";
             bld.AppendLine();
             bld.AppendLine(Res.ClsReportColHeaderShips);
             bld.AppendFormat($"{Res.ClsReportColShip}\t{Res.ClsReportColEntityId}\t{Res.ClsReportColMass} {Res.GlobalSIMassKilogram}\t{Res.ClsReportColVolume} {Res.ClsReportColBlockCount}\t{Res.ClsReportColTime}\t{Res.ClsReportColPCU}\r\n");
-           
+
             foreach (ShipContent item in _allShips)
             {
                 bld.AppendFormat($"{item.DisplayName}\t{item.EntityId}\t{item.Mass:#,##0.000}\t{item.BlockCount}\r\n");
@@ -960,7 +935,7 @@ td.right { text-align: right; }";
         #endregion
 
         #region CreateHtmlReport
-        
+
         internal string CreateHtmlReport()
         {
             var writer = new StringWriter();
@@ -984,83 +959,47 @@ td.right { text-align: right; }";
             writer.BeginTable("1", "3", "0", [Res.ClsReportColMaterialName, Res.ClsReportColVolume + " " + Res.GlobalSIVolumeCubicMetre]);
             foreach (VoxelMaterialAssetModel item in _untouchedOre)
             {
-                Ext.RenderTagStart(writer, "tr");
+                writer.RenderTagStart("tr");
                 writer.RenderElement("td", item.MaterialName);
-                writer.AddAttribute( "class", "right");
-                writer.RenderElement("td", $"{ item.Volume:#,##0.000}");
-                Ext.RenderTagEnd(writer, "tr");
-            }
-            writer.EndTable();
-
-            writer.RenderElement("h3", Res.ClsReportHeaderUnusedUnrefinedOre);
-            writer.BeginTable("1", "3", "0", [Res.ClsReportColOreName, Res.ClsReportColMass + " " + Res.GlobalSIMassKilogram, Res.ClsReportColVolume + " " + Res.GlobalSIVolumeLitre]);
-
-            foreach (OreContent item in _unusedOre)
-            {
-                Ext.RenderTagStart(writer, "tr");
-                writer.RenderElement("td", item.FriendlyName);
-                writer.AddAttribute( "class", "right");
-                writer.RenderElement("td", $"{item.Mass:#,##0.000}");
-                writer.AddAttribute( "class", "right");
-                writer.RenderElement("td", $"{ item.Volume:#,##0.000}");
-                Ext.RenderTagEnd(writer, "tr");
-            }
-            writer.EndTable();
-
-            writer.RenderElement("h3", Res.ClsReportHeaderUnusedRefinerdOre);
-            writer.BeginTable("1", "3", "0", [Res.ClsReportColOreName, Res.ClsReportColMass + " " + Res.GlobalSIMassKilogram, Res.ClsReportColVolume + " " + Res.GlobalSIVolumeLitre]);
-            foreach (OreContent item in _usedOre)
-            {
-                Ext.RenderTagStart(writer, "tr");
-                writer.RenderElement("td", item.FriendlyName);
-                writer.AddAttribute( "class", "right");
-                writer.RenderElement("td", $"{item.Mass:#,##0.000}");
-                writer.AddAttribute( "class", "right");
+                writer.AddAttribute("class", "right");
                 writer.RenderElement("td", $"{item.Volume:#,##0.000}");
-                Ext.RenderTagEnd(writer, "tr");
+                writer.RenderTagEnd("tr");
             }
-            
             writer.EndTable();
 
-            writer.RenderElement("h3", Res.ClsReportHeaderUsedPlayerOre);
-            writer.BeginTable("1", "3", "0", [Res.ClsReportColOreName, Res.ClsReportColMass + " " + Res.GlobalSIMassKilogram, Res.ClsReportColVolume + " " + Res.GlobalSIVolumeLitre]);
-            foreach (OreContent item in _playerOre)
-
+            Dictionary<string, List<OreContent>> oreHeaders = new()
             {
-                Ext.RenderTagStart(writer, "tr");
-                writer.RenderElement("td", item.FriendlyName);
+                {Res.ClsReportHeaderUnusedUnrefinedOre, _unusedOre},
+                {Res.ClsReportHeaderUnusedRefinerdOre, _usedOre},
+                {Res.ClsReportHeaderUsedPlayerOre, _playerOre},
+                {Res.ClsReportHeaderUsedNpcOre, _npcOre},
+            };
 
-                writer.AddAttribute( "class", "right");
-                writer.RenderElement("td", $"{item.Mass:#,##0.000}");
-
-                writer.AddAttribute( "class", "right");
-                writer.RenderElement("td", $"{item.Volume:#,##0.000}");
-
-                Ext.RenderTagEnd(writer, "tr"); // Tr
-            }
-            writer.EndTable();
-
-            writer.RenderElement("h3", Res.ClsReportHeaderUsedNpcOre);
-            writer.BeginTable("1", "3", "0", [Res.ClsReportColOreName, Res.ClsReportColMass + " " + Res.GlobalSIMassKilogram, Res.ClsReportColVolume + " " + Res.GlobalSIVolumeLitre]);
-            foreach (OreContent item in _npcOre)
+            foreach (var oreHeader in oreHeaders)
             {
-                Ext.RenderTagStart(writer, "tr");
-                writer.RenderElement("td", item.FriendlyName);
-                writer.AddAttribute( "class", "right");
-                writer.RenderElement("td", $"{item.Mass:#,##0.000}");
+                if (oreHeader.Value.Count == 0)
+                    continue;
 
-                writer.AddAttribute( "class", "right");
-                writer.RenderElement("td", $"{item.Volume:#,##0.000}");
+                writer.RenderElement("h3", oreHeaders.Keys);
+                writer.BeginTable("1", "3", "0", [Res.ClsReportColOreName, Res.ClsReportColMass + " " + Res.GlobalSIMassKilogram, Res.ClsReportColVolume + " " + Res.GlobalSIVolumeLitre]);
 
-                Ext.RenderTagEnd(writer, "tr"); // Tr
-
+                foreach (OreContent item in oreHeader.Value)
+                {
+                    writer.RenderTagStart("tr");
+                    writer.RenderElement("td", item.FriendlyName);
+                    writer.AddAttribute("class", "right");
+                    writer.RenderElement("td", $"{item.Mass:#,##0.000}");
+                    writer.AddAttribute("class", "right");
+                    writer.RenderElement("td", $"{item.Volume:#,##0.000}");
+                    writer.RenderTagEnd("tr");
+                }
+                writer.EndTable();
             }
-            writer.EndTable();
 
             #endregion
 
-            writer.RenderElement("h2",null);
-            writer.RenderElement("hr", null);
+            writer.RenderElement("h2");
+            writer.RenderElement("hr");
 
             #region In-Game Assets
 
@@ -1070,125 +1009,66 @@ td.right { text-align: right; }";
             writer.RenderElement("h3", Res.ClsReportHeaderTotalCubes);
             writer.BeginTable("1", "3", "0", [Res.ClsReportColCount, Res.ClsReportColPCU]);
 
-            Ext.RenderTagStart(writer,"tr");
-            writer.AddAttribute( "class", "right");
+            writer.RenderTagStart("tr");
+            writer.AddAttribute("class", "right");
             writer.RenderElement("td", $"{_totalCubes:#,##0}");
 
-            writer.AddAttribute( "class", "right");
+            writer.AddAttribute("class", "right");
             writer.RenderElement("td", $"{_totalPCU:#,##0}");
 
-            Ext.RenderTagEnd(writer, "tr"); // Tr
+            writer.RenderTagEnd("tr"); // Tr
             writer.EndTable();
 
-            writer.RenderElement("h3", Res.ClsReportHeaderAllCubes);
-            writer.BeginTable("1", "3", "0", [Res.ClsReportColIcon, Res.ClsReportColCubeName, Res.ClsReportColCount, Res.ClsReportColMass + " " + Res.GlobalSIMassKilogram, Res.ClsReportColTime, Res.ClsReportColPCU]);
-            foreach (ComponentItemModel item in _allCubes)
+            Dictionary<string, List<ComponentItemModel>> allHeaders = new()
             {
-                Ext.RenderTagStart(writer,"tr");
-                Ext.RenderTagStart(writer,"td");
-                if (item.TextureFile != null)
-                {
-                    string texture = GetTextureToBase64(item.TextureFile, 32, 32);
-                    if (!string.IsNullOrEmpty(texture))
-                    {
-                        writer.AddAttribute("src", "data:image/png;base64," + texture);
-                        writer.AddAttribute("width", "32");
-                        writer.AddAttribute("height", "32");
-                        writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(item.TextureFile));
-                        Ext.RenderTagStart(writer,"img");
-                        Ext.RenderTagEnd(writer, "tr");
-                    }
-                }
-                Ext.RenderTagEnd(writer, "td"); // Td
+               {Res.ClsReportHeaderAllCubes, _allCubes},
+               {Res.ClsReportHeaderAllComponents, _allComponents},
+               {Res.ClsReportHeaderAllItems, _allItems},
+            };
 
-                writer.RenderElement("td", item.FriendlyName);
-                writer.AddAttribute( "class", "right");
-                writer.RenderElement("td", $"{item.Count:#,##0}");
-                writer.AddAttribute( "class", "right");
-                writer.RenderElement("td", $"{item.Mass:#,##0.000}");
-                writer.RenderElement("td", $"{item.Time}");
-                writer.AddAttribute( "class", "right");
-                writer.RenderElement("td", $"{item.PCU:#,##0}");
-                Ext.RenderTagEnd(writer, "tr"); // Tr
-            }
-            writer.EndTable();
-
-            writer.RenderElement("h3", Res.ClsReportHeaderAllComponents);
-            writer.BeginTable("1", "3", "0", [Res.ClsReportColIcon, Res.ClsReportColComponentName, Res.ClsReportColCount, Res.ClsReportColMass + " " + Res.GlobalSIMassKilogram, Res.ClsReportColVolume + " " + Res.GlobalSIVolumeLitre, Res.ClsReportColTime]);
-            foreach (ComponentItemModel item in _allComponents)
+            foreach (var header in allHeaders)
             {
-                Ext.RenderTagStart(writer, "tr");
-                Ext.RenderTagStart(writer,"td");
-                if (item.TextureFile != null)
+                if (header.Value.Count == 0)
+                    continue;
+
+                writer.RenderElement("h3", allHeaders.Keys);
+                writer.BeginTable("1", "3", "0", [Res.ClsReportColIcon, Res.ClsReportColCubeName, Res.ClsReportColCount, Res.ClsReportColMass + " " + Res.GlobalSIMassKilogram, Res.ClsReportColTime, Res.ClsReportColPCU]);
+                foreach (ComponentItemModel item in header.Value)
                 {
-                    string texture = GetTextureToBase64(item.TextureFile, 32, 32);
-                    if (!string.IsNullOrEmpty(texture))
+                    writer.RenderTagStart("tr");
+                    writer.RenderTagStart("td");
+                    if (item.TextureFile != null)
                     {
-                        writer.AddAttribute("src", "data:image/png;base64," + texture);
-                        writer.AddAttribute("width", "32");
-                        writer.AddAttribute("height", "32");
-                        writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(item.TextureFile));
-                        Ext.RenderTagStart(writer,"img", true);
-                        Ext.RenderTagEnd(writer, "tr");
+                        string texture = GetTextureToBase64(item.TextureFile, 32, 32);
+                        if (!string.IsNullOrEmpty(texture))
+                        {
+                            writer.AddAttribute("src", "data:image/png;base64," + texture);
+                            writer.AddAttribute("width", "32");
+                            writer.AddAttribute("height", "32");
+                            writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(item.TextureFile));
+                            writer.RenderTagStart("img");
+                            writer.RenderTagEnd("tr");
+                        }
                     }
+                    writer.RenderTagEnd("td"); // Td
+
+                    writer.RenderElement("td", item.FriendlyName);
+                    writer.AddAttribute("class", "right");
+                    writer.RenderElement("td", $"{item.Count:#,##0}");
+                    writer.AddAttribute("class", "right");
+                    writer.RenderElement("td", $"{item.Mass:#,##0.000}");
+                    writer.RenderElement("td", $"{item.Time}");
+                    writer.AddAttribute("class", "right");
+                    writer.RenderElement("td", $"{item.PCU:#,##0}");
+                    writer.RenderTagEnd("tr"); // Tr
                 }
-                Ext.RenderTagEnd(writer, "td"); // Td
 
-                writer.RenderElement("td", item.FriendlyName);
-                writer.AddAttribute( "class", "right");
-
-                writer.RenderElement("td", $"{item.Count:#,##0}");
-
-                writer.AddAttribute( "class", "right");
-                writer.RenderElement("td", $"{item.Mass:#,##0.000}");
-
-                writer.AddAttribute( "class", "right");
-                writer.RenderElement("td", $"{item.Volume:#,##0.000}");
-                writer.RenderElement("td", $"{item.Time:#,##0}");
-                Ext.RenderTagEnd(writer, "tr"); // Tr
+                writer.EndTable();
             }
 
-            writer.EndTable();
 
-            writer.RenderElement("h3", Res.ClsReportHeaderAllItems);
-            writer.BeginTable("1", "3", "0", [Res.ClsReportColIcon, Res.ClsReportColAllItemsName, Res.ClsReportColCount, Res.ClsReportColMass + " " + Res.GlobalSIMassKilogram, Res.ClsReportColVolume + " " + Res.GlobalSIVolumeLitre, Res.ClsReportColTime]);
-            foreach (ComponentItemModel item in _allItems)
-            {
-                Ext.RenderTagStart(writer, "tr");
-                Ext.RenderTagStart(writer,"td");
-                if (item.TextureFile != null)
-                {
-                    string texture = GetTextureToBase64(item.TextureFile, 32, 32);
-                    if (!string.IsNullOrEmpty(texture))
-                    {
-                        writer.AddAttribute("src", "data:image/png;base64," + texture);
-                        writer.AddAttribute("width", "32");
-                        writer.AddAttribute("height", "32");
-                        writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(item.TextureFile));
-                        Ext.RenderTag(writer, "img", true);
-                        Ext.RenderTagEnd(writer, "tr");
-                    }
-                }
-                Ext.RenderTagEnd(writer, "td"); // Td
-
-                writer.RenderElement("td", item.FriendlyName);
-                writer.AddAttribute( "class", "right");
-
-                writer.RenderElement("td", $"{item.Count:#,##0}");
-
-                writer.AddAttribute( "class", "right");
-                writer.RenderElement("td", $"{item.Mass:#,##0.000}");
-
-                writer.AddAttribute( "class", "right");
-                writer.RenderElement("td", $"{item.Volume:#,##0.000}");
-                writer.RenderElement("td", $"{item.Time}");
-
-                Ext.RenderTagEnd(writer, "tr"); // Tr
-            }
-            writer.EndTable();
-
-           writer.RenderElement("br", string.Empty);
-            writer.RenderElement("hr", string.Empty);
+            writer.RenderElement("br");
+            writer.RenderElement("hr");
 
             writer.RenderElement("h2", Res.ClsReportHeadingResourcesBreakdown);
 
@@ -1199,19 +1079,18 @@ td.right { text-align: right; }";
                 int inx = 0;
                 foreach (VoxelMaterialAssetModel item in asteroid.UntouchedOreList ?? [])
                 {
-                    Ext.RenderTagStart(writer,"tr");
+                    writer.RenderTagStart("tr");
                     if (inx == 0)
                     {
                         writer.AddAttribute("rowspan", $"{asteroid.UntouchedOreList.Count}");
                         writer.RenderElement("td", asteroid.Name);
-
                         writer.AddAttribute("rowspan", $"{asteroid.UntouchedOreList.Count}");
-                        writer.RenderElement("td", $"{asteroid.Position.X},{ asteroid.Position.Y},{asteroid.Position.Z}");
+                        writer.RenderElement("td", $"{asteroid.Position.X},{asteroid.Position.Y},{asteroid.Position.Z}");
                     }
                     writer.RenderElement("td", item.MaterialName);
-                    writer.AddAttribute( "class", "right");
+                    writer.AddAttribute("class", "right");
                     writer.RenderElement("td", $"{item.Volume:#,##0.000}");
-                    Ext.RenderTagEnd(writer, "tr"); // Tr
+                    writer.RenderTagEnd("tr"); // Tr
                     inx++;
                 }
             }
@@ -1219,7 +1098,7 @@ td.right { text-align: right; }";
 
             #endregion
 
-            writer.RenderElement("Br");
+            writer.RenderElement("br");
             writer.RenderElement("hr");
 
             #region Ship Breakdown
@@ -1228,20 +1107,20 @@ td.right { text-align: right; }";
 
             foreach (ShipContent ship in _allShips)
             {
-                Ext.RenderTagStart(writer, "tr");
+                writer.RenderTagStart("tr");
                 writer.RenderElement("td", ship.DisplayName);
                 writer.RenderElement("td", ship.EntityId);
                 writer.RenderElement("td", $"{ship.Position.X},{ship.Position.Y},{ship.Position.Z}");
 
-                writer.AddAttribute( "class", "right");
+                writer.AddAttribute("class", "right");
                 writer.RenderElement("td", ship.BlockCount);
-                writer.AddAttribute( "class", "right");
+                writer.AddAttribute("class", "right");
                 writer.RenderElement("td", $"{ship.PCU:#,##0}");
-                writer.AddAttribute( "class", "right");
+                writer.AddAttribute("class", "right");
                 writer.RenderElement("td", $"{ship.Mass:#,##0.000}");
-                writer.AddAttribute( "class", "right");
+                writer.AddAttribute("class", "right");
                 writer.RenderElement("td", $"{ship.Volume:#,##0.000}");
-                Ext.RenderTagEnd(writer, "tr"); // Tr
+                writer.RenderTagEnd("tr"); // Tr
             }
             writer.EndTable();
 
@@ -1251,9 +1130,6 @@ td.right { text-align: right; }";
 
             return writer.ToString();
         }
-
-
-
 
         #endregion
 
@@ -1286,90 +1162,58 @@ td.right { text-align: right; }";
                     xmlWriter.WriteEndElement();
                 }
 
-                foreach (OreContent item in _unusedOre)
+                List<List<OreContent>> _oreContents = new()
                 {
-                    xmlWriter.WriteStartElement("unused");
-                    xmlWriter.WriteElementString("name", $"{item.FriendlyName}");
-                    xmlWriter.WriteElementString("mass", $"{item.Mass:0.000}");
-                    xmlWriter.WriteElementString("volume", $"{item.Volume:0.000}");
-                    xmlWriter.WriteEndElement();
-                }
-
-                foreach (OreContent item in _usedOre)
+                    _unusedOre,
+                    _usedOre,
+                    _playerOre,
+                    _npcOre
+                };
+                foreach (var oreContent in _oreContents)
                 {
-                    xmlWriter.WriteStartElement("used");
-                    xmlWriter.WriteElementString("name", $"{item.FriendlyName}");
-                    xmlWriter.WriteElementString("mass", $"{item.Mass:0.000}");
-                    xmlWriter.WriteElementString("volume", $"{item.Volume:0.000}");
-                    xmlWriter.WriteEndElement();
-                }
-
-                foreach (OreContent item in _playerOre)
-                {
-                    xmlWriter.WriteStartElement("player");
-                    xmlWriter.WriteElementString("name", $"{item.FriendlyName}");
-                    xmlWriter.WriteElementString("mass", $"{item.Mass:0.000}");
-                    xmlWriter.WriteElementString("volume", $"{item.Volume:0.000}");
-                    xmlWriter.WriteEndElement();
-                }
-
-                foreach (OreContent item in _npcOre)
-                {
-
-                    xmlWriter.WriteStartElement("npc");
-                    xmlWriter.WriteElementString("name", $"{item.FriendlyName}");
-                    xmlWriter.WriteElementString("mass", $"{item.Mass:0.000}");
-                    xmlWriter.WriteElementString("volume", $"{item.Volume:0.000}");
-
-                    xmlWriter.WriteEndElement();
+                    foreach (var item in oreContent)
+                    {
+                        xmlWriter.WriteStartElement("unused");
+                        xmlWriter.WriteElementString("name", $"{item.FriendlyName}");
+                        xmlWriter.WriteElementString("mass", $"{item.Mass:0.000}");
+                        xmlWriter.WriteElementString("volume", $"{item.Volume:0.000}");
+                        xmlWriter.WriteEndElement();
+                    }
                 }
 
                 #endregion
 
                 #region In-Game Assets
-
-                foreach (ComponentItemModel item in _allCubes)
+                Dictionary<string, List<ComponentItemModel>> allHeaders = new()
                 {
-                    xmlWriter.WriteStartElement("cubes");
-                    xmlWriter.WriteElementFormat("friendlyname", $"{item.FriendlyName}" );
-                    xmlWriter.WriteElementFormat("name", $"{item.Name}");
-                    xmlWriter.WriteElementFormat("typeid", $"{item.TypeId}");
-                    xmlWriter.WriteElementFormat("subtypeid", $"{item.SubtypeId}");
-                    xmlWriter.WriteElementFormat("count", $"{item.Count:0}" );
-                    xmlWriter.WriteElementFormat("mass", $"{item.Mass:0.000}");
-                    xmlWriter.WriteElementFormat("time", $"{item.Time}");
-                    xmlWriter.WriteElementFormat("pcu", $"{item.PCU}");
-                    xmlWriter.WriteEndElement();
-                }
+                    {"cubes", _allCubes},
+                    {"components", _allComponents},
+                    {"items", _allItems}
+                };
 
-                foreach (ComponentItemModel item in _allComponents)
+                foreach (var header in allHeaders)
                 {
-                    xmlWriter.WriteStartElement("components");
-                    xmlWriter.WriteElementFormat("friendlyname", $"{item.FriendlyName}" );
-                    xmlWriter.WriteElementFormat("name", $"{item.Name}");
-                    xmlWriter.WriteElementFormat("typeid", $"{item.TypeId}");
-                    xmlWriter.WriteElementFormat("subtypeid", $"{item.SubtypeId}");
-                    xmlWriter.WriteElementFormat("count", $"{item.Count:0}" );
-                    xmlWriter.WriteElementFormat("mass", $"{ item.Mass:0.000}");
-                    xmlWriter.WriteElementFormat("volume", $"{item.Volume:0.000}");
-                    xmlWriter.WriteElementFormat("time", $"{item.Time}" ?? string.Empty);
-                    xmlWriter.WriteEndElement();
-                }
+                    if (header.Value.Count == 0) continue;
+                    foreach (ComponentItemModel item in header.Value)
+                    {
 
-                foreach (ComponentItemModel item in _allItems)
-                {
-                    xmlWriter.WriteStartElement("items");
-                              xmlWriter.WriteElementFormat("friendlyname", $"{item.FriendlyName}" );
-                    xmlWriter.WriteElementFormat("name", $"{item.Name}");
-                    xmlWriter.WriteElementFormat("typeid", $"{item.TypeId}");
-                    xmlWriter.WriteElementFormat("subtypeid", $"{item.SubtypeId}");
-                    xmlWriter.WriteElementFormat("count", $"{item.Count:0}" );
-                    xmlWriter.WriteElementFormat("mass", $"{ item.Mass:0.000}");
-                    xmlWriter.WriteElementFormat("volume", $"{item.Volume:0.000}");
-                    xmlWriter.WriteElementFormat("time", $"{item.Time}" ?? string.Empty);
-                    xmlWriter.WriteEndElement();
-                }
+                        xmlWriter.WriteStartElement(header.Key);
+                        xmlWriter.WriteElementFormat("friendlyname", $"{item.FriendlyName}");
+                        xmlWriter.WriteElementFormat("name", $"{item.Name}");
+                        xmlWriter.WriteElementFormat("typeid", $"{item.TypeId}");
+                        xmlWriter.WriteElementFormat("subtypeid", $"{item.SubtypeId}");
+                        xmlWriter.WriteElementFormat("count", $"{item.Count:0}");
+                        xmlWriter.WriteElementFormat("mass", $"{item.Mass:0.000}");
+                        xmlWriter.WriteElementFormat("time", $"{item.Time}");
+                        if (header.Key == "cubes")
+                        {
+                            xmlWriter?.WriteElementFormat("pcu", $"{item.PCU}");
+                        }
 
+                        xmlWriter.WriteEndElement();
+                    }
+
+                }
                 #endregion
 
                 #region Asteroid breakdown
@@ -1487,7 +1331,7 @@ td.right { text-align: right; }";
         /// <param name="baseModel"></param>
         /// <param name="args"></param>
         public static void GenerateOfflineReport(ExplorerModel baseModel, string[] args)
-        {   
+        {
             string delimiter = "/" ?? "-";
             List<string> argList = [.. args];
             string[] comArgs = [.. args.Where(a => a.Equals($"{delimiter}WR", StringComparison.CurrentCultureIgnoreCase) || a.Equals("-WR", StringComparison.CurrentCultureIgnoreCase))];
@@ -1521,7 +1365,7 @@ td.right { text-align: right; }";
             {
                 if (!SelectWorldModel.LoadSession(findSession, out world, out errorInformation))
                 {
-                    SEToolbox.Support.SConsole.WriteLine(errorInformation);
+                    SConsole.WriteLine(errorInformation);
 
                     File.WriteAllText(reportFile, model.CreateErrorReport(reportType, errorInformation));
 
@@ -1583,17 +1427,17 @@ td.right { text-align: right; }";
             public List<VoxelMaterialAssetModel> UntouchedOreList { get; set; }
         }
 
-        public  class OreContent
+        public class OreContent
         {
             BaseModel baseModel = new();
             private string _name;
             public string Name
             {
                 get => _name ?? string.Empty;
-                set => baseModel.SetProperty(ref _name, value, FriendlyName = SpaceEngineersApi.GetResourceName(Name),nameof(FriendlyName));
+                set => baseModel.SetProperty(ref _name, value, FriendlyName = SpaceEngineersApi.GetResourceName(Name), nameof(FriendlyName));
             }
 
-            public  string FriendlyName { get; set; }
+            public string FriendlyName { get; set; }
             public decimal Amount { get; set; }
             public double Mass { get; set; }
             public double Volume { get; set; }

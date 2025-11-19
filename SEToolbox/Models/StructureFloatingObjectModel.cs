@@ -101,7 +101,7 @@ namespace SEToolbox.Models
             else
             {
                 DisplayName = friendlyName;
-                Description = string.Format("x {0}", FloatingObject.Item.Amount);
+                Description = string.Format($"x {FloatingObject.Item.Amount}");
                 Units = (decimal)FloatingObject.Item.Amount;
                 Volume = cd == null ? 0 : cd.Volume * SpaceEngineersConsts.VolumeMultiplyer * (double)FloatingObject.Item.Amount;
                 Mass = cd == null ? 0 : cd.Mass * (double)FloatingObject.Item.Amount;

@@ -140,7 +140,6 @@ namespace SEToolbox.Support
             return parent as ItemsControl;
         }
 
-
         /// <summary>
         /// Get the UIElement that is in the container at the point specified
         /// </summary>
@@ -172,7 +171,7 @@ namespace SEToolbox.Support
         /// <returns></returns>
         internal static bool IsPositionAboveElement(this UIElement element, Point relativePosition)
         {
-            return relativePosition.Y < (element as FrameworkElement)?.ActualHeight / 2; //if above
+            return relativePosition.Y < (element as FrameworkElement)?.ActualHeight / 2; //if above else false
         }
 
         /// <summary>

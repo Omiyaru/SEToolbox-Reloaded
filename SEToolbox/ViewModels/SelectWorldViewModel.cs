@@ -240,7 +240,7 @@ namespace SEToolbox.ViewModels
         public void OpenWorkshopExecuted()
         {
             if (SelectedWorld.WorkshopId.HasValue)
-               Process.Start(new ProcessStartInfo(string.Format("http://steamcommunity.com/sharedfiles/filedetails/?id={0}", SelectedWorld.WorkshopId.Value)) { UseShellExecute = true });
+               Process.Start(new ProcessStartInfo(string.Format($"http://steamcommunity.com/sharedfiles/filedetails/?id={SelectedWorld.WorkshopId.Value}")) { UseShellExecute = true });
         }
 
         public bool ZoomThumbnailCanExecute()

@@ -19,7 +19,7 @@ using VRageMath;
 using Res = SEToolbox.Properties.Resources;
 using MOBSerializerKeen = VRage.ObjectBuilders.Private.MyObjectBuilderSerializerKeen;
 using SEResources = SEToolbox.Interop.SpaceEngineersResources;
-using Conditional = SEToolbox.Support.Conditional;
+
 namespace SEToolbox.Interop
 {
     /// <summary>
@@ -184,7 +184,8 @@ namespace SEToolbox.Interop
             errorInformation = null;
 
             using var fileStream = MyFileSystem.OpenRead(fileName);
-            using (Stream readStream = fileStream.UnwrapGZip()) 
+            using Stream readStream = fileStream.UnwrapGZip();
+            
                 if (fileStream != null && readStream != null)
                 {
                     try
@@ -193,15 +194,15 @@ namespace SEToolbox.Interop
                         XmlReaderSettings settings = new() { CheckCharacters = true };
                         MyXmlTextReader xmlReader = new(readStream, settings);
 
-                        objectBuilder = (T)serializer.Deserialize(xmlReader);
-                        result = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        objectBuilder = null;
-                        errorInformation = string.Format(Res.ErrorLoadFileError, fileName, ex.AllMessages());
-                    }
-                }
+                                objectBuilder = (T)serializer.Deserialize(xmlReader);
+                                result = true;
+                            }
+                            catch (Exception ex)
+                            {
+                                objectBuilder = null;
+                                errorInformation = string.Format(Res.ErrorLoadFileError, fileName, ex.AllMessages());
+                            }
+                        }
 
             return result;
         }

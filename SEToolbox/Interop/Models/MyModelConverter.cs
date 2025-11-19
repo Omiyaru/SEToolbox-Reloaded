@@ -51,7 +51,7 @@
 //             // SE .fbx models appear to have a X rotation of -90, and yet I cannot find anything in the .mwm file to indicate this.
 //             var transform = MeshHelper.TransformVector(new Vector3D(0, 0, 0), -90, -90, 0);
 // 
-            myModel.Transform = transform;
+            //myModel.Transform = transform;
 
 //             LoadModel3d(myModel, fileName);
 

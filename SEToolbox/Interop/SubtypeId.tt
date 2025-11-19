@@ -91,7 +91,7 @@ namespace SEToolbox.Interop
             }
             catch (Exception ex)
             {
-                Write(string.Format("#warning An exception occured during transformation. {0}\r\n\r\n", ex.Message.Replace("\r\n", "")));
+                Write(string.Format($"#warning An exception occured during transformation. {ex.Message.Replace("\r\n", "")}\r\n\r\n"));
             }
         }
 #>

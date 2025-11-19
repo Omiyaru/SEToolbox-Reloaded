@@ -68,14 +68,14 @@ namespace SEToolbox.Interop
                         while (entityIdNodes.MoveNext())
                         {
                             var entityId = Convert.ToInt64(entityIdNodes.Current.Value);
-                            var node = shipNodes.Current.SelectSingleNode(string.Format("CubeBlocks/*[./EntityId='{0}']", entityId), nsManager);
+                            var node = shipNodes.Current.SelectSingleNode(string.Format($"CubeBlocks/*[./EntityId='{nsManager}']", entityId));
                             if (node != null)
                             {
                                 string x = node.ToValue<string>("Min/@x");
                                 string y = node.ToValue<string>("Min/@y");
                                 string z = node.ToValue<string>("Min/@z");
 
-                                entityIdNodes.Current.InsertBefore(string.Format("<Vector3I><X>{0}</X><Y>{1}</Y><Z>{2}</Z></Vector3I>", x, y, z));
+                                entityIdNodes.Current.InsertBefore(string.Format($"<Vector3I><X>{x}</X><Y>{y}</Y><Z>{z}</Z></Vector3I>"));
                                 removeNodes.Add(entityIdNodes.Current.Clone());
                                 str.AppendLine(Res.ClsRepairReplacedBlockGroup);
                                 saveAfterScan = true;

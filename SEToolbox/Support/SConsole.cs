@@ -6,18 +6,18 @@ using System.Text;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using static SEToolbox.Support.Conditional;
+using System.Linq.Expressions;
 
 
 namespace SEToolbox.Support
 {
-    public class SConsole
+    public class SConsole 
     {
         #region Imports
         [DllImport("kernel32.dll", SetLastError = true, EntryPoint = "AttachConsole")]  // [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool AttachConsole(IntPtr processId);
         [DllImport("kernel32.dll", SetLastError = true, EntryPoint = "AllocConsole")]
         private static extern bool AllocConsole();
-
 
         #endregion
 
@@ -31,15 +31,14 @@ namespace SEToolbox.Support
         public static void WriteLine(string message, [CallerMemberName] string caller = "")
         {
             string debugTrace = GetDebugTrace(message);
-            Console.WriteLine(debugTrace);
-            Debug.WriteLine(debugTrace);
+            redirector.WriteLine(debugTrace);
+            
         }
 
         #endregion
 
         #region Standard Methods
-        public static void WriteLine() => redirector.WriteLine();
-
+       
 
         public static void WriteLink([CallerFilePath] string filePath = "")
         {
@@ -48,16 +47,19 @@ namespace SEToolbox.Support
         }
 
         public static void Write<T>(params T[] values)
-        {
-            if (values != null && values.Length > 0)
-            {
+        {   
+            if (values != null && values.Length > 0 && _isAttached)
                 redirector.Write(string.Join("\t", values));
-            }
         }
 
         public static void WriteLine<T>(T value)
         {
             redirector.WriteLine($"{value}");
+
+            if (value is string && value.ToString().Contains($"{typeof(Exception).Name}") && _isAttached)
+            {
+                redirector.WriteLine($"{value}", new Exception());
+            }
         }
 
         #endregion
@@ -101,14 +103,13 @@ namespace SEToolbox.Support
         {
             string output = redirector.Output();
 
-
             if (!string.IsNullOrWhiteSpace(output))
             {
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine(output);
                 Console.ResetColor();
             }
-            redirector.Append(output);
+           redirector.WriteLine(output);
         }
 
         private static bool EnsureAttachment()
@@ -129,72 +130,13 @@ namespace SEToolbox.Support
 
     public sealed class Redirector : TextWriter
     {
-        private static readonly StringBuilder _redirector = new();
+        private static readonly TextWriter _redirector = Console.Out;
 
         public override Encoding Encoding => Encoding.UTF8;
         public override void Close() => Flush();
-        public StringBuilder Append<T>(T value)
-        {
-            return value switch
-            {
-                object when value is string => _redirector.Append(value as string),
-                object when value is char[] => _redirector.Append(value as char[]),
-                object when value is ValueType => _redirector.Append(value as ValueType),
-                _ => _redirector,
-            };
-        }
-        public StringBuilder AppendLine<T>(T value) => _redirector.AppendLine(value as string);
+    
 
-        public StringBuilder Append<T>(T value, int startIndex = 0, int count = int.MaxValue)
-        {
-
-            return value switch
-            {
-                object when value is string => _redirector.Append(value as string, startIndex, count),
-                object when value is char[] => _redirector.Append(value as char[], startIndex, count),
-                object when value is ValueType valueType => _redirector.Append(valueType),
-                _ => _redirector,
-            };
-        }
-
-        public StringBuilder Insert<T>(int index, T value = default, int? startIndex = null, int? count = null)
-        {
-            return value switch
-            {
-                object when value is string stringValue => startIndex.HasValue && count.HasValue?_redirector.Insert(index, stringValue, count.Value) : _redirector.Insert(index, stringValue),
-                object when value is char[] charArray => startIndex.HasValue && count.HasValue ? _redirector.Insert(index, charArray, startIndex.Value, count.Value) : _redirector.Insert(index, charArray),
-                object when value is ValueType valueType => _redirector.Insert(index, valueType),
-                _ => _redirector,
-            };
-        }
-        public StringBuilder Replace(object oldValue, object newValue, int? startIndex = null, int? count = null)
-        {
-
-            if ((bool)Condition(typeof(string) ?? typeof(char), oldValue.GetType(), newValue.GetType()))
-            {
-                return (oldValue, newValue) switch
-                {
-                    object when (bool)Condition(typeof(string), oldValue.GetType(), newValue.GetType()) => _redirector.Replace(oldValue as string, newValue as string),
-                    object when oldValue is char oldChar && newValue is char newChar => _redirector.Replace(oldChar, newChar),
-                    object when (bool)Condition(typeof(string), oldValue, newValue.GetType(), startIndex.HasValue, count.HasValue) => _redirector.Replace(oldValue as string, newValue as string, startIndex.Value, count.Value),
-                    object when oldValue is char oldChar && newValue is char newChar && startIndex.HasValue && count.HasValue => _redirector.Replace(oldChar, newChar, startIndex.Value, count.Value),
-                    _ => _redirector,
-                };
-            }
-            return _redirector;
-        }
-
-        public static StringBuilder Replace<T>(T oldValue, T newValue, int? startIndex = null, int? count = null)
-        {
-            return (oldValue, newValue) switch
-            {
-                T when oldValue is string oldString && newValue is string newString => _redirector.Replace(oldString, newString),
-                T when oldValue is char oldChar && newValue is char newChar => _redirector.Replace(oldChar, newChar),
-                T when oldValue is string oldString && newValue is string newString && startIndex.HasValue && count.HasValue => _redirector.Replace(oldString, newString, startIndex.Value, count.Value),
-                T when oldValue is char oldChar && newValue is char newChar && startIndex.HasValue && count.HasValue => _redirector.Replace(oldChar, newChar, startIndex.Value, count.Value),
-                _ => _redirector,
-            };
-        }
+        public override void Write(string value) => _redirector.Write(value);
 
         public override void Flush()
         {
@@ -207,7 +149,7 @@ namespace SEToolbox.Support
             catch (Exception ex)
             {
                 WriteLine($"An error occurred while flushing: {ex.Message}");
-                Debug.WriteLine($"An error occurred while flushing: {ex.Message}");
+                  
             }
         }
 
@@ -215,41 +157,45 @@ namespace SEToolbox.Support
         {
             try
             {
-                Append(value);
+                Write($"{value}");
             }
             catch (Exception ex)
             {
-                Console.Write($"An error occurred while writing: {ex.Message}");
-                Debug.Write($"An error occurred while writing: {ex.Message}");
+                Write($"An error occurred while writing: {ex.Message}");
             }
         }
 
-        public void WriteLine<T>(T value)
+        public void WriteLine<T>(T value, Exception exception)
         {
             var frame = new StackFrame(1);
             var output = $"{value}{Environment.NewLine}";
             var color = default(ConsoleColor);
             try
-            {
+            {   if (exception != null)
+                {
+                    
+                var severity = Severity.GetSeverity(frame);
+                color = severity(frame).Item2;
+                if(!Conditional.Equals(severity(frame).Item1,TraceEventType.Information,TraceEventType.Verbose)  && value is string && value.ToString().Contains(typeof(Exception).Name))
                 output += $"({frame.GetFileLineNumber()}, {frame.GetFileColumnNumber()}){Environment.NewLine}{new StackTrace(frame)}";
                 var consoleColor = Console.ForegroundColor;
                 if (color != default)
                 {
                     Console.ForegroundColor = color;
-                    Console.WriteLine(output);
+                    WriteLine(output);
                 }
                 else
                 {
-                    Console.WriteLine(output);
+                    WriteLine(output);
                 }
                 Console.ResetColor();
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred while writing a line: {ex.Message}");
             }
         }
-
 
         public string Output() => $"{_redirector}";
 
@@ -260,20 +206,21 @@ namespace SEToolbox.Support
         public static class Severity
 
         {
-            private static readonly Dictionary<string, (TraceEventType, ConsoleColor)> _severityDictionary =
+            private static readonly Dictionary<string, Func<StackFrame,(TraceEventType, ConsoleColor) >> _severityDictionary =
                 new(StringComparer.OrdinalIgnoreCase)
                 {
-                    { "Critical", (TraceEventType.Critical, ConsoleColor.DarkRed) },
-                    { "Error", (TraceEventType.Error, ConsoleColor.Red) },
-                    { "Warning", (TraceEventType.Warning, ConsoleColor.Yellow) },
-                    { "Info", (TraceEventType.Information, ConsoleColor.Gray) },
-                    { "Debug", (TraceEventType.Verbose, ConsoleColor.DarkGray) }
+                    { "Critical", f => (TraceEventType.Critical, ConsoleColor.DarkRed)},
+                    { "Error", f => (TraceEventType.Error, ConsoleColor.Red) },
+                    { "Warning", f => (TraceEventType.Warning, ConsoleColor.Yellow) },
+                    { "Info", f => (TraceEventType.Information, ConsoleColor.Green) },
+                    { "Debug", f => (TraceEventType.Verbose, ConsoleColor.DarkGray) }
                 };
+
 
             private static readonly Dictionary<string, (TraceEventType, ConsoleColor)> _severityCache =
                 new(StringComparer.OrdinalIgnoreCase);
 
-            public static (TraceEventType, ConsoleColor) GetSeverity(StackFrame frame)
+            public static Func<StackFrame, (TraceEventType, ConsoleColor)> GetSeverity(StackFrame frame)
             {
                 if (frame == null)
                 {
@@ -287,10 +234,11 @@ namespace SEToolbox.Support
                     declaringTypeName = frame.GetMethod().DeclaringType.Name;
                 }
 
-                if (_severityDictionary.TryGetValue(declaringTypeName, out (TraceEventType, ConsoleColor) result))
+                if (_severityDictionary.TryGetValue(declaringTypeName, out Func<StackFrame,(TraceEventType, ConsoleColor)> result))
 
-                    _severityCache.Add(methodName, result);
+                    _severityCache.Add(methodName, result(frame));
                 return result;
+
                 throw new InvalidOperationException($"Severity for {methodName} cannot be found.");
 
             }
@@ -300,3 +248,4 @@ namespace SEToolbox.Support
 
 
 #endregion
+

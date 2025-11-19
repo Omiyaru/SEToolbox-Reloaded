@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Text;
+using SharpDX.DXGI;
 
 
 namespace SEToolbox.Support
@@ -143,24 +145,19 @@ namespace SEToolbox.Support
         {
             writer.Write("<table");
             string str = null;
-            switch (!string.IsNullOrEmpty(str))
+            writer.Write(!string.IsNullOrEmpty(str) switch
             {
-                case bool when str == border:
-                    writer.Write($" border=\"{str}\"");
-                     break; 
-                case bool when str == cellpadding:
-                    writer.Write($" cellpadding=\"{str}\"");
-                    break;
-                case bool when str == cellspacing:
-                    writer.Write($" cellspacing=\"{str}\"");
-                    break;
-            }
+                bool when str == border => $" border=\"{border}\"",
+                bool when str == cellpadding => $" cellpadding=\"{cellpadding}\"",
+                bool when str == cellspacing => $" cellspacing=\"{cellspacing}\"",
+                _ => string.Empty
+            });
             writer.Write(">");
             writer.WriteLine("<thead><tr>");
 
             foreach (string header in headings)
             {
-                writer.WriteLine("<th>{0}</th>", header);
+                writer.WriteLine($"<th>{header}</th>");
             }
 
             writer.Write("</tr>");

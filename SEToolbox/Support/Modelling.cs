@@ -1138,7 +1138,7 @@ namespace SEToolbox.Support
                 return orientation;
 
             // Fallback: Try to infer orientation for unknown types
-            return new SerializableBlockOrientation(Direction.Forward, Direction.Up);//    throw new NotImplementedException(string.Format("SetCubeOrientation of type [{0}] not yet implemented.", type));
+            return new SerializableBlockOrientation(Direction.Forward, Direction.Up);//    throw new NotImplementedException(string.Format($"SetCubeOrientation of type [{type}] not yet implemented."));
         }
 
         #endregion

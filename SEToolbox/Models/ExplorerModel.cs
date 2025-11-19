@@ -70,7 +70,7 @@ namespace SEToolbox.Models
         private double _maximumProgress;
 
         private List<int> _customColors;
-        private Dictionary<long, GridEntityNode> GridEntityNodes = [];
+        private readonly Dictionary<long, GridEntityNode> GridEntityNodes = [];
 
         #endregion
 
@@ -162,8 +162,7 @@ namespace SEToolbox.Models
         public double Progress
         {
             get => _progress;
-            set =>
-                    SetProperty(ref _progress, value, () =>
+            set => SetProperty(ref _progress, value, () =>
                      {
                          if (!_timer.IsRunning || _timer.ElapsedMilliseconds > 200 && value == _progress)
                          {
@@ -368,7 +367,7 @@ namespace SEToolbox.Models
             ThePlayerCharacter = null;
             _customColors = null;
 
-            if (!Conditional.ConditionNull(ActiveWorld.SectorData, ActiveWorld.Checkpoint))
+            if (Conditional.NotNull(ActiveWorld.SectorData, ActiveWorld.Checkpoint))
             {
                 var entityBaseList = ActiveWorld.SectorData.SectorObjects.OfType<MyObjectBuilder_EntityBase>().ToList();
                 foreach (var entityBase in entityBaseList)
@@ -644,7 +643,7 @@ namespace SEToolbox.Models
         {
             var voxelFileNameUpper = Path.GetFileNameWithoutExtension(fileName).ToUpperInvariant();
             bool contains = Structures.Any(s => s is StructureVoxelModel model && model.Name.ToUpperInvariant() == voxelFileNameUpper || 
-            				SpaceEngineersCore.ManageDeleteVoxelList.Any(f => Path.GetFileNameWithoutExtension(f).ToUpperInvariant() == voxelFileNameUpper);
+            				SpaceEngineersCore.ManageDeleteVoxelList.Any(f => Path.GetFileNameWithoutExtension(f).ToUpperInvariant() == voxelFileNameUpper));
 
             if (contains || additionalList == null)
             {

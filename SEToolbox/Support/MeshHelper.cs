@@ -130,7 +130,7 @@ namespace SEToolbox.Support
             }
 
             // Find if the interesection point lies inside the triangle by testing it against all edges
-            Vector3D vTest;
+          
               var vTest = Vector3D.CrossProduct(normal, rayPoints[1] - rayPoints[0]);
             var dTest = Vector3D.DotProduct(vTest, intersectPos - rayPoints[0]);
 

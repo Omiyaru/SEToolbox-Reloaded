@@ -323,7 +323,7 @@ namespace SEToolbox.Services
             }
             catch (Exception ex)
             {
-                SConsole.WriteLine(string.Format("An error occurred while finding the owner window: {0}", ex.Message));
+                SConsole.WriteLine(string.Format($"An error occurred while finding the owner window: {ex.Message}"));
                 throw null;
             }
         }

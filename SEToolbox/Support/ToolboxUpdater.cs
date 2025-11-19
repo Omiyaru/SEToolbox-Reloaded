@@ -313,7 +313,7 @@ namespace SEToolbox.Support
             {
                 var process = Process.Start(processInfo);
 
-                if (ConditionNot(null,elevate, process, waitForExit))
+                if (IsNot(null,elevate, process, waitForExit))
                 {
                     process.WaitForExit();
                     return process.ExitCode;

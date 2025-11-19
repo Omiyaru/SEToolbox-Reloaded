@@ -66,14 +66,14 @@ namespace SEToolbox.Models
             {
               
             
-                    SetProperty(!_progressTimer.IsRunning || _progressTimer.ElapsedMilliseconds > 200 ,ref _progress, value, nameof(Progress), ()=>
+                    SetProperty(ref _progress, value, nameof(Progress), ()=>
                     {
-                   
-                	{System.Windows.Forms.Application.DoEvents();
+                        if (_progressTimer.IsRunning == false || _progressTimer.ElapsedMilliseconds > 100 && _progress == value)
+                            System.Windows.Forms.Application.DoEvents();
                     _progressTimer.Restart();});
-                }
+                    }
             }
-        }
+   
 
         public double MaximumProgress
         {

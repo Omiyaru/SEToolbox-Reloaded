@@ -1,5 +1,4 @@
-﻿
-using SEToolbox.Converters;
+﻿using SEToolbox.Converters;
 using SEToolbox.ImageLibrary;
 using SEToolbox.Interop;
 using SEToolbox.Support;
@@ -85,14 +84,14 @@ namespace SEToolbox.Models
         {
             get => _isBusy;
 
-            set   
+            set
             {
                 SetProperty(ref _isBusy, value, nameof(IsBusy));
-                    if (_isBusy)
-                    {
-                        System.Windows.Forms.Application.DoEvents();
-                    }
-            }            
+                if (_isBusy)
+                {
+                    System.Windows.Forms.Application.DoEvents();
+                }
+            }
         }
 
         public ComponentItemModel SelectedCubeAsset
@@ -119,7 +118,7 @@ namespace SEToolbox.Models
             foreach (Sandbox.Definitions.MyCubeBlockDefinition cubeDefinition in SpaceEngineersResources.CubeBlockDefinitions)
             {
                 Dictionary<string, string> props = [];
-               var fields = cubeDefinition.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
+                var fields = cubeDefinition.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
 
                 foreach (var field in fields)
                 {
@@ -169,7 +168,7 @@ namespace SEToolbox.Models
             {
                 var bp = SpaceEngineersApi.GetBlueprint(componentDefinition.Id.TypeId, componentDefinition.Id.SubtypeName);
                 float amount = 0;
-                if  (bp?.Results?.Length > 0)
+                if (bp?.Results?.Length > 0)
                     amount = (float)bp.Results[0].Amount;
 
                 ComponentAssets.Add(new ComponentItemModel
@@ -191,9 +190,9 @@ namespace SEToolbox.Models
             {
                 var bp = SpaceEngineersApi.GetBlueprint(physicalItemDefinition.Id.TypeId, physicalItemDefinition.Id.SubtypeName);
                 float amount = 0;
-                    if (bp?.Results?.Length > 0)
-                        amount = (float)bp.Results[0].Amount;
-                
+                if (bp?.Results?.Length > 0)
+                    amount = (float)bp.Results[0].Amount;
+
 
                 float timeMassMultiplyer = 1f;
                 if (physicalItemDefinition.Id.TypeId == typeof(MyObjectBuilder_Ore)
@@ -255,136 +254,58 @@ namespace SEToolbox.Models
 
                 #endregion
 
-                #region Cubes
+                #region Cubes/Components/Items
 
-                writer.RenderElement("h1", Res.CtlComponentTitleCubes);
-                writer.BeginTable("1", "3", "0",
-                    [Res.CtlComponentColIcon, Res.CtlComponentColName, Res.CtlComponentColType, Res.CtlComponentColSubType, Res.CtlComponentColCubeSize, Res.CtlComponentColPCU, Res.CtlComponentColAccessible, Res.CtlComponentColSize, Res.CtlComponentColMass, Res.CtlComponentColBuildTime, Res.CtlComponentColMod]);
-
-                foreach (var asset in CubeAssets)
+                Dictionary<string, ObservableCollection<ComponentItemModel>> componentCollections = new()
                 {
-                   Ext.RenderTagStart(writer, "td");
+                    {Res.CtlComponentTitleCubes, CubeAssets },
+                    {Res.CtlComponentTitleComponents, ComponentAssets},
+                    {Res.CtlComponentTitleItems, ItemAssets },
+                };
 
-                    Ext.RenderTagStart(writer, "td");
-                    if (asset.TextureFile != null)
-                    {
-                        string texture = GetTextureToBase64(asset.TextureFile, 32, 32);
-                        if (!string.IsNullOrEmpty(texture))
-                        {
-                            writer.AddAttribute("src", "data:image/png;base64," + texture);
-                            writer.AddAttribute("width", "32");
-                            writer.AddAttribute("height", "32");
-                            writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
-                            Ext.RenderTagStart(writer, "img");
-                            Ext.RenderTagEnd(writer, "tr");
-                        }
-                    }
-                    Ext.RenderTagEnd(writer, "td"); // Td
-
-                    writer.RenderElement("td", asset.FriendlyName);
-                    writer.RenderElement("td", asset.TypeId);
-                    writer.RenderElement("td", asset.SubtypeId);
-                    writer.RenderElement("td", asset.CubeSize);
-                    writer.RenderElement("td", asset.PCU);
-                    writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
-                    writer.RenderElement("td", $"{asset.Size.Width}x{asset.Size.Height}x{asset.Size.Depth}", null);
-                    writer.AddAttribute("class", "right");
-                    writer.RenderElement("td", $"{ asset.Mass:#,##0.00}");
-                    writer.AddAttribute("class", "right");
-                    writer.RenderElement("td", $"{asset.Time:hh\\:mm\\:ss\\.ff}");
-                    writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
-
-                    Ext.RenderTagEnd(writer, "tr"); // Tr
-                }
-                Ext.RenderTagEnd(writer, "table"); // Table
-
-                #endregion
-
-                #region Components
-
-                writer.RenderElement("h1", Res.CtlComponentTitleComponents);
-                writer.BeginTable("1", "3", "0",
-                    [Res.CtlComponentColIcon, Res.CtlComponentColName, Res.CtlComponentColType, Res.CtlComponentColSubType, Res.CtlComponentColAccessible, Res.CtlComponentColMass, Res.CtlComponentColVolume, Res.CtlComponentColBuildTime, Res.CtlComponentColMod]);
-
-                foreach (ComponentItemModel asset in ComponentAssets)
+                foreach (var componentCollection in componentCollections)
                 {
-                    Ext.RenderTagStart(writer, "td");
-                    Ext.RenderTagStart(writer, "td");
-                    if (asset.TextureFile != null)
+                    writer.RenderElement("h1", componentCollection.Key);
+                    writer.BeginTable("1", "3", "0",
+                        [Res.CtlComponentColIcon, Res.CtlComponentColName, Res.CtlComponentColType, Res.CtlComponentColSubType, Res.CtlComponentColCubeSize, Res.CtlComponentColPCU, Res.CtlComponentColAccessible, Res.CtlComponentColSize, Res.CtlComponentColMass, Res.CtlComponentColBuildTime, Res.CtlComponentColMod]);
+
+                    foreach (var asset in componentCollection.Value)
                     {
-                        string texture = GetTextureToBase64(asset.TextureFile, 32, 32);
-                        if (!string.IsNullOrEmpty(texture))
+                        writer.RenderTagStart("td");
+
+                        writer.RenderTagStart("td");
+                        if (asset.TextureFile != null)
                         {
-                            writer.AddAttribute("src", "data:image/png;base64," + texture);
-                            writer.AddAttribute("width", "32");
-                            writer.AddAttribute("height", "32");
-                            writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
-                            Ext.RenderTagStart(writer, "img");
-                            Ext.RenderTagEnd(writer, "tr");
+                            string texture = GetTextureToBase64(asset.TextureFile, 32, 32);
+                            if (!string.IsNullOrEmpty(texture))
+                            {
+                                writer.AddAttribute("src", "data:image/png;base64," + texture);
+                                writer.AddAttribute("width", "32");
+                                writer.AddAttribute("height", "32");
+                                writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
+                                writer.RenderTagStart("img");
+                                writer.RenderTagEnd("tr");
+                            }
                         }
+                        writer.RenderTagEnd("td"); // Td
+
+                        writer.RenderElement("td", asset.FriendlyName);
+                        writer.RenderElement("td", asset.TypeId);
+                        writer.RenderElement("td", asset.SubtypeId);
+                        writer.RenderElement("td", asset.CubeSize);
+                        writer.RenderElement("td", asset.PCU);
+                        writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
+                        writer.RenderElement("td", $"{asset.Size.Width}x{asset.Size.Height}x{asset.Size.Depth}", null);
+                        writer.AddAttribute("class", "right");
+                        writer.RenderElement("td", $"{asset.Mass:#,##0.00}");
+                        writer.AddAttribute("class", "right");
+                        writer.RenderElement("td", $"{asset.Time:hh\\:mm\\:ss\\.ff}");
+                        writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
+
+                        writer.RenderTagEnd("tr"); // Tr
                     }
-                    Ext.RenderTagStart(writer, "td"); // Td
-
-                    writer.RenderElement("td", asset.FriendlyName);
-                    writer.RenderElement("td", asset.TypeId);
-                    writer.RenderElement("td", asset.SubtypeId);
-                    writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
-                    writer.AddAttribute("class", "right");
-                    writer.RenderElement("td", $"{asset.Mass:#,##0.00}");
-                    writer.AddAttribute("class", "right");
-                    writer.RenderElement("td", $"{asset.Volume}");
-                    writer.AddAttribute("class", "right");
-                    writer.RenderElement("td", $"{asset.Time:hh\\:mm\\:ss\\.ff}");
-                    writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
-
-                    Ext.RenderTagEnd(writer, "tr"); // Tr
+                    writer.RenderTagEnd("table"); // Table
                 }
-                Ext.RenderTagEnd(writer, "table"); // Table
-
-                #endregion
-
-                #region Items
-
-                writer.RenderElement("h1", Res.CtlComponentTitleItems);
-                writer.BeginTable("1", "3", "0",
-                    [Res.CtlComponentColIcon, Res.CtlComponentColName, Res.CtlComponentColType, Res.CtlComponentColSubType, Res.CtlComponentColAccessible, Res.CtlComponentColMass, Res.CtlComponentColVolume, Res.CtlComponentColBuildTime, Res.CtlComponentColMod]);
-
-                foreach (ComponentItemModel asset in ItemAssets)
-                {
-                   Ext.RenderTagStart(writer, "td");
-
-                    Ext.RenderTagStart(writer, "td");
-                    if (asset.TextureFile != null)
-                    {
-                        string texture = GetTextureToBase64(asset.TextureFile, 32, 32);
-                        if (!string.IsNullOrEmpty(texture))
-                        {
-                            writer.AddAttribute("src", "data:image/png;base64," + texture);
-                            writer.AddAttribute("width", "32");
-                            writer.AddAttribute("height", "32");
-                            writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
-                            Ext.RenderTagStart(writer, "img";
-                            Ext.RenderTagEnd(writer, "tr");
-                        }
-                    }
-                    Ext.RenderTagEnd(writer, "td"); // Td
-
-                    writer.RenderElement("td", asset.FriendlyName);
-                    writer.RenderElement("td", asset.TypeId);
-                    writer.RenderElement("td", asset.SubtypeId);
-                    writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));
-                    writer.AddAttribute("class", "right");
-                    writer.RenderElement("td", $"{asset.Mass:#,##0.00}");
-                    writer.AddAttribute("class", "right");
-                    writer.RenderElement("td", $"{asset.Volume}");
-                    writer.AddAttribute("class", "right");
-                    writer.RenderElement("td", $"{ asset.Time:hh\\:mm\\:ss\\.ff}");
-                    writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
-
-                    Ext.RenderTagEnd(writer, "tr"); // Tr
-                }
-                Ext.RenderTagEnd(writer, "table")//td?; // Table
-
                 #endregion
 
                 #region Materials
@@ -395,9 +316,9 @@ namespace SEToolbox.Models
 
                 foreach (ComponentItemModel asset in MaterialAssets)
                 {
-                   Ext.RenderTagStart(writer, "td");
+                    writer.RenderTagStart("td");
 
-                    Ext.RenderTagStart(writer, "td");
+                    writer.RenderTagStart("td");
                     if (asset.TextureFile != null)
                     {
                         string texture = GetTextureToBase64(asset.TextureFile, 32, 32, true);
@@ -407,21 +328,21 @@ namespace SEToolbox.Models
                             writer.AddAttribute("width", "32");
                             writer.AddAttribute("height", "32");
                             writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
-                            Ext.RenderTagStart(writer, "img");
-                            Ext.RenderTagEnd(writer, "tr");
+                            writer.RenderTagStart("img");
+                            writer.RenderTagEnd("tr");
                         }
                     }
-                    Ext.RenderTagEnd(writer, "td"); // Td
+                    writer.RenderTagEnd("td"); // Td
 
                     writer.RenderElement("td", asset.Name);
                     writer.RenderElement("td", asset.OreName);
                     writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.IsRare, typeof(string), null, CultureInfo.CurrentUICulture));
-                    writer.RenderElement("td", $"{ asset.MineOreRatio:#,##0.00}");
+                    writer.RenderElement("td", $"{asset.MineOreRatio:#,##0.00}");
                     writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.IsMod, typeof(string), null, CultureInfo.CurrentUICulture));
 
-                    Ext.RenderTagEnd(writer, "tr"); // Tr
+                    writer.RenderTagEnd("tr"); // Tr
                 }
-                Ext.RenderTagEnd(writer, "table"); // Table
+                writer.RenderTagEnd("table"); // Table
 
                 #endregion
 
@@ -435,6 +356,7 @@ namespace SEToolbox.Models
             // Write to disk.
             File.WriteAllText(fileName, stringWriter.ToString());
         }
+
 
         #endregion
 
@@ -459,14 +381,14 @@ namespace SEToolbox.Models
             if (field.FieldType == typeof(SerializableVector3))
             {
                 SerializableVector3 vector = (SerializableVector3)item;
-                 return string.Format($"{vector.X}, {vector.Y}, {vector.Z}");
+                return string.Format($"{vector.X}, {vector.Y}, {vector.Z}");
             }
 
             if (field.FieldType == typeof(SerializableBounds))
             {
                 SerializableBounds bounds = (SerializableBounds)item;
                 CultureInfo culture = CultureInfo.CurrentUICulture;
-                  return string.Format(culture,$"Default: {bounds.Default}, Min: {bounds.Min}, Max: {bounds.Max}");
+                return string.Format(culture, $"Default: {bounds.Default}, Min: {bounds.Min}, Max: {bounds.Max}");
             }
 
             if (field.FieldType == typeof(VRageMath.Vector3))

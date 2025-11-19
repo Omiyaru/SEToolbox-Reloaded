@@ -236,6 +236,7 @@ namespace SEToolbox.Interop.Asteroids
                     args.CoordinatePoint.Y >= pointOffset.Y && args.CoordinatePoint.Y < pointOffset.Y + yCount &&
                     args.CoordinatePoint.Z >= pointOffset.Z && args.CoordinatePoint.Z < pointOffset.Z + zCount)
                 {
+                    var coord = args.CoordinatePoint - pointOffset;
 
                     args.Volume = finalCubic[coord.X, coord.Y, coord.Z];
                     args.MaterialIndex = finalMats[coord.X, coord.Y, coord.Z];
@@ -243,7 +244,7 @@ namespace SEToolbox.Interop.Asteroids
             }
 
             var voxelMap = MyVoxelBuilder.BuildAsteroid(true, size, defaultMaterial.Value, faceMaterial, CellAction);
-            MyVoxelMapBase voxelMap = MyVoxelBuilder.BuildAsteroid(true, size, defaultMaterial.Value, faceMaterial, CellAction);
+
 
             complete?.Invoke();
 
@@ -378,7 +379,7 @@ namespace SEToolbox.Interop.Asteroids
             Vector3 coordMin = axisMin + coordF;
             Vector3 coordMax = axisMax + coordF;
             var rayPoints = new Point3DCollection();
-            Point3DCollection rayPoints = [];
+           
             foreach (MeshGeometery geometry in geometries)
             {
                 for (int t = 0; t < geometry.Triangles.Length; t += 3)

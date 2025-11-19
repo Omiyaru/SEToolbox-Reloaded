@@ -108,7 +108,7 @@ namespace SEToolbox.Interop
                                                     DirectoryInfo targetDirectoryInfo,
                                                     IProgress<int> progress = null)
         {
-            if (Conditional.ConditionNull(sourceDirectoryInfo , targetDirectoryInfo))
+            if (Conditional.Null(sourceDirectoryInfo , targetDirectoryInfo))
             {
                 return;
             }

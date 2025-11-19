@@ -25,7 +25,6 @@ namespace SEToolbox.Support
 
         private const string BaseKey = @"SOFTWARE\MidSpace\SEToolbox";
        
-
         #endregion
 
         #region Properties
@@ -201,6 +200,19 @@ namespace SEToolbox.Support
                 {
                     continue;
                 }
+                var currentValue = property.GetValue(this);
+                var value = ReadValue(key, property.Name, currentValue);
+                if (value != null)
+                {
+                    var typedValue = TypeDescriptor.GetConverter(property.PropertyType).ConvertFrom(value);
+                    property.SetValue(this, typedValue);
+                    Log.Info($"SEToolbox: {property.Name} set to {typedValue}");
+                }
+                else
+                {
+                    property.SetValue(this, currentValue);
+                    Log.Info($"SEToolbox: {property.Name} unchanged: {currentValue}");
+                }
                 if (property.Name == nameof(LanguageCode))
                 {
                     ReadValue(key, nameof(LanguageCode), CultureInfo.CurrentUICulture.IetfLanguageTag);
@@ -212,16 +224,8 @@ namespace SEToolbox.Support
                         SetWindowDimension(dimension ?? 0);
                     }
                 }
-                var currentValue = property.GetValue(this);
-                var value = ReadValue(key, property.Name, currentValue);
-                if (value != null)
-                {
-                    property.SetValue(this, Convert.ChangeType(value, property.PropertyType));
-                }
-                else
-                {
-                    property.SetValue(this, currentValue);
-                }
+             
+
             }
         }
 
@@ -316,7 +320,6 @@ namespace SEToolbox.Support
             {
                 Console.WriteLine($"Error while reading range for {typeof(T)}: {ex.Message}");
             }
-
             try
             {
                 switch (item)
@@ -352,8 +355,7 @@ namespace SEToolbox.Support
                     case KeyNotFoundException when message.Contains("Key not found"):
                     case ArgumentException when message.Contains("Invalid Argument"):
                     default:
-
-                        SConsole.WriteLine($"{ex.GetType().Name} occurred while reading registry key '{subkey}': {message}" + Environment.NewLine + ex.StackTrace);
+                        SConsole.WriteLine($"{ex.GetType().Name} occurred while reading registry key '{subkey}': {message}");
                         throw new Exception(message, ex);
                 }
             }

@@ -231,8 +231,10 @@ namespace SEToolbox.ViewModels
             get => _selectedStructure;
             set => SetProperty(ref _selectedStructure, value, () => 
                         {   
-                            if (_selectedStructure != null && !_ignoreUpdateSelection && _selectedStructure == value)
-                            _selectedStructure.DataModel.InitializeAsync(); }, nameof(SelectedStructure), true);
+                            if (_selectedStructure != null && 
+                               !_ignoreUpdateSelection && _selectedStructure == value)
+                                _selectedStructure.DataModel.InitializeAsync(); 
+                        }, nameof(SelectedStructure));
          
         }
 
@@ -303,7 +305,7 @@ namespace SEToolbox.ViewModels
         public bool EnableExcludedBlocks
         {
             get => _dataModel.EnableExclusions;
-            set => SetProperty( _dataModel.EnableExclusions, value, nameof(EnableExcludedBlocks));
+            set => SetProperty(_dataModel.EnableExclusions, value, nameof(EnableExcludedBlocks));
         }
 
         //public Type DataType => throw new NotImplementedException();
@@ -407,11 +409,11 @@ namespace SEToolbox.ViewModels
         public bool SaveAsCanExecute()
         {
             return _dataModel.ActiveWorld is { IsValid: true } &&
-                _dataModel.ActiveWorld.SaveType != SaveWorldType.Custom &&
-                ((_dataModel.ActiveWorld.SaveType != SaveWorldType.DedicatedServerService &&
-                 _dataModel.ActiveWorld.SaveType != SaveWorldType.CustomAdminRequired) ||
-                ((_dataModel.ActiveWorld.SaveType == SaveWorldType.DedicatedServerService ||
-                _dataModel.ActiveWorld.SaveType == SaveWorldType.CustomAdminRequired) &&
+                   _dataModel.ActiveWorld.SaveType != SaveWorldType.Custom &&
+                 ((_dataModel.ActiveWorld.SaveType != SaveWorldType.DedicatedServerService &&
+                   _dataModel.ActiveWorld.SaveType != SaveWorldType.CustomAdminRequired) ||
+                 ((_dataModel.ActiveWorld.SaveType == SaveWorldType.DedicatedServerService ||
+                   _dataModel.ActiveWorld.SaveType == SaveWorldType.CustomAdminRequired) &&
                 ToolboxUpdater.IsRunningElevated()));
         }
 

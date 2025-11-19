@@ -22,6 +22,7 @@ namespace SEToolbox.ViewModels
         private readonly IDialogService _dialogService;
         private readonly Func<IOpenFileDialog> _openFileDialogFactory;
         private bool? _closeResult;
+        private readonly BaseModel _baseModel= new();
 
         #endregion
 
@@ -74,7 +75,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
+            set => _baseModel.SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         public string GameApplicationPath

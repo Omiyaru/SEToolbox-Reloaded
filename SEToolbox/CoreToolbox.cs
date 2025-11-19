@@ -37,8 +37,6 @@ namespace SEToolbox
 
         public bool Init(string[] args)
         {
-
-
             // Detection and correction of local settings of SE install location.
             DetectInstall();
             LoadAssemblies(args);
@@ -78,7 +76,7 @@ namespace SEToolbox
 
                 if (faWindow?.ShowDialog() == true)
                 {
-                    filePath = faModel.gameBinPath;
+                    filePath = faModel.GameApplicationPath;
                 }
                 else
                 {
@@ -206,50 +204,6 @@ namespace SEToolbox
 
         public bool InitializeExplorerModel(string[] args)
         {
-            return Task.FromResult(true);
-        }
-
-        private static Task<bool> InitializeWorld(string[] args)
-        {
-            string worldDirectory = null;
-            {
-                if (args.Length == 0)
-                {
-                    return Task.FromResult(false);
-                }
-                worldDirectory = args
-                    .Where(arg => IsValidGameFilePath(arg) && IsSandboxFile(Path.GetFileName(arg)))
-                    .Select(GetWorldDirectory)
-                    .FirstOrDefault();
-
-
-                return Task.FromResult(!string.IsNullOrEmpty(worldDirectory));
-
-            }
-        }
-
-        private static bool IsValidGameFilePath(string path)
-        {
-            return path.IndexOfAny(Path.GetInvalidFileNameChars()) < 0 && File.Exists(path);
-        }
-
-        private static bool IsSandboxFile(string fileName)
-        {
-            return fileName.Equals(Consts.SandBoxCheckpointFileName, StringComparison.InvariantCultureIgnoreCase)
-                || fileName.Equals(Consts.SandBoxSectorFileName, StringComparison.InvariantCultureIgnoreCase);
-        }
-
-
-
-        private static string GetWorldDirectory(string path)
-        {
-            return Path.GetFileName(path).Equals(Consts.SandBoxCheckpointFileName, StringComparison.InvariantCultureIgnoreCase)
-                ? Path.GetDirectoryName(path)
-                : Path.GetDirectoryName(Path.GetDirectoryName(path));
-        }
-
-        public bool InitializeExplorerModel(string[] args)
-        {
             // Force pre-loading of any Space Engineers resources.
             SpaceEngineersCore.LoadDefinitions();
 
@@ -257,7 +211,6 @@ namespace SEToolbox
             ExplorerModel explorerModel = new();
             var delimiter = "/" ?? "-";
             if (args.Any(a => a.Equals($"{delimiter}WR", StringComparison.OrdinalIgnoreCase)))
-                ExplorerModel explorerModel = new();
             {
                 ResourceReportModel.GenerateOfflineReport(explorerModel, args);
                 Application.Current.Shutdown();
@@ -276,7 +229,7 @@ namespace SEToolbox
             if (allowClose)
             {
                 eWindow = new WindowExplorer(eViewModel);
-                if (!(bool)Conditional.ConditionPairs(null, eWindow, null, eViewModel, false, !allowClose))
+                if (!(bool)Conditional.ConditionPairs(null, eWindow, null, eViewModel, true, allowClose))
                 {
                     eViewModel.CloseRequested += (sender, e) =>
                     {
@@ -379,36 +332,36 @@ namespace SEToolbox
         }
 		
 		//move this??
-        Assembly ResolveAssembly(object sender, ResolveEventArgs args)
-        {
+        //Assembly ResolveAssembly(object sender, ResolveEventArgs args)
+        //{
 
-            // Retrieve the list of referenced assemblies in an array of AssemblyName.
-            string fileName = $"{args.Name.Substring(0, args.Name.IndexOf(",", StringComparison.Ordinal))}.dll";
-            Assembly ResolveAssembly(object sender, ResolveEventArgs args)
-            {
+        //    // Retrieve the list of referenced assemblies in an array of AssemblyName.
+        //    string fileName = $"{args.Name.Substring(0, args.Name.IndexOf(",", StringComparison.Ordinal))}.dll";
+        //    Assembly ResolveAssembly(object sender, ResolveEventArgs args)
+        //    {
 
-                // Retrieve the list of referenced assemblies in an array of AssemblyName.
-                string fileName = $"{args.Name.Substring(0, args.Name.IndexOf(",", StringComparison.Ordinal))}.dll";
+        //        // Retrieve the list of referenced assemblies in an array of AssemblyName.
+        //        string fileName = $"{args.Name.Substring(0, args.Name.IndexOf(",", StringComparison.Ordinal))}.dll";
 
-                const string filter = @"^(?<assembly>(?:\w+(?:\.?\w+)+))\s*(?:,\s?Version=(?<version>\d+\.\d+\.\d+\.\d+))?(?:,\s?Culture=(?<culture>[\w-]+))?(?:,\s?PublicKeyToken=(?<token>\w+))?$";
-                Match match = Regex.Match(args.Name, filter);
-                if (match.Success)
-                {
-                    fileName = match.Groups["assembly"].Value + ".dll";
-                }
+        //        const string filter = @"^(?<assembly>(?:\w+(?:\.?\w+)+))\s*(?:,\s?Version=(?<version>\d+\.\d+\.\d+\.\d+))?(?:,\s?Culture=(?<culture>[\w-]+))?(?:,\s?PublicKeyToken=(?<token>\w+))?$";
+        //        Match match = Regex.Match(args.Name, filter);
+        //        if (match.Success)
+        //        {
+        //            fileName = match.Groups["assembly"].Value + ".dll";
+        //        }
 
-                if (ToolboxUpdater.CoreSpaceEngineersFiles.Any(f => string.Equals(f, fileName, StringComparison.OrdinalIgnoreCase)))
-                {
-                    string assemblyPath = Path.Combine(_tempBinPath, fileName);
+        //        if (ToolboxUpdater.CoreSpaceEngineersFiles.Any(f => string.Equals(f, fileName, StringComparison.OrdinalIgnoreCase)))
+        //        {
+        //            string assemblyPath = Path.Combine(_tempBinPath, fileName);
 
-                    // Load the assembly from the specified path and then   Return the loaded assembly.
-                    return Assembly.LoadFrom(assemblyPath);
-                }
+        //            // Load the assembly from the specified path and then   Return the loaded assembly.
+        //            return Assembly.LoadFrom(assemblyPath);
+        //        }
 
-                return null;
-            }
+        //        return null;
+        //    }
            
-        }
+        //}
  		#endregion
     }
 }

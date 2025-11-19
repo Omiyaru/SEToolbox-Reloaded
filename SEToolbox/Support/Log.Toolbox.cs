@@ -43,11 +43,11 @@ partial class Log
 
             foreach (var file in files)
             {
-                var filename = Path.GetFileName(file);
+                var fileName = Path.GetFileName(file);
                 var fileInfo = new FileInfo(file);
                 var fileVer = FileVersionInfo.GetVersionInfo(file);
 
-                diagReport.AppendFormat("{0:O}\t{1:#,###0}\t{2}\t{3}\r\n", fileInfo.LastWriteTime, fileInfo.Length, fileVer.FileVersion, filename);
+                diagReport.AppendFormat($"{fileInfo.LastWriteTime:O}\t{fileInfo.Length:#,###0}\t{fileVer.FileVersion}\t{fileName}\r\n");
             }
         }
 

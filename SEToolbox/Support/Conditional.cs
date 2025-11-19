@@ -10,15 +10,9 @@ namespace SEToolbox.Support
     {
 
 
-        public static bool All(params object[] values)
-        {
-            return values.All(v => v != values[0]);
-        }
+        public static bool All(params object[] values) => values.All(v => v != values[0]);
 
-        public static bool All(IEnumerable<object> values, object condition = null)
-        {
-            return values.All(v => v != condition);
-        }
+        public static bool All(IEnumerable<object> values, object condition = null) => values.All(v => v != condition);
 
         //public static bool Any<T>(this IEnumerable<T> values) => values.Any( v => v != null);
         public static bool Any(params object[] values) => values.Any(v => v != null);
@@ -34,109 +28,86 @@ namespace SEToolbox.Support
             return false;
         }
         public static bool NotNull(params object[] values) => !(bool)Condition(null, values);
-        public static bool ConditionNull(params object[] values) => (bool)Condition(null, values);
-        public static bool ConditionIs(params object[] values) => (bool)Condition(true, values);
-        public static bool ConditionNot(params object[] values) => (bool)Condition(false, values);
+        public static bool NotNullOrDefault<T>(params object[] values) => !(bool)Condition((object)null ?? default, values);
+        public static bool Null(params object[] values) => (bool)Condition(null, values);
+        public static bool Is(params object[] values) => (bool)Condition(true, values);
+        public static bool IsNot(params object[] values) => (bool)Condition(false, values);
+        public static bool Equals(params object[] values) => (bool)Condition(values[0], values);
 
-     public static object ConditionChar(object condition, params object[] values)
-        {
-            var result = (char)Condition(condition, values);
-            condition =   condition as char? ?? condition;
-            values = [.. values.Where(v => v is char c)];
-            var value = values.FirstOrDefault();
-            return result;
-        }
-        public static  object Condition(object condition = null, params object[] values) 
+        /// <summary>
+        /// Returns true if the condition matches any of the values.
+        /// If the condition is null, returns true if any of the values are not null.
+        /// </summary>
+        /// <param name="condition">The condition to check.</param>
+        /// <param name="values">The values to check.</param>
+        /// <returns>true if the condition matches any of the values; otherwise, false.</returns>
+        public static object Condition(object condition = null, params object[] values)
         {
             if (condition != null)
             {
                 var conditionType = condition.GetType();
                 var valueTypes = values.Select(v => v?.GetType()).ToArray();
                 var firstValueType = valueTypes.FirstOrDefault();
-           
-                return  conditionType.IsInstanceOfType(condition) || condition is char c  ||
-                    conditionType.IsAssignableFrom(firstValueType) || conditionType.IsInstanceOfType(firstValueType) ||
-                       valueTypes.Any(t => conditionType.IsAssignableFrom(t) || conditionType.IsInstanceOfType(t)) ||
-                       ReferenceEquals(condition, firstValueType);
 
+                // Check if the condition is of the same type as any of the values, or if it is assignable from any of the values, or if it is an instance of any of the values.
+                return condition is char c || 
+                       condition is string s ||
+                       conditionType.IsInstanceOfType(condition) ||
+                       ReferenceEquals(condition, firstValueType) || 
+                       conditionType.IsAssignableFrom(firstValueType) ||
+                       conditionType.IsInstanceOfType(firstValueType) ||
+                       valueTypes.Any(t => conditionType.IsAssignableFrom(t) ||
+                                           conditionType.IsInstanceOfType(t));
             }
 
-            return values.Any(v => v != null);
+            // If the condition is null, return true if all of the values are not null.
+            return values.All(v => v != null);
         }
+
+        /// <summary>
+        /// Returns true if the condition matches any of the values in the given condition-value pairs.
+        /// </summary>
+        /// <param name="conditionPairs">The condition-value pairs.</param>
+        /// <returns>true if the condition matches any of the values; otherwise, null.</returns>
         public static object ConditionPairs(params object[] conditionPairs)
         {
-            if (conditionPairs.Length == 0 || conditionPairs.All(v => v == null))
+            Dictionary<object, object> valuePairs = [];
+            if (conditionPairs.Length == 0 || conditionPairs.All(v => v == null) || valuePairs.Count == 0)
                 return null;
 
-            Dictionary<object, object> valuePairs = [];
             object condition = null, value = null;
             foreach (var pair in conditionPairs)
             {
-                var conditionPair = pair;
-                conditionPair = (object c, object v) => valuePairs.Add(c = condition, v = value);
-
-
-                if (!ReferenceEquals(condition,null) && condition.Equals(value))
+                var conditionValuePair = pair;
+                    conditionValuePair = (object c, object v) => 
+                    valuePairs.Add(c = condition, v = value);
+                if (condition != null && Equals(condition, value))
                 {
                     return value ?? true;
                 }
-                return false;
             }
-               return null;
+            return valuePairs.All(v => !v.Value.Equals(condition)) ? null : true;
         }
-      
-        public static object NullCoalesced(params object[] values) => ConditionCoalesced(null, values);
 
-        public static object ConditionCharCoalesced(char condition, char value, char swap = default, params char[] values) => (char)ConditionCoalesced(condition, value, swap, values);
+        public static object NullCoalesced(params object[] values) => ConditionCoalesced(null, values);
+        /// <summary>
+        /// Conditionally coalesce values based on the condition and value.
+        /// If the condition matches any of the values, return the value.
+        /// Otherwise, return the swap or null if the swap is null.
+        /// </summary>
         public static object ConditionCoalesced(object condition, object value, object swap = null, params object[] values)
         {
             var coalesced = (bool)Condition(condition, value, swap) ? value : swap;
-            var conditionMatchesValues = Condition(condition, values);
-
-            if (ConditionNull(condition, value, swap, values))
+            var conditionMatchesValues = (bool)Condition(condition, values);
+            if (Null(condition, value, swap, values))
                 return null;
 
             if (values.Length == 0)
                 return coalesced;
 
-
-            return (bool)conditionMatchesValues ? null : value ?? swap ?? condition ?? Condition(condition, values);
+            return conditionMatchesValues ? null : value ?? swap ?? condition ?? Condition(condition, values);
         }
 
-        public static bool AssignableFrom<T>(object condition = null, params T[] values)
-        {
-            if (condition == null)
-                throw new ArgumentNullException(nameof(condition), $"{nameof(condition)} cannot be null.");
-
-            foreach (var value in values)
-            {
-                if (value == null)
-                    throw new ArgumentNullException(nameof(values), $"Value {values.ToList().IndexOf(value)} is null.");
-
-                if (!condition.GetType().IsAssignableFrom(value.GetType()))
-                    throw new ArgumentException(nameof(values), $"Value {values.ToList().IndexOf(value)} of type {value.GetType()} is not assignable from type {condition.GetType()}.");
-            }
-            return true;
-        }
-
-        public static bool InstanceOfType(object condition = null, params object[] values)
-        {
-            if (condition == null)
-                throw new ArgumentNullException(nameof(condition), $"{nameof(condition)} cannot be null.");
-
-            foreach (var value in values)
-            {
-                if (value == null)
-                    throw new ArgumentNullException(nameof(values), $"Value {values.ToList().IndexOf(value)} is null.");
-
-                if (!condition.GetType().IsInstanceOfType(value.GetType()))
-                    throw new ArgumentException(nameof(values), $"Value {values.ToList().IndexOf(value)} of type {value.GetType()} is not an instance of type {condition.GetType()}.");
-            }
-            return true;
-        }
-
-        public static IEnumerable Where(params object[] values) => values.Where(v => v != null);
-        public static IEnumerable Where<T>(T value, params Func<object, T>[] predicate) => predicate.Where(v => value != null);
     }
 }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Windows.Forms;
 using BulletXNA.BulletCollision;
 using VRage.Import;
 using VRageMath;
@@ -917,8 +918,18 @@ namespace SEToolbox.Interop.Models
 
             return vectorArray;
         }
+        private static Vector4I[] ReadArrayOfVector4I(BinaryReader reader)
+        {
+            int nCount = reader.ReadInt32();
+            Vector4I[] vectorArray = new Vector4I[nCount];
 
-        /// <summary>
+            for (int i = 0; i < nCount; ++i)
+            {
+                vectorArray[i] = ReadVector4I(reader);
+            }
+
+            return vectorArray;
+        }
         /// Read array of HalfVector4
         /// </summary>
         private static HalfVector4[] ReadArrayOfHalfVector4(BinaryReader reader)
@@ -1080,6 +1091,22 @@ namespace SEToolbox.Interop.Models
             return list;
         }
 
+        private static List<MyMeshSectionInfo> ReadMeshSections(BinaryReader reader)
+        {
+            List<MyMeshSectionInfo> list = [];
+            int nCount = reader.ReadInt32();
+            for (int i = 0; i < nCount; ++i)
+            {
+                MyMeshSectionInfo meshSection = new();
+                int version = reader.ReadInt32();
+                meshSection.Import(reader, version);
+                meshSection.Import(reader, 0); // TODO: test version detail
+                list.Add(meshSection);
+            }
+
+            return list;
+        }
+          
         /// <summary>
         /// ReadDummies
         /// </summary>
@@ -1173,6 +1200,7 @@ namespace SEToolbox.Interop.Models
             return modelAnimations;
         }
 
+        
         private static MyModelBone[] ReadMyModelBoneArray(BinaryReader reader)
         {
             int nCount = reader.ReadInt32();
@@ -1188,7 +1216,7 @@ namespace SEToolbox.Interop.Models
 
             return myModelBoneArray;
         }
-
+        
         private static MyLODDescriptor[] ReadMyLodDescriptorArray(BinaryReader reader)
         {
             int nCount = reader.ReadInt32();
@@ -1206,23 +1234,32 @@ namespace SEToolbox.Interop.Models
         }
 
         #endregion
-
+         private static MyModelInfo ReadMyModelInfo(BinaryReader reader) {
+        
+                int triCount = reader.ReadInt32();
+				int vertCount = reader.ReadInt32();
+				Vector3 boundingBoxSize = ReadVector3(reader);
+				return new MyModelInfo(triCount, vertCount, boundingBoxSize);
+            
+        }
         #region Import Data Readers
-
+      
         /// <summary>
         /// LoadTagData
         /// </summary>
         /// <returns></returns>
+        
         private static void LoadTagData(BinaryReader reader, Dictionary<string, object> data)
         {
             while (reader.BaseStream.Position != reader.BaseStream.Length)
             {
                 string tagName = reader.ReadString();
-
+                
                 switch (tagName)
                 {
+                    
                     case MyImporterConstants.TAG_DEBUG:
-                        data.Add(tagName, ReadArrayOfString(reader));
+                        data.Add(tagName, reader.ReadBoolean());
                         break;
 
                     case MyImporterConstants.TAG_DUMMIES:
@@ -1232,88 +1269,33 @@ namespace SEToolbox.Interop.Models
                     case MyImporterConstants.TAG_VERTICES:
                         data.Add(tagName, ReadArrayOfHalfVector4(reader));
                         break;
-
-                    case MyImporterConstants.TAG_NORMALS:
-                        data.Add(tagName, ReadArrayOfByte4(reader));
-                        break;
-
-                    case MyImporterConstants.TAG_TEXCOORDS0:
-                        data.Add(tagName, ReadArrayOfHalfVector2(reader));
-                        break;
-
-                    case MyImporterConstants.TAG_BINORMALS:
-                        data.Add(tagName, ReadArrayOfByte4(reader));
-                        break;
-
-                    case MyImporterConstants.TAG_TANGENTS:
-                        data.Add(tagName, ReadArrayOfByte4(reader));
-                        break;
-
+                     case MyImporterConstants.TAG_TEXCOORDS0:
                     case MyImporterConstants.TAG_TEXCOORDS1:
                         data.Add(tagName, ReadArrayOfHalfVector2(reader));
                         break;
-
-                    //case MyImporterConstants.TAG_RESCALE_TO_LENGTH_IN_METERS:
-                    //    data.Add(tagName, reader.ReadBoolean());
-                    //    break;
-
-                    //case MyImporterConstants.TAG_LENGTH_IN_METERS:
-                    //    data.Add(tagName, reader.ReadSingle());
-                    //    break;
-
-                    case MyImporterConstants.TAG_RESCALE_FACTOR:
-                        data.Add(tagName, reader.ReadSingle());
+            
+                    case MyImporterConstants.TAG_INDICES:
+                        data.Add(tagName, ReadArrayOfInt(reader));
                         break;
-
-                    //case MyImporterConstants.TAG_CENTERED:
-                    //    data.Add(tagName, reader.ReadBoolean());
-                    //    break;
-
-                    case MyImporterConstants.TAG_USE_CHANNEL_TEXTURES:
-                        data.Add(tagName, reader.ReadBoolean());
-                        break;
-
-                    // case MyImporterConstants.TAG_SPECULAR_SHININESS:
-                    //    data.Add(tagName, reader.ReadSingle());
-                    //    break;
-
-                    // case MyImporterConstants.TAG_SPECULAR_POWER:
-                    //    data.Add(tagName, reader.ReadSingle());
-                    //    break;
-
+                   case MyImporterConstants.TAG_MODEL_INFO:
+                       data.Add(tagName, ReadMyModelInfo(reader));
+                       break;
                     case MyImporterConstants.TAG_BOUNDING_BOX:
                         data.Add(tagName, ReadBoundingBox(reader));
                         break;
-
                     case MyImporterConstants.TAG_BOUNDING_SPHERE:
                         data.Add(tagName, ReadBoundingSphere(reader));
                         break;
-
-                    case MyImporterConstants.TAG_SWAP_WINDING_ORDER:
-                        data.Add(tagName, reader.ReadBoolean());
-                        break;
-
                     case MyImporterConstants.TAG_MESH_PARTS:
                         data.Add(tagName, ReadMeshParts(reader));
                         break;
-
-                    case MyImporterConstants.TAG_MODEL_BVH:
-                        GImpactQuantizedBvh bvh = new();
-                        bvh.Load(ReadArrayOfBytes(reader));
-                        data.Add(tagName, bvh);
+                    case MyImporterConstants.TAG_MESH_SECTIONS:
+                        data.Add(tagName, ReadMeshSections(reader));
                         break;
-
-                    case MyImporterConstants.TAG_MODEL_INFO:
-                        int tri = reader.ReadInt32();
-                        int vert = reader.ReadInt32();
-                        Vector3 bb = ReadVector3(reader);
-                        data.Add(tagName, new MyModelInfo(tri, vert, bb));
-                        break;
-
                     case MyImporterConstants.TAG_BLENDINDICES:
-                        data.Add(tagName, ReadArrayOfVector4(reader));
+                        data.Add(tagName, ReadArrayOfVector4I(reader));
                         break;
-
+                      
                     case MyImporterConstants.TAG_BLENDWEIGHTS:
                         data.Add(tagName, ReadArrayOfVector4(reader));
                         break;
@@ -1327,54 +1309,45 @@ namespace SEToolbox.Interop.Models
                         break;
 
                     case MyImporterConstants.TAG_BONE_MAPPING:
-                        data.Add(tagName, ReadArrayOfVector3I(reader));
+                        data.Add(tagName, ReadArrayOfVector3I(reader));//readsingle???
                         break;
-
-                    case MyImporterConstants.TAG_HAVOK_COLLISION_GEOMETRY:
-                        data.Add(tagName, ReadArrayOfBytes(reader));
-                        break;
-
-                    case MyImporterConstants.TAG_PATTERN_SCALE:
-                        data.Add(tagName, reader.ReadSingle());
-                        break;
-
                     case MyImporterConstants.TAG_LODS:
                         data.Add(tagName, ReadMyLodDescriptorArray(reader));
                         break;
-
-                    case MyImporterConstants.TAG_HAVOK_DESTRUCTION_GEOMETRY:
-                        data.Add(tagName, ReadArrayOfBytes(reader));
+                      case MyImporterConstants.TAG_PATTERN_SCALE:
+                    case MyImporterConstants.TAG_RESCALE_FACTOR:
+                        data.Add(tagName, reader.ReadSingle());
                         break;
-
+                    case MyImporterConstants.TAG_MODEL_BVH:
+                        GImpactQuantizedBvh bvh = new();
+                        bvh.Load(ReadArrayOfBytes(reader));
+                        data.Add(tagName, bvh);
+                        break;
+                    case MyImporterConstants.TAG_HAVOK_DESTRUCTION_GEOMETRY:
+                    case MyImporterConstants.TAG_HAVOK_COLLISION_GEOMETRY:
                     case MyImporterConstants.TAG_HAVOK_DESTRUCTION:
                         data.Add(tagName, ReadArrayOfBytes(reader));
                         break;
-
+                    case MyImporterConstants.TAG_GEOMETRY_DATA_ASSET:
+                          //data.Add(tagName, ReadArrayOfBytes(reader));
+                       // break; 
                     case MyImporterConstants.TAG_FBXHASHSTRING:
-                        data.Add(tagName, reader.ReadString());
-                        break;
-
                     case MyImporterConstants.TAG_HKTHASHSTRING:
-                        data.Add(tagName, reader.ReadString());
-                        break;
-
                     case MyImporterConstants.TAG_XMLHASHSTRING:
                         data.Add(tagName, reader.ReadString());
                         break;
-
-                    // case MyImporterConstants.TAG_MODEL_FRACTURES:
-                    //     data.Add(tagName, ReadArrayOfBytes(reader));
-                    //     break;
-
-                    case MyImporterConstants.TAG_GEOMETRY_DATA_ASSET:
-                        data.Add(tagName, ReadArrayOfBytes(reader));
-                        break;
-
+                    case MyImporterConstants.TAG_USE_CHANNEL_TEXTURES:   
                     case MyImporterConstants.TAG_IS_SKINNED:
+                    case MyImporterConstants.TAG_SWAP_WINDING_ORDER:
                         data.Add(tagName, reader.ReadBoolean());
                         break;
+                    case MyImporterConstants.TAG_NORMALS:
+                    case MyImporterConstants.TAG_BINORMALS:
+                    case MyImporterConstants.TAG_TANGENTS:
+                        data.Add(tagName, ReadArrayOfByte4(reader));
+                        break;
                     default:
-                        throw new NotImplementedException(string.Format("tag '{0}' has not been implemented ", tagName));
+                        throw new NotImplementedException(string.Format($"tag '{tagName}' has not been implemented"));
                 }
             }
         }

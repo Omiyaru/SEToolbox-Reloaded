@@ -46,27 +46,27 @@ namespace ToolboxTest
             TestLoadTextureAndExport(Path.Combine(contentPath, @"Textures\GUI\Icons\Cubes\ExplosivesComponent.dds"));
 
 
-            MyDefinitionBase magnesiumOre = MyDefinitionManager.Static.GetDefinition(MOBTypeIds.Ore, "Magnesium");
+            var magnesiumOre = MyDefinitionManager.Static.GetDefinition(MOBTypeIds.Ore, "Magnesium");
             Assert.IsTrue(magnesiumOre is MyPhysicalItemDefinition, "Type should match");
             TestLoadTextureAndExport(Path.Combine(contentPath, magnesiumOre.Icons.First()));
 
 
-            MyDefinitionBase goldIngot = MyDefinitionManager.Static.GetDefinition(MOBTypeIds.Ingot, "Gold");
+            var goldIngot = MyDefinitionManager.Static.GetDefinition(MOBTypeIds.Ingot, "Gold");
             Assert.IsTrue(goldIngot is MyPhysicalItemDefinition, "Type should match");
             TestLoadTextureAndExport(Path.Combine(contentPath, goldIngot.Icons.First()));
 
 
-            MyDefinitionBase ammoMagazine = MyDefinitionManager.Static.GetDefinition(MOBTypeIds.AmmoMagazine, "NATO_5p56x45mm");
+            var ammoMagazine = MyDefinitionManager.Static.GetDefinition(MOBTypeIds.AmmoMagazine, "NATO_5p56x45mm");
             Assert.IsTrue(ammoMagazine is MyAmmoMagazineDefinition, "Type should match");
             TestLoadTextureAndExport(Path.Combine(contentPath, ammoMagazine.Icons.First()));
 
 
-            MyDefinitionBase steelPlate = MyDefinitionManager.Static.GetDefinition(MOBTypeIds.Component, "SteelPlate");
+            var steelPlate = MyDefinitionManager.Static.GetDefinition(MOBTypeIds.Component, "SteelPlate");
             Assert.IsTrue(steelPlate is MyComponentDefinition, "Type should match");
             TestLoadTextureAndExport(Path.Combine(contentPath, steelPlate.Icons.First()));
 
 
-            MyDefinitionBase smallBlockLandingGear = MyDefinitionManager.Static.GetDefinition(MOBTypeIds.LandingGear, "SmallBlockLandingGear");
+            var smallBlockLandingGear = MyDefinitionManager.Static.GetDefinition(MOBTypeIds.LandingGear, "SmallBlockLandingGear");
             Assert.IsTrue(smallBlockLandingGear is MyCubeBlockDefinition, "Type should match");
             TestLoadTextureAndExport(Path.Combine(contentPath, smallBlockLandingGear.Icons.First()));
             TestLoadTextureAndExport(Path.Combine(contentPath, @"Textures\GUI\Controls\grid_item.dds"));
@@ -112,10 +112,9 @@ namespace ToolboxTest
 
             string name = Path.GetFileNameWithoutExtension(textureFilePath) + (ignoreAlpha ? "_alpha" : "");
             Bitmap textureFilePathBmp;
-            using (FileStream stream = File.OpenRead(textureFilePath))
-            {
-                textureFilePathBmp = TexUtil.CreateBitmap(stream, textureFilePath, depthSlice, width, height, ignoreAlpha);
-            }
+            using var stream = File.OpenRead(textureFilePath);
+            textureFilePathBmp = TexUtil.CreateBitmap(stream, textureFilePath, depthSlice, width, height, ignoreAlpha);
+            
             Assert.IsNotNull(textureFilePathBmp, $"Texture for {name} should not be null.");
 
             return textureFilePathBmp;
@@ -128,10 +127,8 @@ namespace ToolboxTest
 
             string name = Path.GetFileNameWithoutExtension(textureFilePath) + (ignoreAlpha ? "_alpha" : "");
             Bitmap textureFilePathBmp;
-            using (FileStream stream = File.OpenRead(textureFilePath))
-            {
-                textureFilePathBmp = TexUtil.CreateBitmap(stream, textureFilePath, ignoreAlpha: ignoreAlpha);
-            }
+            using FileStream stream = File.OpenRead(textureFilePath);
+                 textureFilePathBmp = TexUtil.CreateBitmap(stream, textureFilePath, ignoreAlpha: ignoreAlpha);
             Assert.IsNotNull(textureFilePathBmp, $"Texture for {name} should not be null.");
 
             File.Copy(textureFilePath, Path.Combine(_path, name + ".dds"), true);
@@ -220,7 +217,7 @@ namespace ToolboxTest
 
             string contentPath = ToolboxUpdater.GetApplicationContentPath();
 
-            MyCubeBlockDefinition smallBlockLandingGear = (MyCubeBlockDefinition)MyDefinitionManager.Static.GetDefinition(new MyObjectBuilderType(typeof(MyObjectBuilder_LandingGear)), "SmallBlockLandingGear");
+            var smallBlockLandingGear = (MyCubeBlockDefinition)MyDefinitionManager.Static.GetDefinition(new MyObjectBuilderType(typeof(MyObjectBuilder_LandingGear)), "SmallBlockLandingGear");
             string smallBlockLandingGearPath = Path.Combine(contentPath, smallBlockLandingGear.Icons.First());
             Assert.IsTrue(File.Exists(smallBlockLandingGearPath), "Filepath should exist on developer machine");
             Assert.IsNotNull(smallBlockLandingGear, "Type should match");
@@ -282,8 +279,8 @@ namespace ToolboxTest
 
             Bitmap result = new(size * 4, size * 3);
 
-            using (Graphics graphics = Graphics.FromImage(result))
-            {
+            using Graphics graphics = Graphics.FromImage(result);
+
                 //set the resize quality modes to high quality
                 graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
                 graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -308,9 +305,9 @@ namespace ToolboxTest
 
                 // Approximate position of local Sun and light source.
                 graphics.FillEllipse(Brushes.White, size * 1 + (int)(size * 0.7), size * 2 + (int)(size * 0.93), (int)(size * 0.06), (int)(size * 0.06));
-            }
+            
 
-            TexUtil.WriteImage(result, string.Format(@".\TestOutput\BackgroundCube_{0}.png", size));
+            TexUtil.WriteImage(result, string.Format($@".\TestOutput\BackgroundCube_{size}.png"));
         }
 
         // this is ignored, as it really isn't a unit test. It simply extracts game textures.

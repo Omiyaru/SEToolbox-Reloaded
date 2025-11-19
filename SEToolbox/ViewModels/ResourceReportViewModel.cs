@@ -193,7 +193,7 @@ namespace SEToolbox.ViewModels
             ISaveFileDialog saveFileDialog = _saveFileDialogFactory();
             saveFileDialog.Filter = AppConstants.TextFileFilter;
             saveFileDialog.Title = string.Format(Res.DialogExportTextFileTitle, "Resource Report");
-            saveFileDialog.FileName = string.Format("Resource Report - {0}.txt", _dataModel.SaveName);
+            saveFileDialog.FileName = string.Format($"Resource Report - {_dataModel.SaveName}.txt");
             saveFileDialog.OverwritePrompt = true;
 
             if (_dialogService.ShowSaveFileDialog(this, saveFileDialog) == System.Windows.Forms.DialogResult.OK)
@@ -212,7 +212,7 @@ namespace SEToolbox.ViewModels
             ISaveFileDialog saveFileDialog = _saveFileDialogFactory();
             saveFileDialog.Filter = AppConstants.HtmlFilter;
             saveFileDialog.Title = string.Format(Res.DialogExportHtmlFileTitle, "Resource Report");
-            saveFileDialog.FileName = string.Format("Resource Report - {0}.html", _dataModel.SaveName);
+            saveFileDialog.FileName = string.Format($"Resource Report - {_dataModel.SaveName}.html");
             saveFileDialog.OverwritePrompt = true;
 
             if (_dialogService.ShowSaveFileDialog(this, saveFileDialog) == System.Windows.Forms.DialogResult.OK)
@@ -231,7 +231,7 @@ namespace SEToolbox.ViewModels
             ISaveFileDialog saveFileDialog = _saveFileDialogFactory();
             saveFileDialog.Filter = AppConstants.XmlFileFilter;
             saveFileDialog.Title = string.Format(Res.DialogExportXmlFileTitle, "Resource Report");
-            saveFileDialog.FileName = string.Format("Resource Report - {0}.xml", _dataModel.SaveName);
+            saveFileDialog.FileName = string.Format($"Resource Report - {_dataModel.SaveName}.xml");
             saveFileDialog.OverwritePrompt = true;
 
             if (_dialogService.ShowSaveFileDialog(this, saveFileDialog) == System.Windows.Forms.DialogResult.OK)

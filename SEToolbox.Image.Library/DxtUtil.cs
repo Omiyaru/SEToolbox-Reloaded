@@ -42,6 +42,7 @@
 //
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -233,16 +234,12 @@ namespace SEToolbox.ImageLibrary
             }
         }
 
+
         private static void DecompressDxt3Block(BinaryReader imageReader, int x, int y, int blockCountX, int width, int height, byte[] imageData)
         {
-            byte a0 = imageReader.ReadByte();
-            byte a1 = imageReader.ReadByte();
-            byte a2 = imageReader.ReadByte();
-            byte a3 = imageReader.ReadByte();
-            byte a4 = imageReader.ReadByte();
-            byte a5 = imageReader.ReadByte();
-            byte a6 = imageReader.ReadByte();
-            byte a7 = imageReader.ReadByte();
+            
+            byte[] byteArray = new byte[8];
+            imageReader.Read(byteArray, 0, 8);
 
             ushort c0 = imageReader.ReadUInt16();
             ushort c1 = imageReader.ReadUInt16();
@@ -255,31 +252,22 @@ namespace SEToolbox.ImageLibrary
             int alphaIndex = 0;
             for (int blockY = 0; blockY < 4; blockY++)
             {
+                byte r = 0, g = 0, b = 0;
                 for (int blockX = 0; blockX < 4; blockX++)
                 {
-                    byte r = 0, g = 0, b = 0;
-
                     uint index = (lookupTable >> 2 * (4 * blockY + blockX)) & 0x03;
-                    byte a = new[]
+                
+                    List<byte> bytelist = [];
+                    for (int i = 0; i < byteArray.Length; i++)
                     {
-                        (byte)((a0 & 0x0F) | ((a0 & 0xF0) >> 4)),
-                        (byte)((a0 & 0xF0) | ((a0 & 0x0F) << 4)),
-                        (byte)((a1 & 0x0F) | ((a1 & 0xF0) >> 4)),
-                        (byte)((a1 & 0xF0) | ((a1 & 0x0F) << 4)),
-                        (byte)((a2 & 0x0F) | ((a2 & 0xF0) >> 4)),
-                        (byte)((a2 & 0xF0) | ((a2 & 0x0F) << 4)),
-                        (byte)((a3 & 0x0F) | ((a3 & 0xF0) >> 4)),
-                        (byte)((a3 & 0xF0) | ((a3 & 0x0F) << 4)),
-                        (byte)((a4 & 0x0F) | ((a4 & 0xF0) >> 4)),
-                        (byte)((a4 & 0xF0) | ((a4 & 0x0F) << 4)),
-                        (byte)((a5 & 0x0F) | ((a5 & 0xF0) >> 4)),
-                        (byte)((a5 & 0xF0) | ((a5 & 0x0F) << 4)),
-                        (byte)((a6 & 0x0F) | ((a6 & 0xF0) >> 4)),
-                        (byte)((a6 & 0xF0) | ((a6 & 0x0F) << 4)),
-                        (byte)((a7 & 0x0F) | ((a7 & 0xF0) >> 4)),
-                        (byte)((a7 & 0xF0) | ((a7 & 0x0F) << 4))
-                    }[alphaIndex];
-
+                        
+                        byte bA = (byte)((byteArray[i] & 0x0F) | ((byteArray[i] & 0xF0) >> 4));
+                        byte bB = (byte)((byteArray[i] & 0xF0) | ((byteArray[i] & 0x0F) << 4));
+                        bytelist.Add(bA);
+                        bytelist.Add(bB);
+                        
+                    }
+                    byte a = new(); 
                     ++alphaIndex;
 
                     switch (index)
@@ -359,11 +347,7 @@ namespace SEToolbox.ImageLibrary
             {
                 alphaMask += (ulong)imageReader.ReadByte() << alphaShift[shift];
             }
-            // alphaMask += (ulong)imageReader.ReadByte() << 8;
-            // alphaMask += (ulong)imageReader.ReadByte() << 16;
-            // alphaMask += (ulong)imageReader.ReadByte() << 24;
-            // alphaMask += (ulong)imageReader.ReadByte() << 32;
-            // alphaMask += (ulong)imageReader.ReadByte() << 40;
+           
 
             ushort c0 = imageReader.ReadUInt16();
             ushort c1 = imageReader.ReadUInt16();
@@ -488,45 +472,25 @@ namespace SEToolbox.ImageLibrary
 
                 Assert(uNumEndPts <= (BC7_MAX_REGIONS << 1));
 
-                // Red channel
                 for (int i = 0; i < uNumEndPts; i++)
                 {
-                    if (uStartBit + RGBAPrec.r > 128)
+                    var color = new {
+                        Red = uStartBit + RGBAPrec.r > 128,
+                        Green = uStartBit + RGBAPrec.g > 128,
+                        Blue = uStartBit + RGBAPrec.b > 128,
+                        Alpha = uStartBit + RGBAPrec.a > 128
+                    };
+                    var channelOverflow = color.Red || color.Green || color.Blue || color.Alpha;
+                    if (channelOverflow)
                     {
-                        throw new Exception("BC7: Invalid block encountered during decoding - Red channel overflow");
+                        throw new Exception($"BC7: Invalid block encountered during decoding -{color} Channel overflow");
                     }
                     c[i].r = GetBits<byte>(ref uStartBit, RGBAPrec.r);
-                }
-                // Green channel
-                for (int i = 0; i < uNumEndPts; i++)
-                {
-                    if (uStartBit + RGBAPrec.g > 128)
-                    {
-                        throw new Exception("BC7: Invalid block encountered during decoding - Green channel overflow");
-                    }
                     c[i].g = GetBits<byte>(ref uStartBit, RGBAPrec.g);
-                }
-
-                // Blue channel
-                for (int i = 0; i < uNumEndPts; i++)
-                {
-                    if (uStartBit + RGBAPrec.b > 128)
-                    {
-                        throw new Exception("BC7: Invalid block encountered during decoding - Blue channel overflow");
-                    }
                     c[i].b = GetBits<byte>(ref uStartBit, RGBAPrec.b);
-                }
-
-                // Alpha channel
-                for (int i = 0; i < uNumEndPts; i++)
-                {
-                    if (uStartBit + RGBAPrec.a > 128)
-                    {
-                        throw new Exception("BC7: Invalid block encountered during decoding - Alpha channel overflow");
-                    }
                     c[i].a = RGBAPrec.a != 0 ? GetBits<byte>(ref uStartBit, RGBAPrec.a) : (byte)255;
+                    c[i].r = GetBits<byte>(ref uStartBit, RGBAPrec.r);
                 }
-
                 // P-bits
                 Assert(ms_aInfo[uMode].uPBits <= 6);
                 for (int i = 0; i < ms_aInfo[uMode].uPBits; i++)
@@ -786,7 +750,7 @@ namespace SEToolbox.ImageLibrary
         			 // 1 Region case has no subsets (all 0)
             [.. Enumerable.Repeat(new uint[16], 64)],
 
-            [   // BC6H/BC7 Partition Set for 2 Subsets
+            [                       // BC6H/BC7 Partition Set for 2 Subsets
                 [0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1], // Shape 0
                 [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1], // Shape 1
                 [0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1], // Shape 2
@@ -820,7 +784,7 @@ namespace SEToolbox.ImageLibrary
                 [0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0], // Shape 30
                 [0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0], // Shape 31
                
-                      // BC6H/BC7 Partition Set for 2 Subsets
+                                    // BC6H/BC7 Partition Set for 2 Subsets
                 [0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1], // Shape 0
                 [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1], // Shape 1
                 [0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1], // Shape 2
@@ -854,7 +818,7 @@ namespace SEToolbox.ImageLibrary
                 [0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0], // Shape 30
                 [0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0], // Shape 31
 
-                            // BC7 Partition Set for 2 Subsets (second-half)
+                             // BC7 Partition Set for 2 Subsets (second-half)
                 [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1], // Shape 32
                 [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1], // Shape 33
                 [0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0], // Shape 34
@@ -889,7 +853,7 @@ namespace SEToolbox.ImageLibrary
                 [0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1]  // Shape 63
             ],
 
-            [   // BC7 Partition Set for 3 Subsets
+            [                           // BC7 Partition Set for 3 Subsets
                 [0, 0, 1, 1, 0, 0, 1, 1, 0, 2, 2, 1, 2, 2, 2, 2], // Shape 0
                 [0, 0, 0, 1, 0, 0, 1, 1, 2, 2, 1, 1, 2, 2, 2, 1], // Shape 1
                 [0, 0, 0, 0, 2, 0, 0, 1, 2, 2, 1, 1, 2, 2, 1, 1], // Shape 2
@@ -1049,17 +1013,15 @@ namespace SEToolbox.ImageLibrary
 
             public byte this[uint uElement]
             {
-                get
+                get => uElement switch
                 {
-                    switch (uElement)
-                    {
-                        case 0: return r;
-                        case 1: return g;
-                        case 2: return b;
-                        case 3: return a;
-                        default: Assert(false); return r;
-                    }
-                }
+                    0 => r,
+                    1 => g,
+                    2 => b,
+                    3 => a,
+                    _ => throw new ArgumentOutOfRangeException(nameof(uElement), "Index out of range")
+                    //_ => Assert(false); return r;
+                };
                 set
                 {
                     switch (uElement)
@@ -1069,7 +1031,9 @@ namespace SEToolbox.ImageLibrary
                         case 2: b = value; break;
                         case 3: a = value; break;
                         default: Debugger.Break(); break;
+                            //default: throw new ArgumentOutOfRangeException(nameof(uElement), "Index out of range")
                     }
+                    ;
                 }
             }
 

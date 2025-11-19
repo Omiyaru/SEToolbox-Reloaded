@@ -137,7 +137,7 @@ namespace SEToolbox.Models
                       pos.Position.Y = value;
                       _entityBase.PositionAndOrientation = pos;
                   }
-              }),nameof(PositionY));
+              },nameof(PositionY));
         }
 
         [XmlIgnore]

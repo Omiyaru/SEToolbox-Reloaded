@@ -322,7 +322,7 @@ namespace SEToolbox.ViewModels
 
                 string materialName = SpaceEngineersResources.GetMaterialName(materialIndex);
 
-                originalFile = string.Format("sphere_{0}_{1}_{2}{3}", materialName.ToLowerInvariant(), SphereRadius, SphereShellRadius,  MyVoxelMapBase.FileExtension.V2);
+                originalFile = string.Format($"sphere_{materialName.ToLowerInvariant()}_{SphereRadius}_{SphereShellRadius}{MyVoxelMapBase.FileExtension.V2}" );
 
                 using  MyVoxelMapBase asteroid = MyVoxelBuilder.BuildAsteroidSphere(SphereRadius > 32, SphereRadius, materialIndex, materialIndex, SphereShellRadius != 0, SphereShellRadius);
                 // TODO: progress bar.

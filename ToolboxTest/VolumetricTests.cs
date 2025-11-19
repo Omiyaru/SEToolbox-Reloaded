@@ -22,12 +22,11 @@ namespace ToolboxTest
 
             Dictionary<CubeType, int> cubicCount = Modelling.CountCubic(cubic);
 
-            int size = cubic.Length * cubic[0].Length * cubic[0][0].Length;
             ModelAssertions(cubic, 1290600, 108, 50, 239);
 
             int x = 54;
             int y = 39;
-            int[] zValues = { 7, 17, 18, 19, 20, 23, 24, 25, 26, 35, 36 };
+            int[] zValues = [7, 17, 18, 19, 20, 23, 24, 25, 26, 35, 36];
             foreach (int z in zValues)
             {
                 Assert.AreEqual(CubeType.Cube, cubic[x][y][z]);
@@ -61,8 +60,6 @@ namespace ToolboxTest
             CubeType[][][] cubic = Modelling.ReadVolumetricModel(modelFile, 0, null, ModelTraceVoxel.Thin);
 
             Dictionary<CubeType, int> cubicCount = Modelling.CountCubic(cubic);
-
-            int size = cubic.Length * cubic[0].Length * cubic[0][0].Length;
             ModelAssertions(cubic, 72, 4, 6, 3);
 
             Assert.AreEqual(36, cubicCount[CubeType.Cube], "Cube count must match.");
@@ -110,7 +107,6 @@ namespace ToolboxTest
 
             CubeType[][][] cubic = Modelling.ReadVolumetricModel(modelFile, 0, null, ModelTraceVoxel.Thin);
 
-            int size = cubic.Length * cubic[0].Length * cubic[0][0].Length;
             ModelAssertions(cubic, 72, 4, 6, 3);
         }
 
@@ -152,7 +148,7 @@ namespace ToolboxTest
         {
            
             int size = cubic.Length * cubic[0].Length * cubic[0][0].Length;
-            var input = sizes ?? cubic.Select(x => x.Length).ToArray();
+            var input = sizes ?? [.. cubic.Select(x => x.Length)];
             foreach (var item in sizes)
             {   
                 Assert.AreEqual(item, input[0], "Array  size must match.");
@@ -184,7 +180,7 @@ namespace ToolboxTest
         [TestMethod, TestCategory("UnitTest")]
         public void IntersectionTestPoint0()
         {
-            RayChecker(new(0, 0, 0),new(10.999, 0, 0), new(0, 10.999, -15.999), new(0, 0, -10), new(0, 0, +10), out Point3D intersection, out int normal, false, new Point3D(0, 0, 0),1);
+            RayChecker(new(0, 0, 0), new(10.999, 0, 0), new(0, 10.999, -15.999), new(0, 0, -10), new(0, 0, +10), out Point3D intersection, out int normal, false, new Point3D(0, 0, 0),1);
           
         }
 
@@ -215,7 +211,7 @@ namespace ToolboxTest
         {
 
            
-            RayChecker(new(10, 10, 10), new(15, 15, 11), p3, new(14, 14, 0), new(14, 14, 20) , out Point3D intersection, out int normal, false, new Point3D(14, 14, 10.8));
+            RayChecker(new(10, 10, 10), new(15, 15, 11),  new(20, 10, 12), new(14, 14, 0), new(14, 14, 20), out Point3D intersection, out int normal, false, new Point3D(14, 14, 10.8));
         }
 
         [TestMethod, TestCategory("UnitTest")]
@@ -223,16 +219,16 @@ namespace ToolboxTest
         {
 
            
-            RayChecker(new(20, 10, 12), new(15, 15, 11), new(10, 10, 10), new(14, 14, 0),  new(14, 14, 20) , out Point3D intersection, out int normal, false, new Point3D(14, 14, 10.8));
+            RayChecker(new(20, 10, 12), new(15, 15, 11), new(10, 10, 10), new(14, 14, 0), new(14, 14, 20) , out Point3D intersection, out int normal, false, new Point3D(14, 14, 10.8));
         }
 
         [TestMethod, TestCategory("UnitTest")]
         public void RayTestVertex1()
         {
 
-            Point3D p1 = new Point3D(10, 10, 10), 
-                    p2 = new Point3D(15, 15, 11), 
-                    p3 = new Point3D(20, 10, 12);
+            Point3D p1 = new(10, 10, 10), 
+                    p2 = new(15, 15, 11), 
+                    p3 = new(20, 10, 12);
             Point3D roundPointA = new(p1.X, p1.Y, 0), 
                     roundPointB = new(p1.X, p1.Y, 20);
 

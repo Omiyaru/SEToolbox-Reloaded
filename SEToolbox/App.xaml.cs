@@ -34,57 +34,51 @@ namespace SEToolbox
             Log.Init("./log.txt", appendLog);
             Log.Info("Starting.");
 
-            var settings = GlobalSettings.Default;
 
-            Log.Info("Loading settings.");
-            settings.Load();
-
-            if ((NativeMethods.GetKeyState(System.Windows.Forms.Keys.ShiftKey) & KeyStates.Down) == KeyStates.Down)
-            {
-                Log.Info("Restting global settings.");
-
-                // Reset User Settings when Shift is held down during start up.
-                settings.Reset();
-                settings.PromptUser = true;
-            }
             TException.InitializeListeners();
             BindingErrorTraceListener.SetTrace();
             SConsole.Init();
 
             if (e?.Args.Length > 0)
                 HandleReset();
-                ConfigureLocalization();
-                InitializeSplashScreen();
-                CheckForUpdates(e.Args);
-                ConfigureServices();
-                DisableTextBoxSynchronization();
-                InitializeToolboxApplication(e.Args);
-            }
-        
+            ConfigureLocalization();
+            InitializeSplashScreen();
+            CheckForUpdates(e.Args);
+            ConfigureServices();
+            DisableTextBoxSynchronization();
+            InitializeToolboxApplication(e.Args);
+        }
+
 
         private static void HandleReset()
         {
             if ((NativeMethods.GetKeyState(System.Windows.Forms.Keys.ShiftKey) & KeyStates.Down) == KeyStates.Down)
             {
+                Log.Info("Restting global settings.");
+
                 // Reset User Settings when Shift is held down during start up.
                 GlobalSettings.Default.Reset();
                 GlobalSettings.Default.PromptUser = true;
+            }
+        }
+        private static void ClearBinCache()
+        {
 
-                // Clear app bin cache.
-                string binCache = ToolboxUpdater.GetBinCachePath();
-                if (Directory.Exists(binCache))
+            // Clear app bin cache.
+            string binCache = ToolboxUpdater.GetBinCachePath();
+            if (Directory.Exists(binCache))
+            {
+                try
                 {
-                    try
-                    {
-                        Directory.Delete(binCache, true);
-                    }
-                    catch (Exception ex)
-                    {
-                        SConsole.WriteLine($"SEToolbox: Could not delete binCache. {ex.Message}");
-                    }
+                    Directory.Delete(binCache, true);
+                }
+                catch (Exception ex)
+                {
+                    SConsole.WriteLine($"SEToolbox: Could not delete binCache. {ex.Message}");
                 }
             }
         }
+
 
         private static void ConfigureLocalization()
         {
@@ -121,16 +115,17 @@ namespace SEToolbox
 
         private static void InitializeSplashScreen()
         {
+            Log.Debug("Showing splash screen.");
             Splasher.Splash = new WindowSplashScreen();
             Splasher.ShowSplash();
-            
+
         }
 
         private static void CheckForUpdates(string[] args)
         {
             Log.Info("Checking for updates.");
-            
-            string delimiter = "/"??"-";
+
+            string delimiter = "/" ?? "-";
             if (args.Length == 0 || (args.Length == 1 && args[0].Equals($"{delimiter}U", StringComparison.OrdinalIgnoreCase)))
             {
                 ApplicationRelease update = CodeRepositoryReleases.CheckForUpdates(GlobalSettings.GetAppVersion());
@@ -144,7 +139,7 @@ namespace SEToolbox
 
                     if (dialogResult == MessageBoxResult.Yes)
                     {
-                        
+
                         Process.Start(update.Link);// Opens release URL in browser
                         GlobalSettings.Default.Save();
                         Current.Shutdown();
@@ -161,6 +156,7 @@ namespace SEToolbox
 
         private static void ConfigureServices()
         {
+              Log.Debug("Configuring ServiceLocator.");
             ServiceLocator.RegisterSingleton<IDialogService, DialogService>();
             ServiceLocator.Register<IOpenFileDialog, OpenFileDialogViewModel>();
             ServiceLocator.Register<ISaveFileDialog, SaveFileDialogViewModel>();
@@ -175,23 +171,23 @@ namespace SEToolbox
 
         private void InitializeToolboxApplication(string[] args)
         {
-          _toolboxApplication = new CoreToolbox();
+            _toolboxApplication = new CoreToolbox();
             string message = string.Empty;
-         
-               switch (_toolboxApplication)
-               {
-              case CoreToolbox when _toolboxApplication.Init(args):
+
+            switch (_toolboxApplication)
+            {
+                case CoreToolbox when _toolboxApplication.Init(args):
                     _toolboxApplication.Load(args);
-                    return;        
-                case CoreToolbox when _toolboxApplication == null &&  message.Contains("Could not start"):// args.Length == 0
+                    return;
+                case CoreToolbox when _toolboxApplication == null && message.Contains("Could not start"):// args.Length == 0
                 case CoreToolbox when !_toolboxApplication.Init(args) && message.Contains("Could not initialize"):
                 case CoreToolbox when !_toolboxApplication.Load(args) && message.Contains("Could not load"):
                 default:
-                        SConsole.WriteLine($"SEToolbox: {message} {nameof(CoreToolbox)}. Aborting.");
-                        Current.Shutdown();
+                    SConsole.WriteLine($"SEToolbox: {message} {nameof(CoreToolbox)}. Aborting.");
+                    Current.Shutdown();
 
                     break;
-            }  
+            }
             SConsole.WriteLine($"SEToolbox: {nameof(CoreToolbox)} started successfully.");
         }
 
@@ -207,7 +203,7 @@ namespace SEToolbox
                 Exception exception = e.Exception;
                 while (exception != null)
                 {
-                    
+
                     SConsole.WriteLine(exception.Message);
                     exception = exception.InnerException;
                 }
@@ -232,7 +228,7 @@ namespace SEToolbox
                 return;
             }
 
-            DiagnosticsLogging.LogException(e.Exception);
+
 
             string message = e.Exception is ToolboxException ? e.Exception.Message : string.Format(Res.DialogUnhandledExceptionMessage, e.Exception.Message + $"{new StackTrace(e.Exception, true)}");
 

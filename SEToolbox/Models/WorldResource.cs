@@ -110,8 +110,8 @@ namespace SEToolbox.Models
                         }
 
                         WorkshopId = _checkpoint?.WorkshopId;
-                    }, nameof(Checkpoint), nameof(SessionName), nameof(LastSaveTime), nameof(IsValid), ()=>
-                    { _isValid = _checkpoint != null}); 
+                    }, nameof(Checkpoint), nameof(SessionName), nameof(LastSaveTime), nameof(IsValid), () =>
+                     _isValid = _checkpoint != null); 
                     
         }
 

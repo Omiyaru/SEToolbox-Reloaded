@@ -15,6 +15,7 @@ using Sandbox.Game.GameSystems;
 using SEToolbox.Models;
 using SEToolbox.Support;
 using SpaceEngineers.Game;
+using Steamworks;
 using VRage;
 using VRage.Collections;
 using VRage.Game;
@@ -85,7 +86,7 @@ namespace SEToolbox.Interop
         public void SpaceEngineersCoreLoader()
         {
             if (_singleton != null)
-            {  
+            {
                 SConsole.Init();
 
                 InitializePaths();
@@ -100,6 +101,8 @@ namespace SEToolbox.Interop
         /// </summary>
         public static void LoadDefinitions()
         {
+            SConsole.WriteLine("Init MyTexts.");
+
             typeof(MyTexts).TypeInitializer.Invoke(null, null); // For tests
 
             _singleton = new();
@@ -154,6 +157,8 @@ namespace SEToolbox.Interop
                 _steamService = MySteamGameService.Create(Sandbox.Engine.Platform.Game.IsDedicated, AppIdGame);
 
                 MyServiceManager.Instance.AddService(_steamService);
+
+                SConsole.WriteLine("Initializing VRage platform.");
                 MyVRage.Init(new ToolboxPlatform());
                 MyVRage.Platform.Init();
             }
@@ -172,6 +177,9 @@ namespace SEToolbox.Interop
                 MyServiceManager.Instance.AddService(ugc);
                 MyGameService.WorkshopService.AddAggregate(ugc);
                 MyServiceManager.Instance.AddService(MyGameService.WorkshopService);
+
+                SConsole.WriteLine("Fetching user specific data.");
+
                 MFS.InitUserSpecific(_steamService.UserId.ToString(), SpaceEngineersConsts.Folders.SavesFolder);
                 MyGameService.WorkshopService.Update();
             }
@@ -204,8 +212,9 @@ namespace SEToolbox.Interop
 
         private void LoadSandboxGame()
         {
+            SConsole.WriteLine("Loading config.");
             var myConfig = new MyConfig("SpaceEngineers.cfg");
-            
+
 
             if (myConfig != null)
             {
@@ -213,14 +222,18 @@ namespace SEToolbox.Interop
                 MySandboxGame.Config.Load();
             }
 
+            SConsole.WriteLine("Setting Up MyPerGameSettings.");
+
             SpaceEngineersGame.SetupPerGameSettings();
             MyPerGameSettings.UpdateOrchestratorType = null;
-            MySandboxGame.InitMultithreading();
-            //InitMultithreading();
+            //MySandboxGame.InitMultithreading();
+            SConsole.WriteLine("Initializing Multithreading.");
+            InitMultithreading();
+            SConsole.WriteLine("Initializing MyRenderProxy.");
 
             // Needed for MyRenderProxy.Log access in MyFont.LogWriteLine() and likely other things.
             //Todo Static patching
-           
+
             MyRenderProxy.Initialize(new MyNullRender());
             InitSandboxGame();
 
@@ -228,7 +241,7 @@ namespace SEToolbox.Interop
             string languageCode = GlobalSettings.Default.LanguageCode;
             if (!string.IsNullOrWhiteSpace(languageCode))
                 Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfoByIetfLanguageTag(languageCode);
-                 SpaceEngineersApi.LoadLocalization();
+            SpaceEngineersApi.LoadLocalization();
             // Create an empty instance of MySession for use by low level code.
             SGW_MySession session = (SGW_MySession)GetUninitializedObject(typeof(SGW_MySession));
 
@@ -239,45 +252,45 @@ namespace SEToolbox.Interop
 
             session.Settings = new MyObjectBuilder_SessionSettings { EnableVoxelDestruction = true };
             // Register the required components
-         
+
 
             // ??Change for the Clone() method to use XML cloning instead of Protobuf because of issues with MyObjectBuilder_CubeGrid.Clone()??
             // ENABLE_PROTOBUFFERS_CLONING is a static readonly field. 
             // Setting these via reflection is not guaranteed to work and is blocked in newer runtimes.
             EnableProtobufCloning();
-           
+
             // Assign the instance back to the static.
-            SGW_MySession.Static = session; 
+            SGW_MySession.Static = session;
             MyHeightMapLoadingSystem heightmapSystem = new();
             MyPlanets planets = new();
 
             session.RegisterComponent(heightmapSystem, heightmapSystem.UpdateOrder, heightmapSystem.Priority);
             session.RegisterComponent(planets, planets.UpdateOrder, planets.Priority);
-            
-            heightmapSystem.LoadData(); 
+
+            heightmapSystem.LoadData();
             planets.LoadData();
 
             //session.RegisterComponent(voxelDestructionSystem, voxelDestructionSystem.UpdateOrder, voxelDestructionSystem.Priority);
             // Load the definitions 
+            SConsole.WriteLine("Loading definitions.");
             var stockDefinitions = new SEResources();
-                stockDefinitions.LoadDefinitions();
-           
+            stockDefinitions.LoadDefinitions();
+
 
             // Store the variables for later use
             _stockDefinitions = stockDefinitions;
             _manageDeleteVoxelList = [];
-           // EnableProtobufCloning();
-          
+            // EnableProtobufCloning();
         }
 
-            static void ResetProtobufCloning()
-            {
-                EnableProtobufCloning(false);
-            }
+        static void ResetProtobufCloning()
+        {
+            EnableProtobufCloning(false);
+        }
 
         static void EnableProtobufCloning(bool setValue = true)
         {
-            ReflUtil.SetFieldValue<MOBSerializerKeen>( "ENABLE_PROTOBUFFERS_CLONING", false);
+            ReflUtil.SetFieldValue<MOBSerializerKeen>("ENABLE_PROTOBUFFERS_CLONING", false);
             FieldInfo _protobufCloningField = ReflUtil.GetField<MOBSerializerKeen>("ENABLE_PROTOBUFFERS_CLONING", BindingFlags.NonPublic | BindingFlags.Static, false);
             var _protobufCloningOriginalValue = (bool?)null;
             if (_protobufCloningField != null)
@@ -296,28 +309,33 @@ namespace SEToolbox.Interop
                 }
                 else if (setValue)
                 {
-                
+
                     // Save the original value to reset it later
                     _protobufCloningField.SetValue(null, true);
                 }
                 else
-              
+
                 {
                     _protobufCloningField.SetValue(null, _protobufCloningOriginalValue.Value);
-
                 }
             }
         }
 
         static void InitMultithreading()
-        {  
-            
+        {
+            //MySandboxGame.InitMultithreading();
             ParallelTasks.Parallel.Scheduler = new ParallelTasks.PrioritizedScheduler(Math.Max(Environment.ProcessorCount / 2, 1), amd: true, setup: null);
 
         }
 
         static void InitSandboxGame()
         {
+            SConsole.WriteLine("Initializing SandboxGame");
+
+            // If this is causing an exception then there is a missing dependency.
+            // gameTemp instance gets captured in MySandboxGame.Static
+            //MySandboxGame gameTemp = new DerivedGame(["-skipintro"]);
+
             // Required for definitions to work properly
             MySandboxGame.Static = (MySandboxGame)GetUninitializedObject(typeof(MySandboxGame));
 
@@ -332,7 +350,13 @@ namespace SEToolbox.Interop
             ReflUtil.GetField<MySandboxGame>("m_invokeQueueExecuting", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(game, iq2);
 
             RegisterAssemblies();
+
+            SConsole.WriteLine("MyGlobalTypeMetadata init.");
+
             VRage.Game.ObjectBuilder.MyGlobalTypeMetadata.Static.Init();
+
+            SConsole.WriteLine("Preallocate");
+
             Preallocate();
         }
 
@@ -347,6 +371,7 @@ namespace SEToolbox.Interop
 
         static void RegisterAssemblies()
         {
+            SConsole.WriteLine("RegisterAssemblies");
             MyPlugins.RegisterGameAssemblyFile(MyPerGameSettings.GameModAssembly);
 
             if (MyPerGameSettings.GameModBaseObjBuildersAssembly != null)
@@ -394,8 +419,8 @@ namespace SEToolbox.Interop
                 {
                     foreach (Type type in types)
                     {
-                       if(type != null)
-                       
+                        if (type != null)
+
                             RuntimeHelpers.RunClassConstructor(type.TypeHandle);
 
 
@@ -403,6 +428,12 @@ namespace SEToolbox.Interop
                     }
                 }
             }
+            //class DerivedGame(string[] commandlineArgs)
+            //    : MySandboxGame(commandlineArgs, default)
+            //{
+            //    protected override void InitializeRender(IntPtr windowHandle) { }
+            //}
         }
     }
 }
+
