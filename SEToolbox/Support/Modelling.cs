@@ -101,10 +101,9 @@ namespace SEToolbox.Support
             }
 
             Rect3D tbounds = model.Bounds;
-            if (transform != null)
-            {
-                tbounds = transform.TransformBounds(tbounds);
-            }
+            
+            tbounds = transform?.TransformBounds(tbounds);
+            
 
             int xMin = (int)Math.Floor(tbounds.X);
             int yMin = (int)Math.Floor(tbounds.Y);

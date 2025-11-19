@@ -229,7 +229,7 @@ namespace SEToolbox.Interop
         public void LogEnvironmentInformation()
         {
             //Log relevant environment information
-            Console.WriteLine($"OS: {GetOsName()}, CPU: {GetInfoCPU(out uint freq, out uint cores)}");
+            SConsole.WriteLine($"OS: {GetOsName()}, CPU: {GetInfoCPU(out uint freq, out uint cores)}");
             Debugger.Log(0, null, $"OS: {GetOsName()}, CPU: {GetInfoCPU(out freq, out cores)}"); // Log to external debugger.
 
         }
@@ -332,8 +332,6 @@ namespace SEToolbox.Interop
             remove => throw new NotImplementedException();
         }
 
-
-        
 
         public void ApplyRenderSettings(MyRenderDeviceSettings? settings) => throw new NotImplementedException();
         public object CreateRenderAnnotation(object deviceContext) => throw new NotImplementedException();

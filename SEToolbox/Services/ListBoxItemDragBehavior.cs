@@ -39,13 +39,8 @@ namespace SEToolbox.Services
         public BindingBase DragSourceBinding
         {
             get => _dragMemberBinding;
-            set
-            {
-                if (_dragMemberBinding != value)
-                {
-                    _dragMemberBinding = value;
-                }
-            }
+            set => SetValue(DragSourceBindingProperty, value);
+            
         }
 
         #endregion

@@ -669,9 +669,7 @@ namespace SEToolbox.Interop
             {
                 var inventoryBase = componentContainer.Components.FirstOrDefault(e => e.TypeId == "MyInventoryBase");
 
-                if (inventoryBase != null)
-                {
-                    if (inventoryBase.Component is MyObjectBuilder_Inventory singleInventory && singleInventory != null)
+                if (inventoryBase != null && inventoryBase.Component is MyObjectBuilder_Inventory singleInventory && singleInventory != null)
                     {
                         InventoryEditorModel iem = ParseInventory(singleInventory, definition);
                         if (iem != null)
@@ -688,7 +686,7 @@ namespace SEToolbox.Interop
                         }
                     }
                 }
-            }
+            
             return inventoryEditors;
     }
 

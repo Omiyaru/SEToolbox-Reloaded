@@ -21,8 +21,8 @@ namespace SEToolbox.Services
 
             _source = source;
             _viewModelFactory = viewModelFactory;
-            if (_source != null)
-                _source.CollectionChanged += OnSourceCollectionChanged;
+            //if (_source != null)
+                _source?.CollectionChanged += OnSourceCollectionChanged;
         }
 
         ~ObservableViewModelCollection()

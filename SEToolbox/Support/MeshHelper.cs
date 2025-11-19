@@ -178,12 +178,12 @@ namespace SEToolbox.Support
         }
 
 
-        public static bool RayIntersectTriangleRound(Point3DCollection rayPoints, List<Point3D> rays, out Point3D intersection, out int norm)
+        public static bool RayIntersectTriangleRound(Point3DCollection rayPoints, List<Point3D> rays, out Point3D intersection, out int normal)
         {
             for (int i = 0; i < rays.Count; i += 2)
             {
-                if (RayIntersectTriangleRound(rayPoints, rays[i], rays[i + 1], out intersection, out norm)|| // Ray
-                    RayIntersectTriangleRound(rayPoints, rays[i + 1], rays[i], out intersection, out norm)) // Reverse Ray
+                if (RayIntersectTriangleRound(rayPoints, rays[i], rays[i + 1], out intersection, out normal)|| // Ray
+                    RayIntersectTriangleRound(rayPoints, rays[i + 1], rays[i], out intersection, out normal)) // Reverse Ray
                     return true;
             }
 
