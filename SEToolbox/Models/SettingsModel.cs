@@ -23,7 +23,7 @@ namespace SEToolbox.Models
 
             set
             {
-                SetProperty(ref _seBinPath, value, nameof(SEBinPath));
+                SetProperty(ref _seBinPath, nameof(SEBinPath));
                 Validate();
             }
         }
@@ -31,7 +31,7 @@ namespace SEToolbox.Models
         public string CustomVoxelPath
         {
             get => _customVoxelPath ?? string.Empty;
-            set => SetProperty(ref _customVoxelPath, value, nameof(CustomVoxelPath), () => 
+            set => SetProperty(ref _customVoxelPath, nameof(CustomVoxelPath), () => 
             	   Validate());
 
         }
@@ -39,7 +39,7 @@ namespace SEToolbox.Models
         public bool? AlwaysCheckForUpdates
         {
             get => _alwaysCheckForUpdates;
-            set => SetProperty(ref _alwaysCheckForUpdates, value, nameof(AlwaysCheckForUpdates), () => 
+            set => SetProperty(ref _alwaysCheckForUpdates, nameof(AlwaysCheckForUpdates), () => 
             	   Validate());
 
 
@@ -49,7 +49,7 @@ namespace SEToolbox.Models
         public bool? UseCustomResource
         {
             get => _useCustomResource;
-            set => SetProperty(ref _useCustomResource, value, nameof(UseCustomResource), () => 
+            set => SetProperty(ref _useCustomResource, nameof(UseCustomResource), () => 
             	   Validate());
                
         }
@@ -59,7 +59,7 @@ namespace SEToolbox.Models
         {
             get => _isValid;
 
-            private set => SetProperty(ref _isValid, value, nameof(IsValid)); 
+            private set => SetProperty(ref _isValid, nameof(IsValid)); 
         }
 
         #endregion

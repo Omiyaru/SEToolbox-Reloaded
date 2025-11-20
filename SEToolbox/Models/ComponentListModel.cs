@@ -47,7 +47,7 @@ namespace SEToolbox.Models
         public ObservableCollection<ComponentItemModel> CubeAssets
         {
             get => _cubeAssets;
-            set => SetProperty(ref _cubeAssets, value, nameof(CubeAssets));
+            set => SetProperty(ref _cubeAssets, nameof(CubeAssets));
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace SEToolbox.Models
         public ObservableCollection<ComponentItemModel> ComponentAssets
         {
             get => _componentAssets;
-            set => SetProperty(ref _componentAssets, value, nameof(ComponentAssets));
+            set => SetProperty(ref _componentAssets, nameof(ComponentAssets));
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace SEToolbox.Models
         public ObservableCollection<ComponentItemModel> ItemAssets
         {
             get => _itemAssets;
-            set => SetProperty(ref _itemAssets, value, nameof(ItemAssets));
+            set => SetProperty(ref _itemAssets, nameof(ItemAssets));
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace SEToolbox.Models
         public ObservableCollection<ComponentItemModel> MaterialAssets
         {
             get => _materialAssets;
-            set => SetProperty(ref _materialAssets, value, nameof(MaterialAssets));
+            set => SetProperty(ref _materialAssets, nameof(MaterialAssets));
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace SEToolbox.Models
 
             set
             {
-                SetProperty(ref _isBusy, value, nameof(IsBusy));
+                SetProperty(ref _isBusy, nameof(IsBusy));
                 if (_isBusy)
                 {
                     System.Windows.Forms.Application.DoEvents();
@@ -97,7 +97,7 @@ namespace SEToolbox.Models
         public ComponentItemModel SelectedCubeAsset
         {
             get => _selectedCubeAsset;
-            set => SetProperty(ref _selectedCubeAsset, value, nameof(SelectedCubeAsset));
+            set => SetProperty(ref _selectedCubeAsset, nameof(SelectedCubeAsset));
         }
 
         #endregion

@@ -22,7 +22,6 @@ namespace SEToolbox.Support
         /// </summary>
         public bool PromptUser;
 
-
         private const string BaseKey = @"SOFTWARE\MidSpace\SEToolbox";
        
         #endregion

@@ -31,25 +31,25 @@ namespace SEToolbox.Models.Asteroids
         public int Index
         {
             get => _index;
-            set => SetProperty( ref _index, value, nameof(Index));
+            set => SetProperty( ref _index, nameof(Index));
         }
 
         public GenerateVoxelDetailModel VoxelFile
         {
             get => _voxelFile;
-            set => SetProperty( ref _voxelFile, value, nameof(VoxelFile));
+            set => SetProperty( ref _voxelFile, nameof(VoxelFile));
         }
 
         public IMyVoxelFiller FillMethod
         {
             get => _fillMethod;
-            set => SetProperty( ref _fillMethod, value, nameof(FillMethod));
+            set => SetProperty( ref _fillMethod, nameof(FillMethod));
         }
 
         public List<GenerateVoxelDetailModel> VoxelFileList
         {
             get => _voxelFileList;
-            set => SetProperty( ref _voxelFileList, value, nameof(VoxelFileList));
+            set => SetProperty( ref _voxelFileList, nameof(VoxelFileList));
         }
 
         //private ObservableCollection<MaterialSelectionModel> _materialsCollection;

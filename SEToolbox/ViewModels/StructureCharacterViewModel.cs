@@ -156,7 +156,7 @@ namespace SEToolbox.ViewModels
         public InventoryEditorViewModel Inventory
         {
             get => _inventory;
-            set => SetProperty(ref _inventory, value, nameof(Inventory));
+            set => SetProperty(ref _inventory, nameof(Inventory));
         }
 
         #endregion

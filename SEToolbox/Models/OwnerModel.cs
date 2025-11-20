@@ -22,28 +22,28 @@ namespace SEToolbox.Models
         {
             get => _name;
             
-            set => SetProperty(ref _name, value, nameof(Name), nameof(DisplayName));
+            set => SetProperty(ref _name, nameof(Name), nameof(DisplayName));
         }
 
 
         public string Model
         {
             get => _model;
-            set => SetProperty(ref _model, value, nameof(Model));
+            set => SetProperty(ref _model, nameof(Model));
         }
 
         public long PlayerId
         {
             get => _playerId;
             
-            set => SetProperty(ref _playerId, value, nameof(PlayerId));
+            set => SetProperty(ref _playerId, nameof(PlayerId));
         }
 
         public bool IsPlayer
         {
             get => _isPlayer;
             
-            set => SetProperty(ref _isPlayer, value, nameof(IsPlayer), nameof(DisplayName));
+            set => SetProperty(ref _isPlayer, nameof(IsPlayer), nameof(DisplayName));
         }
 
         public string DisplayName

@@ -34,7 +34,7 @@ namespace SEToolbox.Models
         public string Name
         {
             get => _name;
-            set => SetProperty(ref _name, value, nameof(Name),  FriendlyName == SpaceEngineersApi.GetResourceName(Name), nameof(FriendlyName));
+            set => SetProperty(ref _name, nameof(Name),  FriendlyName == SpaceEngineersApi.GetResourceName(Name), nameof(FriendlyName));
         }
 
         public MyObjectBuilderType TypeId { get; set; }
@@ -45,7 +45,7 @@ namespace SEToolbox.Models
             get => _amount;
             set
             {
-                SetProperty(ref _amount, value, nameof(Amount), () => 
+                SetProperty(ref _amount, nameof(Amount), () => 
                 UpdateMassVolume());
             }
         }
@@ -53,25 +53,25 @@ namespace SEToolbox.Models
         public double Mass
         {
             get => _mass;
-            private set => SetProperty(ref _mass, value, nameof(Mass));
+            private set => SetProperty(ref _mass, nameof(Mass));
         }
 
         public double MassMultiplier
         {
             get => _massMultiplier;
-            set  => SetProperty(ref _massMultiplier, value, nameof(MassMultiplier), () => UpdateMassVolume());
+            set  => SetProperty(ref _massMultiplier, nameof(MassMultiplier), () => UpdateMassVolume());
         }
 
         public double Volume
         {
             get => _volume;
-            private set => SetProperty(ref _volume, value, nameof(Volume));
+            private set => SetProperty(ref _volume, nameof(Volume));
         }
 
         public double VolumeMultiplier
         {
             get => _volumeMultiplier;
-            set => SetProperty(ref _volumeMultiplier, value, nameof(VolumeMultiplier), () => UpdateMassVolume());
+            set => SetProperty(ref _volumeMultiplier, nameof(VolumeMultiplier), () => UpdateMassVolume());
         }
 
         public string TextureFile { get; set; }

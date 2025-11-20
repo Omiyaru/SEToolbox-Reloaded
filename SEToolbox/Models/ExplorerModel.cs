@@ -93,19 +93,19 @@ namespace SEToolbox.Models
         public ObservableCollection<IStructureBase> Structures
         {
             get => _structures;
-            set => SetProperty(_structures = value, value, nameof(Structures));
+            set => SetProperty(_structures = value, nameof(Structures));
         }
 
         public StructureCharacterModel ThePlayerCharacter
         {
             get => _thePlayerCharacter;
-            set => SetProperty(ref _thePlayerCharacter, value, nameof(ThePlayerCharacter));
+            set => SetProperty(ref _thePlayerCharacter, nameof(ThePlayerCharacter));
         }
 
         public WorldResource ActiveWorld
         {
             get => SpaceEngineersCore.WorldResource;
-            set => SetProperty(SpaceEngineersCore.WorldResource, value,nameof(ActiveWorld));
+            set => SetProperty(SpaceEngineersCore.WorldResource, nameof(ActiveWorld));
         }
         /// <summary>
         /// Gets or sets a value indicating whether the View is available.  This is based on the IsInError and IsBusy properties
@@ -113,7 +113,7 @@ namespace SEToolbox.Models
         public bool IsActive
         {
             get => _isActive;
-            set => SetProperty(ref _isActive, value, nameof(IsActive));
+            set => SetProperty(ref _isActive, nameof(IsActive));
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace SEToolbox.Models
         public bool IsBusy
         {
             get => _isBusy;
-            set => SetProperty(ref _isBusy, value, nameof(IsBusy), ()=>
+            set => SetProperty(ref _isBusy, nameof(IsBusy), ()=>
                 {
 
                     SetActiveStatus();
@@ -141,7 +141,7 @@ namespace SEToolbox.Models
         public bool IsModified
         {
             get => _isModified;
-            set => SetProperty(ref _isModified, value, nameof(IsModified));
+            set => SetProperty(ref _isModified, nameof(IsModified));
         }
 
         /// <summary>
@@ -150,19 +150,19 @@ namespace SEToolbox.Models
         public bool IsBaseSaveChanged
         {
             get => _isBaseSaveChanged;
-            set => SetProperty(ref _isBaseSaveChanged, value, nameof(IsBaseSaveChanged));
+            set => SetProperty(ref _isBaseSaveChanged, nameof(IsBaseSaveChanged));
         }
 
         public bool ShowProgress
         {
             get => _showProgress;
-            set => SetProperty(ref _showProgress, value, nameof(ShowProgress));
+            set => SetProperty(ref _showProgress, nameof(ShowProgress));
         }
 
         public double Progress
         {
             get => _progress;
-            set => SetProperty(ref _progress, value, () =>
+            set => SetProperty(ref _progress, () =>
                      {
                          if (!_timer.IsRunning || _timer.ElapsedMilliseconds > 200 && value == _progress)
                          {
@@ -180,19 +180,19 @@ namespace SEToolbox.Models
         public TaskbarItemProgressState ProgressState
         {
             get => _progressState;
-            set => SetProperty(ref _progressState, value, nameof(ProgressState));
+            set => SetProperty(ref _progressState, nameof(ProgressState));
         }
 
         public double ProgressValue
         {
             get => _progressValue;
-            set => SetProperty(ref _progressValue, value, nameof(ProgressValue));
+            set => SetProperty(ref _progressValue, nameof(ProgressValue));
         }
 
         public double MaximumProgress
         {
             get => _maximumProgress;
-            set => SetProperty(ref _maximumProgress, value, nameof(MaximumProgress));
+            set => SetProperty(ref _maximumProgress, nameof(MaximumProgress));
         }
 
         public ObservableCollection<string> ScriptPaths { get; } = [];
@@ -200,7 +200,7 @@ namespace SEToolbox.Models
         public string SelectedScriptPath
         {
             get => _selectedScriptPath;
-            set => SetProperty(ref _selectedScriptPath, value, nameof(SelectedScriptPath));
+            set => SetProperty(ref _selectedScriptPath, nameof(SelectedScriptPath));
 
         }
 
@@ -409,10 +409,8 @@ namespace SEToolbox.Models
                     }
                     Structures.Add(structure);
                 }
-
                 CalcDistances();
             }
-
             OnPropertyChanged(nameof(Structures));
         }
 

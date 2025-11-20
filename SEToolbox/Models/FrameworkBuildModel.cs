@@ -15,7 +15,7 @@
         public double? BuildPercent
         {
             get => _buildPercent;
-            set => SetProperty(ref _buildPercent, value, nameof(BuildPercent));
+            set => SetProperty(ref _buildPercent, nameof(BuildPercent));
         }
 
         #endregion

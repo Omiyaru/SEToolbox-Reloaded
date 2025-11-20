@@ -38,11 +38,9 @@ namespace SEToolbox.Services
 
             Rect adornedElementRect = new(AdornedElement.DesiredSize);
 
-            SolidColorBrush renderBrush = new(Colors.Red) 
-            {
-                Opacity = 0.5
-            };
-            Pen renderPen = new(new SolidColorBrush(Colors.White), 1.5);
+            SolidColorBrush renderBrush = new(Colors.Red);
+            renderBrush.Opacity = 0.5;
+            Pen renderPen = new Pen(new SolidColorBrush(Colors.White), 1.5);
             double renderRadius = 5.0;
 
             if (IsAboveElement)

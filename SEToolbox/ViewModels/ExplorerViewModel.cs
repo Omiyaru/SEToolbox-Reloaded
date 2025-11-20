@@ -132,7 +132,6 @@ namespace SEToolbox.ViewModels
         public ICommand IsActiveCommand => new DelegateCommand(new Func<bool>(IsActiveCanExecute));
 
         public ICommand ImportVoxelCommand => new DelegateCommand(ImportVoxelExecuted, ImportVoxelCanExecute);
-
         public ICommand ImportImageCommand => new DelegateCommand(ImportImageExecuted, ImportImageCanExecute);
         public ICommand ImportModelCommand => new DelegateCommand(ImportModelExecuted, ImportModelCanExecute);
         public ICommand ImportAsteroidModelCommand => new DelegateCommand(ImportAsteroidModelExecuted, ImportAsteroidModelCanExecute);
@@ -191,45 +190,44 @@ namespace SEToolbox.ViewModels
         {
 
             get => _closeResult;
-            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
+            set => SetProperty(ref _closeResult, nameof(CloseResult));
         }
 
 
         public ObservableCollection<IFactionBase> Factions
         {
             get => _factions;
-            set => SetProperty(ref _factions, value, nameof(Factions));
+            set => SetProperty(ref _factions, nameof(Factions));
         }
-
 
         public IFactionBase SelectedFaction
         {
             get => _selectedFaction;
-            set => SetProperty(ref _selectedFaction, value, nameof(SelectedFaction));
+            set => SetProperty(ref _selectedFaction, nameof(SelectedFaction));
         }
 
         public IFactionBase SelectedMember
         {
             get => _selectedMember;
-            set => SetProperty(ref _selectedMember, value, nameof(SelectedMember));
+            set => SetProperty(ref _selectedMember, nameof(SelectedMember));
         }
 
         public ObservableCollection<IFactionBase> Members
         {
             get => _members;
-            set => SetProperty(ref _members, value, nameof(Members));
+            set => SetProperty(ref _members, nameof(Members));
         }
 
         public ObservableCollection<IStructureViewBase> Structures
         {
             get => _structures;
-            set => SetProperty(ref _structures, value, nameof(Structures));
+            set => SetProperty(ref _structures, nameof(Structures));
         }
 
         public IStructureViewBase SelectedStructure
         {
             get => _selectedStructure;
-            set => SetProperty(ref _selectedStructure, value, () => 
+            set => SetProperty(ref _selectedStructure, () => 
                         {   
                             if (_selectedStructure != null && 
                                !_ignoreUpdateSelection && _selectedStructure == value)
@@ -241,7 +239,7 @@ namespace SEToolbox.ViewModels
         public ObservableCollection<IStructureViewBase> Selections
         {
             get => _selections;
-            set => SetProperty(ref _selections, value, nameof(Selections));
+            set => SetProperty(ref _selections, nameof(Selections));
         }
 
         public bool? IsMultipleSelections
@@ -297,7 +295,7 @@ namespace SEToolbox.ViewModels
         public ObservableCollection<LanguageModel> Languages
         {
             get => _languages;
-            private set => SetProperty(ref _languages, value, nameof(Languages));
+            private set => SetProperty(ref _languages, nameof(Languages));
         }
 
         public bool? UseExcludedTypes { get; set; }
@@ -305,7 +303,7 @@ namespace SEToolbox.ViewModels
         public bool EnableExcludedBlocks
         {
             get => _dataModel.EnableExclusions;
-            set => SetProperty(_dataModel.EnableExclusions, value, nameof(EnableExcludedBlocks));
+            set => SetProperty(_dataModel.EnableExclusions, nameof(EnableExcludedBlocks));
         }
 
         //public Type DataType => throw new NotImplementedException();

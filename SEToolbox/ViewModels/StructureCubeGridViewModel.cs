@@ -184,13 +184,13 @@ namespace SEToolbox.ViewModels
         public ObservableCollection<CubeItemViewModel> Selections
         {
             get => _selections;
-            set => SetProperty(ref _selections, value, nameof(Selections));
+            set => SetProperty(ref _selections, nameof(Selections));
         }
 
         public CubeItemViewModel SelectedCubeItem
         {
             get => _selectedCubeItem;
-            set => SetProperty(ref _selectedCubeItem, value, nameof(SelectedCubeItem));
+            set => SetProperty(ref _selectedCubeItem, nameof(SelectedCubeItem));
         }
 
         protected new StructureCubeGridModel DataModel
@@ -201,7 +201,7 @@ namespace SEToolbox.ViewModels
         public bool ToggleExcludedBlocks //why did i put this here??
         {
             get => DataModel.ToggleExcludedBlocks;
-            set => SetProperty( DataModel.ToggleExcludedBlocks, value, () =>{ MainViewModel.IsModified = true;}, nameof(ToggleExcludedBlocks));
+            set => SetProperty( DataModel.ToggleExcludedBlocks, () =>{ MainViewModel.IsModified = true;}, nameof(ToggleExcludedBlocks));
           
         }
 

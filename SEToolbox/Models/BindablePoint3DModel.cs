@@ -65,25 +65,25 @@ namespace SEToolbox.Models
         public double X
         {
             get => _point.X;
-            set => SetProperty(_point.X, value, nameof(X));
+            set => SetProperty(_point.X, nameof(X));
         }
 
         public double Y
         {
             get => _point.Y;
-            set => SetProperty(_point.Y, value, nameof(Y));
+            set => SetProperty(_point.Y, nameof(Y));
         }
 
         public double Z
         {
             get => _point.Z;
-            set => SetProperty(_point.Z, value, nameof(Z));
+            set => SetProperty(_point.Z, nameof(Z));
         }
 
         public Point3D Point3D
         {
             get => _point;
-            set => SetProperty(_point, value, nameof(Point3D));
+            set => SetProperty(_point, nameof(Point3D));
         }
 
         #endregion

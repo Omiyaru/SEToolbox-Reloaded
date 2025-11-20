@@ -107,49 +107,49 @@ namespace SEToolbox.Models
         public string Name
         {
             get => _name;
-            set => SetProperty(ref _name, value, nameof(Name));
+            set => SetProperty(ref _name, nameof(Name));
         }
 
         [XmlIgnore]
         public bool IsValid
         {
             get => _isValid;
-            set => SetProperty(ref _isValid, value, nameof(IsValid));
+            set => SetProperty(ref _isValid, nameof(IsValid));
         }
 
         [XmlIgnore]
         public ObservableCollection<InventoryModel> Items
         {
             get => _items;
-            set => SetProperty(ref _items, value, nameof(Items));
+            set => SetProperty(ref _items, nameof(Items));
         }
 
         [XmlIgnore]
         public InventoryModel SelectedRow
         {
             get => _selectedRow;
-            set => SetProperty(ref _selectedRow, value, nameof(SelectedRow));
+            set => SetProperty(ref _selectedRow, nameof(SelectedRow));
         }
 
         [XmlIgnore]
         public double TotalVolume
         {
             get => _totalVolume;
-            set => SetProperty(ref _totalVolume, value, nameof(TotalVolume));
+            set => SetProperty(ref _totalVolume, nameof(TotalVolume));
         }
 
         [XmlIgnore]
         public double TotalMass
         {
             get => _totalMass;
-            set => SetProperty(ref _totalMass, value, nameof(TotalMass));
+            set => SetProperty(ref _totalMass, nameof(TotalMass));
         }
 
         [XmlIgnore]
         public float MaxVolume
         {
             get => _maxVolume;
-            set => SetProperty(ref _maxVolume, value, nameof(MaxVolume));
+            set => SetProperty(ref _maxVolume, nameof(MaxVolume));
         }
 
         #endregion

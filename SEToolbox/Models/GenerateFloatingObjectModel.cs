@@ -53,43 +53,43 @@ namespace SEToolbox.Models
         {
             get => _characterPosition;
             // unable to check for equivalence and mostly unnecessary
-            set => SetProperty(ref _characterPosition, value, nameof(CharacterPosition));
+            set => SetProperty(ref _characterPosition, nameof(CharacterPosition));
         }
 
         public ObservableCollection<ComponentItemModel> StockItemList
         {
             get => _stockItemList;
-            set => SetProperty(ref _stockItemList, value, nameof(StockItemList));
+            set => SetProperty(ref _stockItemList, nameof(StockItemList));
         }
 
         public ComponentItemModel StockItem
         {
             get => _stockItem;
-            set => SetProperty(ref _stockItem, value, nameof(StockItem));
+            set => SetProperty(ref _stockItem, nameof(StockItem));
         }
 
         public bool IsValidItemToImport
         {
             get => _isValidItemToImport;
-            set => SetProperty(ref _isValidItemToImport, value, nameof(IsValidItemToImport));
+            set => SetProperty(ref _isValidItemToImport, nameof(IsValidItemToImport));
         }
 
         public double? Volume
         {
             get => _volume;
-            set => SetProperty(ref _volume, value, nameof(Volume));
+            set => SetProperty(ref _volume, nameof(Volume));
         }
 
         public double? Mass
         {
             get => _mass;
-            set => SetProperty(ref _mass, value, nameof(Mass));
+            set => SetProperty(ref _mass, nameof(Mass));
         }
 
         public int? Units
         {
             get => _units;
-            set => SetProperty(ref _units, value, nameof(Units), () => SetMassVolume());
+            set => SetProperty(ref _units, nameof(Units), () => SetMassVolume());
                    
 
         }
@@ -97,25 +97,25 @@ namespace SEToolbox.Models
         public decimal? DecimalUnits
         {
             get => _decimalUnits;
-            set => SetProperty(ref _decimalUnits, value, nameof(DecimalUnits), () => SetMassVolume());
+            set => SetProperty(ref _decimalUnits, nameof(DecimalUnits), () => SetMassVolume());
         }
 
         public bool IsDecimal
         {
             get => _isDecimal;
-            set => SetProperty(ref _isDecimal, value, nameof(IsDecimal));
+            set => SetProperty(ref _isDecimal, nameof(IsDecimal));
         }
 
         public bool IsInt
         {
             get => _isInt;
-            set => SetProperty(ref _isInt, value, nameof(IsInt));
+            set => SetProperty(ref _isInt, nameof(IsInt));
         }
 
         public bool IsUnique
         {
             get => _isUnique;
-            set => SetProperty(ref _isUnique, value, nameof(IsUnique));
+            set => SetProperty(ref _isUnique, nameof(IsUnique));
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace SEToolbox.Models
         public int Multiplier
         {
             get => _multiplier;
-            set => SetProperty(ref _multiplier, value, nameof(Multiplier));
+            set => SetProperty(ref _multiplier, nameof(Multiplier));
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace SEToolbox.Models
         public float MaxFloatingObjects
         {
             get => _maxFloatingObjects;
-            set => SetProperty(ref _maxFloatingObjects, value, nameof(MaxFloatingObjects));
+            set => SetProperty(ref _maxFloatingObjects, nameof(MaxFloatingObjects));
         }
 
         #endregion

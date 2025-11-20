@@ -43,19 +43,19 @@ namespace SEToolbox.Models
         public string Title
         {
             get => _title;
-            set => SetProperty(ref _title, value, nameof(Title));
+            set => SetProperty(ref _title, nameof(Title));
         }
 
         public string SubTitle
         {
             get => _subTitle;
-            set => SetProperty(ref _subTitle, value, nameof(SubTitle));
+            set => SetProperty(ref _subTitle, nameof(SubTitle));
         }
 
         public string DialogText
         {
             get => _dialogText;
-            set => SetProperty(ref _dialogText, value, nameof(DialogText));
+            set => SetProperty(ref _dialogText, nameof(DialogText));
         }
 
         public double Progress
@@ -66,7 +66,7 @@ namespace SEToolbox.Models
             {
               
             
-                    SetProperty(ref _progress, value, nameof(Progress), ()=>
+                    SetProperty(ref _progress, nameof(Progress), ()=>
                     {
                         if (_progressTimer.IsRunning == false || _progressTimer.ElapsedMilliseconds > 100 && _progress == value)
                             System.Windows.Forms.Application.DoEvents();
@@ -78,13 +78,13 @@ namespace SEToolbox.Models
         public double MaximumProgress
         {
             get => _maximumProgress;
-            set => SetProperty(ref _maximumProgress, value, nameof(MaximumProgress));
+            set => SetProperty(ref _maximumProgress, nameof(MaximumProgress));
         }
 
         public TimeSpan? EstimatedTimeLeft
         {
             get => _estimatedTimeLeft;
-            set => SetProperty(ref _estimatedTimeLeft, value, nameof(EstimatedTimeLeft)); 
+            set => SetProperty(ref _estimatedTimeLeft, nameof(EstimatedTimeLeft)); 
         }
 
         #endregion

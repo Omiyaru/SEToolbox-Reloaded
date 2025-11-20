@@ -1,23 +1,24 @@
-﻿    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Windows;
-    using System.Windows.Controls;
-    using System.Windows.Data;
-    using System.Windows.Forms;
-    using System.Windows.Input;
-    using Microsoft.Xaml.Behaviors;
-    using SEToolbox.Interop;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Configuration;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Forms;
+using System.Windows.Input;
+using Microsoft.Xaml.Behaviors;
+using SEToolbox.Interop;
 using SEToolbox.Models;
 using SEToolbox.Support;
-    using Binding = System.Windows.Data.Binding;
-    using DataObject = System.Windows.DataObject;
-    using DragDropEffects = System.Windows.DragDropEffects;
-    using ListBox = System.Windows.Controls.ListBox;
-    using ListViewItem = System.Windows.Controls.ListViewItem;
-    using MouseEventArgs = System.Windows.Input.MouseEventArgs;
-    using MouseEventHandler = System.Windows.Input.MouseEventHandler;
+using Binding = System.Windows.Data.Binding;
+using DataObject = System.Windows.DataObject;
+using DragDropEffects = System.Windows.DragDropEffects;
+using ListBox = System.Windows.Controls.ListBox;
+using ListViewItem = System.Windows.Controls.ListViewItem;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using MouseEventHandler = System.Windows.Input.MouseEventHandler;
 
 namespace SEToolbox.Services
 {
@@ -31,7 +32,7 @@ namespace SEToolbox.Services
         private bool _isMouseClicked = false;
         private bool _wasDragging = false;
         private BindingBase _dragMemberBinding;
-
+        private BaseModel _baseModel = new();
         #endregion
 
         #region Properties
@@ -39,8 +40,8 @@ namespace SEToolbox.Services
         public BindingBase DragSourceBinding
         {
             get => _dragMemberBinding;
-            set => SetValue(DragSourceBindingProperty, value);
-            
+            set => _baseModel.SetProperty(ref _dragMemberBinding, value);
+
         }
 
         #endregion
@@ -64,25 +65,22 @@ namespace SEToolbox.Services
             _isMouseClicked = true;
 
             var item = AssociatedObject.GetHitControl<ListViewItem>(e);
-            if (item is {IsEnabled: true, IsSelected: true})
-               if  ((NativeMethods.GetKeyState(Keys.ShiftKey) & KeyStates.Down) != KeyStates.Down
-                && (NativeMethods.GetKeyState(Keys.ControlKey) & KeyStates.Down) != KeyStates.Down)
-            {
-                e.Handled = true;
-            }
+            if (item is { IsEnabled: true, IsSelected: true })
+                if (Conditional.False(KeyStates.Down, NativeMethods.GetKeyState(Keys.ShiftKey) & KeyStates.Down, NativeMethods.GetKeyState(Keys.ControlKey) & KeyStates.Down))
+                    e.Handled = true;
+
         }
         void AssociatedObject_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            ListViewItem item = AssociatedObject.GetHitControl<ListViewItem>((MouseEventArgs)e);
-           if (item is {IsEnabled: true, IsSelected: true} && _isMouseClicked && !_wasDragging
-            && (NativeMethods.GetKeyState(Keys.ShiftKey) & KeyStates.Down) != KeyStates.Down
-            && (NativeMethods.GetKeyState(Keys.ControlKey) & KeyStates.Down) != KeyStates.Down)
-                {
-                    ListBox parent = ItemsControl.ItemsControlFromItemContainer(AssociatedObject) as ListBox;
-                    parent.SelectedItems.Clear();
-                    item.IsSelected = true;
-                    item.Focus();
-                }
+            ListViewItem item = AssociatedObject.GetHitControl<ListViewItem>(e);
+            if (item is { IsEnabled: true, IsSelected: true } && _isMouseClicked && !_wasDragging
+             && Conditional.False(KeyStates.Down, NativeMethods.GetKeyState(Keys.ShiftKey) & KeyStates.Down,NativeMethods.GetKeyState(Keys.ControlKey) & KeyStates.Down))
+            {
+                ListBox parent = ItemsControl.ItemsControlFromItemContainer(AssociatedObject) as ListBox;
+                parent.SelectedItems.Clear();
+                item.IsSelected = true;
+                item.Focus();
+            }
 
             _isMouseClicked = false;
             _wasDragging = false;
@@ -100,7 +98,7 @@ namespace SEToolbox.Services
 
                     ListBox parent = ItemsControl.ItemsControlFromItemContainer(AssociatedObject) as ListBox;
                     IList list = null;
-                    if (DragSourceBinding == null)
+                    if (DragSourceBinding == null && list != null)
                     {
                         // Pass the raw ItemSource as the drag object.
                         list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(dragObject.DataType));

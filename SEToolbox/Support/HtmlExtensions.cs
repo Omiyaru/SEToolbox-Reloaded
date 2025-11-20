@@ -16,7 +16,6 @@ namespace SEToolbox.Support
 
         #region BeginDocument
 
-
         internal static void BeginDocument(this StringWriter writer, string title, string inlineStyleSheet)
         {
             writer.WriteLine("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\" />");

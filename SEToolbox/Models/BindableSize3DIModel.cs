@@ -49,19 +49,19 @@ namespace SEToolbox.Models
         public int Width
         {
             get => _width;
-            set => SetProperty(ref _width, value, nameof(Width));
+            set => SetProperty(ref _width, nameof(Width));
         }
 
         public int Height
         {
             get => _height;
-            set => SetProperty(ref _height, value, nameof(Height));
+            set => SetProperty(ref _height, nameof(Height));
         }
 
         public int Depth
         {
             get => _depth;
-            set => SetProperty(ref _depth, value, nameof(Depth));
+            set => SetProperty(ref _depth, nameof(Depth));
         }
 
         public Size3D ToSize3D

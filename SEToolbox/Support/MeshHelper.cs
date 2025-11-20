@@ -188,7 +188,7 @@ namespace SEToolbox.Support
             }
 
             intersection = default;
-            norm = 0;
+            normal = 0;
             return false;
         }
 

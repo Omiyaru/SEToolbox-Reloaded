@@ -20,7 +20,7 @@ namespace SEToolbox.Models
         public string GameApplicationPath
         {
             get => _gameApplicationPath;
-            set => SetProperty(ref _gameApplicationPath, value, nameof(GameApplicationPath), () => 
+            set => SetProperty(ref _gameApplicationPath, nameof(GameApplicationPath), () => 
             { 
                 Validate();
             });
@@ -30,19 +30,19 @@ namespace SEToolbox.Models
         public string GameBinPath
         {
             get => _gameBinPath;
-            set => SetProperty(ref _gameBinPath, value, nameof(GameBinPath));
+            set => SetProperty(ref _gameBinPath, nameof(GameBinPath));
         }
 
         public bool IsValidApplication
         {
             get => _isValidApplication;
-            set => SetProperty(ref _isValidApplication, value, nameof(IsValidApplication));
+            set => SetProperty(ref _isValidApplication, nameof(IsValidApplication));
         }
 
         public bool IsWrongApplication
         {
             get => _isWrongApplication;
-            set => SetProperty(ref _isWrongApplication, value, nameof(IsWrongApplication));
+            set => SetProperty(ref _isWrongApplication, nameof(IsWrongApplication));
         }
 
         #endregion

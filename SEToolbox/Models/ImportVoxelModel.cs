@@ -61,13 +61,13 @@ namespace SEToolbox.Models
         public string FileName
         {
             get => _fileName;
-            set => SetProperty(ref _fileName, value, nameof(FileName));
+            set => SetProperty(ref _fileName, nameof(FileName));
         }
 
         public string SourceFile
         {
             get => _sourceFile;
-            set => SetProperty(ref _sourceFile, value,nameof(SourceFile), ()=>
+            set => SetProperty(ref _sourceFile, nameof(SourceFile), ()=>
                 {StockMaterial ??= MaterialsCollection[0];});
                 
             
@@ -76,31 +76,31 @@ namespace SEToolbox.Models
         public bool IsValidVoxelFile
         {
             get => _isValidVoxelFile;
-            set => SetProperty(ref _isValidVoxelFile, value, nameof(IsValidVoxelFile));
+            set => SetProperty(ref _isValidVoxelFile, nameof(IsValidVoxelFile));
         }
 
         public BindablePoint3DModel Position
         {
             get => _position;
-            set => SetProperty(ref _position, value, nameof(Position));
+            set => SetProperty(ref _position, nameof(Position));
         }
 
         public BindableVector3DModel Forward
         {
             get => _forward;
-            set => SetProperty(ref _forward, value, nameof(Forward));
+            set => SetProperty(ref _forward, nameof(Forward));
         }
 
         public BindableVector3DModel Up
         {
             get => _up;
-            set => SetProperty(ref _up, value, nameof(Up));
+            set => SetProperty(ref _up, nameof(Up));
         }
 
         public MyPositionAndOrientation CharacterPosition
         {
             get => _characterPosition;
-            set => SetProperty(ref _characterPosition, value, nameof(CharacterPosition));
+            set => SetProperty(ref _characterPosition, nameof(CharacterPosition));
                 //if (value != characterPosition) // Unable to check for equivilence, without long statement. And, mostly uncessary.
            
         }
@@ -108,26 +108,26 @@ namespace SEToolbox.Models
         public bool IsStockVoxel
         {
             get => _isStockVoxel;
-            set => SetProperty(ref _isStockVoxel, value, nameof(IsStockVoxel));
+            set => SetProperty(ref _isStockVoxel, nameof(IsStockVoxel));
         }
 
         public bool IsFileVoxel
         {
             get => _isFileVoxel;
-            set => SetProperty(ref _isFileVoxel, value, nameof(IsFileVoxel));
+            set => SetProperty(ref _isFileVoxel, nameof(IsFileVoxel));
         }
 
         public bool IsSphere
         {
             get => _isSphere;
-            set => SetProperty(ref _isSphere,value,nameof(IsSphere));
+            set => SetProperty(ref _isSphere, nameof(IsSphere));
 
         }
 
         public GenerateVoxelDetailModel StockVoxel
         {
             get => _stockVoxel;
-            set => SetProperty(ref _stockVoxel, value, nameof(StockVoxel), () =>
+            set => SetProperty(ref _stockVoxel, nameof(StockVoxel), () =>
                     {
                     IsStockVoxel = true;
                     StockMaterial ??= MaterialsCollection[0];
@@ -137,7 +137,7 @@ namespace SEToolbox.Models
         public List<GenerateVoxelDetailModel> VoxelFileList
         {
             get => _voxelFileList;
-            set => SetProperty(ref _voxelFileList, value, nameof(VoxelFileList));
+            set => SetProperty(ref _voxelFileList, nameof(VoxelFileList));
         }
 
         public ObservableCollection<MaterialSelectionModel> MaterialsCollection
@@ -148,19 +148,19 @@ namespace SEToolbox.Models
         public MaterialSelectionModel StockMaterial
         {
             get => _stockMaterial;
-            set => SetProperty(ref _stockMaterial, value, nameof(StockMaterial));
+            set => SetProperty(ref _stockMaterial, nameof(StockMaterial));
         }
 
         public int SphereRadius
         {
             get => _sphereRadius;
-            set => SetProperty(ref _sphereRadius, value, nameof(SphereRadius));
+            set => SetProperty(ref _sphereRadius, nameof(SphereRadius));
         }
 
         public int SphereShellRadius
         {
             get => _sphereShellRadius;
-            set => SetProperty(ref _sphereShellRadius, value, nameof(SphereShellRadius));
+            set => SetProperty(ref _sphereShellRadius, nameof(SphereShellRadius));
         }
 
         #endregion

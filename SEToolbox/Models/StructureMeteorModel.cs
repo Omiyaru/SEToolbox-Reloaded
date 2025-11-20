@@ -42,21 +42,21 @@ namespace SEToolbox.Models
         public MyObjectBuilder_InventoryItem Item
         {
             get => Meteor.Item;
-            set => SetProperty(Meteor.Item, value, nameof(Item));
+            set => SetProperty(Meteor.Item, nameof(Item));
         }
 
         [XmlIgnore]
         public float Integrity
         {
             get => Meteor.Integrity;
-            set => SetProperty(Meteor.Integrity, value, nameof(Integrity));
+            set => SetProperty(Meteor.Integrity, nameof(Integrity));
         }
 
         [XmlIgnore]
         public double? Volume
         {
             get => _volume;
-            set => SetProperty(ref _volume, value, nameof(Volume));
+            set => SetProperty(ref _volume, nameof(Volume));
         }
 
         /// This is not to be taken as an accurate representation.

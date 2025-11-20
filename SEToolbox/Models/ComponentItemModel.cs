@@ -22,7 +22,7 @@ namespace SEToolbox.Models
         public string Name
         {
             get => _name;
-            set => SetProperty( ref _name, value,() => 
+            set => SetProperty( ref _name, () => 
             	   FriendlyName == SpaceEngineersApi.GetResourceName(Name),
                      nameof(Name), 
                      nameof(FriendlyName));

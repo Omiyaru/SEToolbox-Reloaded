@@ -110,7 +110,7 @@ namespace SEToolbox.Models
         public string Name
         {
             get => VoxelMap.StorageName ?? string.Empty;
-            set => SetProperty(VoxelMap.StorageName, value, nameof(Name));
+            set => SetProperty(VoxelMap.StorageName, nameof(Name));
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace SEToolbox.Models
         public new string SourceVoxelFilePath
         {
             get => _sourceVoxelFilePath;
-            set => SetProperty(ref _sourceVoxelFilePath, value, nameof(SourceVoxelFilePath), () =>
+            set => SetProperty(ref _sourceVoxelFilePath, nameof(SourceVoxelFilePath), () =>
                     ReadVoxelDetails(SourceVoxelFilePath));
 
         }
@@ -130,14 +130,14 @@ namespace SEToolbox.Models
         public string VoxelFilePath
         {
             get => _voxelFilePath ?? string.Empty;
-            set => SetProperty(ref _voxelFilePath, value, nameof(VoxelFilePath));
+            set => SetProperty(ref _voxelFilePath, nameof(VoxelFilePath));
         }
 
         [XmlIgnore]
         public Vector3I Size
         {
             get => _size;
-            set => SetProperty(ref _size, value, nameof(Size));
+            set => SetProperty(ref _size, nameof(Size));
         }
 
         [XmlIgnore]
@@ -154,7 +154,7 @@ namespace SEToolbox.Models
         public BoundingBoxI ContentBounds
         {
             get => _contentBounds;
-            set => SetProperty(ref _contentBounds, value, nameof(ContentBounds));
+            set => SetProperty(ref _contentBounds, nameof(ContentBounds));
         }
 
         [XmlIgnore]
@@ -164,7 +164,7 @@ namespace SEToolbox.Models
         public long VoxCells
         {
             get => _voxCells;
-            set => SetProperty(ref _voxCells, value, nameof(VoxCells));
+            set => SetProperty(ref _voxCells, nameof(VoxCells));
         }
 
         [XmlIgnore]
@@ -180,28 +180,28 @@ namespace SEToolbox.Models
         public List<VoxelMaterialAssetModel> MaterialAssets
         {
             get => _materialAssets;
-            set => SetProperty(ref _materialAssets, value, nameof(MaterialAssets));
+            set => SetProperty(ref _materialAssets, nameof(MaterialAssets));
         }
 
         [XmlIgnore]
         public VoxelMaterialAssetModel SelectedMaterialAsset
         {
             get => _selectedMaterialAsset;
-            set => SetProperty(ref _selectedMaterialAsset, value, nameof(SelectedMaterialAsset));
+            set => SetProperty(ref _selectedMaterialAsset, nameof(SelectedMaterialAsset));
         }
 
         [XmlIgnore]
         public List<VoxelMaterialAssetModel> GameMaterialList
         {
             get => _gameMaterialList;
-            set => SetProperty(ref _gameMaterialList, value, nameof(GameMaterialList));
+            set => SetProperty(ref _gameMaterialList, nameof(GameMaterialList));
         }
 
         [XmlIgnore]
         public List<VoxelMaterialAssetModel> EditMaterialList
         {
             get => _editMaterialList;
-            set => SetProperty(ref _editMaterialList, value, nameof(EditMaterialList));
+            set => SetProperty(ref _editMaterialList, nameof(EditMaterialList));
         }
 
         #endregion

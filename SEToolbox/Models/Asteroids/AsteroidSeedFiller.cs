@@ -139,7 +139,7 @@ namespace SEToolbox.Models.Asteroids
                     {
                         int hash;
                         hash = HashCode.Combine(materials.IndexOf(material), veins, Convert.ToInt32(radius)).GetHashCode();
-                        RandomUtil.SetSecretRandom(hash);
+                        RandomUtil.SetSeed(hash);
                        }
 
                     multiplier *= multiplierFactor;
@@ -169,7 +169,7 @@ namespace SEToolbox.Models.Asteroids
             //asteroid.ForceVoxelFaceMaterial("Uraninite_01");
             //asteroid.ForceVoxelFaceMaterial(properties.MainMaterial.Value);
 
-            ///look into SurfaceMaterial?? (something to o withh planets??
+            ///look into SurfaceMaterial?? (something to do withh planets??
             // Cycle through veins info and add 'spherical' depisits to the voxel cell grid (not voxels themselves)
 
             // Add ore veins into the asteroid voxel field

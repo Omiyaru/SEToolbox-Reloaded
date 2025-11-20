@@ -53,7 +53,7 @@ namespace SEToolbox.Models.Asteroids
         public ObservableCollection<GenerateVoxelDetailModel> VoxelFileList
         {
             get => _voxelFileList;
-            set => SetProperty(ref _voxelFileList, value, nameof(VoxelFileList));
+            set => SetProperty(ref _voxelFileList, nameof(VoxelFileList));
 
         }
 
@@ -61,32 +61,32 @@ namespace SEToolbox.Models.Asteroids
         public List<MaterialSelectionModel> MaterialsList
         {
             get => _materialsList = [.. MaterialsData.Select(x => x.Value.Material)];
-            set => SetProperty( ref _materialsList, value, nameof(MaterialsList));
+            set => SetProperty( ref _materialsList, nameof(MaterialsList));
         }
 
         public GenerateVoxelDetailModel VoxelFile
         {
             get => _voxelFile;
-            set => SetProperty(ref _voxelFile, value, nameof(VoxelFile));
+            set => SetProperty(ref _voxelFile, nameof(VoxelFile));
         }
 
 
         public int Index
         {
             get => _index;
-            set => SetProperty(ref _index, value, nameof(Index));
+            set => SetProperty(ref _index, nameof(Index));
         }
 
         public MaterialSelectionModel MainMaterial
         {
             get => _mainMaterial;
-            set => SetProperty(ref _mainMaterial, value, nameof(MainMaterial));
+            set => SetProperty(ref _mainMaterial, nameof(MainMaterial));
         }
 
         public MaterialSelectionModel FirstMaterial
         {
             get => _firstMaterial;
-            set => SetProperty(ref _firstMaterial, value, nameof(FirstMaterial));
+            set => SetProperty(ref _firstMaterial, nameof(FirstMaterial));
         }
 
         public int FirstVeins
@@ -104,7 +104,7 @@ namespace SEToolbox.Models.Asteroids
         public MaterialSelectionModel SecondMaterial
         {
             get => _secondMaterial;
-            set => SetProperty(ref _secondMaterial, value, nameof(SecondMaterial));
+            set => SetProperty(ref _secondMaterial, nameof(SecondMaterial));
         }
 
         public int SecondVeins
@@ -122,7 +122,7 @@ namespace SEToolbox.Models.Asteroids
         public MaterialSelectionModel ThirdMaterial
         {
             get => _thirdMaterial;
-            set => SetProperty(ref _thirdMaterial, value, nameof(ThirdMaterial));
+            set => SetProperty(ref _thirdMaterial, nameof(ThirdMaterial));
         }
 
         public int ThirdVeins
@@ -140,7 +140,7 @@ namespace SEToolbox.Models.Asteroids
         public MaterialSelectionModel FourthMaterial
         {
             get => _fourthMaterial;
-            set => SetProperty(ref _fourthMaterial, value, nameof(FourthMaterial));
+            set => SetProperty(ref _fourthMaterial, nameof(FourthMaterial));
         }
 
         public int FourthVeins
@@ -158,7 +158,7 @@ namespace SEToolbox.Models.Asteroids
         public MaterialSelectionModel FifthMaterial
         {
             get => _fifthMaterial;
-            set => SetProperty(ref _fifthMaterial, value, nameof(FifthMaterial));
+            set => SetProperty(ref _fifthMaterial, nameof(FifthMaterial));
         }
 
         public int FifthVeins
@@ -176,7 +176,7 @@ namespace SEToolbox.Models.Asteroids
         public MaterialSelectionModel SixthMaterial
         {
             get => _sixthMaterial;
-            set => SetProperty(ref _sixthMaterial, value, nameof(SixthMaterial));
+            set => SetProperty(ref _sixthMaterial, nameof(SixthMaterial));
         }
 
         public int SixthVeins
@@ -194,7 +194,7 @@ namespace SEToolbox.Models.Asteroids
         public MaterialSelectionModel SeventhMaterial
         {
             get => _seventhMaterial;
-            set => SetProperty(ref _seventhMaterial, value, nameof(SeventhMaterial));
+            set => SetProperty(ref _seventhMaterial, nameof(SeventhMaterial));
 	  }
 
        	public int SeventhVeins

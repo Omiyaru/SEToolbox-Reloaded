@@ -13,7 +13,7 @@ using VRageMath;
 using System.Collections.Generic;
 using VRage.Game.Factions.Definitions;
 using SEToolbox.Support;
-using System.Security.Cryptography.X509Certificates;
+
 
 
 
@@ -26,11 +26,7 @@ namespace SEToolbox.ViewModels
         public bool IsFactionCreated = false;
         private readonly FactionModel _factionModel;
 
-
-
-
         #endregion
-
 
         public ICommand[] Commands { get; }
 
@@ -59,19 +55,19 @@ namespace SEToolbox.ViewModels
         public Dictionary<long, MyFaction> Factions
         {
             get => _factionModel.Factions;
-            set => SetProperty(_factionModel.Factions, value, nameof(Factions));
+            set => SetProperty(_factionModel.Factions, nameof(Factions));
         }
 
         public MyFaction SelectedFaction
         {
             get => _factionModel.SelectedFaction;
-            set => SetProperty(_factionModel.SelectedFaction, value, nameof(SelectedFaction));
+            set => SetProperty(_factionModel.SelectedFaction, nameof(SelectedFaction));
         }
 
         public MyFactionMember SelectedMember
         {
             get => _factionModel.SelectedMember;
-            set => SetProperty(_factionModel.SelectedMember, value, nameof(SelectedMember));
+            set => SetProperty(_factionModel.SelectedMember, nameof(SelectedMember));
         }
 
         //public ICommand GetBalanceCommand { get; private set; }
@@ -127,10 +123,6 @@ namespace SEToolbox.ViewModels
         public Vector3 CustomColor => _faction.CustomColor;
         public Vector3 IconColor => _faction.IconColor;
         public int MemberCount => _faction.Members.Count;
-
-
-
-        // If you want to allow editing, implement setters and raise OnPropertyChanged.
 
         private bool SetFounderCanExecute() => _factionModel.SelectedFaction != null;
 

@@ -42,21 +42,21 @@ namespace SEToolbox.Models
         public MyObjectBuilder_InventoryItem Item
         {
             get => FloatingObject.Item;
-            set => SetProperty(FloatingObject.Item, value, nameof(Item));
+            set => SetProperty(FloatingObject.Item, nameof(Item));
         }
 
         [XmlIgnore]
         public double? Volume
         {
             get => _volume;
-            set => SetProperty(ref _volume, value, nameof(Volume));
+            set => SetProperty(ref _volume, nameof(Volume));
         }
 
         [XmlIgnore]
         public decimal? Units
         {
             get => _units;
-            set => SetProperty(ref _units, value, nameof(Units));
+            set => SetProperty(ref _units, nameof(Units));
         }
 
         #endregion

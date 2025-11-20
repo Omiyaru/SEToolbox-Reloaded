@@ -43,7 +43,7 @@ namespace SEToolbox.Models
         public ObservableCollection<GroupMoveItemModel> Selections
         {
             get => _selections;
-            set => SetProperty(ref _selections, value, nameof(Selections));
+            set => SetProperty(ref _selections, nameof(Selections));
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace SEToolbox.Models
             get => _isBusy;
             set 
             {
-                 SetProperty(ref _isBusy, value, nameof(IsBusy));
+                 SetProperty(ref _isBusy, nameof(IsBusy));
            
                     if (_isBusy)
                     {
@@ -67,61 +67,61 @@ namespace SEToolbox.Models
         public float GlobalOffsetPositionX
         {
             get => _globalOffsetPositionX;
-            set => SetProperty(ref _globalOffsetPositionX, value, nameof(GlobalOffsetPositionX));
+            set => SetProperty(ref _globalOffsetPositionX, nameof(GlobalOffsetPositionX));
         }
 
         public float GlobalOffsetPositionY
         {
             get => _globalOffsetPositionY;
-            set => SetProperty(ref _globalOffsetPositionY, value, nameof(GlobalOffsetPositionY));
+            set => SetProperty(ref _globalOffsetPositionY, nameof(GlobalOffsetPositionY));
         }
 
         public float GlobalOffsetPositionZ
         {
             get => _globalOffsetPositionZ;
-            set => SetProperty(ref _globalOffsetPositionZ, value, nameof(GlobalOffsetPositionZ));
+            set => SetProperty(ref _globalOffsetPositionZ, nameof(GlobalOffsetPositionZ));
         }
 
         public bool IsGlobalOffsetPosition
         {
             get => _isGlobalOffsetPosition;
-            set => SetProperty(ref _isGlobalOffsetPosition, value, nameof(IsGlobalOffsetPosition));
+            set => SetProperty(ref _isGlobalOffsetPosition, nameof(IsGlobalOffsetPosition));
         }
 
         public float SinglePositionX
         {
             get => _singlePositionX;
-            set => SetProperty(ref _singlePositionX, value, nameof(SinglePositionX));
+            set => SetProperty(ref _singlePositionX, nameof(SinglePositionX));
         }
 
         public float SinglePositionY
         {
             get => _singlePositionY;
-            set => SetProperty(ref _singlePositionY, value, nameof(SinglePositionY));
+            set => SetProperty(ref _singlePositionY, nameof(SinglePositionY));
         }
 
         public float SinglePositionZ
         {
             get => _singlePositionZ;
-            set => SetProperty(ref _singlePositionZ, value, nameof(SinglePositionZ));
+            set => SetProperty(ref _singlePositionZ, nameof(SinglePositionZ));
         }
 
         public bool IsSinglePosition
         {
             get => _isSinglePosition;
-            set => SetProperty(ref _isSinglePosition, value, nameof(IsSinglePosition));
+            set => SetProperty(ref _isSinglePosition, nameof(IsSinglePosition));
         }
 
         public Vector3D CenterPosition
         {
             get => _centerPosition;
-            set => SetProperty(ref _centerPosition, value, nameof(CenterPosition));
+            set => SetProperty(ref _centerPosition, nameof(CenterPosition));
         }
 
         public bool IsRelativePosition
         {
             get => _isRelativePosition;
-            set => SetProperty(ref _isRelativePosition, value, nameof(IsRelativePosition));
+            set => SetProperty(ref _isRelativePosition, nameof(IsRelativePosition));
         }
        
         #endregion

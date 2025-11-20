@@ -22,7 +22,7 @@
         public string ImageName
         {
             get => _imageName;
-            set => SetProperty(ref _imageName, value, nameof(ImageName));
+            set => SetProperty(ref _imageName, nameof(ImageName));
 
         }
 
@@ -37,13 +37,13 @@
         public string LanguageName
         {
             get => _languageName;
-            set => SetProperty(ref _languageName, value, nameof(LanguageName), nameof(Name));
+            set => SetProperty(ref _languageName, nameof(LanguageName), nameof(Name));
         }
 
         public string NativeName
         {
             get => _nativeName;
-            set => SetProperty(ref _nativeName, value, nameof(NativeName), nameof(Name));
+            set => SetProperty(ref _nativeName, nameof(NativeName), nameof(Name));
         }
 
         #endregion

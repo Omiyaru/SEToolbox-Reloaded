@@ -5,8 +5,6 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using static SEToolbox.Support.Conditional;
-using System.Linq.Expressions;
 
 
 namespace SEToolbox.Support
@@ -22,7 +20,7 @@ namespace SEToolbox.Support
         #endregion
 
         #region Constants
-        private static readonly int ATTACH_PARENT_PROCESS = 0;
+        private static int ATTACH_PARENT_PROCESS = 0;
         #endregion
 
         #region Debug
@@ -39,6 +37,7 @@ namespace SEToolbox.Support
 
         #region Standard Methods
        
+
 
         public static void WriteLink([CallerFilePath] string filePath = "")
         {
@@ -130,13 +129,10 @@ namespace SEToolbox.Support
 
     public sealed class Redirector : TextWriter
     {
-        private static readonly TextWriter _redirector = Console.Out;
+        private static StringBuilder _redirector = new();
 
         public override Encoding Encoding => Encoding.UTF8;
         public override void Close() => Flush();
-    
-
-        public override void Write(string value) => _redirector.Write(value);
 
         public override void Flush()
         {
@@ -171,9 +167,9 @@ namespace SEToolbox.Support
             var output = $"{value}{Environment.NewLine}";
             var color = default(ConsoleColor);
             try
-            {   if (exception != null)
-                {
-                    
+            {   
+                if (exception != null)
+                {    
                 var severity = Severity.GetSeverity(frame);
                 color = severity(frame).Item2;
                 if(!Conditional.Equals(severity(frame).Item1,TraceEventType.Information,TraceEventType.Verbose)  && value is string && value.ToString().Contains(typeof(Exception).Name))

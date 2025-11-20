@@ -79,7 +79,7 @@ namespace SEToolbox.Models
         public string Name
         {
             get => Planet.StorageName;
-            set => SetProperty(Planet.StorageName, value, nameof(Name));
+            set => SetProperty(Planet.StorageName, nameof(Name));
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace SEToolbox.Models
 
             set
             {
-                SetProperty(ref _sourceVoxelFilePath, value, nameof(SourceVoxelFilePath));
+                SetProperty(ref _sourceVoxelFilePath, nameof(SourceVoxelFilePath));
                     ReadVoxelDetails(SourceVoxelFilePath);
             }
         }
@@ -102,7 +102,7 @@ namespace SEToolbox.Models
         public string VoxelFilePath
         {
             get => _voxelFilePath;
-            set => SetProperty(ref _voxelFilePath, value, nameof(VoxelFilePath));
+            set => SetProperty(ref _voxelFilePath, nameof(VoxelFilePath));
             
         }
 
@@ -110,14 +110,14 @@ namespace SEToolbox.Models
         public Vector3I Size
         {
             get => _size;
-            set => SetProperty(ref _size, value, nameof(Size));
+            set => SetProperty(ref _size, nameof(Size));
         }
 
         [XmlIgnore]
         public int Seed
         {
             get => Planet.Seed;
-            set => SetProperty(Planet.Seed, value, nameof(Seed));
+            set => SetProperty(Planet.Seed, nameof(Seed));
         }
 
 
@@ -125,69 +125,69 @@ namespace SEToolbox.Models
         public float Radius
         {
             get => Planet.Radius;
-            set => SetProperty(Planet.Radius, value, nameof(Radius));
+            set => SetProperty(Planet.Radius, nameof(Radius));
         }
 
         public bool HasAtmosphere
         {
             get => Planet.HasAtmosphere;
-            set => SetProperty(Planet.HasAtmosphere, value, nameof(HasAtmosphere));
+            set => SetProperty(Planet.HasAtmosphere, nameof(HasAtmosphere));
         }
 
         [XmlIgnore]
         public float AtmosphereRadius
         {
             get => Planet.AtmosphereRadius;
-            set => SetProperty(Planet.AtmosphereRadius, value, nameof(AtmosphereRadius));
+            set => SetProperty(Planet.AtmosphereRadius, nameof(AtmosphereRadius));
         }
 
         [XmlIgnore]
         public float MinimumSurfaceRadius
         {
             get => Planet.MinimumSurfaceRadius;
-            set => SetProperty(Planet.MinimumSurfaceRadius, value, nameof(MinimumSurfaceRadius));
+            set => SetProperty(Planet.MinimumSurfaceRadius, nameof(MinimumSurfaceRadius));
         }
 
         [XmlIgnore]
         public float MaximumHillRadius
         {
             get => Planet.MaximumHillRadius;
-            set => SetProperty(Planet.MaximumHillRadius, value, nameof(MaximumHillRadius));
+            set => SetProperty(Planet.MaximumHillRadius, nameof(MaximumHillRadius));
         }
 
         [XmlIgnore]
         public float GravityFalloff
         {
             get => Planet.GravityFalloff;
-            set => SetProperty(Planet.GravityFalloff, value, nameof(GravityFalloff));
+            set => SetProperty(Planet.GravityFalloff, nameof(GravityFalloff));
         }
 
         [XmlIgnore]
         public float SurfaceGravity
         {
             get => Planet.SurfaceGravity;
-            set => SetProperty(Planet.SurfaceGravity, value, nameof(SurfaceGravity));
+            set => SetProperty(Planet.SurfaceGravity, nameof(SurfaceGravity));
         }
 
         [XmlIgnore]
         public bool SpawnsFlora
         {
             get => Planet.SpawnsFlora;
-            set => SetProperty(Planet.SpawnsFlora, value, nameof(SpawnsFlora));
+            set => SetProperty(Planet.SpawnsFlora, nameof(SpawnsFlora));
         }
 
         [XmlIgnore]
         public bool ShowGPS
         {
             get => Planet.ShowGPS;
-            set => SetProperty(Planet.ShowGPS, value, nameof(ShowGPS));
+            set => SetProperty(Planet.ShowGPS, nameof(ShowGPS));
         }
 
         [XmlIgnore]
         public string PlanetGenerator
         {
             get => Planet.PlanetGenerator;
-            set => SetProperty(Planet.PlanetGenerator, value, nameof(PlanetGenerator));
+            set => SetProperty(Planet.PlanetGenerator, nameof(PlanetGenerator));
         }
 
         private object ContentSize()

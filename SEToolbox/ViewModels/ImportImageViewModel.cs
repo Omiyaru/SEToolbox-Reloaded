@@ -98,7 +98,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty(ref _closeResult, value, nameof(CloseResult)); 
+            set => SetProperty(ref _closeResult, nameof(CloseResult)); 
         }
 
         public string FileName
@@ -127,7 +127,7 @@ namespace SEToolbox.ViewModels
         public BindableSizeModel NewImageSize
         {
             get => _dataModel.NewImageSize;
-            set => SetProperty( _dataModel.NewImageSize, value, nameof(NewImageSize), () => ProcessImage());
+            set => SetProperty( _dataModel.NewImageSize, nameof(NewImageSize), () => ProcessImage());
         }
             
 
@@ -162,7 +162,7 @@ namespace SEToolbox.ViewModels
         public BitmapImage NewImage
         {
             get => _newImage;
-            set => SetProperty(ref _newImage, value, nameof(NewImage));
+            set => SetProperty(ref _newImage, nameof(NewImage));
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _isBusy;
-            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
+            set => SetProperty(ref _isBusy, nameof(IsBusy), () =>
             {
                  if(_isBusy)
                  {

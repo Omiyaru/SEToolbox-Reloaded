@@ -30,7 +30,7 @@ namespace SEToolbox.Models
         public string Name
         {
             get => _name;
-            set => SetProperty(ref _name, value, nameof(Name), FriendlyName == SpaceEngineersApi.GetResourceName(Name), nameof(FriendlyName));
+            set => SetProperty(ref _name, nameof(Name), FriendlyName == SpaceEngineersApi.GetResourceName(Name), nameof(FriendlyName));
         }
 
         public string FriendlyName { get; set; }
@@ -38,38 +38,38 @@ namespace SEToolbox.Models
         public double Mass
         {
             get => _mass;
-            set => SetProperty(ref _mass, value, nameof(Mass));
+            set => SetProperty(ref _mass, nameof(Mass));
         }
 
         public double Volume
         {
             get => _volume;
-            set => SetProperty(ref _volume, value, nameof(Volume));
+            set => SetProperty(ref _volume, nameof(Volume));
         }
 
         public long Count
         {
             get => _count;
-            set => SetProperty(ref _count, value, nameof(Count));
+            set => SetProperty(ref _count, nameof(Count));
         }
 
         public TimeSpan Time
         {
             get => _time;
-            set => SetProperty(ref _time, value, nameof(Time));
+            set => SetProperty(ref _time, nameof(Time));
         }
 
         public int PCU
         {
             get => _pcu;
-            set => SetProperty(ref _pcu, value, nameof(PCU));
+            set => SetProperty(ref _pcu, nameof(PCU));
         }
 
 
         public string TextureFile
         {
             get => _textureFile;
-            set => SetProperty(ref _textureFile, value, nameof(TextureFile));
+            set => SetProperty(ref _textureFile, nameof(TextureFile));
         }
 
         #endregion

@@ -47,13 +47,13 @@ namespace SEToolbox.Models
         public WorldResource SelectedWorld
         {
             get => _selectedWorld;
-            set => SetProperty(ref _selectedWorld, value, nameof(SelectedWorld));
+            set => SetProperty(ref _selectedWorld, nameof(SelectedWorld));
         }
 
         public ObservableCollection<WorldResource> Worlds
         {
             get => _worlds;
-            set => SetProperty(ref _worlds, value, nameof(Worlds));
+            set => SetProperty(ref _worlds, nameof(Worlds));
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace SEToolbox.Models
 
             set
             {
-               SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
+               SetProperty(ref _isBusy, nameof(IsBusy), () =>
                {
                     if (_isBusy)
                     {

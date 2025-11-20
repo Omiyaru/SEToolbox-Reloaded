@@ -34,10 +34,11 @@ namespace SEToolbox.Models
             }
         }
 
-        public void SetProperty<T>(ref T field, T value, params object[] parameters) => SetProperty(field, value, parameters);
+        public void SetProperty<T>(ref T field, params object[] parameters) => SetProperty(field, parameters);
 
-        public void SetProperty<T>(T field, T value, params object[] parameters)
-        {
+        public void SetProperty<T>(T field, params object[] parameters)
+        {   
+            T value =default;
             var propertyName = parameters.FirstOrDefault() as string ?? parameters.LastOrDefault() as string ?? string.Empty;
 
             if (ReferenceEquals(value, field) || EqualityComparer<T>.Default.Equals(value, field))

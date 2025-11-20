@@ -30,8 +30,8 @@ namespace SEToolbox.Support
         public static bool NotNull(params object[] values) => !(bool)Condition(null, values);
         public static bool NotNullOrDefault<T>(params object[] values) => !(bool)Condition((object)null ?? default, values);
         public static bool Null(params object[] values) => (bool)Condition(null, values);
-        public static bool Is(params object[] values) => (bool)Condition(true, values);
-        public static bool IsNot(params object[] values) => (bool)Condition(false, values);
+        public static bool True(params object[] values) => (bool)Condition(true, values);
+        public static bool False(params object[] values) => (bool)Condition(false, values);
         public static bool Equals(params object[] values) => (bool)Condition(values[0], values);
 
         /// <summary>

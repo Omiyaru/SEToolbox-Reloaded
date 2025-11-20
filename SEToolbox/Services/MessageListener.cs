@@ -29,11 +29,7 @@ namespace SEToolbox.Services
         /// </summary>
         public static MessageListener Instance
         {
-            get
-            {
-                mInstance ??= new MessageListener();
-                return mInstance;
-            }
+            get => mInstance ??= new MessageListener();
         }
 
         /// <summary>

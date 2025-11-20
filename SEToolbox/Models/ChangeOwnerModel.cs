@@ -37,14 +37,14 @@ namespace SEToolbox.Models
         {
             get => _selectedPlayer; 
 
-            set => SetProperty( ref _selectedPlayer, value, nameof(SelectedPlayer));
+            set => SetProperty( ref _selectedPlayer, nameof(SelectedPlayer));
         }
 
         public string Title
         {
             get => _title; 
 
-            set => SetProperty(ref _title, value, nameof(Title));
+            set => SetProperty(ref _title, nameof(Title));
         }
 
         #endregion
