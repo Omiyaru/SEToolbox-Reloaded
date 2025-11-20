@@ -18,7 +18,6 @@ namespace SEToolbox.ViewModels
         #endregion
         #region Ctor
 
-
         #endregion
 
         #region Properties

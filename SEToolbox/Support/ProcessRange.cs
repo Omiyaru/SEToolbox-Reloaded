@@ -57,6 +57,7 @@ namespace SEToolbox.Support
             });
             return v;
         }
+
         public static Vector3I ProcessRange(Vector3I v, int rangeMin, int rangeMax)
         {
 
@@ -94,7 +95,7 @@ namespace SEToolbox.Support
 
         public static Vector3I ProcessRange(Vector3I v, int x, int y, int z, Vector3I size)
         {
-  var vRange = from X in Enumerable.Range(0, size.X)
+            var vRange = from X in Enumerable.Range(0, size.X)
                          from Y in Enumerable.Range(0, size.Y)
                          from Z in Enumerable.Range(0, size.Z)
                          select new Vector3I(x, y, z);

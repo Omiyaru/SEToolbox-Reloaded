@@ -357,7 +357,6 @@ namespace SEToolbox.Models
             File.WriteAllText(fileName, stringWriter.ToString());
         }
 
-
         #endregion
 
         private static string GetTextureToBase64(string fileName, int width, int height, bool ignoreAlpha = false)

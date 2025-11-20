@@ -107,6 +107,7 @@ namespace SEToolbox.Support
             }
             return dimension;
         }
+        
         public WindowDimension SetWindowDimension(double key, WindowDimension dimension = default)
         {
             GetWindowDimension(key);

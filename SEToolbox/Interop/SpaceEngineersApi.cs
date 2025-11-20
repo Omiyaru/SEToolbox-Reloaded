@@ -306,7 +306,6 @@ namespace SEToolbox.Interop
             return SEResources.BlueprintDefinitions.LastOrDefault(b => b?.Results.Length == 1 && b.Results.Any(r => r.Id.TypeId == resultTypeId && r.Id.SubtypeName == resultSubTypeId));
         }
 
-
         #endregion
 
         #region GetCubeDefinition

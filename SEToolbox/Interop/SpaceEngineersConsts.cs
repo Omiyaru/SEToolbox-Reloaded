@@ -97,6 +97,7 @@ namespace SEToolbox.Interop
                 return new();
             }
         }
+        
         public static int GetSEVersionInt() => SE_VERSION;
         private static readonly int SE_VERSION = typeof(SEGame).GetField(nameof(SEGame.SE_VERSION), BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic)?.GetValue(null) is int ver ? ver : 0;
 

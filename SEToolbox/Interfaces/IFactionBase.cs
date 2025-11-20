@@ -48,7 +48,9 @@ namespace SEToolbox.Interfaces
 
         //order is (reputation, relation, player/faction),player/faction)
         public Dictionary<MyPlayer, (int, float, MyPlayer)> PlayerToPlayerRelationship { get; set; }
+        
         public Dictionary<MyPlayer, (int, float, MyFaction)> FactionToPlayerRelationship { get; set; }
+        
         public Dictionary< MyFaction,(int, float, MyFaction)> FactionToFactionRelationship { get; set; }
         
 

@@ -7,7 +7,9 @@ namespace SEToolbox.Support
     public class Comparison<T> where T : IEquatable<T>, IComparable<T>
     {
         public T Value { get; }
+        
         public T[] Values { get; }
+        
         public int Count => Values?.Length ?? 0;
         public T First => Values.FirstOrDefault();
 
@@ -18,6 +20,7 @@ namespace SEToolbox.Support
     public class CompareAny<T> : Comparison<T> where T : IEquatable<T>, IComparable<T>
     {
         public CompareAny(T value) : base(value) { }
+        
         public CompareAny(params T[] values) : base(values) { }
 
         public override bool Equals(object obj) => obj is CompareAny<T> other && Equals(Value, other.Value);
@@ -39,6 +42,7 @@ namespace SEToolbox.Support
     public class CompareAll<T> : Comparison<T> where T : IEquatable<T>, IComparable<T>
     {
         public CompareAll(T value) : base(value) { }
+        
         public CompareAll(params T[] values) : base(values) { }
 
         public override bool Equals(object obj) => obj is CompareAll<T> other && Equals(Value, other.Value);
@@ -59,7 +63,9 @@ namespace SEToolbox.Support
      
         
         public CompareConditional(params bool[] values) : base(values) { }
+        
         public CompareConditional(T value) : base(value.CompareTo(default) != 0) { }
+        
         public CompareConditional(params T[] values) : base([.. values.Select(v => v.CompareTo(default) != 0)]) { }
     public CompareConditional(int count, params T[] values) : base([.. values.Select(v => v.CompareTo(default) != 0).Take(count)]) { }
 

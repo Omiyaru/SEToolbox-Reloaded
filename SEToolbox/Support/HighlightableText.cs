@@ -12,7 +12,7 @@
 //     {
 //
 //         public string Text { get; set; }
-//         public  MyFactionMember SelectedMember { get; set; }
+//         public MyFactionMember SelectedMember { get; set; }
 
 //         public void Highlight(HighlightInfo highlight)
 //         {

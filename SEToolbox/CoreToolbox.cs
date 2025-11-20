@@ -45,6 +45,7 @@ namespace SEToolbox
 
             return true;
         }
+        
         public string[] validApplications = [
                	"SpaceEngineers.exe",
                 "SpaceEngineersDedicated.exe",

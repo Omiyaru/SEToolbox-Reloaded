@@ -27,6 +27,7 @@ namespace SEToolbox.Support
             }
             return false;
         }
+        
         public static bool NotNull(params object[] values) => !(bool)Condition(null, values);
         public static bool NotNullOrDefault<T>(params object[] values) => !(bool)Condition((object)null ?? default, values);
         public static bool Null(params object[] values) => (bool)Condition(null, values);

@@ -32,7 +32,7 @@ namespace SEToolbox.Views
             this.sliceVisualsContainer = sliceVisualsContainer;
         }
 
-        private readonly object sliceVisualsContainer ;
+        private readonly object sliceVisualsContainer;
 
         public Voxel3DViewer()
         {
@@ -48,6 +48,7 @@ namespace SEToolbox.Views
             Loaded += (s, e) => viewport.ZoomExtents();
             KeyDown += OnKeyDown;
         }
+
         public void LoadVoxelData(VoxelGridModel grid, MaterialPalette matPalette)
         {
             voxelGrid = grid;
@@ -57,10 +58,12 @@ namespace SEToolbox.Views
             RenderChunkGrid();
             UpdateView();
         }
+
         public string GetViewName()
         {
             return "Voxel 3D";
         }
+
         public void OnKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Up)
@@ -92,17 +95,19 @@ namespace SEToolbox.Views
             }
             else if (e.Key == Key.R)
             {
-              HelixViewport3D viewport = (HelixViewport3D)FindName("HelixViewport3D");
-            viewport.ZoomExtents();
+                HelixViewport3D viewport = (HelixViewport3D)FindName("HelixViewport3D");
+                viewport.ZoomExtents();
             }
             UpdateStatus();
         }
-            private void UpdateView()
+
+        private void UpdateView()
         {
             if (isSliceView) RenderSlice();
             ((UIElement)sliceVisualsContainer).Visibility = isSliceView ? Visibility.Visible : Visibility.Hidden;
             ((UIElement)volumeVisualsContainer).Visibility = isSliceView ? Visibility.Hidden : Visibility.Visible;
         }
+        
         private void UpdateStatus()
         {
             TextBlock statusText = (TextBlock)FindName("StatusText");
@@ -112,17 +117,17 @@ namespace SEToolbox.Views
         {
             sliceVisuals.Children.Clear();
             for (int x = 0; x < voxelGrid.SizeX; x++)
-            for (int y = 0; y < voxelGrid.SizeY; y++)
-            {
+                for (int y = 0; y < voxelGrid.SizeY; y++)
+                {
                     _ = voxelGrid.GetMaterial(x, y, currentZ);
                     var val = voxelGrid.GetContent(x, y, currentZ);
-                if (val == 0) continue;
+                    if (val == 0) continue;
 
-                var color = showMaterial ? System.Windows.Media.Color.FromArgb(255, 255, 255, 255) : System.Windows.Media.Color.FromArgb(val, 255, 255, 255);
+                    var color = showMaterial ? System.Windows.Media.Color.FromArgb(255, 255, 255, 255) : System.Windows.Media.Color.FromArgb(val, 255, 255, 255);
 
-                var box = CreateVoxelCube(x, y, currentZ, color);
-                sliceVisuals.Children.Add(box);
-            }
+                    var box = CreateVoxelCube(x, y, currentZ, color);
+                    sliceVisuals.Children.Add(box);
+                }
         }
 
         private void RenderFullVolume()
@@ -131,18 +136,18 @@ namespace SEToolbox.Views
 
             int step = 2; // skip every 2 voxels for performance
             for (int z = 0; z < voxelGrid.SizeZ; z += step)
-            for (int y = 0; y < voxelGrid.SizeY; y += step)
-            for (int x = 0; x < voxelGrid.SizeX; x += step)
-            {
-                var val = voxelGrid.GetContent(x, y, z);
-                if (val == 0) continue;
+                for (int y = 0; y < voxelGrid.SizeY; y += step)
+                    for (int x = 0; x < voxelGrid.SizeX; x += step)
+                    {
+                        var val = voxelGrid.GetContent(x, y, z);
+                        if (val == 0) continue;
                         _ = voxelGrid.GetMaterial(x, y, z);
                         var color = showMaterial ? System.Windows.Media.Color.FromArgb(255, 255, 255, 255) : System.Windows.Media.Color.FromArgb(val, 255, 255, 255);
 
-                color.A = 100; // translucent in volume mode
-                var box = CreateVoxelCube(x, y, z, color);
-                volumeVisuals.Children.Add(box);
-            }
+                        color.A = 100; // translucent in volume mode
+                        var box = CreateVoxelCube(x, y, z, color);
+                        volumeVisuals.Children.Add(box);
+                    }
         }
 
         private void RenderChunkGrid()

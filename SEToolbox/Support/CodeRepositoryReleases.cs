@@ -89,8 +89,11 @@ namespace SEToolbox.Support
     public class ApplicationRelease
     {
         public string Name { get; set; }
+        
         public string Link { get; set; }
+        
         public Version Version { get; set; }
+        
         public string Notes { get; set; }
     }
 }

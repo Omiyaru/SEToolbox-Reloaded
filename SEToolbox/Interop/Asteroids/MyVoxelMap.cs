@@ -123,7 +123,6 @@ namespace SEToolbox.Interop.Asteroids
             m_storage.WriteRange(cache, MyStorageDataTypeFlags.Material, block, maxRange);
         }
 
-
         #endregion
 
         public static Dictionary<string, long> GetMaterialAssetDetails(string fileName)
@@ -904,7 +903,6 @@ namespace SEToolbox.Interop.Asteroids
             // Store or use min/max as needed, e.g.:
             voxelMap._boundingContent = new BoundingBoxI(min, max);
         }
-
 
         #endregion
 

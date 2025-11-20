@@ -83,6 +83,7 @@ namespace SEToolbox.ViewModels
         {
             get => _dataModel.StockItemList;
         }
+
         public ComponentItemModel StockItem
         {
             get => _dataModel.StockItem;
@@ -149,7 +150,6 @@ namespace SEToolbox.ViewModels
             set => _dataModel.MaxFloatingObjects = value;
         }
 
-
         #endregion
 
         #region Methods
@@ -197,36 +197,28 @@ namespace SEToolbox.ViewModels
 
             IsValidItemToImport = true;
             entity.Item.PhysicalContent = SpaceEngineersResources.CreateNewObject<MyObjectBuilder_PhysicalObject>(StockItem.TypeId, StockItem.SubtypeId);
-
-
+           
             /// <summary> See <see cref="Interop.SpaceEngineersTypeIds"/> for a list of all possible types.</summary
             switch (StockItem.TypeId)
-
-
             {
                 case var t when t == MOBTypeIds.Component:
-                    break;
-                case var t when t == MOBTypeIds.AmmoMagazine:
-                    break;
-                case var t when t == MOBTypeIds.Ingot:
-                    break;
-
-                case var t when t == MOBTypeIds.Ore:
+                case MyObjectBuilderType when t == MOBTypeIds.AmmoMagazine:
+                case MyObjectBuilderType when t == MOBTypeIds.Ingot:
+                case MyObjectBuilderType when t == MOBTypeIds.Ore:
                     break;
                 case var t when t == MOBTypeIds.PhysicalGunObject:
-                    CreateGunEntity(entity); // MyObjectBuilder_PhysicalGunObject
+                    CreateGunEntity(entity);
                     break;
                 case var t when t == MOBTypeIds.GasContainerObject:
-                    MyObjectBuilder_GasContainerObject gasContainer = entity.Item.PhysicalContent as MyObjectBuilder_GasContainerObject;
-                    _ = (gasContainer?.GasLevel = 1f); // MyObjectBuilder_GasContainerObject
-
+                    var gasContainer = entity.Item.PhysicalContent as MyObjectBuilder_GasContainerObject;
+                    _ = (gasContainer?.GasLevel = 1f);
                     break;
                 case var t when t == MOBTypeIds.OxygenContainerObject:
-                    break; // MyObjectBuilder_OxygenContainerObject
+                    break;
                 default:
                     // As yet uncatered for items which may be new.
                     IsValidItemToImport = false;
-                    break;
+                break;
             }
 
             // Figure out where the Character is facing, and plant the new construct 1m out in front, and 1m up from the feet, facing the Character.

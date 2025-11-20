@@ -246,6 +246,7 @@ namespace SEToolbox.ViewModels
         {
             get => _selections.Count > 1;
         }
+        
         public WorldResource ActiveWorld
         {
             get => _dataModel.ActiveWorld;
@@ -674,6 +675,7 @@ namespace SEToolbox.ViewModels
         {
             return _dataModel.ActiveWorld is { IsValid: true };
         }
+        
         public void WorldReportExecuted()
         {
             ResourceReportModel model = new();

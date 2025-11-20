@@ -36,6 +36,7 @@ namespace SEToolbox.Support
                 _reverse.TryAdd(v, k);
             }
         }
+        
         public void Remove(TKey key) {
             _forward.TryRemove(key, out _);
             _reverse.TryRemove(_forward[key], out _);

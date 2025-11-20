@@ -66,7 +66,6 @@ namespace SEToolbox.Models
         }
 
 
-
         #endregion
 
         #region INotifyPropertyChanged Members

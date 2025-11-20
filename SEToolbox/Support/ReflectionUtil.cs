@@ -260,6 +260,7 @@ namespace SEToolbox.Support
            return typeof(T).Assembly.GetType($"{typeof(T).Namespace}.{obj.GetType().Name}");
  
         }
+        
         public static Type Rtypeof(Type type, object obj)
         {
             return type.Assembly.GetType($"{type.Namespace}.{obj.GetType().Name}");

@@ -182,6 +182,7 @@ namespace SEToolbox.Models.Asteroids
             asteroid.SetVoxelMaterialList(newDistribution);
             //asteroid.ForceVoxelFaceMaterial(_dataModel.BaseMaterial.DisplayName);
         }
+        
         public void FillAsteroid(MyVoxelMapBase asteroid, IMyVoxelFillProperties fillProperties, AsteroidFillType.AsteroidFills fillType, int seed)
         {
             // seed = 0;

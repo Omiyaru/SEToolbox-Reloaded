@@ -162,6 +162,7 @@ namespace SEToolbox.Models
                 }
             }
         }
+        
         public Vector3D CalculateGroupCenter( Vector3D centerPosition)
         {
             if (Selections == null || Selections.Count == 0)
@@ -178,7 +179,6 @@ namespace SEToolbox.Models
             center /= Selections.Count;
             return center;
         }
-
 
         #endregion
 

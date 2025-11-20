@@ -23,7 +23,6 @@ namespace SEToolbox.Models.Asteroids
         private List<MaterialSelectionModel> _materialsList;
         private List<VoxelMaterialAssetModel> _materialsAssets;
 
-
         #endregion
         public struct MaterialInfo
         {
@@ -274,14 +273,14 @@ namespace SEToolbox.Models.Asteroids
             return materialList[index];
         }
 
-        public  int GetVeins(int index, List<MaterialSelectionModel> materialsList)
+        public int GetVeins(int index, List<MaterialSelectionModel> materialsList)
         {
             if (index < 0 || index >= MaterialsList.Count)
                 throw new ArgumentOutOfRangeException(nameof(index), "Invalid vein index: " + index);
             return materialsList[index].Veins;
         }
     
-        public  static void SetMaterial( int index, MaterialSelectionModel material, int? radius, int? veins)
+        public static void SetMaterial( int index, MaterialSelectionModel material, int? radius, int? veins)
         {
             if (material == null)
                 throw new ArgumentNullException(nameof(material));

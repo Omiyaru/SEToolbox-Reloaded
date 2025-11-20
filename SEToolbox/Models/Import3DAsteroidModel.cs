@@ -215,6 +215,7 @@ namespace SEToolbox.Models
         {
             get => _outsideMaterialsCollection;
         }
+        
         public int OutsideMaterialDepth
         {
             get => _outsideMaterialDepth;

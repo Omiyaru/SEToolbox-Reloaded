@@ -130,6 +130,7 @@ namespace SEToolbox.ViewModels
         {
             return IsValidMerge;
         }
+        
         public void ApplyExecuted()
         {
             CloseResult = true;

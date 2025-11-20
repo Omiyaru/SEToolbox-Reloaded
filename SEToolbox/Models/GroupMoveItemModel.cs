@@ -15,7 +15,6 @@ namespace SEToolbox.Models
         private double _playerDistance;
         //private Vector3D _playerLocation;
 
-
         #endregion
 
         #region Properties
@@ -25,6 +24,7 @@ namespace SEToolbox.Models
             get => _item;
             set => SetProperty(ref _item, nameof(Item));
         }
+        
         public Vector3D Position
         {
             get => new(x: _positionX, y: _positionY, z: _positionZ);

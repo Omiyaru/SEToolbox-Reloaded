@@ -20,7 +20,7 @@ namespace SEToolbox.Interop
 
         public MOBTypes Types { get; private set; }
 
-        public  static class MOBTypeIds
+        public static class MOBTypeIds
         {
             public static readonly MOBTypes Component = new(typeof(MyObjectBuilder_Component));
             public static readonly MOBTypes AmmoMagazine = new(typeof(MyObjectBuilder_AmmoMagazine));

@@ -723,6 +723,7 @@ namespace SEToolbox.Interop
         {
          return [.. definitionManager.GetAllDefinitions().Where(e => e.Id.TypeId == typeof(VRage.Game.ObjectBuilders.Definitions.MyObjectBuilder_GasProperties)).Cast<MyGasProperties>()];
         }
+        
         public static MyDefinitionBase GetDefinition(this MyDefinitionManager definitionManager, MyObjectBuilderType typeId, string subTypeId)
         {
             return definitionManager.GetAllDefinitions().FirstOrDefault(e => e.Id.TypeId == typeId && e.Id.SubtypeName == subTypeId);

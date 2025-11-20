@@ -278,6 +278,7 @@ namespace SEToolbox.Models
             set => SetProperty(ref _playerPosition.X, nameof(PlayerLocationX), nameof(PlayerPosition));
 
         }
+        
         public double PlayerLocationY
         {
             get => _playerPosition.Y;
@@ -285,6 +286,7 @@ namespace SEToolbox.Models
             set => SetProperty(ref _playerPosition.Y, nameof(PlayerLocationY), nameof(PlayerPosition));
 
         }
+        
         public double PlayerLocationZ
         {
             get => _playerPosition.Z;
@@ -321,7 +323,6 @@ namespace SEToolbox.Models
             get => Position;
             set => Position = value;
         }
-
 
 
 

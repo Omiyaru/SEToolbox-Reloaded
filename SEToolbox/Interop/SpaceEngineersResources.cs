@@ -62,6 +62,7 @@ namespace SEToolbox.Interop
                 return MyDefinitionManager.Static.GetVoxelMaterialDefinition(materialName).Index;
             }
         }
+        
         public static IEnumerable<MyPlanetGeneratorDefinition> GetPlanetGeneratorDefinitions
         {
             get => [.. MyDefinitionManager.Static.GetPlanetsGeneratorsDefinitions()];

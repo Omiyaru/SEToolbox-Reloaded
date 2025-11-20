@@ -135,7 +135,6 @@ namespace SEToolbox.Support
         }
         
 
-
         #endregion
 
         #region BeginTable
@@ -190,6 +189,7 @@ namespace SEToolbox.Support
             public string DoctypePublic { get; set; }
             public string DoctypeSystem { get; set; }
         }
+        
         public class HtmlElement
         {
             public string Tag { get; set; }

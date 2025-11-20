@@ -21,7 +21,9 @@ namespace SEToolbox.Controls
     public class AspectView : ItemsControl, INotifyPropertyChanged
     {
         public AspectCollection Aspects { get; set; }
+        
         public AspectGroups AspectGroups { get; set; }
+        
         public IAspectNodes IAspectNodes { get; set; }
 
         #region Dependency Properties
@@ -146,8 +148,6 @@ namespace SEToolbox.Controls
             return;
 
             _lastDropTarget.SetValue(BackgroundProperty, null);
-
-
 
             if (item != null)
             {
@@ -424,7 +424,6 @@ namespace SEToolbox.Controls
         public new IEnumerable<AspectGroup> Items => this;
         public AspectGroups() : base()
         {
-
             foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
             {
                 if (type.IsSubclassOf(typeof(Aspect)))
@@ -435,7 +434,6 @@ namespace SEToolbox.Controls
                     Add(aspectGroup);
                 }
             }
-
         }
 
         public object Header { get; internal set; }
@@ -465,6 +463,7 @@ namespace SEToolbox.Controls
         public bool IsReadOnly { get; set; } = false;
         public Type AspectType { get; set; } = null;
         public PropertyInfo AspectInfo { get; set; }
+        
         public TextAlignment TextAlignment { get; private set; }
 
         public static readonly DependencyProperty ValueProperty =
@@ -479,6 +478,7 @@ namespace SEToolbox.Controls
             get => GetValue(ValueProperty);
 			set => SetValue(ValueProperty, value);
         }
+        
         public object Target { get; set; }
 
         private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -659,7 +659,6 @@ namespace SEToolbox.Controls
             IsNumericType(Nullable.GetUnderlyingType(valueType));
         }
 
-
         #endregion
 
         public void SetCustomTemplate(IEnumerable<Aspect> aspects, string propertyName, DataTemplate template)
@@ -674,6 +673,7 @@ namespace SEToolbox.Controls
     public class ImageBox : Image, IUriContext
     {
         public ComboBox DType { get; set; }
+        
         public List<string> Items { get; set; }
     }
     #endregion

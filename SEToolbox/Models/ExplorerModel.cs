@@ -220,6 +220,7 @@ namespace SEToolbox.Models
                 return new CustomColor(r, g, b);
             }
         }
+        
         public int[] CreativeModeColors
         {
             get
@@ -288,6 +289,7 @@ namespace SEToolbox.Models
                 DispatcherPriority.DataBind,
                 new Action(LoadSectorDetail));
         }
+        
         public void SaveCheckPointAndSandBox()
         {
             IsBusy = true;
@@ -1021,6 +1023,7 @@ namespace SEToolbox.Models
             IsModified = true;
             IsBusy = false;
         }
+        
         public void MoveOverlappingBlocks(StructureCubeGridModel originalModel)
         {
             if (originalModel == null) return;

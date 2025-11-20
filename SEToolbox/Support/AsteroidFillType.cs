@@ -15,6 +15,7 @@ namespace SEToolbox.Support
     public class AsteroidFillType : IAsteroidFillType
     {
         public string Name { get; }
+        
         public int Id { get; }
         
         /// <summary>

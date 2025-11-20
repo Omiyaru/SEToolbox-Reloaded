@@ -69,7 +69,7 @@ namespace SEToolbox.Models
         private List<MyFactionIconsDefinition> _icons;
 
         private ConcurrentDictionary<MyPlayer, List<Tuple<int, float, MyPlayer>>> _playerToPlayerRelationship;
-        private ConcurrentDictionary<MyPlayer, List<Tuple<int, float, MyFaction>>> _factionToPlayerRelationship;
+        private ConcurrentDictionary<MyFaction, List<Tuple<int, float,MyPlayer>>> _factionToPlayerRelationship;
         private ConcurrentDictionary<MyFaction, List<Tuple<int, float, MyFaction>>> _factionToFactionRelationship;
 
         private int _reputation;
@@ -77,43 +77,66 @@ namespace SEToolbox.Models
        // private float FactionRelation;
         private int _playerReputation;
         // private float PlayerRelation;
-
+        private WorkshopId? _factionIconWorkshopId;
+        private Dictionary<long, MyFactionMember> _selectedMembers;
         #endregion
 
         #region Properties
 
-
+        public ConcurrentDictionary<MyFaction, List<Tuple<int, float, MyFaction>>> FactionToFactionRelationship
+        {
+            get => _factionToFactionRelationship;
+            set => SetProperty(ref _factionToFactionRelationship, nameof(FactionToFactionRelationship));
+        }
+        
+        public ConcurrentDictionary<MyFaction, List<Tuple<int, float, MyPlayer>>> FactionToPlayerRelationship
+        {
+            get => _factionToPlayerRelationship;
+            set => SetProperty(ref _factionToPlayerRelationship, nameof(FactionToPlayerRelationship));
+        }
+        
+        public ConcurrentDictionary<MyPlayer, List<Tuple<int, float, MyPlayer>>> PlayerToPlayerRelationship
+        {
+            get => _playerToPlayerRelationship;
+            set => SetProperty(ref _playerToPlayerRelationship, nameof(PlayerToPlayerRelationship));
+        }
+        
         public List<MyFactionIconsDefinition> Icons  
         { 
             get => _icons; 
-            set => SetProperty(ref _icons, value); }
+            set => SetProperty(ref _icons, nameof(Icons));
+        }
+        
         public Dictionary<long, MyFaction> Factions  
         { 
             get => _factions; 
-            set => SetProperty(ref _factions, value); }
+            set => SetProperty(ref _factions, nameof(Factions));
+        }
+        
         public Dictionary<long, MyFactionMember> Members  
         { 
             get => _members; 
-            set => SetProperty(ref _members, value); }
+            set => SetProperty(ref _members, nameof(Members));
+        }
+        
         public Dictionary<long, MyPlayer> SelectedPlayers  
         { 
             get => _selectedPlayers; 
-            set => SetProperty(ref _selectedPlayers, value); }
+            set => SetProperty(ref _selectedPlayers, nameof(SelectedPlayers));
+        }
+        
         public Dictionary<long, MyFactionMember> SelectedMembers  
         { 
             get => _selectedMembers; 
-            set => SetProperty(ref _selectedMembers, value); }
-        public ConcurrentDictionary<MyFaction, List<Tuple<int, float, MyFaction>>> FactionToFactionRelationship;
-        public ConcurrentDictionary<MyFaction, List<Tuple<int, float, MyPlayer>>> FactionToPlayerRelationship;
-        public ConcurrentDictionary<MyPlayer, List<Tuple<int, float, MyPlayer>>> PlayerToPlayerRelationship;
-        private WorkshopId? _factionIconWorkshopId;
-        private Dictionary<long, MyFactionMember> _selectedMembers;
-
+            set => SetProperty(ref _selectedMembers, value);
+        }
+    
         public string Name  
         { 
             get => _factionName; 
             set => SetProperty(ref _factionName, nameof(Name));
         }
+
         public string Tag  
         { 
             get => _tag; 
@@ -125,86 +148,103 @@ namespace SEToolbox.Models
             get => _factionTypeString; 
             set => SetProperty(ref _factionTypeString, nameof(FactionTypeString));
         }
+        
         public string Description  
         { 
             get => _factionDescription; 
             set => SetProperty(ref _factionDescription, nameof(Description));
         }
+        
         public string PrivateInfo  
         { 
             get => _privateInfo; 
             set => SetProperty(ref _privateInfo, nameof(PrivateInfo));
         }
+        
         public WorkshopId? FactionIconWorkshopId  
         { 
             get => _factionIconWorkshopId; 
             set => SetProperty(ref _factionIconWorkshopId, nameof(FactionIconWorkshopId));
         }
+        
         public string FactionLeader  
         { 
             get => _factionLeader; 
             set => SetProperty(ref _factionLeader, nameof(FactionLeader));
         }
+        
         public MyStringId? FactionIcon  
         { 
             get => _factionIcon; 
             set => SetProperty(ref _factionIcon, nameof(FactionIcon));
         }
+        
         public int Score  
         { 
             get => _score; 
             set => SetProperty(ref _score, nameof(Score));
         }
+        
         public string FactionType  
         { 
             get => _factionType; 
             set => SetProperty(ref _factionType, nameof(FactionType));
         }
+        
         public long FactionId  
         { 
             get => _factionId; 
             set => SetProperty(ref _factionId, nameof(FactionId));
         }
+        
         public int Balance  
         { 
             get => _balance; 
             set => SetProperty(ref _balance, nameof(Balance));
         }
+        
         public MyStringId? FactionIconString  
         { 
             get => _factionIconString; 
             set => SetProperty(ref _factionIconString, nameof(FactionIconString));
         }
+        
         public string FactionPrivateInfo  
         { 
             get => _factionPrivateInfo; 
             set => SetProperty(ref _factionPrivateInfo, nameof(FactionPrivateInfo));
         }
+        
         public SVector3 FactionColor  
         { 
             get => _factionColor; 
             set => SetProperty(ref _factionColor, nameof(FactionColor));
         }
+        
         public Vector3 IconColor  
         { 
             get => _iconColor; 
             set => SetProperty(ref _iconColor, nameof(IconColor));
         }
+        
         public Vector3 CustomColor  
         { 
             get => _customColor; 
             set => SetProperty(ref _customColor, nameof(CustomColor));
         }
+        
         public long FounderId  
         { 
             get => _founderId; 
             set => SetProperty(ref _founderId, nameof(FounderId));
         }
+        
         public int MemberCount  
         { 
             get => _memberCount; 
             set => SetProperty(ref _memberCount, nameof(MemberCount));
         }
+
         public float ObjectivePercentageCompleted  
         { 
             get => _objectivePercentageCompleted; 
@@ -231,31 +271,37 @@ namespace SEToolbox.Models
             get => _isNpcFaction; 
             set => SetProperty(ref _isNpcFaction, nameof(IsNpcFaction));
         }
+        
         public MyFaction SelectedFaction  
         { 
             get => _selectedFaction; 
             set => SetProperty(ref _selectedFaction, nameof(SelectedFaction));
         }
+        
         public MyFactionMember SelectedMember  
         { 
             get => _selectedMember; 
             set => SetProperty(ref _selectedMember, nameof(SelectedMember));
         }
+        
         public MyFaction Faction  
         { 
             get => _faction; 
             set => SetProperty(ref _faction, nameof(Faction));
         }
+        
         public IFactionBase SelectedPlayer  
         { 
             get => _selectedPlayer; 
             set => SetProperty(ref _selectedPlayer, nameof(SelectedPlayer));
         }
+        
         public int Reputation  
         { 
             get => _reputation; 
             set => SetProperty(ref _reputation, nameof(Reputation));
         }
+        
         public int FactionReputation  
         { 
             get => _factionReputation; 
@@ -271,21 +317,25 @@ namespace SEToolbox.Models
             get => _stationId; 
             set => SetProperty(ref _stationId, nameof(StationId));
         }
+        
         public string StationName  
         { 
             get => _stationName; 
             set => SetProperty(ref _stationName, nameof(StationName));
         }
+        
         public MyStationTypeEnum StationType  
         { 
             get => _stationType; 
             set => SetProperty(ref _stationType, nameof(StationType));
         }
+        
         public ObservableCollection<MyPlayer> Players  
         { 
             get => _players; 
             set => SetProperty(ref _players, nameof(Players));
         }
+        
         public bool? IsFactionSelected  
         { 
             get => _isFactionSelected; 
@@ -297,6 +347,7 @@ namespace SEToolbox.Models
             get => _leader; 
             set => SetProperty(ref _leader, nameof(Leader));
         }
+        
         public string SelectedFactionType  
         { 
             get => _selectedFactionType; 
@@ -329,18 +380,15 @@ namespace SEToolbox.Models
             _score = selectedFaction.Score;
             _objectivePercentageCompleted = selectedFaction.ObjectivePercentageCompleted;
 
-            
-            
-
-           _factions.Add(selectedFaction.FactionId, selectedFaction);
+            _factions.Add(selectedFaction.FactionId, selectedFaction);
         }
+        
         public FactionModel()
         {
             LoadFactions();
            _players = [];
         }
       
-
         #endregion
 
         #region Methods

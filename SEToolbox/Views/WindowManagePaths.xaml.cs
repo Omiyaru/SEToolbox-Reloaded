@@ -7,8 +7,10 @@ namespace SEToolbox.Views
     public partial class WindowManagePaths : Window
     {
         public ObservableCollection<string> Paths { get; private set; }
+        
         public System.Collections.Generic.List<string> UpdatedPaths { get; private set; }
         //public object PathsListBox { get; }
+        
         public TextBox PathTextBox { get; private set; }
 
         public WindowManagePaths(System.Collections.Generic.List<string> currentPaths)

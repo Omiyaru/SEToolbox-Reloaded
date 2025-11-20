@@ -65,6 +65,7 @@ namespace SEToolbox.ViewModels
             get => _dataModel.Title;
             set => _dataModel.Title = value;
         }
+        
         public string SubTitle
         {
             get => _dataModel.SubTitle;

@@ -11,6 +11,7 @@ namespace SEToolbox.Support
     public class TException : Exception
     {
         public TException() : base() { }
+        
         public TException(string message) : base(message) => RegisterListener<TException>(TExceptionListener<TException>);
 
         public TException(string message, params object[] args) : base(string.Format(CultureInfo.CurrentCulture, message, args)) =>

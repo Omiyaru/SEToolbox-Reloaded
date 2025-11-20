@@ -38,6 +38,7 @@ namespace SEToolbox.Models
         }
 
         public MyObjectBuilderType TypeId { get; set; }
+        
         public string SubtypeId { get; set; }
 
         public decimal Amount
@@ -75,11 +76,17 @@ namespace SEToolbox.Models
         }
 
         public string TextureFile { get; set; }
+        
         public MyCubeSize? CubeSize { get; set; }
+        
         public bool Exists { get; set; }
+        
         public string FriendlyName { get; set; }
+        
         public bool IsUnique { get; set; }
+        
         public bool IsDecimal { get; set; }
+        
         public bool IsInteger { get; set; }
 
         public override string ToString()

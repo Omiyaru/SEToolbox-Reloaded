@@ -35,20 +35,33 @@ namespace SEToolbox.ViewModels
         #region Commands
 
         public ICommand LoadFactionsCommand { get; set; }
+        
         public ICommand SetAsLeaderCommand { get; set; }
+        
         public ICommand SetFounderCommand { get; set; }
+        
         public ICommand GetFactionCountCommand { get; set; }
+        
         public ICommand GetIconsListCommand { get; set; }
+        
         public ICommand CreateFactionCommand { get; }
+        
         public ICommand DeleteFactionCommand { get; set; }
+        
         public ICommand RenameFactionCommand { get; set; }
+        
         public ICommand SetTagCommand { get; set; }
+        
         public ICommand SetDescriptionCommand { get; set; }
+        
         public ICommand SetIconCommand { get; set; }
+        
         public ICommand SetFactionControlCommand { get; set; }
         // public ICommand SetReputationCommand { get; }
         // public ICommand SetBalanceCommand { get; }
+        
         public ICommand GetBalanceCommand { get; set; }
+        
         public ICommand GetPlayersCommand { get; }
 
 

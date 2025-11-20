@@ -115,7 +115,6 @@ namespace SEToolbox.ViewModels
         // Ensure the Cancel command can execute only if the data model is valid
 
 
-
         #endregion
 
         #region Properties

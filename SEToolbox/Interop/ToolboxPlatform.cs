@@ -226,6 +226,7 @@ namespace SEToolbox.Interop
         {
             return (ulong)Process.GetCurrentProcess().WorkingSet64;
         }
+        
         public void LogEnvironmentInformation()
         {
             //Log relevant environment information
@@ -233,6 +234,7 @@ namespace SEToolbox.Interop
             Debugger.Log(0, null, $"OS: {GetOsName()}, CPU: {GetInfoCPU(out freq, out cores)}"); // Log to external debugger.
 
         }
+        
         public void LogToExternalDebugger(string message)
         {
             if (Debugger.IsAttached)
@@ -240,6 +242,7 @@ namespace SEToolbox.Interop
                 Debugger.Log(0, null, message + Environment.NewLine);
             }
         }
+        
         public bool OpenUrl(string url) => throw new NotImplementedException();
         public void ResetColdStartRegister() => throw new NotImplementedException();
 
@@ -270,6 +273,7 @@ namespace SEToolbox.Interop
             SConsole.WriteLine($"ThreadPool Min/Max Worker Threads: {minWorkerThreads}/{maxWorkerThreads}");
             SConsole.WriteLine($"ThreadPool Min/Max Completion Port Threads: {minCompletionPortThreads}/{maxCompletionPortThreads}");
         }
+        
         public void LogRuntimeInfo(Action<string> log)
         {
             var runtime = typeof(string).Assembly.GetName();
@@ -287,6 +291,7 @@ namespace SEToolbox.Interop
             if (Debugger.IsAttached)
                 Debugger.Break();
         }
+        
         public void CollectGC(int generation, GCCollectionMode mode)
         {
             generation = Math.Min(generation, GC.MaxGeneration);

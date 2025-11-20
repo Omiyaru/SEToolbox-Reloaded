@@ -32,6 +32,7 @@ namespace SEToolbox.Services
                 }
             }
         }
+        
         public static void SetDialogResult(Window target, bool? value)
         {
             target.SetValue(DialogResultProperty, value);

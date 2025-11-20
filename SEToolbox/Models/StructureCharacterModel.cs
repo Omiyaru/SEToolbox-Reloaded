@@ -31,7 +31,6 @@ namespace SEToolbox.Models
         #endregion
         #region Ctor
 
-
         #endregion
 
         #region Properties

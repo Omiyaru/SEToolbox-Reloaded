@@ -126,7 +126,6 @@ td.right { text-align: right; }";
         #region Ctor
 
 
-
         #endregion
 
         #region Properties
