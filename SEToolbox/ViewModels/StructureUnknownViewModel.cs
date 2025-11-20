@@ -19,7 +19,7 @@ namespace SEToolbox.ViewModels
 
         protected new StructureUnknownModel DataModel
         {
-            get => base.DataModel as StructureUnknownModel; 
+            get => base.DataModel as StructureUnknownModel;
         }
 
         #endregion

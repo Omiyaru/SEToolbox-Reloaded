@@ -105,7 +105,7 @@ namespace SEToolbox.Models
                     cubeItem = cube;
             }
 
-            CubeItem = cubeItem ?? new ComponentItemModel(); 
+            CubeItem = cubeItem ?? new ComponentItemModel();
         }
 
         #endregion

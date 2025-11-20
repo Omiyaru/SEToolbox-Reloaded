@@ -70,12 +70,12 @@ namespace SEToolbox.ViewModels
 
         public ICommand SetToOriginalSizeCommand
         {
-           get => new DelegateCommand(SetToOriginalSizeExecuted, SetToOriginalSizeCanExecute); 
+           get => new DelegateCommand(SetToOriginalSizeExecuted, SetToOriginalSizeCanExecute);
         }
 
         public ICommand CreateCommand
         {
-           get => new DelegateCommand(CreateExecuted, CreateCanExecute); 
+           get => new DelegateCommand(CreateExecuted, CreateCanExecute);
         }
 
         public ICommand CancelCommand
@@ -85,7 +85,7 @@ namespace SEToolbox.ViewModels
 
         public ICommand ChangeKeyColorCommand
         {
-           get => new DelegateCommand(ChangeKeyColorExecuted, ChangeKeyColorCanExecute); 
+           get => new DelegateCommand(ChangeKeyColorExecuted, ChangeKeyColorCanExecute);
         }
 
         #endregion
@@ -98,7 +98,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty(ref _closeResult, nameof(CloseResult)); 
+            set => SetProperty(ref _closeResult, nameof(CloseResult));
         }
 
         public string FileName

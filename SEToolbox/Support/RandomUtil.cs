@@ -23,7 +23,7 @@ namespace SEToolbox.Support
         public static bool EnableSecretRandom
         {   
             get => _threadLocalRandom.IsValueCreated;
-            set => _threadLocalRandom.Value = value ? new Random(_secretSeed)  : null; 
+            set => _threadLocalRandom.Value = value ? new Random(_secretSeed)  : null;
         }
       
         public static void SetSeed(int? seed = null,int? value = null, bool isSecretRandom = false)

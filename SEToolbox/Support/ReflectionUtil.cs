@@ -280,7 +280,7 @@ namespace SEToolbox.Support
 
         public static Type Ntypeof(Type type, string nestedType, BindingFlags bindingFlags = BindingFlags.Default)
         {
-           return type.GetNestedType(nestedType, bindingFlags); 
+           return type.GetNestedType(nestedType, bindingFlags);
         }
             
 

@@ -95,7 +95,7 @@ namespace SEToolbox.ViewModels
 
         public ObservableCollection<WorldResource> Worlds
         {
-            get=> _dataModel.Worlds; 
+            get=> _dataModel.Worlds;
         }
 
         /// <summary>

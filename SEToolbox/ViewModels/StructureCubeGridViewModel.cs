@@ -394,7 +394,7 @@ namespace SEToolbox.ViewModels
 
         public static bool MoveOverlappingBlocksCanExecute()
         {
-            return true; 
+            return true;
         }
 
         public void MoveOverlappingBlocksExecuted()

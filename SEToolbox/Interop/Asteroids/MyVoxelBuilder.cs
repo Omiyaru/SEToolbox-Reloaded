@@ -5,8 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
-
-
 using SEToolbox.Support;
 using VRage.Voxels;
 using VRageMath;
@@ -35,7 +33,7 @@ namespace SEToolbox.Interop.Asteroids
             voxelMap.Save(saveFile);
             voxelMap.Dispose();
         }
-        
+
         #region BuildAsteroid Standard Tools
 
         public static MyVoxelMapBase BuildAsteroidCube(bool multiThread, int width, int height, int depth,
@@ -65,7 +63,7 @@ namespace SEToolbox.Interop.Asteroids
                      e.CoordinatePoint.X >= size.X - (safeSize + shellWidth) ||
                      e.CoordinatePoint.Y >= size.Y - (safeSize + shellWidth) ||
                      e.CoordinatePoint.Z >= size.Z - (safeSize + shellWidth)))
-                    
+
                 {
                     e.Volume = 0xFF;
                 }
@@ -161,11 +159,9 @@ namespace SEToolbox.Interop.Asteroids
                     (e.CoordinatePoint.X <= volumetricMap.Length + 5) &&
                     (e.CoordinatePoint.Y <= volumetricMap[0].Length + 5) &&
                     (e.CoordinatePoint.Z <= volumetricMap[0][0].Length + 5))
-            
+
                 {
                     CubeType cube = volumetricMap[e.CoordinatePoint.X - 6][e.CoordinatePoint.Y - 6][e.CoordinatePoint.Z - 6];
-
-
 
                     e.Volume = cube switch
                     {
@@ -177,7 +173,7 @@ namespace SEToolbox.Interop.Asteroids
                         _ => 0x00,// 0% "00000000"
                     };
 
-                                 }
+                }
                 else
                 {
                     e.Volume = 0x00;
@@ -306,7 +302,7 @@ namespace SEToolbox.Interop.Asteroids
             long counter = 0;
             decimal progress = 0;
 
-                const int cellSize = 64;
+            const int cellSize = 64;
 
             Vector3I cacheSize = Vector3I.Min(new(cellSize), voxelMap.Storage.Size);
             var block = Vector3I.Zero;
@@ -358,15 +354,15 @@ namespace SEToolbox.Interop.Asteroids
 
                 SConsole.Write($"{progress:000},");
             }
-        
 
-    GC.Collect();
 
-}
+            GC.Collect();
 
-#endregion
+        }
 
-private static Vector3I CalcRequiredSize(int size)
+        #endregion
+
+        private static Vector3I CalcRequiredSize(int size)
         {
             // the size of 4x4x4 is too small. the game allows it, but the physics is broken.
             // So I'm restricting the smallest to 8x8x8.

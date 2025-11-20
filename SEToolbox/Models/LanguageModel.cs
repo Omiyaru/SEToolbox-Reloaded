@@ -28,7 +28,7 @@
 
         public string Name
         {
-            get => NativeName == LanguageName ? NativeName : string.Format($"{NativeName} / {LanguageName}"); 
+            get => NativeName == LanguageName ? NativeName : string.Format($"{NativeName} / {LanguageName}");
         }
 
         /// <summary>

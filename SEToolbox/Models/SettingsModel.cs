@@ -59,7 +59,7 @@ namespace SEToolbox.Models
         {
             get => _isValid;
 
-            private set => SetProperty(ref _isValid, nameof(IsValid)); 
+            private set => SetProperty(ref _isValid, nameof(IsValid));
         }
 
         #endregion

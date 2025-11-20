@@ -26,12 +26,12 @@ namespace SEToolbox.ViewModels
 
         public ICommand ResetVelocityCommand
         {
-            get => new DelegateCommand(ResetVelocityExecuted, ResetVelocityCanExecute); 
+            get => new DelegateCommand(ResetVelocityExecuted, ResetVelocityCanExecute);
         }
 
         public ICommand ReverseVelocityCommand
         {
-            get => new DelegateCommand(ReverseVelocityExecuted, ReverseVelocityCanExecute); 
+            get => new DelegateCommand(ReverseVelocityExecuted, ReverseVelocityCanExecute);
         }
 
         public ICommand MaxVelocityAtPlayerCommand
@@ -56,7 +56,7 @@ namespace SEToolbox.ViewModels
 
         public string SubTypeName
         {
-            get => DataModel.Item.PhysicalContent.SubtypeName; 
+            get => DataModel.Item.PhysicalContent.SubtypeName;
         }
 
         public double? Volume
@@ -67,7 +67,7 @@ namespace SEToolbox.ViewModels
 
         public override double LinearVelocity
         {
-            get => DataModel.LinearVelocity; 
+            get => DataModel.LinearVelocity;
         }
 
         public float Integrity

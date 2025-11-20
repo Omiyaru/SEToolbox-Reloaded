@@ -47,27 +47,27 @@ namespace SEToolbox.ViewModels
 
         public ICommand ClearRowsCommand
         {
-           get => new DelegateCommand(ClearRowsExecuted, ClearRowsCanExecute); 
+           get => new DelegateCommand(ClearRowsExecuted, ClearRowsCanExecute);
         }
 
         public ICommand AddRandomRowCommand
         {
-           get => new DelegateCommand(AddRandomRowExecuted, AddRandomRowCanExecute); 
+           get => new DelegateCommand(AddRandomRowExecuted, AddRandomRowCanExecute);
         }
 
         public ICommand AddRowCommand
         {
-           get => new DelegateCommand(AddRowExecuted, AddRowCanExecute); 
+           get => new DelegateCommand(AddRowExecuted, AddRowCanExecute);
         }
 
         public ICommand DeleteRowCommand
         {
-           get => new DelegateCommand(DeleteRowExecuted, DeleteRowCanExecute); 
+           get => new DelegateCommand(DeleteRowExecuted, DeleteRowCanExecute);
         }
 
         public ICommand CreateCommand
         {
-           get => new DelegateCommand(CreateExecuted, CreateCanExecute); 
+           get => new DelegateCommand(CreateExecuted, CreateCanExecute);
         }
 
         public ICommand CancelCommand
@@ -133,12 +133,12 @@ namespace SEToolbox.ViewModels
 
         public ObservableCollection<GenerateVoxelDetailModel> VoxelFileList
         {
-           get => _dataModel.VoxelFileList; 
+           get => _dataModel.VoxelFileList;
         }
 
         public ObservableCollection<MaterialSelectionModel> MaterialsCollection
         {
-           get => _dataModel.MaterialsCollection; 
+           get => _dataModel.MaterialsCollection;
         }
 
         public List<int> PercentList

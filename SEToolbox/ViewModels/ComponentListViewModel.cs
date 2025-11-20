@@ -48,7 +48,7 @@ namespace SEToolbox.ViewModels
 
         public ICommand ExportReportCommand
         {
-            get =>new DelegateCommand(ExportReportExecuted, ExportReportCanExecute); 
+            get => new DelegateCommand(ExportReportExecuted, ExportReportCanExecute);
         }
 
         public ICommand CloseCommand

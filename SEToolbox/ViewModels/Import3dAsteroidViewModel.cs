@@ -74,12 +74,12 @@ namespace SEToolbox.ViewModels
 
         public ICommand Browse3DModelCommand
         {
-           get => new DelegateCommand(Browse3DModelExecuted, Browse3DModelCanExecute); 
+           get => new DelegateCommand(Browse3DModelExecuted, Browse3DModelCanExecute);
         }
 
         public ICommand CreateCommand
         {
-           get => new DelegateCommand(CreateExecuted, CreateCanExecute); 
+           get => new DelegateCommand(CreateExecuted, CreateCanExecute);
         }
 
         public ICommand CancelCommand

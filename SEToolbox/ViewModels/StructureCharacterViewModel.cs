@@ -50,17 +50,17 @@ namespace SEToolbox.ViewModels
 
         public ICommand ResetVelocityCommand
         {
-            get => new DelegateCommand(ResetVelocityExecuted, ResetVelocityCanExecute); 
+            get => new DelegateCommand(ResetVelocityExecuted, ResetVelocityCanExecute);
         } 
 
         public ICommand ReverseVelocityCommand
         {
-            get =>new DelegateCommand(ReverseVelocityExecuted, ReverseVelocityCanExecute);
+            get => new DelegateCommand(ReverseVelocityExecuted, ReverseVelocityCanExecute);
         }
 
         public ICommand ChangeColorCommand
         {
-            get => new DelegateCommand(ChangeColorExecuted, ChangeColorCanExecute); 
+            get => new DelegateCommand(ChangeColorExecuted, ChangeColorCanExecute);
         }
 
         #endregion
@@ -69,7 +69,7 @@ namespace SEToolbox.ViewModels
 
         protected new StructureCharacterModel DataModel
         {
-            get =>  base.DataModel as StructureCharacterModel; 
+            get =>  base.DataModel as StructureCharacterModel;
         }
 
         public bool IsPilot
@@ -126,7 +126,7 @@ namespace SEToolbox.ViewModels
 
         public override double LinearVelocity
         {
-            get => DataModel.LinearVelocity; 
+            get => DataModel.LinearVelocity;
         }
 
         public float BatteryCapacity

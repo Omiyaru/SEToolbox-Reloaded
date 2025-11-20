@@ -39,12 +39,12 @@ namespace SEToolbox.ViewModels
 
         public ICommand ClosingCommand
         {
-           get => new DelegateCommand<CancelEventArgs>(ClosingExecuted, ClosingCanExecute); 
+           get => new DelegateCommand<CancelEventArgs>(ClosingExecuted, ClosingCanExecute);
         }
 
         public ICommand CancelCommand
         {
-           get => new DelegateCommand(CancelExecuted, CancelCanExecute); 
+           get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         #endregion

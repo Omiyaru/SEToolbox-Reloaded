@@ -52,7 +52,6 @@ namespace SEToolbox.Models
         public MyPositionAndOrientation CharacterPosition
         {
             get => _characterPosition;
-            // unable to check for equivalence and mostly unnecessary
             set => SetProperty(ref _characterPosition, nameof(CharacterPosition));
         }
 
@@ -97,7 +96,8 @@ namespace SEToolbox.Models
         public decimal? DecimalUnits
         {
             get => _decimalUnits;
-            set => SetProperty(ref _decimalUnits, nameof(DecimalUnits), () => SetMassVolume());
+            set => SetProperty(ref _decimalUnits, nameof(DecimalUnits), () => 
+                   SetMassVolume());
         }
 
         public bool IsDecimal

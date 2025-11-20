@@ -35,12 +35,12 @@ namespace SEToolbox.ViewModels
 
         public ICommand OkayCommand
         {
-            get => new DelegateCommand(OkayExecuted, OkayCanExecute); 
+            get => new DelegateCommand(OkayExecuted, OkayCanExecute);
         }
 
         public ICommand CancelCommand
         {
-            get => new DelegateCommand(CancelExecuted, CancelCanExecute); 
+            get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         #endregion

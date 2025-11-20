@@ -31,7 +31,7 @@ namespace SEToolbox.ViewModels
 
         public string SubTypeName
         {
-            get  => DataModel.Item.PhysicalContent.SubtypeName; 
+            get  => DataModel.Item.PhysicalContent.SubtypeName;
         }
 
         public double? Volume

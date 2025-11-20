@@ -166,7 +166,7 @@ namespace SEToolbox.Models
 
         public SpaceEngineersResources Resources
         {
-            get => _resources; 
+            get => _resources;
         }
 
         #endregion

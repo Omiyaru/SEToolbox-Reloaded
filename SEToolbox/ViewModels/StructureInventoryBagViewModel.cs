@@ -19,7 +19,7 @@ namespace SEToolbox.ViewModels
 
         protected new StructureInventoryBagModel DataModel
         {
-            get => base.DataModel as StructureInventoryBagModel; 
+            get => base.DataModel as StructureInventoryBagModel;
         }
 
         #endregion

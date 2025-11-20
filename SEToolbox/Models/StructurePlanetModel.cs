@@ -72,7 +72,7 @@ namespace SEToolbox.Models
         [XmlIgnore]
         public MyObjectBuilder_Planet Planet
         {
-            get => EntityBase as MyObjectBuilder_Planet; 
+            get => EntityBase as MyObjectBuilder_Planet;
         }
 
         [XmlIgnore]

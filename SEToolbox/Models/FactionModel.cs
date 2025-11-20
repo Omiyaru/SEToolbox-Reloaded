@@ -112,195 +112,195 @@ namespace SEToolbox.Models
         public string Name  
         { 
             get => _factionName; 
-            set => SetProperty(ref _factionName, nameof(Name)); 
+            set => SetProperty(ref _factionName, nameof(Name));
         }
         public string Tag  
         { 
             get => _tag; 
-            set => SetProperty(ref _tag, nameof(Tag)); 
+            set => SetProperty(ref _tag, nameof(Tag));
         }
 
         public string FactionTypeString  
         { 
             get => _factionTypeString; 
-            set => SetProperty(ref _factionTypeString, nameof(FactionTypeString)); 
+            set => SetProperty(ref _factionTypeString, nameof(FactionTypeString));
         }
         public string Description  
         { 
             get => _factionDescription; 
-            set => SetProperty(ref _factionDescription, nameof(Description)); 
+            set => SetProperty(ref _factionDescription, nameof(Description));
         }
         public string PrivateInfo  
         { 
             get => _privateInfo; 
-            set => SetProperty(ref _privateInfo, nameof(PrivateInfo)); 
+            set => SetProperty(ref _privateInfo, nameof(PrivateInfo));
         }
         public WorkshopId? FactionIconWorkshopId  
         { 
             get => _factionIconWorkshopId; 
-            set => SetProperty(ref _factionIconWorkshopId, nameof(FactionIconWorkshopId)); 
+            set => SetProperty(ref _factionIconWorkshopId, nameof(FactionIconWorkshopId));
         }
         public string FactionLeader  
         { 
             get => _factionLeader; 
-            set => SetProperty(ref _factionLeader, nameof(FactionLeader)); 
+            set => SetProperty(ref _factionLeader, nameof(FactionLeader));
         }
         public MyStringId? FactionIcon  
         { 
             get => _factionIcon; 
-            set => SetProperty(ref _factionIcon, nameof(FactionIcon)); 
+            set => SetProperty(ref _factionIcon, nameof(FactionIcon));
         }
         public int Score  
         { 
             get => _score; 
-            set => SetProperty(ref _score, nameof(Score)); 
+            set => SetProperty(ref _score, nameof(Score));
         }
         public string FactionType  
         { 
             get => _factionType; 
-            set => SetProperty(ref _factionType, nameof(FactionType)); 
+            set => SetProperty(ref _factionType, nameof(FactionType));
         }
         public long FactionId  
         { 
             get => _factionId; 
-            set => SetProperty(ref _factionId, nameof(FactionId)); 
+            set => SetProperty(ref _factionId, nameof(FactionId));
         }
         public int Balance  
         { 
             get => _balance; 
-            set => SetProperty(ref _balance, nameof(Balance)); 
+            set => SetProperty(ref _balance, nameof(Balance));
         }
         public MyStringId? FactionIconString  
         { 
             get => _factionIconString; 
-            set => SetProperty(ref _factionIconString, nameof(FactionIconString)); 
+            set => SetProperty(ref _factionIconString, nameof(FactionIconString));
         }
         public string FactionPrivateInfo  
         { 
             get => _factionPrivateInfo; 
-            set => SetProperty(ref _factionPrivateInfo, nameof(FactionPrivateInfo)); 
+            set => SetProperty(ref _factionPrivateInfo, nameof(FactionPrivateInfo));
         }
         public SVector3 FactionColor  
         { 
             get => _factionColor; 
-            set => SetProperty(ref _factionColor, nameof(FactionColor)); 
+            set => SetProperty(ref _factionColor, nameof(FactionColor));
         }
         public Vector3 IconColor  
         { 
             get => _iconColor; 
-            set => SetProperty(ref _iconColor, nameof(IconColor)); 
+            set => SetProperty(ref _iconColor, nameof(IconColor));
         }
         public Vector3 CustomColor  
         { 
             get => _customColor; 
-            set => SetProperty(ref _customColor, nameof(CustomColor)); 
+            set => SetProperty(ref _customColor, nameof(CustomColor));
         }
         public long FounderId  
         { 
             get => _founderId; 
-            set => SetProperty(ref _founderId, nameof(FounderId)); 
+            set => SetProperty(ref _founderId, nameof(FounderId));
         }
         public int MemberCount  
         { 
             get => _memberCount; 
-            set => SetProperty(ref _memberCount, nameof(MemberCount)); 
+            set => SetProperty(ref _memberCount, nameof(MemberCount));
         }
         public float ObjectivePercentageCompleted  
         { 
             get => _objectivePercentageCompleted; 
-            set => SetProperty(ref _objectivePercentageCompleted, nameof(ObjectivePercentageCompleted)); 
+            set => SetProperty(ref _objectivePercentageCompleted, nameof(ObjectivePercentageCompleted));
         }
 
         public long Member  
         { 
             get => _member; 
-            set => SetProperty(ref _member, nameof(Member)); 
+            set => SetProperty(ref _member, nameof(Member));
         } 
         public int FactionIconId  
         { 
             get => _factionIconId; 
-            set => SetProperty(ref _factionIconId, nameof(FactionIconId)); 
+            set => SetProperty(ref _factionIconId, nameof(FactionIconId));
         } 
          public int FactionCount 
          { 
             get => _factionCount; 
-            set => SetProperty(ref _factionCount, nameof(FactionCount)); 
+            set => SetProperty(ref _factionCount, nameof(FactionCount));
         } 
         public bool IsNpcFaction  
         { 
             get => _isNpcFaction; 
-            set => SetProperty(ref _isNpcFaction, nameof(IsNpcFaction)); 
+            set => SetProperty(ref _isNpcFaction, nameof(IsNpcFaction));
         }
         public MyFaction SelectedFaction  
         { 
             get => _selectedFaction; 
-            set => SetProperty(ref _selectedFaction, nameof(SelectedFaction)); 
+            set => SetProperty(ref _selectedFaction, nameof(SelectedFaction));
         }
         public MyFactionMember SelectedMember  
         { 
             get => _selectedMember; 
-            set => SetProperty(ref _selectedMember, nameof(SelectedMember)); 
+            set => SetProperty(ref _selectedMember, nameof(SelectedMember));
         }
         public MyFaction Faction  
         { 
             get => _faction; 
-            set => SetProperty(ref _faction, nameof(Faction)); 
+            set => SetProperty(ref _faction, nameof(Faction));
         }
         public IFactionBase SelectedPlayer  
         { 
             get => _selectedPlayer; 
-            set => SetProperty(ref _selectedPlayer, nameof(SelectedPlayer)); 
+            set => SetProperty(ref _selectedPlayer, nameof(SelectedPlayer));
         }
         public int Reputation  
         { 
             get => _reputation; 
-            set => SetProperty(ref _reputation, nameof(Reputation)); 
+            set => SetProperty(ref _reputation, nameof(Reputation));
         }
         public int FactionReputation  
         { 
             get => _factionReputation; 
-            set => SetProperty(ref _factionReputation, nameof(FactionReputation)); 
+            set => SetProperty(ref _factionReputation, nameof(FactionReputation));
         } // holder for when the factions reputation Reputation = FactionReputation
         public int PlayerReputation  
         { 
             get => _playerReputation; 
-            set => SetProperty(ref _playerReputation, nameof(PlayerReputation)); 
+            set => SetProperty(ref _playerReputation, nameof(PlayerReputation));
         } //this is a holder for the players reputation   Reputation = PlayerReputation
          public long StationId  
         { 
             get => _stationId; 
-            set => SetProperty(ref _stationId, nameof(StationId)); 
+            set => SetProperty(ref _stationId, nameof(StationId));
         }
         public string StationName  
         { 
             get => _stationName; 
-            set => SetProperty(ref _stationName, nameof(StationName)); 
+            set => SetProperty(ref _stationName, nameof(StationName));
         }
         public MyStationTypeEnum StationType  
         { 
             get => _stationType; 
-            set => SetProperty(ref _stationType, nameof(StationType)); 
+            set => SetProperty(ref _stationType, nameof(StationType));
         }
         public ObservableCollection<MyPlayer> Players  
         { 
             get => _players; 
-            set => SetProperty(ref _players, nameof(Players)); 
+            set => SetProperty(ref _players, nameof(Players));
         }
         public bool? IsFactionSelected  
         { 
             get => _isFactionSelected; 
-            set => SetProperty(ref _isFactionSelected, nameof(IsFactionSelected)); 
+            set => SetProperty(ref _isFactionSelected, nameof(IsFactionSelected));
         }
 
         public string Leader  
         { 
             get => _leader; 
-            set => SetProperty(ref _leader, nameof(Leader)); 
+            set => SetProperty(ref _leader, nameof(Leader));
         }
         public string SelectedFactionType  
         { 
             get => _selectedFactionType; 
-            set => SetProperty(ref _selectedFactionType, nameof(SelectedFactionType)); 
+            set => SetProperty(ref _selectedFactionType, nameof(SelectedFactionType));
         }
 
         #endregion

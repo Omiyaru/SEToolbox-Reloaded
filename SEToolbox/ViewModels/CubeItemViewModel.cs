@@ -110,7 +110,7 @@ namespace SEToolbox.ViewModels
 
         private bool CancelCanExecute(object parameter) 
         {
-            return _dataModel != null; 
+            return _dataModel != null;
         } 
         // Ensure the Cancel command can execute only if the data model is valid
 

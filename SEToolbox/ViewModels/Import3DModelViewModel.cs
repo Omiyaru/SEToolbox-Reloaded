@@ -71,12 +71,12 @@ namespace SEToolbox.ViewModels
 
         public ICommand CreateCommand
         {
-           get => new DelegateCommand(CreateExecuted, CreateCanExecute); 
+           get => new DelegateCommand(CreateExecuted, CreateCanExecute);
         }
 
         public ICommand CancelCommand
         {
-           get => new DelegateCommand(CancelExecuted, CancelCanExecute); 
+           get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         #endregion
@@ -190,7 +190,7 @@ namespace SEToolbox.ViewModels
 
         public bool IsAsteroid
         {
-           get => _dataModel.IsAsteroid; 
+           get => _dataModel.IsAsteroid;
         }
 
         public bool IsShip

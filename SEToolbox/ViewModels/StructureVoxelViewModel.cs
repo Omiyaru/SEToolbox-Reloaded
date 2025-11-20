@@ -141,7 +141,7 @@ namespace SEToolbox.ViewModels
 
         public BindableSize3DIModel ContentSize
         {
-            get => new(DataModel.ContentSize); 
+            get => new(DataModel.ContentSize);
         }
 
         public BindableVector3DModel Center
@@ -180,14 +180,14 @@ namespace SEToolbox.ViewModels
         {
             get => DataModel.GameMaterialList; 
             
-            set => DataModel.GameMaterialList = value; 
+            set => DataModel.GameMaterialList = value;
         }
 
         public List<VoxelMaterialAssetModel> EditMaterialList
         {
             get => DataModel.EditMaterialList;
              
-            set => DataModel.EditMaterialList = value; 
+            set => DataModel.EditMaterialList = value;
         }
 
         #endregion

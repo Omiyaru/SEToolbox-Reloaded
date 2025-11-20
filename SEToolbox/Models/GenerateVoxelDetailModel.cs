@@ -41,17 +41,17 @@ namespace SEToolbox.Models
 
         public int SizeX
         {
-            get => _size.X; 
+            get => _size.X;
         }
 
         public int SizeY
         {
-            get => _size.Y; 
+            get => _size.Y;
         }
 
         public int SizeZ
         {
-            get => _size.Z; 
+            get => _size.Z;
         }
 
         public long FileSize { get; set; }

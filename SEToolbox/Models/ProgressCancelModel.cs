@@ -84,7 +84,7 @@ namespace SEToolbox.Models
         public TimeSpan? EstimatedTimeLeft
         {
             get => _estimatedTimeLeft;
-            set => SetProperty(ref _estimatedTimeLeft, nameof(EstimatedTimeLeft)); 
+            set => SetProperty(ref _estimatedTimeLeft, nameof(EstimatedTimeLeft));
         }
 
         #endregion
