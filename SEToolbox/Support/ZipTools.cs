@@ -58,7 +58,7 @@ namespace SEToolbox.Support
             {
                 originalByteStream.CopyTo(compressionStream);
             }
-            Debug.WriteLine($"Compressed from {originalByteStream.Length:#,###0} bytes to {compressedByteStream.Length:#,###0} bytes.");
+            SConsole.WriteLine($"Compressed from {originalByteStream.Length:#,###0} bytes to {compressedByteStream.Length:#,###0} bytes.");
         }
 
         /// <summary>

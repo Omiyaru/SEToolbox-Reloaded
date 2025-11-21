@@ -25,8 +25,7 @@ namespace SEToolbox.Support
         /// </summary>
         public static void ShowSplash()
         {
-            
-			_splash?.Show();
+            _splash?.Show();
             System.Windows.Forms.Application.DoEvents();
          }
     

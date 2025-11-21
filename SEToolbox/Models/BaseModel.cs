@@ -50,29 +50,26 @@ namespace SEToolbox.Models
                 OnPropertyChanged(propertyName);
                 return;
             }
-        
+    
             var actionToInvoke = parameters.OfType<Action>().FirstOrDefault() ?? parameters.OfType<Action>().LastOrDefault();
-            var expressionToCompile = parameters.OfType<Expression<Action>>().FirstOrDefault() ?? parameters.OfType<Expression<Action>>().LastOrDefault();
-            bool? invokeBefore = actionToInvoke != null || expressionToCompile != null ? true : false;
+            bool? invokeBefore = actionToInvoke != null ? true : false;
 
             if (invokeBefore == true)
             {
                 actionToInvoke?.Invoke();
-                expressionToCompile?.Compile().Invoke();
             }
             field = value;
             OnPropertyChanged(propertyName);
             if (invokeBefore == false)
             {
                 actionToInvoke?.Invoke();
-                expressionToCompile?.Compile().Invoke();
+            
             }
       
             if (string.IsNullOrEmpty(propertyName) && !parameters.Contains(propertyName))
             {
                 field = value;
                 actionToInvoke?.Invoke();
-                expressionToCompile?.Compile().Invoke();
             }
 
 
