@@ -58,7 +58,7 @@ namespace SEToolbox.Converters
 
         private static string GenerateCacheKey(string fileName, int width, int height)
         {
-            return Conditional.IsNot(-1,width, height) ? $"{fileName},{width},{height}": fileName;
+            return Conditional.False(-1,width, height) ? $"{fileName},{width},{height}": fileName;
         }
 
         private static ImageSource LoadPngImage(string fileName, int width, int height)

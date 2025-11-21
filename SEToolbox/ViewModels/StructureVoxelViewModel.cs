@@ -134,8 +134,7 @@ namespace SEToolbox.ViewModels
 
         public BindableSize3DIModel Size
         {
-            get => new(DataModel.Size); 
-            
+            get => new(DataModel.Size);
             set => DataModel.Size = value.ToVector3I();
         }
 
@@ -147,7 +146,6 @@ namespace SEToolbox.ViewModels
         public BindableVector3DModel Center
         {
             get => new(DataModel.Center);
-            
             set => DataModel.Center = value.ToVector3D();
         }
 
@@ -164,29 +162,25 @@ namespace SEToolbox.ViewModels
 
         public List<VoxelMaterialAssetModel> MaterialAssets
         {
-            get => DataModel.MaterialAssets; 
-            
+            get => DataModel.MaterialAssets;
             set => DataModel.MaterialAssets = value;
         }
 
         public VoxelMaterialAssetModel SelectedMaterialAsset
         {
             get => DataModel.SelectedMaterialAsset;
-             
             set => DataModel.SelectedMaterialAsset = value;
         }
 
         public List<VoxelMaterialAssetModel> GameMaterialList
         {
             get => DataModel.GameMaterialList; 
-            
             set => DataModel.GameMaterialList = value;
         }
 
         public List<VoxelMaterialAssetModel> EditMaterialList
         {
             get => DataModel.EditMaterialList;
-             
             set => DataModel.EditMaterialList = value;
         }
 

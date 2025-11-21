@@ -121,14 +121,13 @@ namespace SEToolbox.ViewModels
         {
             get => _isBusy;
 
-            set
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
-                SetProperty(ref _isBusy,value, nameof(IsBusy));
                 if (_isBusy)
                 {
                     Application.DoEvents();
                 }
-            }
+            });
         }
 
         #endregion

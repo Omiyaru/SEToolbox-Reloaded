@@ -7,7 +7,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
+using Sandbox.Engine.Multiplayer;
 using SEToolbox.Support;
+using VRage.Game.ModAPI.Ingame;
 
 namespace SEToolbox.Models
 {
@@ -38,31 +40,42 @@ namespace SEToolbox.Models
 
         public void SetProperty<T>(T field, params object[] parameters)
         {   
-            T value =default;
+            T value = default;
             var propertyName = parameters.FirstOrDefault() as string ?? parameters.LastOrDefault() as string ?? string.Empty;
-
             if (ReferenceEquals(value, field) || EqualityComparer<T>.Default.Equals(value, field))
                 return;
-
-            if (string.IsNullOrEmpty(propertyName) || parameters.Length < 1)
+            if (parameters.Contains(propertyName) || !string.IsNullOrEmpty(propertyName) || parameters.Length < 1 && field != null)
             {
                 field = value;
                 OnPropertyChanged(propertyName);
                 return;
             }
-            var actionToInvokeBefore = parameters.OfType<Action>().FirstOrDefault();
-            var actionToInvokeAfter = parameters.OfType<Action>().LastOrDefault();
-            var expressionToCompileBefore = parameters.OfType<Expression<Action>>().FirstOrDefault();
-            var expressionToCompileAfter = parameters.OfType<Expression<Action>>().LastOrDefault();
+        
+            var actionToInvoke = parameters.OfType<Action>().FirstOrDefault() ?? parameters.OfType<Action>().LastOrDefault();
+            var expressionToCompile = parameters.OfType<Expression<Action>>().FirstOrDefault() ?? parameters.OfType<Expression<Action>>().LastOrDefault();
+            bool? invokeBefore = actionToInvoke != null || expressionToCompile != null ? true : false;
 
-            actionToInvokeBefore?.Invoke();
-            expressionToCompileBefore?.Compile().Invoke();
-
+            if (invokeBefore == true)
+            {
+                actionToInvoke?.Invoke();
+                expressionToCompile?.Compile().Invoke();
+            }
             field = value;
             OnPropertyChanged(propertyName);
+            if (invokeBefore == false)
+            {
+                actionToInvoke?.Invoke();
+                expressionToCompile?.Compile().Invoke();
+            }
+      
+            if (string.IsNullOrEmpty(propertyName) && !parameters.Contains(propertyName))
+            {
+                field = value;
+                actionToInvoke?.Invoke();
+                expressionToCompile?.Compile().Invoke();
+            }
 
-            actionToInvokeAfter?.Invoke();
-            expressionToCompileAfter?.Compile().Invoke();
+
         }
 
 

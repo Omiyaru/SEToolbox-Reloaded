@@ -36,7 +36,6 @@ namespace SEToolbox.ViewModels
 
             _dialogService = dialogService;
             _dataModel = dataModel;
-
             Selections = [];
             // Will bubble property change events from the Model to the ViewModel.
             _dataModel.PropertyChanged += (sender, e) => OnPropertyChanged(e.PropertyName);
@@ -118,16 +117,16 @@ namespace SEToolbox.ViewModels
             MyObjectBuilder_SessionSettings settings = SpaceEngineersCore.WorldResource.Checkpoint.Settings;
 
             model.Load(position, settings.MaxFloatingObjects);
-            GenerateFloatingObjectViewModel loadVm = new(this, model);
-            bool? result = _dialogService.ShowDialog<WindowGenerateFloatingObject>(this, loadVm);
+            var loadVm = new GenerateFloatingObjectViewModel(this, model);
+            var result = _dialogService.ShowDialog<WindowGenerateFloatingObject>(this, loadVm);
             if (result == true)
             {
-                VRage.ObjectBuilders.MyObjectBuilder_EntityBase[] newEntities = loadVm.BuildEntities();
+                var newEntities = loadVm.BuildEntities();
                 if (loadVm.IsValidItemToImport)
                 {
                     for (int i = 0; i < newEntities.Length; i++)
                     {
-                        MyObjectBuilder_InventoryItem item = ((MyObjectBuilder_FloatingObject)newEntities[i]).Item;
+                        var item = ((MyObjectBuilder_FloatingObject)newEntities[i]).Item;
                         _dataModel.Additem(item);
                     }
 

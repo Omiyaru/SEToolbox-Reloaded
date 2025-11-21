@@ -111,7 +111,7 @@ namespace SEToolbox.ViewModels
             {
                 CloseRequested?.Invoke(this, EventArgs.Empty);
 
-                CloseResult = false;
+                CloseResult =  false;
             }
 
             _dataModel.ClearProgress();

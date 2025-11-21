@@ -84,11 +84,7 @@ namespace SEToolbox.ViewModels
         public string SourceFile
         {
             get => _dataModel.SourceFile;
-            set
-            {
-                _dataModel.SourceFile = value;
-                SourceFileChanged();
-            }
+            set => SetProperty( _dataModel.SourceFile,() => SourceFileChanged());
         }
 
         public bool IsValidVoxelFile
@@ -121,14 +117,14 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _isBusy;
-            set
+            set => SetProperty(ref _isBusy, nameof(IsBusy),() =>
             {
-                 SetProperty(ref _isBusy, nameof(IsBusy));
-                 if (_isBusy)
-                 {
+                if (_isBusy)
+                {
                     Application.DoEvents();
-                 }
-            }
+                }
+            }   );
+          
         
         }
 
@@ -227,12 +223,12 @@ namespace SEToolbox.ViewModels
         private void BrowseVoxel()
         {
             IsValidVoxelFile = false;
-            IOpenFileDialog openFileDialog = _openFileDialogFactory();
+            var openFileDialog = _openFileDialogFactory();
             openFileDialog.Filter = AppConstants.VoxelAnyFilter;
             openFileDialog.Title = Res.DialogImportVoxelTitle;
 
             // Open the dialog
-            DialogResult result = _dialogService.ShowOpenFileDialog(OwnerViewModel, openFileDialog);
+            var result = _dialogService.ShowOpenFileDialog(OwnerViewModel, openFileDialog);
 
             if (result == DialogResult.OK)
             {
@@ -288,7 +284,7 @@ namespace SEToolbox.ViewModels
                     using  MyVoxelMapBase asteroid = new();
                     asteroid.Load(stockfile);
                     asteroid.ForceBaseMaterial(SpaceEngineersResources.GetDefaultMaterialName(), StockMaterial.Value);
-                    SourceFile = TempFileUtil.NewFileName( MyVoxelMapBase.FileExtension.V2);
+                    SourceFile = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
                     asteroid.Save(SourceFile);
 
                     originalFile = StockVoxel.SourceFileName;
@@ -315,7 +311,7 @@ namespace SEToolbox.ViewModels
             else if (IsSphere)
             {
                 byte materialIndex;
-                if (StockMaterial.MaterialIndex != null)
+                if (StockMaterial?.MaterialIndex != null)
                     materialIndex = StockMaterial.MaterialIndex.Value;
                 else
                     materialIndex = SpaceEngineersResources.GetDefaultMaterialIndex();

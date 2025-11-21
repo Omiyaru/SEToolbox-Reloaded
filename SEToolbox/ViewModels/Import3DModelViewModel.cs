@@ -113,11 +113,7 @@ namespace SEToolbox.ViewModels
         public string FileName
         {
             get => _dataModel.FileName;
-            set
-            {
-                _dataModel.FileName = value;
-                FileNameChanged();
-            }
+            set => SetProperty( _dataModel.FileName, () => FileNameChanged());
         }
 
         public Model3D Model
@@ -141,11 +137,7 @@ namespace SEToolbox.ViewModels
         public BindableSize3DIModel NewModelSize
         {
             get => _dataModel.NewModelSize;
-            set
-            {
-                _dataModel.NewModelSize = value;
-                ProcessModelScale();
-            }
+            set => SetProperty(_dataModel.NewModelSize, () => ProcessModelScale());
         }
 
         public BindablePoint3DModel NewModelScale
@@ -181,7 +173,7 @@ namespace SEToolbox.ViewModels
         public ImportModelClassType ClassType
         {
             get => _dataModel.ClassType;
-            set
+            set => SetProperty(_dataModel.ClassType, () => ProcessModelScale());
             {
                 _dataModel.ClassType = value;
                 ProcessModelScale();
@@ -239,21 +231,13 @@ namespace SEToolbox.ViewModels
         public bool IsMultipleScale
         {
             get => _dataModel.IsMultipleScale;
-            set
-            {
-                _dataModel.IsMultipleScale = value;
-                ProcessModelScale();
-            }
+            set => SetProperty(_dataModel.IsMultipleScale, () => ProcessModelScale());
         }
 
         public bool IsMaxLengthScale
         {
             get => _dataModel.IsMaxLengthScale;
-            set
-            {
-                _dataModel.IsMaxLengthScale = value;
-                ProcessModelScale();
-            }
+            set => SetProperty(_dataModel.IsMaxLengthScale, () => ProcessModelScale());
         }
 
         public ObservableCollection<MaterialSelectionModel> OutsideMaterialsCollection
@@ -475,29 +459,29 @@ namespace SEToolbox.ViewModels
             bool subtractiveSmoothObject= false;
 
             // Read in voxel and set main cube space.
-            //var ccubic = TestCreateSplayedDiagonalPlane();
-            //var ccubic = TestCreateSlopedDiagonalPlane();
-            //var ccubic = TestCreateStaggeredStar();
-            CubeType[][][] ccubic = Mod.TestCreateTrayShape();
-            //var ccubic = ReadVolumetricModel(@"..\..\..\..\..\..\building 3D\models\Rhino_corrected.obj", 10, null, ModelTraceVoxel.ThickSmoothedDown);
+            //var cubic = TestCreateSplayedDiagonalPlane();
+            //var cubic = TestCreateSlopedDiagonalPlane();
+            //var cubic = TestCreateStaggeredStar();
+            CubeType[][][] cubic = Mod.TestCreateTrayShape();
+            //var cubic = ReadVolumetricModel(@"..\..\..\..\..\..\building 3D\models\Rhino_corrected.obj", 10, null, ModelTraceVoxel.ThickSmoothedDown);
 
             bool fillObject = false;
 
             if (smoothObject)
             {
-                Mod.CalculateAddedInverseCorners(ccubic);
-                Mod.CalculateAddedSlopes(ccubic);
-                Mod.CalculateAddedCorners(ccubic);
+                Mod.CalculateAddedInverseCorners(cubic);
+                Mod.CalculateAddedSlopes(cubic);
+                Mod.CalculateAddedCorners(cubic);
             }
             else
             {
                 if (subtractiveSmoothObject)
-                    Mod.CalculateSubtractedCorners(ccubic);
-                    Mod.CalculateSubtractedSlopes(ccubic);
-                    Mod.CalculateSubtractedInverseCorners(ccubic);
+                    Mod.CalculateSubtractedCorners(cubic);
+                    Mod.CalculateSubtractedSlopes(cubic);
+                    Mod.CalculateSubtractedInverseCorners(cubic);
             }
 
-            Mod.BuildStructureFromCubic(entity, ccubic, fillObject, blockType, slopeBlockType, cornerBlockType, inverseCornerBlockType);
+            Mod.BuildStructureFromCubic(entity, cubic, fillObject, blockType, slopeBlockType, cornerBlockType, inverseCornerBlockType);
 
             return entity;
         }
@@ -664,9 +648,9 @@ namespace SEToolbox.ViewModels
                 multiplier = MaxLengthScale / Math.Max(Math.Max(OriginalModelSize.Height, OriginalModelSize.Width), OriginalModelSize.Depth);
             }
 
-            CubeType[][][] ccubic = Mod.ReadVolumetricModel(FileName, multiplier, null, TraceType, MainViewModel.ResetProgress, MainViewModel.IncrementProgress);
+            CubeType[][][] cubic = Mod.ReadVolumetricModel(FileName, multiplier, null, TraceType, MainViewModel.ResetProgress, MainViewModel.IncrementProgress);
 
-            Mod.BuildStructureFromCubic(entity, ccubic, FillObject, blockType, slopeBlockType, cornerBlockType, inverseCornerBlockType);
+            Mod.BuildStructureFromCubic(entity, cubic, FillObject, blockType, slopeBlockType, cornerBlockType, inverseCornerBlockType);
 
             MainViewModel.ClearProgress();
 

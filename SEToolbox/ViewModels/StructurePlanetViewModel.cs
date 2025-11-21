@@ -117,7 +117,6 @@ namespace SEToolbox.ViewModels
         public bool ShowGPS
         {
             get => DataModel.ShowGPS;
-
             set
             {
                 DataModel.ShowGPS = value;
@@ -135,7 +134,10 @@ namespace SEToolbox.ViewModels
 
         #region Methods
 
-        public static bool CopyDetailCanExecute() => true;
+        public static bool CopyDetailCanExecute()
+        {
+            return true;
+        }
 
         public void CopyDetailExecuted()
         {

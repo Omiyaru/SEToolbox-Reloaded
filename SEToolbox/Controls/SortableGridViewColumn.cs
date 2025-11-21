@@ -1,5 +1,6 @@
 ﻿using System.Windows.Data;
 using System.ComponentModel;
+using SEToolbox.Models;
 namespace SEToolbox.Controls
 {
     public class SortableGridViewColumn : System.Windows.Controls.GridViewColumn
@@ -7,6 +8,7 @@ namespace SEToolbox.Controls
         #region Fields
 
         private BindingBase _sortBinding;
+        private BaseModel _model;
 
         #endregion
 
@@ -15,15 +17,9 @@ namespace SEToolbox.Controls
         public BindingBase SortBinding
         {
             get => _sortBinding;
-            set
-            {
-                if (_sortBinding != value)
-                {
-                    _sortBinding = value;
-                    OnDisplayMemberBindingChanged();
-                }
-            }
+            set => _model.SetProperty(ref _sortBinding, ()=> OnDisplayMemberBindingChanged());
         }
+        
    
 
         private void OnDisplayMemberBindingChanged()

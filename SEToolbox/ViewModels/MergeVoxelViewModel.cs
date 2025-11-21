@@ -130,7 +130,7 @@ namespace SEToolbox.ViewModels
         {
             return IsValidMerge;
         }
-        
+
         public void ApplyExecuted()
         {
             CloseResult = true;
@@ -174,7 +174,7 @@ namespace SEToolbox.ViewModels
                 case VoxelMergeType.UnionVolumeLeftToRight:
                 case VoxelMergeType.UnionVolumeRightToLeft:
                     min = Vector3D.Min(minLeft, minRight) - paddCells;
-                    Vector3D max = Vector3D.Max(
+                    var max = Vector3D.Max(
                         SelectionLeft.WorldAabb.Min + SelectionLeft.InflatedContentBounds.Max - offsetPosLeft,
                         SelectionRight.WorldAabb.Min + SelectionRight.InflatedContentBounds.Max - offsetPosRight) + paddCells;
                     posOffset = GetPosOffset(minLeft, minRight, offsetPosLeft, offsetPosRight);
@@ -240,9 +240,7 @@ namespace SEToolbox.ViewModels
             {
                 case VoxelMergeType.UnionVolumeLeftToRight:
                 case VoxelMergeType.UnionVolumeRightToLeft:
-                    MergeAsteroidVolumeInto(
-                        ref newAsteroid,
-                        min,
+                    MergeAsteroidVolumeInto(ref newAsteroid, min,
                         VoxelMergeType == VoxelMergeType.UnionVolumeRightToLeft ? SelectionRight : SelectionLeft,
                         VoxelMergeType == VoxelMergeType.UnionVolumeLeftToRight ? SelectionLeft : SelectionRight,
                         VoxelMergeType == VoxelMergeType.UnionVolumeRightToLeft ? minRight : minLeft,
@@ -251,9 +249,7 @@ namespace SEToolbox.ViewModels
                     break;
                 case VoxelMergeType.UnionMaterialLeftToRight:
                 case VoxelMergeType.UnionMaterialRightToLeft:
-                    MergeAsteroidMaterialFrom(
-                        ref newAsteroid,
-                        min,
+                    MergeAsteroidMaterialFrom(ref newAsteroid, min,
                         VoxelMergeType == VoxelMergeType.UnionMaterialRightToLeft ? SelectionRight : SelectionLeft,
                         VoxelMergeType == VoxelMergeType.UnionMaterialLeftToRight ? SelectionLeft : SelectionRight,
                         VoxelMergeType == VoxelMergeType.UnionMaterialRightToLeft ? minRight : minLeft,
@@ -274,7 +270,7 @@ namespace SEToolbox.ViewModels
             }
         }
 
-      
+
         #region MergeAsteroidVolumeInto
 
         private void MergeAsteroidVolumeInto(ref MyVoxelMapBase newAsteroid, Vector3D min, StructureVoxelModel modelPrimary,
@@ -282,7 +278,7 @@ namespace SEToolbox.ViewModels
         {
             string fileNameSecondary = modelSecondary.SourceVoxelFilePath ?? modelSecondary.VoxelFilePath;
             string fileNamePrimary = modelPrimary.SourceVoxelFilePath ?? modelPrimary.VoxelFilePath;
-            
+
             Vector3I newBlock;
             Vector3I cacheSize;
 
@@ -328,7 +324,7 @@ namespace SEToolbox.ViewModels
             newAsteroid.Storage.ReadRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, 0, newBlock, newBlock + cacheSize - 1);
 
             var p = Vector3I.Zero;
-        PRange.ProcessRange(p, cacheSize);
+            PRange.ProcessRange(p, cacheSize);
 
             byte volume = cache.Content(ref p);
             byte material = cache.Material(ref p);
@@ -352,19 +348,18 @@ namespace SEToolbox.ViewModels
                 {
                     byte testVolume = cache.Content(ref points[i]);
 
-                        if (testVolume > 0)
-                        {
-                            material = cache.Material(ref points[i]);
-                            newCache.Material(ref p, material);
-                            break;
-                        }
+                    if (testVolume > 0)
+                    {
+                        material = cache.Material(ref points[i]);
+                        newCache.Material(ref p, material);
+                        break;
                     }
-
-
-                    newAsteroid.Storage.WriteRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
                 }
+
+
+                newAsteroid.Storage.WriteRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
             }
-        
+        }
 
         #endregion
 
@@ -380,7 +375,7 @@ namespace SEToolbox.ViewModels
             Vector3I newBlock;
             Vector3I cacheSize;
 
-            using MyVoxelMapBase  asteroid =new();
+            using MyVoxelMapBase asteroid = new();
             asteroid.Load(fileNamePrimary);
 
             BoundingBoxI content = modelPrimary.InflatedContentBounds;
@@ -464,7 +459,7 @@ namespace SEToolbox.ViewModels
             BoundingBoxI content = modelPrimary.InflatedContentBounds;
 
             Vector3I block = content.Min;
-            
+
             PRange.ProcessRange(block, (content.Max - content.Min + 1) / 64);
             MyStorageData cache = new();
 
@@ -545,15 +540,13 @@ namespace SEToolbox.ViewModels
 
             // Add points for the 3x3x3 grid
             int x = 0, y = 0, z = 0;
-           PRange.ProcessRange(point, x, y, z, -1, 3);
+            PRange.ProcessRange(point, x, y, z, -1, 3);
 
             newPoint = new(point.X + x, point.Y + y, point.Z + z);
             if (IsWithinBounds(newPoint, max))
             {
                 points.Add(newPoint);
             }
-
-
             return [.. points];
         }
         #endregion
@@ -566,4 +559,5 @@ namespace SEToolbox.ViewModels
         }
     }
 }
-    #endregion
+    
+        #endregion

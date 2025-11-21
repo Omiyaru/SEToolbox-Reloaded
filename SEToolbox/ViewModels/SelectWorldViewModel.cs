@@ -154,9 +154,8 @@ namespace SEToolbox.ViewModels
 
         public bool RepairCanExecute()
         {
-            return SelectedWorld != null &&
-                (SelectedWorld.SaveType != SaveWorldType.DedicatedServerService ||
-                (SelectedWorld.SaveType == SaveWorldType.DedicatedServerService && ToolboxUpdater.IsRunningElevated()));
+            return SelectedWorld?.SaveType != SaveWorldType.DedicatedServerService ||
+                    SelectedWorld?.SaveType == SaveWorldType.DedicatedServerService && ToolboxUpdater.IsRunningElevated();
         }
 
         public void RepairExecuted()

@@ -252,8 +252,6 @@ namespace SEToolbox.ViewModels
             }
         }
 
-
-
         private bool RenameFactionCanExecute() => _factionModel.SelectedFaction != null;
 
         private void RenameFactionExecuted()

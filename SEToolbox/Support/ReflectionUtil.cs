@@ -249,7 +249,6 @@ namespace SEToolbox.Support
 
         //easy acccess reflection utilities
         
-
         public static Type Rtypeof<T>(string typeName)
         {
             return typeof(T).Assembly.GetType($"{typeof(T).Namespace}.{typeName}");
@@ -266,14 +265,11 @@ namespace SEToolbox.Support
             return type.Assembly.GetType($"{type.Namespace}.{obj.GetType().Name}");
         }
 
-
         public static Type Rtypeof(object obj)
         {
             return Type.GetType($"{obj.GetType().FullName}");
         }
         
-
-        //nested
         public static Type Ntypeof<T>(string type)
         {
             return typeof(T).GetNestedType(type);
@@ -295,8 +291,7 @@ namespace SEToolbox.Support
         { 
             return Nullable.GetUnderlyingType(type);
         }
-
-       
+        
         public static object UnullValueof<T>(object defaultValue, string typeName)
         {
             var underlyingType = Nullable.GetUnderlyingType(typeof(T));

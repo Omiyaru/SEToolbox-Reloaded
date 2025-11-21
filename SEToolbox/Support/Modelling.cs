@@ -79,7 +79,7 @@ namespace SEToolbox.Support
             {
                 throw new ArgumentException("Model file is empty.", nameof(modelFile));
             }
-               // How far to check in from the proposed Volumetric edge.
+            // How far to check in from the proposed Volumetric edge.
             // This number is just made up, but small enough that it still represents the corner edge of the Volumetric space.
             // But still large enough that it isn't the exact corner.
             Model3DGroup model = MeshHelper.Load(modelFile, ignoreErrors: true) ?? throw new FileNotFoundException("Model file not found.", nameof(modelFile));
@@ -101,9 +101,9 @@ namespace SEToolbox.Support
             }
 
             Rect3D tbounds = model.Bounds;
-            
+
             tbounds = transform.TransformBounds(tbounds);
-            
+
 
             int xMin = (int)Math.Floor(tbounds.X);
             int yMin = (int)Math.Floor(tbounds.Y);
@@ -117,7 +117,7 @@ namespace SEToolbox.Support
             int yCount = yMax - yMin;
             int zCount = zMax - zMin;
 
-            CubeType[][][] ccubic = ArrayHelper.Create<CubeType>(xCount, yCount, zCount);
+            CubeType[][][] cubic = ArrayHelper.Create<CubeType>(xCount, yCount, zCount);
 
             if (resetProgress != null)
             {
@@ -142,7 +142,7 @@ namespace SEToolbox.Support
                 {
                     DiffuseMaterial material = materials.Children.OfType<DiffuseMaterial>().FirstOrDefault();
 
-                    if  (material != null && material.Brush is SolidColorBrush brush)
+                    if (material != null && material.Brush is SolidColorBrush brush)
                     {
                         color = brush.Color;
                     }
@@ -165,7 +165,7 @@ namespace SEToolbox.Support
 
                     Point3D minBound = MeshHelper.Min(p1, p2, p3).Floor();
                     Point3D maxBound = MeshHelper.Max(p1, p2, p3).Ceiling();
-                   Point3DCollection rayPoints = [];
+                    Point3DCollection rayPoints = [];
                     List<Point3D> rays = [];
 
                     for (double y = minBound.Y; y < maxBound.Y; y++)
@@ -197,7 +197,7 @@ namespace SEToolbox.Support
                             {
                                 if (MeshHelper.RayIntersectTriangleRound(rayPoints, rays, out Point3D intersect, out int normal))
                                 {
-                                    ccubic[(int)Math.Floor(intersect.X) - xMin][(int)Math.Floor(intersect.Y) - yMin][(int)Math.Floor(intersect.Z) - zMin] = CubeType.Cube;
+                                    cubic[(int)Math.Floor(intersect.X) - xMin][(int)Math.Floor(intersect.Y) - yMin][(int)Math.Floor(intersect.Z) - zMin] = CubeType.Cube;
                                 }
                             }
                             catch (Exception e)
@@ -236,7 +236,7 @@ namespace SEToolbox.Support
                             {
                                 if (MeshHelper.RayIntersectTriangleRound(rayPoints, rays, out Point3D intersect, out int normal))
                                 {
-                                    ccubic[(int)Math.Floor(intersect.X) - xMin][(int)Math.Floor(intersect.Y) - yMin][(int)Math.Floor(intersect.Z) - zMin] = CubeType.Cube;
+                                    cubic[(int)Math.Floor(intersect.X) - xMin][(int)Math.Floor(intersect.Y) - yMin][(int)Math.Floor(intersect.Z) - zMin] = CubeType.Cube;
                                 }
                             }
                             catch (Exception e)
@@ -272,7 +272,7 @@ namespace SEToolbox.Support
 
                             if (MeshHelper.RayIntersectTriangleRound(rayPoints, rays, out Point3D intersect, out int normal))
                             {
-                                ccubic[(int)Math.Floor(intersect.X) - xMin][(int)Math.Floor(intersect.Y) - yMin][(int)Math.Floor(intersect.Z) - zMin] = CubeType.Cube;
+                                cubic[(int)Math.Floor(intersect.X) - xMin][(int)Math.Floor(intersect.Y) - yMin][(int)Math.Floor(intersect.Z) - zMin] = CubeType.Cube;
                             }
                         }
                     }
@@ -281,24 +281,24 @@ namespace SEToolbox.Support
 
             #endregion
 
-            CrawlExterior(ccubic);
+            CrawlExterior(cubic);
 
             if (traceType == ModelTraceVoxel.ThinSmoothed || traceType == ModelTraceVoxel.ThickSmoothedUp)
             {
-                CalculateAddedInverseCorners(ccubic, incrementProgress);//, incrementProgress)?
-                CalculateAddedSlopes(ccubic, incrementProgress);
-                CalculateAddedCorners(ccubic, incrementProgress);
+                CalculateAddedInverseCorners(cubic, incrementProgress);//, incrementProgress)?
+                CalculateAddedSlopes(cubic, incrementProgress);
+                CalculateAddedCorners(cubic, incrementProgress);
             }
 
             // Uncomment the following block to execute the calculations
             if (traceType == ModelTraceVoxel.ThickSmoothedDown)
             {
-                CalculateSubtractedCorners(ccubic, incrementProgress);
-                CalculateSubtractedSlopes(ccubic, incrementProgress);
-                CalculateSubtractedInverseCorners(ccubic, incrementProgress);
+                CalculateSubtractedCorners(cubic, incrementProgress);
+                CalculateSubtractedSlopes(cubic, incrementProgress);
+                CalculateSubtractedInverseCorners(cubic, incrementProgress);
             }
 
-            return ccubic;
+            return cubic;
         }
 
         #endregion
@@ -323,8 +323,8 @@ namespace SEToolbox.Support
             int yCount = yMax - yMin;
             int zCount = zMax - zMin;
 
-            var ccubic = ArrayHelper.Create<CubeType>(xCount, yCount, zCount);
-            
+            var cubic = ArrayHelper.Create<CubeType>(xCount, yCount, zCount);
+
             Dictionary<Point3D, byte[]> blockDict = [];
 
             #region basic ray trace of every individual triangle.
@@ -339,8 +339,8 @@ namespace SEToolbox.Support
                     rayPoints[1] = g.Positions[g.TriangleIndices[t + 1]];
                     rayPoints[2] = g.Positions[g.TriangleIndices[t + 2]];
 
-                    Point3D minBound = MeshHelper.Min( rayPoints[0], rayPoints[1], rayPoints[2]).Floor();
-                    Point3D maxBound = MeshHelper.Max( rayPoints[0], rayPoints[1], rayPoints[2]).Ceiling();
+                    Point3D minBound = MeshHelper.Min(rayPoints[0], rayPoints[1], rayPoints[2]).Floor();
+                    Point3D maxBound = MeshHelper.Max(rayPoints[0], rayPoints[1], rayPoints[2]).Ceiling();
 
                     for (double y = minBound.Y; y < maxBound.Y; y++)
                     {
@@ -376,7 +376,7 @@ namespace SEToolbox.Support
                                 int crossFloorX = (int)Math.Floor(CrossX);
                                 int crossFloorY = (int)Math.Floor(CrossY);
                                 int crossFloorZ = (int)Math.Floor(CrossZ);
-                                ccubic[crossFloorX - xMin][crossFloorY - yMin][crossFloorZ - zMin] = CubeType.Cube;
+                                cubic[crossFloorX - xMin][crossFloorY - yMin][crossFloorZ - zMin] = CubeType.Cube;
                             }
                         }
                     }
@@ -392,7 +392,7 @@ namespace SEToolbox.Support
                                 int LocFloorCrossX = (int)Math.Floor(localIntersect.X);
                                 int LocFloorCrossY = (int)Math.Floor(localIntersect.Y);
                                 int LocFloorCrossZ = (int)Math.Floor(localIntersect.Z);
-                                ccubic[LocFloorCrossX - xMin][LocFloorCrossY - yMin][LocFloorCrossZ - zMin] = CubeType.Cube;
+                                cubic[LocFloorCrossX - xMin][LocFloorCrossY - yMin][LocFloorCrossZ - zMin] = CubeType.Cube;
                             }
                         }
                     }
@@ -405,7 +405,7 @@ namespace SEToolbox.Support
                             Point3D roundPointB = new(x, y, zMax);
                             if (MeshHelper.RayIntersectTriangle(rayPoints, roundPointA, roundPointB, out Point3D intersect, out _)) // Ray
                             {
-                                ccubic[(int)Math.Floor(intersect.X) - xMin][(int)Math.Floor(intersect.Y) - yMin][(int)Math.Floor(intersect.Z) - zMin] = CubeType.Cube;
+                                cubic[(int)Math.Floor(intersect.X) - xMin][(int)Math.Floor(intersect.Y) - yMin][(int)Math.Floor(intersect.Z) - zMin] = CubeType.Cube;
                             }
                         }
                     }
@@ -414,10 +414,33 @@ namespace SEToolbox.Support
 
             #endregion
 
-            return ccubic;
+            return cubic;
         }
 
         #endregion
+        #region ProccessCubic
+
+
+        private static CubeType ProcessCubicRange(CubeType[][][] cubic, int xCount, int yCount, int zCount, Action<int, int, int> action = null)
+        {
+            int x = 0, y = 0, z = 0;
+            var cRange = from X in Enumerable.Range(x, xCount)
+                         from Y in Enumerable.Range(y, yCount)
+                         from Z in Enumerable.Range(z, zCount)
+                         select new { X, Y, Z, Value = cubic[X][Y][Z] };
+            CubeType cubeType = CubeType.None;
+            Parallel.ForEach(cRange, item =>
+             {
+                 if (item.Value != CubeType.None)
+                 {
+                     cubeType = item.Value;
+                     action?.Invoke(item.X, item.Y, item.Z);
+                 }
+             });
+
+            return cubeType;
+        }
+
 
         #region GetNeighbors
         private static IEnumerable<Vector3I> GetNeighbors(Vector3I point, int xCount, int yCount, int zCount)
@@ -473,48 +496,41 @@ namespace SEToolbox.Support
                 new(xCount - 1, yCount - 1, zCount - 1)
             ];
 
-            Parallel.ForEach(cornerPoints, point =>
+            foreach (Vector3I point in cornerPoints)
             {
                 if (cubic[point.X][point.Y][point.Z] == CubeType.None)
                 {
                     list.Enqueue(point);
                 }
-            });
+            }
 
-            Parallel.ForEach(list, item =>
+            foreach (var item in list)
             {
                 if (cubic[item.X][item.Y][item.Z] == CubeType.None)
                 {
                     cubic[item.X][item.Y][item.Z] = CubeType.Exterior;
 
-                    Parallel.ForEach(GetNeighbors(item, xCount, yCount, zCount), neighbor =>
+                    var neighbors = GetNeighbors(item, xCount, yCount, zCount).Where(n => cubic[n.X][n.Y][n.Z] == CubeType.None).ToList();
+
+                    if (neighbors.Count > 0)
                     {
-                        if (cubic[neighbor.X][neighbor.Y][neighbor.Z] == CubeType.None)
+                        foreach (Vector3I neighbor in neighbors)
                         {
                             list.Enqueue(neighbor);
                         }
-                    });
-                }
-            });
-
-            // Switch values around to work with current enum logic.
-            Parallel.For(0, xCount, x =>
-            {
-                CubeType[][] cx = cubic[x];
-                for (int y = 0; y < yCount; y++)
-                {
-                    CubeType[] cy = cx[y];
-                    for (int z = 0; z < zCount; z++)
-                    {
-                        if (cy[z] == CubeType.None)
-                        {
-                            cy[z] = CubeType.Interior;
-                        }
-                        else if (cy[z] == CubeType.Exterior)
-                        {
-                            cy[z] = CubeType.None;
-                        }
                     }
+                }
+            }
+
+            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
+            {
+                if (cubic[x][y][z] == CubeType.None)
+                {
+                    cubic[x][y][z] = CubeType.Interior;
+                }
+                else if (cubic[x][y][z] == CubeType.Exterior)
+                {
+                    cubic[x][y][z] = CubeType.None;
                 }
             });
         }
@@ -527,16 +543,14 @@ namespace SEToolbox.Support
         {
             Dictionary<CubeType, int> assetCount = [];
             int xCount = cubic.Length,
-                   yCount = cubic[0].Length,
+                yCount = cubic[0].Length,
                 zCount = cubic[0][0].Length;
-
-            Parallel.For(0, xCount, x =>
+            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
             {
-                CubeType[][] cx = cubic[x];
-                for (int y = 0; y < yCount; y++)
+                if (cubic[x][y][z] != CubeType.None)
                 {
-                    CubeType[] cy = cx[y];
-                    for (int z = 0; z < zCount; z++)
+                    CubeType[] cy = [cubic[x][y][z]];
+                    for (z = 0; z < zCount; z++)
                     {
                         if (assetCount.ContainsKey(cy[z]))
                         {
@@ -570,27 +584,20 @@ namespace SEToolbox.Support
                 yCount = cubic[0].Length,
                 zCount = cubic[0][0].Length;
 
-            Parallel.For(0, xCount, x =>
+            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
             {
-                CubeType[][] cx = cubic[x];
-                for (int y = 0; y < yCount; y++)
+                incrementProgress?.Invoke();
+                if (cubic[x][y][z] == CubeType.Cube)
                 {
-                    CubeType[] cy = cx[y];
-                    for (int z = 0; z < zCount; z++)
-                    {
-                        incrementProgress?.Invoke();
-                        if (cubic[x][y][z] == CubeType.Cube)
-                        {
 
-                            CubeType result = DetermineAddedSlopeType(cubic, x, y, z, xCount, yCount, zCount);
-                            if (result != CubeType.None)
-                                cubic[x][y][z] = result;
-                        }
-
-                    }
+                    CubeType result = DetermineAddedSlopeType(cubic, x, y, z, xCount, yCount, zCount);
+                    if (result != CubeType.None)
+                        cubic[x][y][z] = result;
                 }
             });
+
         }
+
 
 
         public static List<CubeType> Slopes =
@@ -645,25 +652,19 @@ namespace SEToolbox.Support
                 yCount = cubic[0].Length,
                 zCount = cubic[0][0].Length;
 
-            Parallel.For(0, xCount, x =>
-            {
-                CubeType[][] cx = cubic[x];
-                for (int y = 0; y < yCount; y++)
-                {
-                    CubeType[] cy = cx[y];
-                    for (int z = 0; z < zCount; z++)
-                    {
-                        incrementProgress?.Invoke();
-                        if (cubic[x][y][z] == CubeType.None)
-                        {
-                            CubeType result = DetermineCornerType(cubic, x, y, z, xCount, yCount, zCount);
-                            if (result != CubeType.None)
-                                cubic[x][y][z] = result;
-                        }
-                    }
-                }
-            });
+
+            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
+           {
+               incrementProgress?.Invoke();
+               if (cubic[x][y][z] == CubeType.None)
+               {
+                   CubeType result = DetermineCornerType(cubic, x, y, z, xCount, yCount, zCount);
+                   if (result != CubeType.None)
+                       cubic[x][y][z] = result;
+               }
+           });
         }
+
 
         public static List<CubeType> Corners =
         [
@@ -698,6 +699,7 @@ namespace SEToolbox.Support
                     check2.cx2, check2.cy2, check2.cz2, check2.type2))
                     return result;
             }
+
             (CubeType result, (int cx1, int cy1, int cz1, CubeType type1), (int cx2, int cy2, int cz2, CubeType type2), (int cx3, int cy3, int cz3, CubeType type3))[] tripleChecks =
             [
                 (CubeType.NormalCornerRightBackBottom, (+1, 0, 0, CubeType.InverseCornerLeftFrontTop), (0, -1, 0, CubeType.InverseCornerLeftFrontTop), (0, 0, -1, CubeType.InverseCornerLeftFrontTop)),
@@ -726,25 +728,19 @@ namespace SEToolbox.Support
                 yCount = cubic[0].Length,
                 zCount = cubic[0][0].Length;
 
-            Parallel.For(0, xCount, x =>
-           {
-               CubeType[][] cx = cubic[x];
-               for (int y = 0; y < yCount; y++)
+
+            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
+            {
+               incrementProgress?.Invoke();
+               if (cubic[x][y][z] == CubeType.None)
                {
-                   CubeType[] cy = cx[y];
-                   for (int z = 0; z < zCount; z++)
-                   {
-                       incrementProgress?.Invoke();
-                       if (cubic[x][y][z] == CubeType.None)
-                       {
-                           CubeType result = DetermineInverseCornerType(cubic, x, y, z, xCount, yCount, zCount);
-                           if (result != CubeType.None)
-                               cubic[x][y][z] = result;
-                       }
-                   }
+                   CubeType result = DetermineInverseCornerType(cubic, x, y, z, xCount, yCount, zCount);
+                   if (result != CubeType.None)
+                       cubic[x][y][z] = result;
                }
            });
         }
+
 
 
         public static List<CubeType> InverseCorners =
@@ -791,19 +787,18 @@ namespace SEToolbox.Support
         private static bool IsValidRange(int x, int y, int z, int xCount, int yCount, int zCount, int xDelta, int yDelta, int zDelta)
         {
             return x + xDelta >= 0 && x + xDelta < xCount &&
-                    y + yDelta >= 0 && y + yDelta < yCount &&
-                    z + zDelta >= 0 && z + zDelta < zCount;
+                   y + yDelta >= 0 && y + yDelta < yCount &&
+                   z + zDelta >= 0 && z + zDelta < zCount;
         }
 
-        private static bool CheckAdjacentCubic(CubeType[][][] ccubic, int x, int y, int z, int xCount, int yCount, int zCount, int xDelta, int yDelta, int zDelta, CubeType cubeType)
+        private static bool CheckAdjacentCubic(CubeType[][][] cubic, int x, int y, int z, int xCount, int yCount, int zCount, int xDelta, int yDelta, int zDelta, CubeType cubeType)
         {
             if (!IsValidRange(x, y, z, xCount, yCount, zCount, xDelta, yDelta, zDelta))
                 return false;
 
-            bool xMatch = xDelta != 0 && ccubic[x + xDelta][y][z] == cubeType;
-            bool yMatch = yDelta != 0 && ccubic[x][y + yDelta][z] == cubeType;
-            bool zMatch = zDelta != 0 && ccubic[x][y][z + zDelta] == cubeType;
-
+            bool xMatch = xDelta != 0 && cubic[x + xDelta][y][z] == cubeType;
+            bool yMatch = yDelta != 0 && cubic[x][y + yDelta][z] == cubeType;
+            bool zMatch = zDelta != 0 && cubic[x][y][z + zDelta] == cubeType;
 
             return (xMatch && yMatch && zDelta == 0) ||
                    (xMatch && zMatch && yDelta == 0) ||
@@ -811,30 +806,30 @@ namespace SEToolbox.Support
                    (xMatch && yMatch && zMatch);
         }
 
-        private static bool CheckAdjacentCubic1(CubeType[][][] ccubic, int x, int y, int z, int xCount, int yCount, int zCount,
+        private static bool CheckAdjacentCubic1(CubeType[][][] cubic, int x, int y, int z, int xCount, int yCount, int zCount,
            int xDelta, int yDelta, int zDelta, CubeType cubeType)
         {
             if (IsValidRange(x, y, z, xCount, yCount, zCount, xDelta, yDelta, zDelta))
             {
-                return ccubic[x + xDelta][y + yDelta][z + zDelta] == cubeType;
+                return cubic[x + xDelta][y + yDelta][z + zDelta] == cubeType;
             }
 
             return false;
         }
 
-        private static bool CheckAdjacentCubic2(CubeType[][][] ccubic, int x, int y, int z, int xCount, int yCount, int zCount,
+        private static bool CheckAdjacentCubic2(CubeType[][][] cubic, int x, int y, int z, int xCount, int yCount, int zCount,
             int xDelta1, int yDelta1, int zDelta1, CubeType cubeType1,
             int xDelta2, int yDelta2, int zDelta2, CubeType cubeType2)
         {
             if (IsValidRange(x, y, z, xCount, yCount, zCount, xDelta1, yDelta1, zDelta1) && IsValidRange(x, y, z, xCount, yCount, zCount, xDelta2, yDelta2, zDelta2))
             {
-                return ccubic[x + xDelta1][y + yDelta1][z + zDelta1] == cubeType1 && ccubic[x + xDelta2][y + yDelta2][z + zDelta2] == cubeType2;
+                return cubic[x + xDelta1][y + yDelta1][z + zDelta1] == cubeType1 && cubic[x + xDelta2][y + yDelta2][z + zDelta2] == cubeType2;
             }
 
             return false;
         }
 
-        private static bool CheckAdjacentCubic3(CubeType[][][] ccubic, int x, int y, int z, int xCount, int yCount, int zCount,
+        private static bool CheckAdjacentCubic3(CubeType[][][] cubic, int x, int y, int z, int xCount, int yCount, int zCount,
             int xDelta1, int yDelta1, int zDelta1, CubeType cubeType1,
             int xDelta2, int yDelta2, int zDelta2, CubeType cubeType2,
             int xDelta3, int yDelta3, int zDelta3, CubeType cubeType3)
@@ -843,15 +838,16 @@ namespace SEToolbox.Support
                 && IsValidRange(x, y, z, xCount, yCount, zCount, xDelta2, yDelta2, zDelta2)
                 && IsValidRange(x, y, z, xCount, yCount, zCount, xDelta3, yDelta3, zDelta3))
             {
-                return ccubic[x + xDelta1][y + yDelta1][z + zDelta1] == cubeType1
-                    && ccubic[x + xDelta2][y + yDelta2][z + zDelta2] == cubeType2
-                    && ccubic[x + xDelta3][y + yDelta3][z + zDelta3] == cubeType3;
+                return cubic[x + xDelta1][y + yDelta1][z + zDelta1] == cubeType1
+                    && cubic[x + xDelta2][y + yDelta2][z + zDelta2] == cubeType2
+                    && cubic[x + xDelta3][y + yDelta3][z + zDelta3] == cubeType3;
             }
 
             return false;
         }
 
         #endregion
+
 
         #region BuildStructureFromCubic
 
@@ -861,30 +857,23 @@ namespace SEToolbox.Support
                 yCount = cubic[0].Length,
                 zCount = cubic[0][0].Length;
 
-            Parallel.For(0, xCount, x =>
+            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
             {
-                CubeType[][] cx = cubic[x];
-                for (int y = 0; y < yCount; y++)
+
+                incrementProgress?.Invoke();
+                CubeType cubeType = cubic[x][y][z];
+
+                if (cubeType == CubeType.None || (cubeType == CubeType.Interior && !fillObject))
                 {
-                    CubeType[] cy = cx[y];
-                    for (int z = 0; z < zCount; z++)
-                    {
-                        incrementProgress?.Invoke();
-                        CubeType cubeType = cubic[x][y][z];
+                    return;
+                }
 
-                        if (cubeType == CubeType.None || (cubeType == CubeType.Interior && !fillObject))
-                        {
-                            continue;
-                        }
+                MyObjectBuilder_CubeBlock newCube = CreateCubeBlock(cubeType, blockType, slopeBlockType, cornerBlockType, inverseCornerBlockType, fillObject, x, y, z);
+                entity.CubeBlocks.Add(newCube);
 
-                        MyObjectBuilder_CubeBlock newCube = CreateCubeBlock(cubeType, blockType, slopeBlockType, cornerBlockType, inverseCornerBlockType, fillObject, x, y, z);
-                        entity.CubeBlocks.Add(newCube);
-
-                        if (cubeType == CubeType.Interior && fillObject)
-                        {
-                            cubic[x][y][z] = CubeType.Cube;
-                        }
-                    }
+                if (cubeType == CubeType.Interior && fillObject)
+                {
+                    cubic[x][y][z] = CubeType.Cube;
                 }
             });
         }
@@ -894,32 +883,26 @@ namespace SEToolbox.Support
         #region CalculateSubtractedCorners
 
         // Experimental code.
-        public static void CalculateSubtractedCorners(CubeType[][][] cubic,  Action incrementProgress = null)
+        public static void CalculateSubtractedCorners(CubeType[][][] cubic, Action incrementProgress = null)
         {
             int xCount = cubic.Length,
                 yCount = cubic[0].Length,
                 zCount = cubic[0][0].Length;
-            Parallel.For(0, xCount, x =>
-        {
-                CubeType[][] cx = cubic[x];
-                for (int y = 0; y < yCount; y++)
+
+            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
+            {
+                incrementProgress?.Invoke();
+                if (cubic[x][y][z] == CubeType.Cube)
                 {
-                    CubeType[] cy = cx[y];
-                    for (int z = 0; z < zCount; z++)
-                    {
-                        incrementProgress?.Invoke();
-                        if (cubic[x][y][z] == CubeType.Cube)
-                        {
-                            CubeType result = DetermineSubtractedCornerType(cubic, x, y, z, xCount, yCount, zCount);
-                           
-                        if (result != CubeType.Cube)
-                            cubic[x][y][z] = result;
-                        } 
-                    }
+                    CubeType result = DetermineSubtractedCornerType(cubic, x, y, z, xCount, yCount, zCount);
+
+                    if (result != CubeType.Cube)
+                        cubic[x][y][z] = result;
                 }
             });
         }
-   
+
+
         private static CubeType DetermineSubtractedCornerType(CubeType[][][] cubic, int x, int y, int z, int xCount, int yCount, int zCount)
         {
             (CubeType cornerType, (int dx1, int dy1, int dz1), (int dx2, int dy2, int dz2), (int dx3, int dy3, int dz3))[] subtractedCornerChecks =
@@ -954,25 +937,18 @@ namespace SEToolbox.Support
         public static void CalculateSubtractedSlopes(CubeType[][][] cubic, Action incrementProgress = null)
         {
             int xCount = cubic.Length, yCount = cubic[0].Length, zCount = cubic[0][0].Length;
-            Parallel.For(0, xCount, x =>
+            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
             {
-                CubeType[][] cx = cubic[x];
-                for (int y = 0; y < yCount; y++)
+                incrementProgress?.Invoke();
+                if (cubic[x][y][z] == CubeType.Cube)
                 {
-                    CubeType[] cy = cx[y];
-                    for (int z = 0; z < zCount; z++)
-                    {
-                        incrementProgress?.Invoke();
-                        if (cubic[x][y][z] == CubeType.Cube)
-                        {
-                            CubeType result = DetermineSubtractedSlopeType(cubic, x, y, z, xCount, yCount, zCount);
-                            if (result != CubeType.Cube)
-                                cubic[x][y][z] = result;
-                        }
-                    }
+                    CubeType result = DetermineSubtractedSlopeType(cubic, x, y, z, xCount, yCount, zCount);
+                    if (result != CubeType.Cube)
+                        cubic[x][y][z] = result;
                 }
             });
         }
+
 
         public static CubeType DetermineSubtractedSlopeType(CubeType[][][] cubic, int x, int y, int z, int xCount, int yCount, int zCount)
         {
@@ -1016,25 +992,19 @@ namespace SEToolbox.Support
             int xCount = cubic.Length,
                 yCount = cubic[0].Length,
                 zCount = cubic[0][0].Length;
-            Parallel.For(0, xCount, x =>
-             {
-                 CubeType[][] cx = cubic[x];
-                 for (int y = 0; y < yCount; y++)
-                 {
-                     CubeType[] cy = cx[y];
-                     for (int z = 0; z < zCount; z++)
-                     {
-                         incrementProgress?.Invoke();
-                         if (cubic[x][y][z] == CubeType.Cube)
-                         {
-                             CubeType result = DetermineSubtractedInverseCornerType(cubic, x, y, z, xCount, yCount, zCount);
-                             if (result != CubeType.Cube)
-                                 cubic[x][y][z] = result;
-                         }
-                     }
-                 }
-             });
+
+            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
+            {
+                incrementProgress?.Invoke();
+                if (cubic[x][y][z] == CubeType.Cube)
+                {
+                    CubeType result = DetermineSubtractedInverseCornerType(cubic, x, y, z, xCount, yCount, zCount);
+                    if (result != CubeType.Cube)
+                        cubic[x][y][z] = result;
+                }
+            });
         }
+
 
         ///
         ///
@@ -1148,27 +1118,27 @@ namespace SEToolbox.Support
         {
             // Splayed diagonal plane.
             int max = 40;
-            CubeType[][][] ccubic = ArrayHelper.Create<CubeType>(max, max, max);
+            CubeType[][][] cubic = ArrayHelper.Create<CubeType>(max, max, max);
 
             for (int z = 0; z < max; z++)
             {
                 for (int j = 0; j < max; j++)
                 {
-                    AddCubeIfValid(ccubic, j + z, j, z, max);          // Plane 1
-                    AddCubeIfValid(ccubic, j, j + z, z, max);          // Plane 2
-                    AddCubeIfValid(ccubic, j + z, max - j, z, max);    // Plane 3
-                    AddCubeIfValid(ccubic, j, max - (j + z), z, max);  // Plane 4
+                    AddCubeIfValid(cubic, j + z, j, z, max);          // Plane 1
+                    AddCubeIfValid(cubic, j, j + z, z, max);          // Plane 2
+                    AddCubeIfValid(cubic, j + z, max - j, z, max);    // Plane 3
+                    AddCubeIfValid(cubic, j, max - (j + z), z, max);  // Plane 4
                 }
             }
 
-            return ccubic;
+            return cubic;
         }
 
-        private static void AddCubeIfValid(CubeType[][][] ccubic, int x, int y, int z, int max)
+        private static void AddCubeIfValid(CubeType[][][] cubic, int x, int y, int z, int max)
         {
             if (x >= 0 && y >= 0 && z >= 0 && x < max && y < max && z < max)
             {
-                ccubic[x][y][z] = CubeType.Cube;
+                cubic[x][y][z] = CubeType.Cube;
             }
         }
 
@@ -1176,7 +1146,7 @@ namespace SEToolbox.Support
         {
             // Sloped diagonal plane.
             int max = 20;
-            CubeType[][][] ccubic = ArrayHelper.Create<CubeType>(max, max, max);
+            CubeType[][][] cubic = ArrayHelper.Create<CubeType>(max, max, max);
             int dx = 1;
             int dy = 6;
             int dz = 0;
@@ -1188,37 +1158,37 @@ namespace SEToolbox.Support
                     if (dx + j >= 0 && dy + j - i >= 0 && dz + i >= 0 &&
                         dx + j < max && dy + j - i < max && dz + i < max)
                     {
-                        ccubic[dx + j][dy + j - i][dz + i] = CubeType.Cube;
+                        cubic[dx + j][dy + j - i][dz + i] = CubeType.Cube;
                     }
                 }
             }
-            return ccubic;
+            return cubic;
         }
 
         internal static CubeType[][][] TestCreateStaggeredStar()
         {
             // Staggered star.
 
-            CubeType[][][] ccubic = ArrayHelper.Create<CubeType>(9, 9, 9);
+            CubeType[][][] cubic = ArrayHelper.Create<CubeType>(9, 9, 9);
 
             for (int i = 2; i < 7; i++)
             {
                 for (int j = 2; j < 7; j++)
                 {
-                    ccubic[i][j][4] = CubeType.Cube;
-                    ccubic[i][4][j] = CubeType.Cube;
-                    ccubic[4][i][j] = CubeType.Cube;
+                    cubic[i][j][4] = CubeType.Cube;
+                    cubic[i][4][j] = CubeType.Cube;
+                    cubic[4][i][j] = CubeType.Cube;
                 }
             }
 
             for (int i = 0; i < 9; i++)
             {
-                ccubic[i][4][4] = CubeType.Cube;
-                ccubic[4][i][4] = CubeType.Cube;
-                ccubic[4][4][i] = CubeType.Cube;
+                cubic[i][4][4] = CubeType.Cube;
+                cubic[4][i][4] = CubeType.Cube;
+                cubic[4][4][i] = CubeType.Cube;
             }
 
-            return ccubic;
+            return cubic;
         }
 
         internal static CubeType[][][] TestCreateTrayShape()
@@ -1228,13 +1198,13 @@ namespace SEToolbox.Support
             int max = 20;
             int offset = 5;
 
-            CubeType[][][] ccubic = ArrayHelper.Create<CubeType>(max, max, max);
+            CubeType[][][] cubic = ArrayHelper.Create<CubeType>(max, max, max);
 
             for (int x = 0; x < max; x++)
             {
                 for (int y = 0; y < max; y++)
                 {
-                    ccubic[2][x][y] = CubeType.Cube;
+                    cubic[2][x][y] = CubeType.Cube;
                 }
             }
 
@@ -1242,20 +1212,20 @@ namespace SEToolbox.Support
             {
                 for (int i = 0; i < max; i++)
                 {
-                    ccubic[z][i][0] = CubeType.Cube;
-                    ccubic[z][i][max - 1] = CubeType.Cube;
-                    ccubic[z][0][i] = CubeType.Cube;
-                    ccubic[z][max - 1][i] = CubeType.Cube;
+                    cubic[z][i][0] = CubeType.Cube;
+                    cubic[z][i][max - 1] = CubeType.Cube;
+                    cubic[z][0][i] = CubeType.Cube;
+                    cubic[z][max - 1][i] = CubeType.Cube;
                 }
 
                 for (int i = 0 + offset; i < max - offset; i++)
                 {
-                    ccubic[z][i][i] = CubeType.Cube;
-                    ccubic[z][max - i - 1][i] = CubeType.Cube;
+                    cubic[z][i][i] = CubeType.Cube;
+                    cubic[z][max - i - 1][i] = CubeType.Cube;
                 }
             }
 
-            return ccubic;
+            return cubic;
         }
 
         #endregion

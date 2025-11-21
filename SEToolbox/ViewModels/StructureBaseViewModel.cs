@@ -9,7 +9,7 @@ namespace SEToolbox.ViewModels
 {
     public abstract class StructureBaseViewModel<TModel>(BaseViewModel parentViewModel,
                                                          TModel dataModel) : DataBaseViewModel(parentViewModel, dataModel),
-                                                        IStructureViewBase where TModel : IStructureBase
+                                                         IStructureViewBase where TModel : IStructureBase
     {
         #region Fields
 
@@ -45,7 +45,7 @@ namespace SEToolbox.ViewModels
         public MyPositionAndOrientation? PositionAndOrientation
         {
             get => DataModel.PositionAndOrientation;
-            set => SetProperty( DataModel.PositionAndOrientation, nameof(PositionAndOrientation));
+            set => SetProperty(DataModel.PositionAndOrientation, nameof(PositionAndOrientation));
         }
 
         public ClassType ClassType

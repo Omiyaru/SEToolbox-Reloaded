@@ -78,8 +78,8 @@ namespace SEToolbox.ViewModels
         #endregion
 
         #region Methods
-        
-         public bool ResetVelocityCanExecute()
+
+        public bool ResetVelocityCanExecute()
         {
             return DataModel.LinearVelocity != 0f || DataModel.AngularVelocity != 0f;
         }

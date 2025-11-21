@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Text;
+using System.Web.UI.WebControls;
 using SharpDX.DXGI;
 
 
@@ -18,15 +19,15 @@ namespace SEToolbox.Support
 
         internal static void BeginDocument(this StringWriter writer, string title, string inlineStyleSheet)
         {
-            writer.WriteLine("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\" />");
-            writer.WriteLine("<html>");
-            writer.WriteLine("<style>");
-            writer.WriteLine(inlineStyleSheet);
-            writer.WriteLine("</style>");
-            writer.WriteLine("<head>");
-            writer.WriteLine("<title>" + title + "</title>");
-            writer.WriteLine("</head>");
-            writer.WriteLine("<body>");
+            writer.RenderElement("meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\"");
+            writer.RenderTagStart("html");
+            writer.RenderElement("style", inlineStyleSheet);
+            writer.RenderTagStart("head");
+            writer.RenderTagStart("title");
+            writer.WriteLine(title);
+            writer.RenderTagEnd("title");
+            writer.RenderTagEnd("head");
+            writer.RenderTagStart("body");
         }
 
         #endregion
@@ -35,8 +36,8 @@ namespace SEToolbox.Support
 
         internal static void EndDocument(this StringWriter writer)
         {
-            writer.Write("</body>");
-            writer.Write("</html>");
+            writer.RenderTagEnd("body");
+            writer.RenderTagEnd("html");
         }
 
         #endregion
@@ -44,18 +45,18 @@ namespace SEToolbox.Support
         #region RenderElement
 
 
-        internal static void RenderElement(this StringWriter writer, string text, string tagName = null)
+        internal static void RenderElement(this StringWriter writer, object text, string tagName = null)
         {
-            writer.Write("<" + tagName + ">" + text + "</" + tagName + ">");
+            writer.Write($"<{tagName}>{text}</{tagName}>");
+        }
+        internal static void RenderElement<T>(this StringWriter writer, object text, T value, string tagName = null)
+        {
+            writer.Write($"<{tagName}>{text}{value}</{tagName}>");
         }
 
         internal static void RenderElement(this StringWriter writer, string tagName = null)
         {
-            writer.Write("<" + tagName + "/>");
-        }
-        internal static void RenderElement(this StringWriter writer, bool start, string tagName, string format, params object[] args)
-        {
-            writer.Write((start ? "<" : "</") + string.Format(format, tagName, args) + ">");
+            writer.Write($"<{tagName}/>");
         }
 
         internal static void RenderElement(this StringWriter writer, string tagName, object value, string text = null, string format = null, params object[] arg)
@@ -74,7 +75,7 @@ namespace SEToolbox.Support
 
         internal static void RenderElement(this StringWriter writer, string tagName, string text, string format, params object[] arg)
         {
-            RenderTagStart(writer, tagName);
+            writer.RenderTagStart(tagName);
             if (text != null)
             {
                 var index = text.IndexOfAny(_htmlChars);
@@ -90,12 +91,13 @@ namespace SEToolbox.Support
             }
             if (format != null)
                 writer.Write(string.Format(format, arg));
-            RenderTagEnd(writer, tagName);
+            writer.RenderTagEnd(tagName);
         }
 
         internal static void AddAttribute(this StringWriter writer, string attributeName, string attributeValue)
-        => writer.Write($"{attributeName}=\"{attributeValue}\"");
-
+        {
+            writer.Write($"{attributeName}=\"{attributeValue}\"");
+        }
 
         private static string HtmlEncode(string text)
         {
@@ -107,7 +109,6 @@ namespace SEToolbox.Support
             int textLength = text.Length;
             for (int i = 0; i < textLength; ++i)
             {
-
                 result.Append(text[i] switch
                 {
                     '<' => "&lt;",
@@ -121,19 +122,21 @@ namespace SEToolbox.Support
             return result.ToString();
         }
 
-       // internal static void RenderTag(this StringWriter writer, string tagName, bool start = true)
-       // {
-       //       writer.Write((start ? "<" : "</") + tagName + ">");
-        //}
+       
         internal static void RenderTagStart(this StringWriter writer, string tagName)
         {
-            writer.Write("<" + tagName + ">");
+            writer.Write($"<{tagName}>");
         }
-          internal static void RenderTagEnd(this StringWriter writer, string tagName)
+
+        internal static void RenderTagStart<T>(this StringWriter writer, string tagName, T value)
         {
-            writer.Write("</" + tagName + ">");
+            writer.Write($"<{tagName}{value}>");
         }
-        
+
+        internal static void RenderTagEnd(this StringWriter writer, string tagName)
+        {
+            writer.Write($"</{tagName}>");
+        }
 
         #endregion
 
@@ -141,26 +144,27 @@ namespace SEToolbox.Support
 
         internal static void BeginTable(this StringWriter writer, string border, string cellpadding, string cellspacing, string[] headings)
         {
-            writer.Write("<table");
-            string str = null;
-            writer.Write(!string.IsNullOrEmpty(str) switch
-            {
-                bool when str == border => $" border=\"{border}\"",
-                bool when str == cellpadding => $" cellpadding=\"{cellpadding}\"",
-                bool when str == cellspacing => $" cellspacing=\"{cellspacing}\"",
-                _ => string.Empty
-            });
-            writer.Write(">");
-            writer.WriteLine("<thead><tr>");
+            writer.RenderElement("table");
 
-            foreach (string header in headings)
-            {
-                writer.WriteLine($"<th>{header}</th>");
+                string str = null;
+                writer.Write(!string.IsNullOrEmpty(str) switch
+                {
+                    bool when str == border => $"border=\"{border}\"",
+                    bool when str == cellpadding => $"cellpadding=\"{cellpadding}\"",
+                    bool when str == cellspacing => $"cellspacing=\"{cellspacing}\"",
+                    _ => string.Empty
+                });
+                writer.RenderTagStart("thead");
+                writer.RenderTagStart("tr");
+
+                foreach (string header in headings)
+                {
+                    writer.RenderElement(header, "th");
+                }
+
+                writer.RenderTagEnd("tr");
+                writer.RenderTagEnd("thead");
             }
-
-            writer.Write("</tr>");
-            writer.Write("</thead>");
-        }
 
         #endregion
 
@@ -168,10 +172,10 @@ namespace SEToolbox.Support
 
         internal static void EndTable(this StringWriter writer)
         {
-            writer.Write("</table>");
-}
+            writer.RenderTagEnd("table");
+        }
     }
-    #endregion
+        #endregion
 
     internal static class HtmlWriter
     {
@@ -189,23 +193,16 @@ namespace SEToolbox.Support
             public string DoctypePublic { get; set; }
             public string DoctypeSystem { get; set; }
         }
-        
+
         public class HtmlElement
         {
             public string Tag { get; set; }
             public string Text { get; set; }
         }
 
-        internal static void WriteHtml(
-            this StringWriter writer,
-            string title,
-            string inlineStyleSheet,
-            (string tag, string text)[] elements,
-            string border,
-            string cellpadding,
-            string cellspacing,
-            string[] headings,
-            string[][] rows)
+        internal static void WriteHtml(this StringWriter writer, string title, string inlineStyleSheet,
+                                      (string tag, string text)[] elements, string border, string cellpadding,
+                                       string cellspacing, string[] headings, string[][] rows)
         {
             // Start doc
             writer.BeginDocument(title, inlineStyleSheet);
@@ -228,12 +225,12 @@ namespace SEToolbox.Support
                 {
                     foreach (var row in rows)
                     {
-                        writer.Write("<tr>");
+                        writer.RenderTagStart("tr");
                         foreach (var cell in row)
                         {
                             writer.RenderElement("td", cell ?? string.Empty);
                         }
-                        writer.WriteLine("</tr>");
+                        writer.RenderTagEnd("tr");
                     }
                 }
 

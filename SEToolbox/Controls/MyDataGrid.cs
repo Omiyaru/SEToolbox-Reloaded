@@ -10,7 +10,7 @@ namespace SEToolbox.Controls
     /// </summary>
     public class MyDataGrid : DataGrid
     {
- 
+
         public MyDataGrid()
         {
             // Fix the event handler to respond correctly when clicking on dropdown list items.
@@ -22,31 +22,24 @@ namespace SEToolbox.Controls
             var dataGrid = sender as DataGrid;
             var cell = dataGrid.GetHitControl<DataGridCell>(e);
 
-            if (cell == null)
-                return;
+            if (cell != null)
+            {
+                if (!cell.IsEditing && !cell.IsReadOnly)
+                {
+                    var content = cell.Content;
+                    if (content is ComboBox)
+                    {
+                        var comboBox = content as ComboBox;
+                        if (comboBox.IsDropDownOpen)
+                            return;
+                    }
+                    cell.Focus();
+                }
+                var row = cell.FindVisualParent<DataGridRow>();
 
-            if (!cell.IsEditing && !cell.IsReadOnly)
-            {
-                var content = cell.Content;
-                if (content is ComboBox)
-                {
-                    var comboBox = content as ComboBox;
-                    if (comboBox.IsDropDownOpen)
-                        return;
-                }
-                cell.Focus();
-            }
-            var row = cell.FindVisualParent<DataGridRow>();
-            if (row != null)
-            {
-                if (!row.IsSelected)
-                {
-                    row.IsSelected = true;
-                }
-            }
-            if (!cell.IsSelected)
-            {
-                cell.IsSelected = true;
+                row?.IsSelected = row.IsSelected ? true : false;
+                cell.IsSelected = cell.IsSelected ? false : true;
+
             }
         }
     }

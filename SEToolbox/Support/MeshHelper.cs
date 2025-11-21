@@ -16,7 +16,7 @@ namespace SEToolbox.Support
         {
             if (string.IsNullOrEmpty(path))
             {
-               return null; 
+                return null;
             }
 
             Material defaultMaterial = Materials.Blue;
@@ -82,7 +82,7 @@ namespace SEToolbox.Support
             return [.. point3Ds.Select(p => new Point3D(p.X, p.Y, p.Z))];
         }
 
-        public static bool RayIntersectTriangle(Point3DCollection rayPoints, Point3D roundPointA, Point3D roundPointB,out Point3D intersection, out int norm)
+        public static bool RayIntersectTriangle(Point3DCollection rayPoints, Point3D roundPointA, Point3D roundPointB, out Point3D intersection, out int norm)
         {
             // http://gamedev.stackexchange.com/questions/5585/line-triangle-intersection-last-bits
 
@@ -103,92 +103,60 @@ namespace SEToolbox.Support
             double dist1 = Vector3D.DotProduct(roundPointA - rayPoints[0], normal);
             double dist2 = Vector3D.DotProduct(roundPointB - rayPoints[0], normal);
 
-            if ((dist1 * dist2) >= 0.0f)
+            if ((dist1 * dist2) >= 0.0f || dist1 == dist2)
             {
-                // line doesn't cross the triangle.
+                // line doesn't cross the triangle or if the line and plane are parallel.
                 return false;
             }
 
-            if (dist1 == dist2)
-            {
-                // line and plane are parallel
-                return false;
-            }
-    
             // Find point on the line that intersects with the plane.
             bool complexCalc = false;
             Point3D intersectPos = default;
-            switch (complexCalc)
+           if (complexCalc && intersectPos != null)
+
+               intersectPos = roundPointA + Vector3D.DotProduct(normal, rayPoints[0] - roundPointA) / Vector3D.DotProduct(normal, roundPointB - roundPointA) * (roundPointB - roundPointA);
+          else
+             intersectPos = roundPointA + (roundPointB - roundPointA) * (-dist1 / (dist2 - dist1));
+
+                 
+            Dictionary<Vector3D, Point3D> tests = new()
             {
-                case false:
-                    intersectPos = roundPointA + (roundPointB - roundPointA) * (-dist1 / (dist2 - dist1));
-                    break;
-                case true:// Alternate calculation, but slower.
-                    intersectPos = roundPointA + Vector3D.DotProduct(normal,rayPoints[0] - roundPointA) / Vector3D.DotProduct(normal,roundPointB - roundPointA) * (roundPointB - roundPointA);
-                    break;
+              {rayPoints[1] - rayPoints[0], rayPoints[0]},
+              {rayPoints[0] - rayPoints[1], rayPoints[2]},
+              {rayPoints[0] - rayPoints[2], rayPoints[1]},
+              {rayPoints[0] - rayPoints[2], rayPoints[2]},
+              {rayPoints[2] - rayPoints[1], rayPoints[1]}
 
-            }
-
+            };
             // Find if the interesection point lies inside the triangle by testing it against all edges
-          
-              var vTest = Vector3D.CrossProduct(normal, rayPoints[1] - rayPoints[0]);
-            var dTest = Vector3D.DotProduct(vTest, intersectPos - rayPoints[0]);
-
-            if (dTest < 0.0f)
+            foreach (var test in tests)
             {
-                return false;
+                var vTest = Vector3D.CrossProduct(normal, test.Key);
+                var dTest = Vector3D.DotProduct(vTest, intersectPos - test.Value);
+                    
+                if (dTest < 0.0f )
+                        return false;
             }
 
-            if (Vector3D.DotProduct(vTest, intersectPos - rayPoints[1]) < 0.0f ||
-                Vector3D.DotProduct(vTest, intersectPos - rayPoints[2]) < 0.0f)
-            {
-                return false;
-            }
+                // Determine if the Normal is facing towards or away from Ray.
+                norm = Math.Sign(Vector3D.DotProduct(roundPointB - roundPointA, normal));
+                intersection = intersectPos;
 
-            vTest = Vector3D.CrossProduct(normal, rayPoints[0] - rayPoints[1]);
-            dTest = Vector3D.DotProduct(vTest, intersectPos - rayPoints[2]);
-            if (dTest < 0.0f)
-            {
-                // no intersect P2-P1
-                return false;
-            }
-
-            vTest = Vector3D.CrossProduct(normal, rayPoints[2] - rayPoints[1]);
-            dTest = Vector3D.DotProduct(vTest, intersectPos - rayPoints[1]);
-            if (dTest < 0.0f)
-            {
-                // no intersect P3-P2
-                return false;
-            }
-
-            vTest = Vector3D.CrossProduct(normal, rayPoints[0] - rayPoints[2]);
-            dTest = Vector3D.DotProduct(vTest, intersectPos - rayPoints[2]);
-            if (dTest < 0.0f)
-            {
-                // no intersect P1-P3
-                return false;
-            }
-
-            // Determine if Normal is facing towards or away from Ray.
-            norm = Math.Sign(Vector3D.DotProduct(roundPointB - roundPointA, normal));
-
-            intersection = intersectPos;
-
-            return true;
+                return true;
         }
 
 
-        public static bool RayIntersectTriangleRound(Point3DCollection rayPoints, List<Point3D> rays, out Point3D intersection, out int normal)
+        public static bool RayIntersectTriangleRound(Point3DCollection rayPoints, List<Point3D> rays, out Point3D intersection, out int norm)
         {
             for (int i = 0; i < rays.Count; i += 2)
             {
-                if (RayIntersectTriangleRound(rayPoints, rays[i], rays[i + 1], out intersection, out normal)|| // Ray
-                    RayIntersectTriangleRound(rayPoints, rays[i + 1], rays[i], out intersection, out normal)) // Reverse Ray
+                if (RayIntersectTriangleRound(rayPoints, rays[i], rays[i + 1], out intersection, out norm) || // Ray
+                    RayIntersectTriangleRound(rayPoints, rays[i + 1], rays[i], out intersection, out norm)) // Reverse Ray
                     return true;
             }
 
             intersection = default;
-            normal = 0;
+            norm = 0;
             return false;
         }
 
@@ -215,50 +183,44 @@ namespace SEToolbox.Support
             double dist1 = DotProductRound(Round(roundPointA - rayPoints[0], rounding), normal);
             double dist2 = DotProductRound(Round(roundPointB - rayPoints[0], rounding), normal);
 
-            if ((dist1 * dist2) >= 0.0f)
+            if ((dist1 * dist2) >= 0.0f || dist1 == dist2)
             {
-                // line doesn't cross the triangle.
-                return false;
-            }
-
-            if (dist1 == dist2)
-            {
-                // ray line and plane are parallel
+                // line doesn't cross the triangle or the ray line and plane are parallel
                 return false;
             }
 
             // Find point on the line that intersects with the plane
             // Rouding to correct for anonymous rounding issues! Damn doubles!
-            Point3D intersectPos =  roundPointA + (roundPointB - roundPointA) * Math.Round(-dist1 / Math.Round(dist2 - dist1, rounding), rounding);
+            Point3D intersectPos = roundPointA + (roundPointB - roundPointA) * Math.Round(-dist1 / Math.Round(dist2 - dist1, rounding), rounding);
 
             // Find if the interesection point lies inside the triangle by testing it against all edges
-
-            Vector3D vTest = Vector3D.CrossProduct(normal, rayPoints[1] - rayPoints[0]);
-            //var vTest = CrossProductRound(normal, Round(p2 - p1, rounding));
-            //var vTest = CrossProductRound(normal, Round(rayPoints[1] - rayPoints[0], rounding));
-            if (DotProductRound(vTest, Round(intersectPos - rayPoints[0], rounding)) < 0.0f)
-                if (Math.Round(Vector3D.DotProduct(vTest, intersectPos - rayPoints[0]), 12) < 0.0f)
-                {
-                    // No intersection on edge P2-P1.
+        Dictionary<Vector3D, Point3D> tests = new()
+            {
+              {rayPoints[1] - rayPoints[0], rayPoints[0]},
+              {rayPoints[0] - rayPoints[1], rayPoints[1]},
+              {rayPoints[0] - rayPoints[0], rayPoints[0]},
+              //{rayPoints[0] - rayPoints[2], rayPoints[2]},
+              //{rayPoints[2] - rayPoints[1], rayPoints[1]},
+             // {rayPoints[0] - rayPoints[1], rayPoints[2]},
+             // {rayPoints[0] - rayPoints[2], rayPoints[1]},
+            };
+            
+            foreach (var test in tests)
+            {
+            var vTest = Vector3D.CrossProduct(normal, test.Key);
+            //var vRoundTest = CrossProductRound(normal, Round(test.Key, rounding));
+            var roundTest = DotProductRound(vTest, Round(intersectPos - test.Value, rounding)); // Round test
+            var dTest = Vector3D.DotProduct(vTest, intersectPos - test.Value);
+             // Round test
+  
+            //if (roundTest < 0.0f )
+            if (Math.Round(roundTest, 12) < 0.0f)
+                if (Math.Round(dTest, 12) < 0.0f)
+                    {
+                    // No intersection on edges P1-P2,P3-P2,P1-P3.
                     return false;
                 }
 
-            vTest = Vector3D.CrossProduct(normal, rayPoints[0] - rayPoints[1]);
-            //vTest = CrossProductRound(normal, Round(rayPoints,[0] - rayPoints[1], rounding));
-            //if (DotProductRound(vTest, Round(intersectPos - rayPoints[1], rounding)) < 0.0f)
-            if (Math.Round(Vector3D.DotProduct(vTest, intersectPos - rayPoints[1]), 12) < 0.0f)
-            {
-                // No intersection on edge P3-P2.
-                return false;
-            }
-
-            vTest = Vector3D.CrossProduct(normal, rayPoints[0] - rayPoints[0]);
-            //vTest =  CrossProductRound(normal, Round(rayPoints,[0] - rayPoints[0], rounding));
-            //if (DotProductRound(vTest, Round(intersectPos - rayPoints[0], rounding)) < 0.0f)
-            if (Math.Round(Vector3D.DotProduct(vTest, intersectPos - rayPoints[0]), 12) < 0.0f)
-            {
-                // No intersection on edge P1-P3.
-                return false;
             }
 
             // Determine if Normal is facing towards or away from Ray.
