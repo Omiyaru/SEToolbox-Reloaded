@@ -108,25 +108,25 @@ namespace SEToolbox.Models
         public MyCubeSize GridSize
         {
             get => CubeGrid.GridSizeEnum;
-            set => SetProperty(CubeGrid.GridSizeEnum, nameof(GridSize));
+            set => SetProperty(CubeGrid.GridSizeEnum, value, nameof(GridSize));
         }
 
         public bool IsStatic
         {
             get => CubeGrid.IsStatic;
-            set => SetProperty(CubeGrid.IsStatic, nameof(IsStatic));
+            set => SetProperty(CubeGrid.IsStatic, value, nameof(IsStatic));
         }
 
         public bool Dampeners
         {
             get => CubeGrid.DampenersEnabled;
-            set => SetProperty(CubeGrid.DampenersEnabled, nameof(Dampeners));
+            set => SetProperty(CubeGrid.DampenersEnabled, value, nameof(Dampeners));
         }
 
         public bool Destructible
         {
             get => CubeGrid.DestructibleBlocks;
-            set => SetProperty(CubeGrid.DestructibleBlocks, nameof(Destructible));
+            set => SetProperty(CubeGrid.DestructibleBlocks, value, nameof(Destructible));
         }
 
 
@@ -143,31 +143,31 @@ namespace SEToolbox.Models
         public Point3D Min
         {
             get => _min;
-            set => SetProperty(ref _min, nameof(Min));
+            set => SetProperty(ref _min, value, nameof(Min));
         }
 
         public Point3D Max
         {
             get => _max;
-            set => SetProperty(ref _max, nameof(Max));
+            set => SetProperty(ref _max, value, nameof(Max));
         }
 
         public System.Windows.Media.Media3D.Vector3D Scale
         {
             get => _scale;
-            set => SetProperty(ref _scale, nameof(Scale));
+            set => SetProperty(ref _scale, value, nameof(Scale));
         }
 
         public Size3D Size
         {
             get => _size;
-            set => SetProperty(ref _size, nameof(Size));
+            set => SetProperty(ref _size, value, nameof(Size));
         }
 
         public int Pilots
         {
             get => _pilots;
-            set => SetProperty(ref _pilots, nameof(Pilots));    
+            set => SetProperty(ref _pilots, value, nameof(Pilots));    
             }
 
         public bool IsPiloted
@@ -207,13 +207,13 @@ namespace SEToolbox.Models
         {
             get => _timeToProduce;
             
-            set => SetProperty(ref _timeToProduce, nameof(TimeToProduce));
+            set => SetProperty(ref _timeToProduce, value, nameof(TimeToProduce));
         }
 
         public int PCUToProduce
         {
             get => _pcuToProduce;
-            set => SetProperty(ref _pcuToProduce, nameof(PCUToProduce));
+            set => SetProperty(ref _pcuToProduce, value, nameof(PCUToProduce));
         }
 
         public override int BlockCount
@@ -225,7 +225,7 @@ namespace SEToolbox.Models
         {
             get => _cockpitOrientation;
             
-            set => SetProperty(ref _cockpitOrientation, nameof(CockpitOrientation));
+            set => SetProperty(ref _cockpitOrientation, value, nameof(CockpitOrientation));
         }
 
         /// <summary>
@@ -234,7 +234,7 @@ namespace SEToolbox.Models
         public List<CubeAssetModel> CubeAssets
         {
             get => _cubeAssets;
-            set => SetProperty(ref _cubeAssets, nameof(CubeAssets));
+            set => SetProperty(ref _cubeAssets, value, nameof(CubeAssets));
         }
 
         /// <summary>
@@ -244,7 +244,7 @@ namespace SEToolbox.Models
         {
             get => _componentAssets;
             
-            set => SetProperty(ref _componentAssets, nameof(ComponentAssets));
+            set => SetProperty(ref _componentAssets, value, nameof(ComponentAssets));
 
         }
 
@@ -255,7 +255,7 @@ namespace SEToolbox.Models
         {
             get => _ingotAssets;
             
-            set => SetProperty(ref _ingotAssets, nameof(IngotAssets));
+            set => SetProperty(ref _ingotAssets, value, nameof(IngotAssets));
         }
 
         /// <summary>
@@ -265,42 +265,42 @@ namespace SEToolbox.Models
         {
             get => _oreAssets;
             
-            set => SetProperty(ref _oreAssets, nameof(OreAssets));
+            set => SetProperty(ref _oreAssets, value, nameof(OreAssets));
         }
 
         public string ActiveComponentFilter
         {
             get => _activeComponentFilter;
             
-            set => SetProperty(ref _activeComponentFilter, nameof(ActiveComponentFilter));
+            set => SetProperty(ref _activeComponentFilter, value, nameof(ActiveComponentFilter));
         }
 
         public string ComponentFilter
         {
             get => _componentFilter;
             
-            set => SetProperty(ref _componentFilter, nameof(ComponentFilter));
+            set => SetProperty(ref _componentFilter, value, nameof(ComponentFilter));
         }
 
         public ObservableCollection<CubeItemModel> CubeList
         {
             get => _cubeList;
             
-            set => SetProperty(ref _cubeList, nameof(CubeList));
+            set => SetProperty(ref _cubeList, value, nameof(CubeList));
         }
 
         public bool IsSubsSystemNotReady
         {
             get => _isSubsSystemNotReady;
             
-            set => SetProperty(ref _isSubsSystemNotReady, nameof(IsSubsSystemNotReady));
+            set => SetProperty(ref _isSubsSystemNotReady, value, nameof(IsSubsSystemNotReady));
         }
 
         public bool IsConstructionNotReady
         {
             get => _isConstructionNotReady;
             
-            set => SetProperty(ref _isConstructionNotReady, nameof(IsConstructionNotReady));
+            set => SetProperty(ref _isConstructionNotReady, value, nameof(IsConstructionNotReady));
         }
 
         public bool ToggleExcludedBlocks { get; set; }

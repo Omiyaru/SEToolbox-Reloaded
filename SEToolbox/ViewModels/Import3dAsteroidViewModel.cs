@@ -74,12 +74,12 @@ namespace SEToolbox.ViewModels
 
         public ICommand Browse3DModelCommand
         {
-           get => new DelegateCommand(Browse3DModelExecuted, Browse3DModelCanExecute);
+            get => new DelegateCommand(Browse3DModelExecuted, Browse3DModelCanExecute);
         }
 
         public ICommand CreateCommand
         {
-           get => new DelegateCommand(CreateExecuted, CreateCanExecute);
+            get => new DelegateCommand(CreateExecuted, CreateCanExecute);
         }
 
         public ICommand CancelCommand
@@ -97,7 +97,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty(ref _closeResult, nameof(CloseResult));
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         /// <summary>
@@ -106,25 +106,21 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _isBusy;
-            set => SetProperty(ref _isBusy, nameof(IsBusy), () =>
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
                     {
-                    if (_isBusy)
-                    {
-                        Application.DoEvents();
-                    }
+                        if (_isBusy)
+                        {
+                            Application.DoEvents();
+                        }
                     });
-            }
-        
+        }
+
 
         public string FileName
         {
             get => _dataModel.FileName;
 
-            set
-            {
-                _dataModel.FileName = value;
-                FileNameChanged();
-            }
+            set => SetProperty(_dataModel.FileName, () => FileNameChanged());
         }
 
         public Model3D Model
@@ -136,11 +132,7 @@ namespace SEToolbox.ViewModels
         public bool IsValidModel
         {
             get => _dataModel.IsValidModel;
-            set
-            {
-                _dataModel.IsValidModel = value;
-                OnPropertyChanged(nameof(IsWrongModel));
-            }
+            set => SetProperty(_dataModel.IsValidModel, value, nameof(IsWrongModel));
         }
 
         public bool IsValidEntity
@@ -163,7 +155,7 @@ namespace SEToolbox.ViewModels
         public BindableSize3DIModel NewModelSize
         {
             get => _dataModel.NewModelSize;
-            set { _dataModel.NewModelSize = value; ProcessModelScale(); }
+            set => SetProperty(_dataModel.NewModelSize, () => ProcessModelScale());
         }
 
         public BindablePoint3DModel NewModelScale
@@ -211,31 +203,31 @@ namespace SEToolbox.ViewModels
         public double MultipleScale
         {
             get => _dataModel.MultipleScale;
-            set { _dataModel.MultipleScale = value; ProcessModelScale(); }
+            set => SetProperty(_dataModel.MultipleScale, () => ProcessModelScale());
         }
 
         public double MaxLengthScale
         {
             get => _dataModel.MaxLengthScale;
-            set { _dataModel.MaxLengthScale = value; ProcessModelScale(); }
+            set => SetProperty(_dataModel.MaxLengthScale, () => ProcessModelScale());
         }
 
         public double BuildDistance
         {
             get => _dataModel.BuildDistance;
-            set { _dataModel.BuildDistance = value; ProcessModelScale(); }
+            set => SetProperty(_dataModel.BuildDistance, () => ProcessModelScale());
         }
 
         public bool IsMultipleScale
         {
             get => _dataModel.IsMultipleScale;
-            set { _dataModel.IsMultipleScale = value; ProcessModelScale(); }
+            set => SetProperty(_dataModel.IsMultipleScale, () => ProcessModelScale());
         }
 
         public bool IsMaxLengthScale
         {
             get => _dataModel.IsMaxLengthScale;
-            set { _dataModel.IsMaxLengthScale = value; ProcessModelScale(); }
+            set => SetProperty(_dataModel.IsMaxLengthScale, () => ProcessModelScale());
         }
 
         public bool IsAbsolutePosition
@@ -252,7 +244,7 @@ namespace SEToolbox.ViewModels
 
         public ObservableCollection<MaterialSelectionModel> OutsideMaterialsCollection
         {
-           get => _dataModel.OutsideMaterialsCollection;
+            get => _dataModel.OutsideMaterialsCollection;
         }
 
         public int OutsideMaterialDepth
@@ -263,7 +255,7 @@ namespace SEToolbox.ViewModels
 
         public ObservableCollection<MaterialSelectionModel> InsideMaterialsCollection
         {
-            get =>  _dataModel.InsideMaterialsCollection;
+            get => _dataModel.InsideMaterialsCollection;
         }
 
         public MaterialSelectionModel OutsideStockMaterial
@@ -287,19 +279,19 @@ namespace SEToolbox.ViewModels
         public double RotatePitch
         {
             get => _dataModel.RotatePitch;
-            set { _dataModel.RotatePitch = value; ProcessModelScale(); }
+            set => SetProperty(_dataModel.RotatePitch, () => ProcessModelScale());
         }
 
         public double RotateYaw
         {
             get => _dataModel.RotateYaw;
-            set { _dataModel.RotateYaw = value; ProcessModelScale(); }
+            set => SetProperty(_dataModel.RotateYaw, () => ProcessModelScale());
         }
 
         public double RotateRoll
         {
             get => _dataModel.RotateRoll;
-            set { _dataModel.RotateRoll = value; ProcessModelScale(); }
+            set => SetProperty(_dataModel.RotateRoll, () => ProcessModelScale());
         }
 
         public bool BeepWhenFinished
@@ -365,10 +357,10 @@ namespace SEToolbox.ViewModels
 
         public void CreateExecuted()
         {
-            var ok = BuildEntity();
+            var buildEntity = BuildEntity();
 
             // do not close if cancelled.
-            if (ok)
+            if (buildEntity)
                 CloseResult = true;
         }
 
@@ -460,7 +452,7 @@ namespace SEToolbox.ViewModels
         private bool BuildEntity()
         {
             string FileNamePart = Path.GetFileNameWithoutExtension(FileName);
-            string fileName = MainViewModel.CreateUniqueVoxelStorageName(FileNamePart +  MyVoxelMapBase.FileExtension.V2);
+            string fileName = MainViewModel.CreateUniqueVoxelStorageName(FileNamePart + MyVoxelMapBase.FileExtension.V2);
 
             double multiplier;
 
@@ -476,13 +468,13 @@ namespace SEToolbox.ViewModels
             Size3D scale = new(multiplier, multiplier, multiplier);
             Matrix3D rotateTransform = MeshHelper.TransformVector(new System.Windows.Media.Media3D.Vector3D(0, 0, 0), -RotateRoll, RotateYaw - 90, RotatePitch + 90).Value;
 
-            SourceFile = TempFileUtil.NewFileName( MyVoxelMapBase.FileExtension.V2);
+            SourceFile = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
 
             Model3DGroup model = MeshHelper.Load(FileName, ignoreErrors: true);
 
             #region Dialog and Processing
 
-            CancellationTokenSource cts = new();
+            CancellationTokenSource cancelTokenSource = new();
 
             ProgressCancelModel progressModel = new()
             {
@@ -492,14 +484,14 @@ namespace SEToolbox.ViewModels
             };
 
             ProgressCancelViewModel progressVm = new(this, progressModel);
-            progressVm.CloseRequested += (sender, e) => cts.Cancel();
+            progressVm.CloseRequested += (sender, e) => cancelTokenSource.Cancel();
 
-            void completedAction()
+            void CompletedAction()
             {
                 progressVm.Close();
             }
 
-            Task< MyVoxelMapBase> voxelMapTask = null;
+            Task<MyVoxelMapBase> voxelMapTask = null;
 
             void GenerateAsteroidAsync()
             {
@@ -508,7 +500,7 @@ namespace SEToolbox.ViewModels
                 voxelMapTask = Task.Factory.StartNew(() =>
                 {
                     return MyVoxelRayTracer.GenerateVoxelMapFromModel(info, rotateTransform, TraceType, TraceCount, TraceDirection,
-                        progressModel.ResetProgress, progressModel.IncrementProgress, completedAction, cts.Token);
+                        progressModel.ResetProgress, progressModel.IncrementProgress, CompletedAction, cancelTokenSource.Token);
                 }, TaskCreationOptions.LongRunning);
             }
 
@@ -522,9 +514,9 @@ namespace SEToolbox.ViewModels
 
             #endregion
 
-             MyVoxelMapBase voxelMap = voxelMapTask.IsCanceled ? null : voxelMapTask.Result;
+            MyVoxelMapBase voxelMap = voxelMapTask.IsCanceled ? null : voxelMapTask.Result;
 
-            if (cts.IsCancellationRequested || voxelMap == null)
+            if (cancelTokenSource.IsCancellationRequested || voxelMap == null)
             {
                 IsValidEntity = false;
                 NewEntity = null;
@@ -581,9 +573,10 @@ namespace SEToolbox.ViewModels
                     System.Media.SystemSounds.Asterisk.Play();
             }
 
-            return !cts.IsCancellationRequested;
+            return !cancelTokenSource.IsCancellationRequested;
         }
 
         #endregion
     }
 }
+

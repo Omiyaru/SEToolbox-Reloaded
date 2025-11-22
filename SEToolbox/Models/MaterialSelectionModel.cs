@@ -19,13 +19,13 @@ namespace SEToolbox.Models
         public string DisplayName
         {
             get => _displayName;
-            set => SetProperty(ref _displayName, nameof(DisplayName));
+            set => SetProperty(ref _displayName, value, nameof(DisplayName));
         }
 
         public string Value
         {
             get => _value;
-            set => SetProperty(ref _value , nameof(Value));
+            set => SetProperty(ref _value, value, nameof(Value));
         }
 
         public byte? MaterialIndex => _value == null ? null :
@@ -34,31 +34,31 @@ namespace SEToolbox.Models
         public bool IsRare
         {
             get => _isRare;
-            set => SetProperty(ref _isRare, nameof(IsRare));
+            set => SetProperty(ref _isRare, value, nameof(IsRare));
         }
 
         public float MinedRatio
         {
             get => _minedRatio;
-            set => SetProperty(ref _minedRatio, value ,nameof(MinedRatio));
+            set => SetProperty(ref _minedRatio, value, nameof(MinedRatio));
         }
 
         public string Name
         {
             get => _name;
-            set => SetProperty(ref _name, nameof(Name));
+            set => SetProperty(ref _name, value, nameof(Name));
         }
         
         public byte Radius
         {
             get => _radius;
-            set => SetProperty(ref _radius, nameof(Radius));
+            set => SetProperty(ref _radius, value, nameof(Radius));
         }
         
         public int Veins
         {
             get => _veins;
-            set => SetProperty(ref _veins, nameof(Veins));
+            set => SetProperty(ref _veins, value, nameof(Veins));
         }
         
        

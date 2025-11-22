@@ -89,7 +89,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty(ref _closeResult, nameof(CloseResult));
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         /// <summary>
@@ -98,15 +98,14 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _isBusy;
-            set
-            {
-                SetProperty( ref _isBusy, nameof(IsBusy), () =>
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
                 {
                     if (_isBusy)
                     {
                         Application.DoEvents();
                     }
-                }); }
+                }); 
+            
         }
             
 
@@ -174,10 +173,7 @@ namespace SEToolbox.ViewModels
         {
             get => _dataModel.ClassType;
             set => SetProperty(_dataModel.ClassType, () => ProcessModelScale());
-            {
-                _dataModel.ClassType = value;
-                ProcessModelScale();
-            }
+     
         }
 
         public bool IsAsteroid
@@ -200,21 +196,13 @@ namespace SEToolbox.ViewModels
         public double MultipleScale
         {
             get => _dataModel.MultipleScale;
-            set
-            {
-                _dataModel.MultipleScale = value;
-                ProcessModelScale();
-            }
+            set => SetProperty(_dataModel.MultipleScale, () => ProcessModelScale());
         }
 
         public double MaxLengthScale
         {
             get => _dataModel.MaxLengthScale;
-            set
-            {
-                _dataModel.MaxLengthScale = value;
-                ProcessModelScale();
-            }
+            set => SetProperty(_dataModel.MaxLengthScale, () => ProcessModelScale());
         }
 
         public double BuildDistance

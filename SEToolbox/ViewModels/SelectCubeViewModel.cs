@@ -19,7 +19,6 @@ namespace SEToolbox.ViewModels
 
         #region Ctor
 
-
         public SelectCubeViewModel(BaseViewModel parentViewModel, SelectCubeModel dataModel)
             : base(parentViewModel)
         {
@@ -53,7 +52,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty(ref _closeResult, nameof(CloseResult));
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         /// <summary>
@@ -63,14 +62,13 @@ namespace SEToolbox.ViewModels
         {
              get => _isBusy;
 
-            set
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
-                    SetProperty(ref _isBusy, nameof(IsBusy));
-                    if (_isBusy)
-                    {
-                        System.Windows.Forms.Application.DoEvents();
-                    }
-            }
+                if (_isBusy)
+                {
+                    System.Windows.Forms.Application.DoEvents();
+                }
+            });
         }
 
         public ObservableCollection<ComponentItemModel> CubeList

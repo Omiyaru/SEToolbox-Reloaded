@@ -50,7 +50,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty( ref _closeResult, nameof(CloseResult));
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
              get => _isBusy;
-            set => SetProperty(ref _isBusy, nameof(IsBusy), () =>
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
                 if (_isBusy)
                 {

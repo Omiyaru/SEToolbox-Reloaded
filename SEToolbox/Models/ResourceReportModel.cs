@@ -138,7 +138,7 @@ td.right { text-align: right; }";
             get => _isBusy;
             set
             {
-                SetProperty(ref _isBusy, nameof(IsBusy), () =>
+                SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
                 {
                     SetActiveStatus();
                     if (_isBusy)
@@ -155,7 +155,7 @@ td.right { text-align: right; }";
         public bool IsActive
         {
             get => _isActive;
-            set => SetProperty(ref _isActive, nameof(IsActive));
+            set => SetProperty(ref _isActive, value, nameof(IsActive));
         }
 
         public string SaveName => _saveName;
@@ -163,25 +163,25 @@ td.right { text-align: right; }";
         public bool IsReportReady
         {
             get => _isReportReady;
-            set => SetProperty(ref _isReportReady, nameof(IsReportReady));
+            set => SetProperty(ref _isReportReady, value, nameof(IsReportReady));
         }
 
         public string ReportHtml
         {
             get => _reportHtml;
-            set => SetProperty(ref _reportHtml, nameof(ReportHtml));
+            set => SetProperty(ref _reportHtml, value, nameof(ReportHtml));
         }
 
         public bool ShowProgress
         {
             get => _showProgress;
-            set => SetProperty(ref _showProgress, nameof(ShowProgress));
+            set => SetProperty(ref _showProgress, value, nameof(ShowProgress));
         }
 
         public double Progress
         {
             get => _progress;
-            set => SetProperty(ref _progress, () =>
+            set => SetProperty(ref _progress,value, () =>
                     {
                         System.Windows.Forms.Application.DoEvents();
                         _timer.Restart();
@@ -193,7 +193,7 @@ td.right { text-align: right; }";
         public double MaximumProgress
         {
             get => _maximumProgress;
-            set => SetProperty(ref _maximumProgress, nameof(MaximumProgress));
+            set => SetProperty(ref _maximumProgress, value, nameof(MaximumProgress));
         }
 
         #endregion
@@ -1433,7 +1433,9 @@ td.right { text-align: right; }";
             public string Name
             {
                 get => _name ?? string.Empty;
-                set => baseModel.SetProperty(ref _name, value, FriendlyName = SpaceEngineersApi.GetResourceName(Name), nameof(FriendlyName));
+                set => baseModel.SetProperty(ref _name, value, () => 
+                       FriendlyName = SpaceEngineersApi.GetResourceName(Name),
+                    nameof(FriendlyName));
             }
 
             public string FriendlyName { get; set; }

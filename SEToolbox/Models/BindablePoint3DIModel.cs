@@ -43,23 +43,19 @@
         {
             get  => _x ;
 
-            set
-            {
-                SetProperty(ref _x, nameof(X));
-
-            }
+            set => SetProperty(ref _x, value, nameof(X));
         }
 
         public int Y
         {
             get  => _y;
-            set => SetProperty(ref _y, nameof(Y));
+            set => SetProperty(ref _y, value, nameof(Y));
         }
 
         public int Z
         {
             get => _z;
-            set => SetProperty(ref _z, nameof(Z));
+            set => SetProperty(ref _z, value, nameof(Z));
         }
 
         #endregion

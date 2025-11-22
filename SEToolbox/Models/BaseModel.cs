@@ -36,43 +36,54 @@ namespace SEToolbox.Models
             }
         }
 
-        public void SetProperty<T>(ref T field, params object[] parameters) => SetProperty(field, parameters);
 
-        public void SetProperty<T>(T field, params object[] parameters)
-        {   
-            T value = default;
-            var propertyName = parameters.FirstOrDefault() as string ?? parameters.LastOrDefault() as string ?? string.Empty;
-            if (ReferenceEquals(value, field) || EqualityComparer<T>.Default.Equals(value, field))
-                return;
-            if (parameters.Contains(propertyName) || !string.IsNullOrEmpty(propertyName) || parameters.Length < 1 && field != null)
-            {
-                field = value;
-                OnPropertyChanged(propertyName);
-                return;
-            }
+        public void SetProperty<T>(T field, T value, params string[] parameters) => SetProperty(ref field, value, parameters);
     
-            var actionToInvoke = parameters.OfType<Action>().FirstOrDefault() ?? parameters.OfType<Action>().LastOrDefault();
-            bool? invokeBefore = actionToInvoke != null ? true : false;
-
-            if (invokeBefore == true)
-            {
-                actionToInvoke?.Invoke();
-            }
+        public void SetProperty<T>(ref T field, T value, params object[] properetyNames)
+        {
+            var propertyName = properetyNames.OfType<string>().FirstOrDefault() ?? string.Empty;
+            if (EqualityComparer<T>.Default.Equals(field, value))
+                return;
             field = value;
-            OnPropertyChanged(propertyName);
-            if (invokeBefore == false)
+            if (properetyNames.Length > 0 && !string.IsNullOrEmpty(propertyName))
             {
-                actionToInvoke?.Invoke();
-            
+                OnPropertyChanged(propertyName);
             }
-      
-            if (string.IsNullOrEmpty(propertyName) && !parameters.Contains(propertyName))
+        }
+
+        public void SetProperty<T>(T field, params object[] parameters) => SetProperty(ref field, parameters);
+        public void SetProperty<T>(ref T field, params object[] parameters)
+        {
+            T value = (T)parameters[0] ?? default;
+            if (EqualityComparer<T>.Default.Equals(field, value))
+                return;
+            if (parameters.Length > 1)
             {
-                field = value;
-                actionToInvoke?.Invoke();
+                var propertyName = parameters.OfType<string>().FirstOrDefault() ?? string.Empty;
+                var actionToInvoke = parameters.OfType<Action>().FirstOrDefault();
+                bool? invokeBefore = Array.IndexOf(parameters, actionToInvoke) < Array.IndexOf(parameters, propertyName);
+                var propertyNames = parameters.OfType<string>().ToArray();
+
+                if (actionToInvoke != null)
+                {
+                    if (invokeBefore == true)
+                        actionToInvoke?.Invoke();
+                    field = value;
+                    OnPropertyChanged(propertyName);
+                    if (invokeBefore == false)
+                        actionToInvoke?.Invoke();
+                }
+                if (invokeBefore == null && actionToInvoke != null && propertyName == null)
+                {
+                    field = value;
+                    actionToInvoke?.Invoke();
+                }
+                else
+                {
+                    field = value;
+                    OnPropertyChanged(propertyName);
+                }
             }
-
-
         }
 
 

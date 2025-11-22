@@ -33,7 +33,7 @@ namespace SEToolbox.Models
         private BackgroundWorker _asyncWorker;
 
         [NonSerialized]
-        private  MyVoxelMapBase _voxelMap;
+        private MyVoxelMapBase _voxelMap;
 
         [NonSerialized]
         private VoxelMaterialAssetModel _selectedMaterialAsset;
@@ -63,12 +63,12 @@ namespace SEToolbox.Models
 
             if (voxelPath != null)
             {
-                VoxelFilePath = Path.Combine(voxelPath, entityBase.Name +  MyVoxelMapBase.FileExtension.V2);
+                VoxelFilePath = Path.Combine(voxelPath, entityBase.Name + MyVoxelMapBase.FileExtension.V2);
                 string previewFile = VoxelFilePath;
 
                 if (!File.Exists(VoxelFilePath))
                 {
-                    string oldFilePath = Path.Combine(voxelPath, entityBase.Name +  MyVoxelMapBase.FileExtension.V1);
+                    string oldFilePath = Path.Combine(voxelPath, entityBase.Name + MyVoxelMapBase.FileExtension.V1);
                     if (File.Exists(oldFilePath))
                     {
                         SourceVoxelFilePath = oldFilePath;
@@ -110,7 +110,7 @@ namespace SEToolbox.Models
         public string Name
         {
             get => VoxelMap.StorageName ?? string.Empty;
-            set => SetProperty(VoxelMap.StorageName, nameof(Name));
+            set => SetProperty(VoxelMap.StorageName, value, nameof(Name));
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace SEToolbox.Models
         public new string SourceVoxelFilePath
         {
             get => _sourceVoxelFilePath;
-            set => SetProperty(ref _sourceVoxelFilePath, nameof(SourceVoxelFilePath), () =>
+            set => SetProperty(ref _sourceVoxelFilePath, value, nameof(SourceVoxelFilePath), () =>
                     ReadVoxelDetails(SourceVoxelFilePath));
 
         }
@@ -130,14 +130,14 @@ namespace SEToolbox.Models
         public string VoxelFilePath
         {
             get => _voxelFilePath ?? string.Empty;
-            set => SetProperty(ref _voxelFilePath, nameof(VoxelFilePath));
+            set => SetProperty(ref _voxelFilePath, value, nameof(VoxelFilePath));
         }
 
         [XmlIgnore]
         public Vector3I Size
         {
             get => _size;
-            set => SetProperty(ref _size, nameof(Size));
+            set => SetProperty(ref _size, value, nameof(Size));
         }
 
         [XmlIgnore]
@@ -154,7 +154,7 @@ namespace SEToolbox.Models
         public BoundingBoxI ContentBounds
         {
             get => _contentBounds;
-            set => SetProperty(ref _contentBounds, nameof(ContentBounds));
+            set => SetProperty(ref _contentBounds, value, nameof(ContentBounds));
         }
 
         [XmlIgnore]
@@ -164,7 +164,7 @@ namespace SEToolbox.Models
         public long VoxCells
         {
             get => _voxCells;
-            set => SetProperty(ref _voxCells, nameof(VoxCells));
+            set => SetProperty(ref _voxCells, value, nameof(VoxCells));
         }
 
         [XmlIgnore]
@@ -180,28 +180,28 @@ namespace SEToolbox.Models
         public List<VoxelMaterialAssetModel> MaterialAssets
         {
             get => _materialAssets;
-            set => SetProperty(ref _materialAssets, nameof(MaterialAssets));
+            set => SetProperty(ref _materialAssets, value, nameof(MaterialAssets));
         }
 
         [XmlIgnore]
         public VoxelMaterialAssetModel SelectedMaterialAsset
         {
             get => _selectedMaterialAsset;
-            set => SetProperty(ref _selectedMaterialAsset, nameof(SelectedMaterialAsset));
+            set => SetProperty(ref _selectedMaterialAsset, value, nameof(SelectedMaterialAsset));
         }
 
         [XmlIgnore]
         public List<VoxelMaterialAssetModel> GameMaterialList
         {
             get => _gameMaterialList;
-            set => SetProperty(ref _gameMaterialList, nameof(GameMaterialList));
+            set => SetProperty(ref _gameMaterialList, value, nameof(GameMaterialList));
         }
 
         [XmlIgnore]
         public List<VoxelMaterialAssetModel> EditMaterialList
         {
             get => _editMaterialList;
-            set => SetProperty(ref _editMaterialList, nameof(EditMaterialList));
+            set => SetProperty(ref _editMaterialList, value, nameof(EditMaterialList));
         }
 
         #endregion
@@ -284,7 +284,7 @@ namespace SEToolbox.Models
         {
             if (_voxelMap == null && fileName != null && File.Exists(fileName))
             {
-                _voxelMap = new  MyVoxelMapBase();
+                _voxelMap = new MyVoxelMapBase();
                 _voxelMap.Load(fileName);
 
                 Size = _voxelMap.Size;
@@ -306,8 +306,8 @@ namespace SEToolbox.Models
                 WorldAabb = new BoundingBoxD(PositionAndOrientation.Value.Position, PositionAndOrientation.Value.Position + new Vector3D(Size));
             }
         }
-       
-        public void UpdateNewSource( MyVoxelMapBase newMap, string fileName)
+
+        public void UpdateNewSource(MyVoxelMapBase newMap, string fileName)
         {
             _voxelMap?.Dispose();
             _voxelMap = newMap;
@@ -326,26 +326,22 @@ namespace SEToolbox.Models
         {
             string sourceFile = SourceVoxelFilePath ?? VoxelFilePath;
             bool changed;
-             MyVoxelMapBase asteroid = new();
+            MyVoxelMapBase asteroid = new();
             asteroid.Load(sourceFile);
 
-             MyVoxelMapBase newAsteroid = new();
+            MyVoxelMapBase newAsteroid = new();
             Vector3I newSize = asteroid.Size;
             newAsteroid.Create(newSize, SpaceEngineersResources.GetDefaultMaterialIndex());
 
-
             Vector3I halfSize = asteroid.Storage.Size / 2;
-
             // Don't use anything smaller than 64 for smaller voxels, as it trashes the cache.
-
             Vector3I cacheSize = new(64);
-
             Vector3I halfCacheSize = new(32); // This should only be used for the Transform, not the cache.
 
             // read the asteroid in chunks of 64 to avoid the Arithmetic overflow issue.
             Vector3I block = Vector3I.Zero;
             PRange.ProcessRange(block, asteroid.Storage.Size + 1 / 64);
-            
+
             #region Source Voxel
 
             MyStorageData cache = new();
@@ -367,7 +363,7 @@ namespace SEToolbox.Models
             newAsteroid.Storage.ReadRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, 0, newBlock, newBlock + cacheSize - 1);
 
             #endregion
-            
+
             Vector3I p = Vector3I.Zero;
             PRange.ProcessRange(p, cacheSize);
 
@@ -387,12 +383,10 @@ namespace SEToolbox.Models
             SaveToFile(newAsteroid);
         }
 
-        public void SaveToFile( MyVoxelMapBase newAsteroid)
+        public void SaveToFile(MyVoxelMapBase newAsteroid)
         {
-
-            string tempFileName = TempFileUtil.NewFileName( MyVoxelMapBase.FileExtension.V2);
+            string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
             newAsteroid.Save(tempFileName);
-
             SourceVoxelFilePath = tempFileName;
         }
 
@@ -413,7 +407,7 @@ namespace SEToolbox.Models
             string sourceFile = SourceVoxelFilePath ?? VoxelFilePath;
             if (string.IsNullOrEmpty(sourceFile))
                 throw new ArgumentException("Source voxel file path is null or empty.");
-             MyVoxelMapBase asteroid = new();
+            MyVoxelMapBase asteroid = new();
             asteroid.Load(sourceFile);
 
 
@@ -424,7 +418,7 @@ namespace SEToolbox.Models
             foreach (StructureCubeGridModel station in stations)
             {
 
-                asteroid = new  MyVoxelMapBase();
+                asteroid = new MyVoxelMapBase();
                 asteroid.Load(sourceFile);
                 Quaternion quaternion = station.PositionAndOrientation.Value.ToQuaternion(); ;
 
@@ -466,7 +460,7 @@ namespace SEToolbox.Models
                         {
                             Vector3D voxelMin = voxelCellBox.Min;
                             Vector3D voxelMax = voxelCellBox.Max;
-                          
+
                             int x = 0, y = 0, z = 0;
                             PRange.ProcessRange(p, x, y, z, cacheSize);
 
@@ -476,23 +470,18 @@ namespace SEToolbox.Models
 
                         }
                         float voxelContentVolume = voxelVolume / (cacheSize.X * cacheSize.Y * cacheSize.Z);
-                        if (voxelContentVolume > 0)
+
+                        byte content = cache.Content(ref p);
+                        byte newContent = (byte)Math.Ceiling(content * voxelContentVolume);
+                        if (voxelContentVolume > 0 && content > 0 && newContent < content)
                         {
-                            byte content = cache.Content(ref p);
-                            if (content > 0)
-                            {
-                                byte newContent = (byte)Math.Ceiling(content * voxelContentVolume);
-                                if (newContent < content)
-                                {
-                                    cache.Content(ref p, newContent);
-                                    changed = true;
-                                }
-                            }
+                            cache.Content(ref p, newContent);
+                            changed = true;
                         }
 
                         else if (contains != ContainmentType.Disjoint)
                         {
-                            byte content = cache.Content(ref p);
+
                             if (content > 0)
                             {
                                 cache.Content(ref p, 0);
@@ -518,7 +507,7 @@ namespace SEToolbox.Models
 
             if (modified)
             {
-                string tempFileName = TempFileUtil.NewFileName( MyVoxelMapBase.FileExtension.V2);
+                string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
                 asteroid.Save(tempFileName);
                 // replaces the existing asteroid file, as it is still the same size and dimentions.
                 UpdateNewSource(asteroid, tempFileName);

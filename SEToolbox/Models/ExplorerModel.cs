@@ -93,19 +93,19 @@ namespace SEToolbox.Models
         public ObservableCollection<IStructureBase> Structures
         {
             get => _structures;
-            set => SetProperty(_structures = value, nameof(Structures));
+            set => SetProperty(_structures, value, nameof(Structures));
         }
 
         public StructureCharacterModel ThePlayerCharacter
         {
             get => _thePlayerCharacter;
-            set => SetProperty(ref _thePlayerCharacter, nameof(ThePlayerCharacter));
+            set => SetProperty(ref _thePlayerCharacter, value, nameof(ThePlayerCharacter));
         }
 
         public WorldResource ActiveWorld
         {
             get => SpaceEngineersCore.WorldResource;
-            set => SetProperty(SpaceEngineersCore.WorldResource, nameof(ActiveWorld));
+            set => SetProperty(SpaceEngineersCore.WorldResource, value, nameof(ActiveWorld));
         }
         /// <summary>
         /// Gets or sets a value indicating whether the View is available.  This is based on the IsInError and IsBusy properties
@@ -113,7 +113,7 @@ namespace SEToolbox.Models
         public bool IsActive
         {
             get => _isActive;
-            set => SetProperty(ref _isActive, nameof(IsActive));
+            set => SetProperty(ref _isActive, value, nameof(IsActive));
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace SEToolbox.Models
         public bool IsBusy
         {
             get => _isBusy;
-            set => SetProperty(ref _isBusy, nameof(IsBusy), ()=>
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
                 {
 
                     SetActiveStatus();
@@ -132,7 +132,7 @@ namespace SEToolbox.Models
                     }
                 });
         }
-        
+
 
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace SEToolbox.Models
         public bool IsModified
         {
             get => _isModified;
-            set => SetProperty(ref _isModified, nameof(IsModified));
+            set => SetProperty(ref _isModified, value, nameof(IsModified));
         }
 
         /// <summary>
@@ -150,28 +150,27 @@ namespace SEToolbox.Models
         public bool IsBaseSaveChanged
         {
             get => _isBaseSaveChanged;
-            set => SetProperty(ref _isBaseSaveChanged, nameof(IsBaseSaveChanged));
+            set => SetProperty(ref _isBaseSaveChanged, value, nameof(IsBaseSaveChanged));
         }
 
         public bool ShowProgress
         {
             get => _showProgress;
-            set => SetProperty(ref _showProgress, nameof(ShowProgress));
+            set => SetProperty(ref _showProgress, value, nameof(ShowProgress));
         }
 
         public double Progress
         {
             get => _progress;
-            set => SetProperty(ref _progress, () =>
+            set => SetProperty(ref _progress, value, () =>
                      {
                          if (!_timer.IsRunning || _timer.ElapsedMilliseconds > 200 && value == _progress)
                          {
-          
-                                 ProgressValue = _progressValue;
-                                 DispatcherHelper.DoEvents();
-                                 _timer.Restart();
-                             }
-                         
+                             ProgressValue = _progressValue;
+                             DispatcherHelper.DoEvents();
+                             _timer.Restart();
+                         }
+
                      }, nameof(Progress), nameof(ProgressValue)
                 );
         }
@@ -180,19 +179,19 @@ namespace SEToolbox.Models
         public TaskbarItemProgressState ProgressState
         {
             get => _progressState;
-            set => SetProperty(ref _progressState, nameof(ProgressState));
+            set => SetProperty(ref _progressState, value, nameof(ProgressState));
         }
 
         public double ProgressValue
         {
             get => _progressValue;
-            set => SetProperty(ref _progressValue, nameof(ProgressValue));
+            set => SetProperty(ref _progressValue, value, nameof(ProgressValue));
         }
 
         public double MaximumProgress
         {
             get => _maximumProgress;
-            set => SetProperty(ref _maximumProgress, nameof(MaximumProgress));
+            set => SetProperty(ref _maximumProgress, value, nameof(MaximumProgress));
         }
 
         public ObservableCollection<string> ScriptPaths { get; } = [];
@@ -200,7 +199,7 @@ namespace SEToolbox.Models
         public string SelectedScriptPath
         {
             get => _selectedScriptPath;
-            set => SetProperty(ref _selectedScriptPath, nameof(SelectedScriptPath));
+            set => SetProperty(ref _selectedScriptPath, value, nameof(SelectedScriptPath));
 
         }
 
@@ -220,7 +219,7 @@ namespace SEToolbox.Models
                 return new CustomColor(r, g, b);
             }
         }
-        
+
         public int[] CreativeModeColors
         {
             get
@@ -289,7 +288,7 @@ namespace SEToolbox.Models
                 DispatcherPriority.DataBind,
                 new Action(LoadSectorDetail));
         }
-        
+
         public void SaveCheckPointAndSandBox()
         {
             IsBusy = true;
@@ -642,8 +641,8 @@ namespace SEToolbox.Models
         public bool ContainsVoxelFileName(string fileName, MyObjectBuilder_EntityBase[] additionalList)
         {
             var voxelFileNameUpper = Path.GetFileNameWithoutExtension(fileName).ToUpperInvariant();
-            bool contains = Structures.Any(s => s is StructureVoxelModel model && model.Name.ToUpperInvariant() == voxelFileNameUpper || 
-            				SpaceEngineersCore.ManageDeleteVoxelList.Any(f => Path.GetFileNameWithoutExtension(f).ToUpperInvariant() == voxelFileNameUpper));
+            bool contains = Structures.Any(s => s is StructureVoxelModel model && model.Name.ToUpperInvariant() == voxelFileNameUpper ||
+                            SpaceEngineersCore.ManageDeleteVoxelList.Any(f => Path.GetFileNameWithoutExtension(f).ToUpperInvariant() == voxelFileNameUpper));
 
             if (contains || additionalList == null)
             {
@@ -735,7 +734,7 @@ namespace SEToolbox.Models
 
             var toolbarType = typeof(MyObjectBuilder_Toolbar);
             var functionalTypes = new HashSet<Type>([
-              	typeof(MyObjectBuilder_ButtonPanel),//MyObjectBuilder_FunctionalBlock
+                  typeof(MyObjectBuilder_ButtonPanel),//MyObjectBuilder_FunctionalBlock
                 typeof(MyObjectBuilder_TimerBlock),//MyObjectBuilder_FunctionalBlock
                 typeof(MyObjectBuilder_SensorBlock),//MyObjectBuilder_FunctionalBlock
                 typeof(MyObjectBuilder_ShipController)//,//MyObjectBuilder_FunctionalBlock
@@ -1023,7 +1022,7 @@ namespace SEToolbox.Models
             IsModified = true;
             IsBusy = false;
         }
-        
+
         public void MoveOverlappingBlocks(StructureCubeGridModel originalModel)
         {
             if (originalModel == null) return;
@@ -1583,8 +1582,8 @@ namespace SEToolbox.Models
             if (parentNode != null)
             {
                 var remoteEntities = parentNode.CubeEntityNodes
-                			.Where(e => minimumConnectionType.HasFlag(e.Value.GridConnectionType) && e.Value.RemoteParentEntity != null)
-                			.Select(e => e.Value.RemoteParentEntity ?? throw new InvalidOperationException("RemoteParentEntity is null"));
+                            .Where(e => minimumConnectionType.HasFlag(e.Value.GridConnectionType) && e.Value.RemoteParentEntity != null)
+                            .Select(e => e.Value.RemoteParentEntity ?? throw new InvalidOperationException("RemoteParentEntity is null"));
                 foreach (MyObjectBuilder_CubeGrid cubeGrid in remoteEntities)
                 {
                     if (cubeGrid != null && !list.Contains(cubeGrid))

@@ -47,13 +47,13 @@ namespace SEToolbox.Models
         public WorldResource SelectedWorld
         {
             get => _selectedWorld;
-            set => SetProperty(ref _selectedWorld, nameof(SelectedWorld));
+            set => SetProperty(ref _selectedWorld, value, nameof(SelectedWorld));
         }
 
         public ObservableCollection<WorldResource> Worlds
         {
             get => _worlds;
-            set => SetProperty(ref _worlds, nameof(Worlds));
+            set => SetProperty(ref _worlds, value, nameof(Worlds));
         }
 
         /// <summary>
@@ -63,15 +63,14 @@ namespace SEToolbox.Models
         {
             get => _isBusy;
 
-            set
-            {
-               SetProperty(ref _isBusy, nameof(IsBusy), () =>
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
                {
-                    if (_isBusy)
-                    {
-                        System.Windows.Forms.Application.DoEvents();
-                    }});
-            }
+                   if (_isBusy)
+                   {
+                       System.Windows.Forms.Application.DoEvents();
+                   }
+               });
+
         }
 
         #endregion
@@ -164,14 +163,14 @@ namespace SEToolbox.Models
                 // Still check every potential game world path.
                 foreach (string savePath in savePaths)
                 {
-                    
-                    // This should still allow Games to be copied into the Save path manually.
-                    var saveResource =  LoadSaveFromPath(savePath, userName, saveType, dataPath);
 
-                        saveResource.LoadWorldInfo();
-                        list.Add(saveResource);
-                    }
+                    // This should still allow Games to be copied into the Save path manually.
+                    var saveResource = LoadSaveFromPath(savePath, userName, saveType, dataPath);
+
+                    saveResource.LoadWorldInfo();
+                    list.Add(saveResource);
                 }
+            }
 
             return list;
         }
@@ -208,20 +207,20 @@ namespace SEToolbox.Models
                         foreach (string savePath in savePaths)
                         {
 
-                                saveResource = new WorldResource
-                                {
-                                    SaveName = Path.GetFileName(savePath),
-                                    UserName = Path.GetFileName(userPath),
-                                    SavePath = savePath,
-                                    DataPath = UserDataPath.FindFromSavePath(savePath)
-                                };
+                            saveResource = new WorldResource
+                            {
+                                SaveName = Path.GetFileName(savePath),
+                                UserName = Path.GetFileName(userPath),
+                                SavePath = savePath,
+                                DataPath = UserDataPath.FindFromSavePath(savePath)
+                            };
 
-                                saveResource.LoadWorldInfo();
+                            saveResource.LoadWorldInfo();
 
 
                             if (saveResource != null && saveResource.IsValid && (saveResource.SaveName.Equals(findSession, System.StringComparison.CurrentCultureIgnoreCase) || saveResource.SessionName.Equals(findSession, System.StringComparison.CurrentCultureIgnoreCase)))
                             {
-                                 return saveResource.LoadCheckpoint(out errorInformation);
+                                return saveResource.LoadCheckpoint(out errorInformation);
                             }
                         }
                     }
@@ -239,15 +238,15 @@ namespace SEToolbox.Models
             {
                 string userPath = Path.GetDirectoryName(savePath);
 
-                    saveResource = new WorldResource
-                    {
-                        SaveName = Path.GetFileName(savePath),
-                        UserName = Path.GetFileName(userPath),
-                        SavePath = savePath,
-                        DataPath = UserDataPath.FindFromSavePath(savePath)
-                    };
+                saveResource = new WorldResource
+                {
+                    SaveName = Path.GetFileName(savePath),
+                    UserName = Path.GetFileName(userPath),
+                    SavePath = savePath,
+                    DataPath = UserDataPath.FindFromSavePath(savePath)
+                };
 
-                        return saveResource.LoadCheckpoint(out errorInformation);
+                return saveResource.LoadCheckpoint(out errorInformation);
             }
 
             saveResource = null;

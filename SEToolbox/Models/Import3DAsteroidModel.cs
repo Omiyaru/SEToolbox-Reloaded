@@ -81,13 +81,13 @@ namespace SEToolbox.Models
         public string FileName
         {
             get => _fileName;
-            set => SetProperty(ref _fileName, nameof(FileName));
+            set => SetProperty(ref _fileName, value, nameof(FileName));
         }
 
         public Model3D Model
         {
             get  => _model;
-            set => SetProperty(ref _model, nameof(Model));
+            set => SetProperty(ref _model, value, nameof(Model));
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace SEToolbox.Models
         public bool IsValidModel
         {
             get => _isValidModel;
-            set => SetProperty(ref _isValidModel, nameof(IsValidModel));
+            set => SetProperty(ref _isValidModel, value, nameof(IsValidModel));
         }
 
         /// <summary>
@@ -105,110 +105,110 @@ namespace SEToolbox.Models
         public bool IsValidEntity
         {
             get => _isValidEntity;
-            set => SetProperty(ref _isValidEntity, nameof(IsValidEntity));
+            set => SetProperty(ref _isValidEntity, value, nameof(IsValidEntity));
         }
 
         public BindableSize3DModel OriginalModelSize
         {
             get => _originalModelSize;
-            set => SetProperty(ref _originalModelSize, nameof(OriginalModelSize));
+            set => SetProperty(ref _originalModelSize, value, nameof(OriginalModelSize));
         }
 
         public BindableSize3DIModel NewModelSize
         {
             get => _newModelSize;
-            set => SetProperty(ref _newModelSize, nameof(NewModelSize));
+            set => SetProperty(ref _newModelSize, value, nameof(NewModelSize));
         }
 
         public BindablePoint3DModel NewModelScale
         {
             get => _newModelScale;
-            set => SetProperty(ref _newModelScale, nameof(NewModelScale));
+            set => SetProperty(ref _newModelScale, value, nameof(NewModelScale));
         }
 
         public BindablePoint3DModel Position
         {
             get => _position;
-            set => SetProperty(ref _position, nameof(Position));
+            set => SetProperty(ref _position, value, nameof(Position));
         }
 
         public BindableVector3DModel Forward
         {
             get => _forward;
-            set => SetProperty(ref _forward, nameof(Forward));
+            set => SetProperty(ref _forward, value, nameof(Forward));
         }
 
         public BindableVector3DModel Up
         {
             get => _up;
-            set => SetProperty(ref _up, nameof(Up));
+            set => SetProperty(ref _up, value, nameof(Up));
         }
 
         public MyPositionAndOrientation CharacterPosition
         {
             get => _characterPosition;
             // unable to checck for equivalence and mostly unnecessary
-            set => SetProperty(ref _characterPosition, nameof(CharacterPosition));
+            set => SetProperty(ref _characterPosition, value, nameof(CharacterPosition));
         }
 
         public TraceType TraceType
         {
             get => _traceType;
-            set => SetProperty(ref _traceType, nameof(TraceType));
+            set => SetProperty(ref _traceType, value, nameof(TraceType));
         }
 
         public TraceCount TraceCount
         {
             get => _traceCount;
-            set => SetProperty(ref _traceCount, nameof(TraceCount));
+            set => SetProperty(ref _traceCount, value, nameof(TraceCount));
         }
 
         public TraceDirection TraceDirection
         {
             get => _traceDirection;
-            set => SetProperty(ref _traceDirection, nameof(TraceDirection));
+            set => SetProperty(ref _traceDirection, value, nameof(TraceDirection));
         }
 
         public double MultipleScale
         {
             get => _multipleScale;
-            set => SetProperty(ref _multipleScale, nameof(MultipleScale));
+            set => SetProperty(ref _multipleScale, value, nameof(MultipleScale));
         }
 
         public double MaxLengthScale
         {
             get => _maxLengthScale;
-            set => SetProperty(ref _maxLengthScale, nameof(MaxLengthScale));
+            set => SetProperty(ref _maxLengthScale, value, nameof(MaxLengthScale));
         }
 
         public double BuildDistance
         {
             get => _buildDistance;
-            set => SetProperty(ref _buildDistance, nameof(BuildDistance));
+            set => SetProperty(ref _buildDistance, value, nameof(BuildDistance));
         }
 
         public bool IsMultipleScale
         {
             get => _isMultipleScale;
-            set => SetProperty(ref _isMultipleScale, nameof(IsMultipleScale));
+            set => SetProperty(ref _isMultipleScale, value, nameof(IsMultipleScale));
         }
 
         public bool IsMaxLengthScale
         {
             get => _isMaxLengthScale;
-            set => SetProperty(ref _isMaxLengthScale, nameof(IsMaxLengthScale));
+            set => SetProperty(ref _isMaxLengthScale, value, nameof(IsMaxLengthScale));
         }
 
         public bool IsAbsolutePosition
         {
             get => _isAbsolutePosition;
-            set => SetProperty(ref _isAbsolutePosition, nameof(IsAbsolutePosition));
+            set => SetProperty(ref _isAbsolutePosition, value, nameof(IsAbsolutePosition));
         }
 
         public bool IsInfrontofPlayer
         {
             get => _isInfrontofPlayer;
-            set => SetProperty(ref _isInfrontofPlayer, nameof(IsInfrontofPlayer));
+            set => SetProperty(ref _isInfrontofPlayer, value, nameof(IsInfrontofPlayer));
         }
 
         public ObservableCollection<MaterialSelectionModel> OutsideMaterialsCollection
@@ -219,7 +219,7 @@ namespace SEToolbox.Models
         public int OutsideMaterialDepth
         {
             get => _outsideMaterialDepth;
-            set => SetProperty(ref _outsideMaterialDepth, nameof(OutsideMaterialDepth));
+            set => SetProperty(ref _outsideMaterialDepth, value, nameof(OutsideMaterialDepth));
         }
 
         public ObservableCollection<MaterialSelectionModel> InsideMaterialsCollection
@@ -230,62 +230,62 @@ namespace SEToolbox.Models
         public MaterialSelectionModel OutsideStockMaterial
         {
             get => _outsideStockMaterial;
-            set => SetProperty(ref _outsideStockMaterial, nameof(OutsideStockMaterial));
+            set => SetProperty(ref _outsideStockMaterial, value, nameof(OutsideStockMaterial));
         }
 
         public MaterialSelectionModel InsideStockMaterial
         {
             get => _insideStockMaterial;
-            set => SetProperty(ref _insideStockMaterial, nameof(InsideStockMaterial));
+            set => SetProperty(ref _insideStockMaterial, value, nameof(InsideStockMaterial));
         }
 
         public string SourceFile
         {
             get => _sourceFile;
-            set => SetProperty(ref _sourceFile, nameof(SourceFile));
+            set => SetProperty(ref _sourceFile, value, nameof(SourceFile));
         }
 
         public double RotateYaw
         {
             get => _rotateYaw;
-            set => SetProperty(ref _rotateYaw, nameof(RotateYaw));
+            set => SetProperty(ref _rotateYaw, value, nameof(RotateYaw));
         }
 
         public double RotatePitch
         {
             get => _rotatePitch;
-            set => SetProperty(ref _rotatePitch, nameof(RotatePitch));
+            set => SetProperty(ref _rotatePitch, value, nameof(RotatePitch));
         }
 
         public double RotateRoll
         {
             get => _rotateRoll; 
 
-            set => SetProperty(ref _rotateRoll, nameof(RotateRoll));
+            set => SetProperty(ref _rotateRoll, value, nameof(RotateRoll));
         }
 
         public bool BeepWhenFinished
         {
             get => _beepWhenFinished;
-            set => SetProperty(ref _beepWhenFinished, nameof(BeepWhenFinished));
+            set => SetProperty(ref _beepWhenFinished, value, nameof(BeepWhenFinished));
         }
 
         public bool SaveWhenFinsihed
         {
             get => _saveWhenFinsihed;
-            set => SetProperty(ref _saveWhenFinsihed, nameof(SaveWhenFinsihed));
+            set => SetProperty(ref _saveWhenFinsihed, value, nameof(SaveWhenFinsihed));
         }
 
         public bool ShutdownWhenFinished
         {
             get => _shutdownWhenFinished;
-            set => SetProperty(ref _shutdownWhenFinished, nameof(ShutdownWhenFinished));
+            set => SetProperty(ref _shutdownWhenFinished, value, nameof(ShutdownWhenFinished));
         }
 
         public bool RunInLowPrioity 
         {
             get  => _runInLowPrioity;
-            set => SetProperty(ref _runInLowPrioity, nameof(RunInLowPrioity));
+            set => SetProperty(ref _runInLowPrioity, value, nameof(RunInLowPrioity));
         }
 
         #endregion

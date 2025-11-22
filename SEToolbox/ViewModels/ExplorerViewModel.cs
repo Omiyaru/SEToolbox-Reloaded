@@ -189,63 +189,63 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty(ref _closeResult, nameof(CloseResult));
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
 
         public ObservableCollection<IFactionBase> Factions
         {
             get => _factions;
-            set => SetProperty(ref _factions, nameof(Factions));
+            set => SetProperty(ref _factions, value, nameof(Factions));
         }
 
         public IFactionBase SelectedFaction
         {
             get => _selectedFaction;
-            set => SetProperty(ref _selectedFaction, nameof(SelectedFaction));
+            set => SetProperty(ref _selectedFaction, value, nameof(SelectedFaction));
         }
 
         public IFactionBase SelectedMember
         {
             get => _selectedMember;
-            set => SetProperty(ref _selectedMember, nameof(SelectedMember));
+            set => SetProperty(ref _selectedMember, value, nameof(SelectedMember));
         }
 
         public ObservableCollection<IFactionBase> Members
         {
             get => _members;
-            set => SetProperty(ref _members, nameof(Members));
+            set => SetProperty(ref _members, value, nameof(Members));
         }
 
         public ObservableCollection<IStructureViewBase> Structures
         {
             get => _structures;
-            set => SetProperty(ref _structures, nameof(Structures));
+            set => SetProperty(ref _structures, value, nameof(Structures));
         }
 
         public IStructureViewBase SelectedStructure
         {
             get => _selectedStructure;
-            set => SetProperty(ref _selectedStructure, () => 
-                        {   
-                            if (_selectedStructure != null && 
-                               !_ignoreUpdateSelection && _selectedStructure == value)
-                                _selectedStructure.DataModel.InitializeAsync(); 
-                        }, nameof(SelectedStructure));
-         
+            set => SetProperty(ref _selectedStructure, value, () =>
+                    {
+                        if (_selectedStructure != null &&
+                            !_ignoreUpdateSelection && _selectedStructure == value)
+                            _selectedStructure.DataModel.InitializeAsync();
+                    }, nameof(SelectedStructure));
+
         }
 
         public ObservableCollection<IStructureViewBase> Selections
         {
             get => _selections;
-            set => SetProperty(ref _selections, nameof(Selections));
+            set => SetProperty(ref _selections, value, nameof(Selections));
         }
 
         public bool? IsMultipleSelections
         {
             get => _selections.Count > 1;
         }
-        
+
         public WorldResource ActiveWorld
         {
             get => _dataModel.ActiveWorld;
@@ -295,7 +295,7 @@ namespace SEToolbox.ViewModels
         public ObservableCollection<LanguageModel> Languages
         {
             get => _languages;
-            private set => SetProperty(ref _languages, nameof(Languages));
+            private set => SetProperty(ref _languages, value, nameof(Languages));
         }
 
         public bool? UseExcludedTypes { get; set; }
@@ -303,7 +303,7 @@ namespace SEToolbox.ViewModels
         public bool EnableExcludedBlocks
         {
             get => _dataModel.EnableExclusions;
-            set => SetProperty(_dataModel.EnableExclusions, nameof(EnableExcludedBlocks));
+            set => SetProperty(_dataModel.EnableExclusions, value, nameof(EnableExcludedBlocks));
         }
 
         //public Type DataType => throw new NotImplementedException();
@@ -542,8 +542,8 @@ namespace SEToolbox.ViewModels
             if (result == true)
             {
                 IsBusy = true;
-                MyObjectBuilder_EntityBase newEntity = loadVm.BuildEntity();
-                IStructureBase structure = _dataModel.AddEntity(newEntity);
+                var newEntity = loadVm.BuildEntity();
+                var structure = _dataModel.AddEntity(newEntity);
                 ((StructureVoxelModel)structure).SourceVoxelFilePath = loadVm.SourceFile; // Set the temporary file location of the Source Voxel, as it hasn't been written yet.
                 if (_preSelectedStructure != null)
                     SelectedStructure = _preSelectedStructure;
@@ -674,7 +674,7 @@ namespace SEToolbox.ViewModels
         {
             return _dataModel.ActiveWorld is { IsValid: true };
         }
-        
+
         public void WorldReportExecuted()
         {
             ResourceReportModel model = new();
@@ -1768,7 +1768,7 @@ namespace SEToolbox.ViewModels
                         description == floatingObjectStructure.Description:
 
                     case IStructureBase when viewModel is StructureMeteorViewModel meteorStructure &&
-                        classType == meteorStructure.ClassType && displayName == meteorStructure.DisplayName 
+                        classType == meteorStructure.ClassType && displayName == meteorStructure.DisplayName
                         && description == meteorStructure.Description:
 
                         title = string.Format(Res.DialogExportSandboxObjectTitle, classType, displayName, description);

@@ -62,7 +62,6 @@ namespace SEToolbox.Controls
 
             // add the event handler to the GridViewColumnHeader. This strongly ties this ListView to a GridView.
             AddHandler(Primitives.ButtonBase.ClickEvent, new RoutedEventHandler(GridViewColumnHeaderClickedHandler));
-
             AddHandler(MouseDoubleClickEvent, new RoutedEventHandler(MouseDoubleClickedHandler));
         }
         protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
@@ -91,6 +90,7 @@ namespace SEToolbox.Controls
                 _ => column.Header.ToString() == sortColumn
             };
         }
+
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
@@ -110,6 +110,7 @@ namespace SEToolbox.Controls
                     selectedColumn.HeaderTemplate = ColumnHeaderArrowUpTemplate;
             }
         }
+
         GridViewColumn FindColumnToSort(IList<GridViewColumn> columns)
         {
             var column = columns.FirstOrDefault(c =>
@@ -125,7 +126,6 @@ namespace SEToolbox.Controls
             // May be triggered by clicking on vertical scrollbar.
             if (e.OriginalSource is not GridViewColumnHeader headerClicked ||
                 headerClicked.Role == GridViewColumnHeaderRole.Padding ||
-
                 headerClicked.Column is null)
             {
                 return;
@@ -248,7 +248,7 @@ namespace SEToolbox.Controls
         }
 
         public static readonly RoutedEvent MouseDoubleClickItemEvent =
-            EventManager.RegisterRoutedEvent("MouseDoubleClickItem", RoutingStrategy.Direct, typeof(MouseButtonEventHandler), typeof(SortableListView));
+            EventManager.RegisterRoutedEvent(nameof(MouseDoubleClickItem), RoutingStrategy.Direct, typeof(MouseButtonEventHandler), typeof(SortableListView));
 
 
         // Events

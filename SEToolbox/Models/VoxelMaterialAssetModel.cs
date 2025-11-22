@@ -24,31 +24,31 @@ namespace SEToolbox.Models
         public string MaterialName
         {
             get => _materialName;
-            set => SetProperty(ref _materialName, nameof(MaterialName));
+            set => SetProperty(ref _materialName, value, nameof(MaterialName));
         }
 
         public string DisplayName
         {
             get => _displayName;
-            set => SetProperty(ref _displayName, nameof(DisplayName));
+            set => SetProperty(ref _displayName, value, nameof(DisplayName));
         }
 
         public double Volume
         {
             get => _volume;
-            set => SetProperty(ref _volume, nameof(Volume));
+            set => SetProperty(ref _volume, value, nameof(Volume));
         }
 
         public double Percent
         {
             get => _percent;
-            set => SetProperty(ref _percent, nameof(Percent));
+            set => SetProperty(ref _percent, value, nameof(Percent));
         }
 
         public string TextureFile
         {
             get => _textureFile;
-            set => SetProperty(ref _textureFile, nameof(TextureFile));
+            set => SetProperty(ref _textureFile, value, nameof(TextureFile));
         }
 
         #endregion

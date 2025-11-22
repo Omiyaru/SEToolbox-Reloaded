@@ -40,62 +40,62 @@ namespace SEToolbox.Models
         {
             get => _fileName; 
 
-            set => SetProperty(ref _fileName, nameof(FileName));
+            set => SetProperty(ref _fileName, value, nameof(FileName));
         }
 
         public bool IsValidImage
         {
             get => _isValidImage; 
 
-            set => SetProperty(ref _isValidImage, nameof(IsValidImage));
+            set => SetProperty(ref _isValidImage, value, nameof(IsValidImage));
         }
 
         public Size OriginalImageSize
         {
             get => _originalImageSize;
-            set => SetProperty(ref _originalImageSize, nameof(OriginalImageSize));
+            set => SetProperty(ref _originalImageSize, value, nameof(OriginalImageSize));
         }
 
         public BindableSizeModel NewImageSize
         {
             get => _newImageSize; 
 
-            set => SetProperty(ref _newImageSize, nameof(NewImageSize));
+            set => SetProperty(ref _newImageSize, value, nameof(NewImageSize));
         }
 
         public BindablePoint3DModel Position
         {
             get => _position; 
 
-            set => SetProperty(ref _position, nameof(Position));
+            set => SetProperty(ref _position, value, nameof(Position));
         }
 
         public BindableVector3DModel Forward
         {
             get => _forward; 
 
-            set => SetProperty(ref _forward, nameof(Forward));
+            set => SetProperty(ref _forward, value, nameof(Forward));
         }
 
         public BindableVector3DModel Up
         {
             get => _up; 
 
-            set => SetProperty(ref _up, nameof(Up));
+            set => SetProperty(ref _up, value, nameof(Up));
         }
 
         public ImportImageClassType ClassType
         {
             get => _classType; 
 
-            set => SetProperty(ref _classType, nameof(ClassType));
+            set => SetProperty(ref _classType, value, nameof(ClassType));
         }
 
         public ImportArmorType ArmorType
         {
             get => _armorType; 
 
-            set => SetProperty(ref _armorType, nameof(ArmorType));
+            set => SetProperty(ref _armorType, value, nameof(ArmorType));
         }
 
         public MyPositionAndOrientation CharacterPosition
@@ -103,35 +103,35 @@ namespace SEToolbox.Models
             get => _characterPosition;
 
                 //if (value != characterPosition) // Unable to check for equivilence, without long statement. And, mostly uncessary.
-            set => SetProperty(ref _characterPosition, nameof(CharacterPosition));
+            set => SetProperty(ref _characterPosition, value, nameof(CharacterPosition));
         }
 
         public int AlphaLevel
         {
             get => _alphaLevel; 
 
-            set => SetProperty(ref _alphaLevel, nameof(AlphaLevel));
+            set => SetProperty(ref _alphaLevel, value, nameof(AlphaLevel));
         }
 
         public System.Windows.Media.Color KeyColor
         {
             get => _keyColor; 
 
-            set => SetProperty(ref _keyColor, nameof(KeyColor));
+            set => SetProperty(ref _keyColor, value, nameof(KeyColor));
         }
 
         public bool IsAlphaLevel
         {
             get => _isAlphaLevel; 
 
-            set => SetProperty(ref _isAlphaLevel, nameof(IsAlphaLevel));
+            set => SetProperty(ref _isAlphaLevel, value, nameof(IsAlphaLevel));
         }
 
         public bool IsKeyColor
         {
             get => _isKeyColor; 
 
-            set => SetProperty(ref _isKeyColor, nameof(IsKeyColor));
+            set => SetProperty(ref _isKeyColor, value, nameof(IsKeyColor));
         }
 
         #endregion

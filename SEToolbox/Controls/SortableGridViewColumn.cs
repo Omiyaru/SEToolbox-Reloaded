@@ -17,7 +17,7 @@ namespace SEToolbox.Controls
         public BindingBase SortBinding
         {
             get => _sortBinding;
-            set => _model.SetProperty(ref _sortBinding, ()=> OnDisplayMemberBindingChanged());
+            set => _model.SetProperty(ref _sortBinding, () => OnDisplayMemberBindingChanged());
         }
         
    

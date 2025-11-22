@@ -30,21 +30,19 @@ namespace SEToolbox.Models
         public ObservableCollection<OwnerModel> PlayerList
         {
             get => _playerList;
-            set => SetProperty( ref _playerList, value ,nameof(PlayerList));
+            set => SetProperty(ref _playerList, value, nameof(PlayerList));
         }
 
         public OwnerModel SelectedPlayer
         {
             get => _selectedPlayer; 
-
-            set => SetProperty( ref _selectedPlayer, nameof(SelectedPlayer));
+            set => SetProperty(ref _selectedPlayer, value, nameof(SelectedPlayer));
         }
 
         public string Title
         {
             get => _title; 
-
-            set => SetProperty(ref _title, nameof(Title));
+            set => SetProperty(ref _title, value, nameof(Title));
         }
 
         #endregion

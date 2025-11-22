@@ -351,7 +351,7 @@ namespace SEToolbox.Interop
 
             RegisterAssemblies();
 
-            SConsole.WriteLine("MyGlobalTypeMetadata init.");
+            SConsole.WriteLine("Initializing MyGlobalTypeMetadata .");
 
             VRage.Game.ObjectBuilder.MyGlobalTypeMetadata.Static.Init();
 
@@ -371,7 +371,7 @@ namespace SEToolbox.Interop
 
         static void RegisterAssemblies()
         {
-            SConsole.WriteLine("RegisterAssemblies");
+            SConsole.WriteLine("Registering Assemblies");
             MyPlugins.RegisterGameAssemblyFile(MyPerGameSettings.GameModAssembly);
 
             if (MyPerGameSettings.GameModBaseObjBuildersAssembly != null)
@@ -408,7 +408,7 @@ namespace SEToolbox.Interop
                                           where Attribute.IsDefined(type, typeof(PreloadRequiredAttribute))
                                           select type;
 
-                Console.WriteLine($"Preloading {types.Count().GetType()} types from {assembly.FullName}");
+                SConsole.WriteLine($"Preloading {types.Count().GetType()} types from {assembly.FullName}");
                 ForceStaticCtor(types);
             }
 
@@ -420,11 +420,7 @@ namespace SEToolbox.Interop
                     foreach (Type type in types)
                     {
                         if (type != null)
-
                             RuntimeHelpers.RunClassConstructor(type.TypeHandle);
-
-
-
                     }
                 }
             }

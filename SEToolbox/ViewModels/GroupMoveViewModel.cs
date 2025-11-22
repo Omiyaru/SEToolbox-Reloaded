@@ -65,7 +65,7 @@ namespace SEToolbox.ViewModels
             get => _closeResult;
 
 
-            set => SetProperty(ref _closeResult, nameof(CloseResult));
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         /// <summary>
@@ -80,101 +80,86 @@ namespace SEToolbox.ViewModels
         public float GlobalOffsetPositionX
         {
             get => _dataModel.GlobalOffsetPositionX;
-
-            set
+            set => SetProperty(_dataModel.GlobalOffsetPositionX, () =>
             {
-                _dataModel.GlobalOffsetPositionX = value;
                 _dataModel.CalcOffsetDistances();
-            }
+            });
         }
 
         public float GlobalOffsetPositionY
         {
             get => _dataModel.GlobalOffsetPositionY;
 
-            set
+            set => SetProperty(_dataModel.GlobalOffsetPositionY, () =>
             {
-                _dataModel.GlobalOffsetPositionY = value;
                 _dataModel.CalcOffsetDistances();
-            }
+            });
         }
 
         public float GlobalOffsetPositionZ
         {
             get => _dataModel.GlobalOffsetPositionZ;
-
-            set
+            set => SetProperty(_dataModel.GlobalOffsetPositionZ, () =>
             {
-                _dataModel.GlobalOffsetPositionZ = value;
                 _dataModel.CalcOffsetDistances();
-            }
+            });
         }
 
         public bool IsGlobalOffsetPosition
         {
             get => _dataModel.IsGlobalOffsetPosition;
-
-            set
+            set => SetProperty(_dataModel.IsGlobalOffsetPosition, () =>
             {
-                _dataModel.IsGlobalOffsetPosition = value;
                 _dataModel.CalcOffsetDistances();
-            }
+            });
         }
 
         public float SinglePositionX
         {
             get => _dataModel.SinglePositionX;
-
-            set
+            set => SetProperty(_dataModel.SinglePositionX, () =>
             {
-                _dataModel.SinglePositionX = value;
                 _dataModel.CalcOffsetDistances();
-            }
+            });
         }
 
         public float SinglePositionY
         {
             get => _dataModel.SinglePositionY;
-
-            set
+            set => SetProperty(_dataModel.SinglePositionY, () =>
             {
-                _dataModel.SinglePositionY = value;
+
                 _dataModel.CalcOffsetDistances();
-            }
+            });
         }
 
         public float SinglePositionZ
         {
             get => _dataModel.SinglePositionZ;
-
-            set
+            set => SetProperty(_dataModel.SinglePositionZ, () =>
             {
-                _dataModel.SinglePositionZ = value;
                 _dataModel.CalcOffsetDistances();
-            }
+            });
         }
 
         public bool IsSinglePosition
         {
             get => _dataModel.IsSinglePosition;
 
-            set
+            set => SetProperty(_dataModel.IsSinglePosition, () =>
             {
-                _dataModel.IsSinglePosition = value;
                 _dataModel.CalcOffsetDistances();
-            }
+            });
         }
 
         public bool IsRelativePosition
         {
             get => _dataModel.IsRelativePosition;
-
-            set
+            set => SetProperty(_dataModel.IsRelativePosition, () =>
             {
-                _dataModel.IsRelativePosition = value;
                 _dataModel.CalculateGroupCenter(_dataModel.CenterPosition);
                 _dataModel.CalcOffsetDistances();
-            }
+            });
         }
 
         public ObservableCollection<GroupMoveItemModel> Selections
@@ -194,12 +179,8 @@ namespace SEToolbox.ViewModels
 
         public bool ApplyCanExecute()
         {
-            return IsSinglePosition ||
-                   IsRelativePosition ||
-                   (IsGlobalOffsetPosition &&
-                  (GlobalOffsetPositionX != 0 ||
-                    GlobalOffsetPositionY != 0 ||
-                    GlobalOffsetPositionZ != 0));
+            return IsSinglePosition || IsRelativePosition ||
+                  (IsGlobalOffsetPosition && (GlobalOffsetPositionX != 0 || GlobalOffsetPositionY != 0 || GlobalOffsetPositionZ != 0));
         }
 
         public void ApplyExecuted()

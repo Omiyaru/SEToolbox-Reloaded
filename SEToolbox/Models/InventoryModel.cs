@@ -34,7 +34,9 @@ namespace SEToolbox.Models
         public string Name
         {
             get => _name;
-            set => SetProperty(ref _name, nameof(Name),  FriendlyName == SpaceEngineersApi.GetResourceName(Name), nameof(FriendlyName));
+            set => SetProperty(ref _name, value, nameof(Name), () => 
+                   FriendlyName == SpaceEngineersApi.GetResourceName(Name),
+                nameof(FriendlyName));
         }
 
         public MyObjectBuilderType TypeId { get; set; }
@@ -44,35 +46,34 @@ namespace SEToolbox.Models
         public decimal Amount
         {
             get => _amount;
-            set
-            {
-                SetProperty(ref _amount, nameof(Amount), () => 
-                UpdateMassVolume());
-            }
+            set => SetProperty(ref _amount, value, nameof(Amount), () => 
+                   UpdateMassVolume());
         }
 
         public double Mass
         {
             get => _mass;
-            private set => SetProperty(ref _mass, nameof(Mass));
+            private set => SetProperty(ref _mass, value, nameof(Mass));
         }
 
         public double MassMultiplier
         {
             get => _massMultiplier;
-            set  => SetProperty(ref _massMultiplier, nameof(MassMultiplier), () => UpdateMassVolume());
+            set  => SetProperty(ref _massMultiplier, value, nameof(MassMultiplier), () =>
+                    UpdateMassVolume());
         }
 
         public double Volume
         {
             get => _volume;
-            private set => SetProperty(ref _volume, nameof(Volume));
+            private set => SetProperty(ref _volume, value, nameof(Volume));
         }
 
         public double VolumeMultiplier
         {
             get => _volumeMultiplier;
-            set => SetProperty(ref _volumeMultiplier, nameof(VolumeMultiplier), () => UpdateMassVolume());
+            set => SetProperty(ref _volumeMultiplier, value, nameof(VolumeMultiplier), () => 
+                   UpdateMassVolume());
         }
 
         public string TextureFile { get; set; }
@@ -125,16 +126,10 @@ namespace SEToolbox.Models
         {
             get
             {
-                switch (columnName)
+                if (columnName == nameof(Amount))
                 {
-                    case nameof(Amount):
-                        if (IsUnique && Amount != 1)
-                            return "The Amount must be 1 for Unique items";
-
-                        if (IsInteger && (Amount % 1 != 0))
-                            return "The Amount must not contain decimal places";
-
-                        break;
+                    if (IsUnique && Amount != 1) return "The Amount must be 1 for Unique items";
+                    if (IsInteger && (Amount % 1 != 0)) return "The Amount must not contain decimal places";
                 }
 
                 return string.Empty;

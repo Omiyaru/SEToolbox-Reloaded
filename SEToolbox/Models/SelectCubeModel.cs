@@ -33,13 +33,13 @@ namespace SEToolbox.Models
         public ObservableCollection<ComponentItemModel> CubeList
         {
             get => _cubeList;
-            set => SetProperty(ref _cubeList, nameof(CubeList));
+            set => SetProperty(ref _cubeList, value, nameof(CubeList));
         }
 
         public ComponentItemModel CubeItem
         {
             get => _cubeItem;
-            set => SetProperty(ref _cubeItem, nameof(CubeItem));
+            set => SetProperty(ref _cubeItem, value, nameof(CubeItem));
         }
 
         #endregion

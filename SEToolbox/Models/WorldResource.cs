@@ -48,13 +48,13 @@ namespace SEToolbox.Models
         public string GroupDescription
         {
             get => _groupDescription;
-            set => SetProperty(ref _groupDescription, nameof(GroupDescription));
+            set => SetProperty(ref _groupDescription, value, nameof(GroupDescription));
         }
 
         public SaveWorldType SaveType
         {
             get => _saveType;
-            set => SetProperty(ref _saveType, nameof(SaveType));
+            set => SetProperty(ref _saveType, value, nameof(SaveType));
         }
 
         /// <summary>
@@ -63,19 +63,19 @@ namespace SEToolbox.Models
         public string UserName
         {
             get => _userName;
-            set => SetProperty(ref _userName, nameof(UserName));
+            set => SetProperty(ref _userName, value, nameof(UserName));
         }
 
         public string SaveName
         {
             get => _saveName;
-            set => SetProperty(ref _saveName, nameof(SaveName));
+            set => SetProperty(ref _saveName, value, nameof(SaveName));
         }
 
         public string SavePath
         {
             get => _savePath;
-            set => SetProperty(ref _savePath, nameof(SavePath));
+            set => SetProperty(ref _savePath, value, nameof(SavePath));
         }
 
         public UserDataPath DataPath { get; set; }
@@ -83,7 +83,7 @@ namespace SEToolbox.Models
         public MyObjectBuilder_Checkpoint Checkpoint
         {
             get => _checkpoint;
-            set => SetProperty(ref _checkpoint, () =>
+            set => SetProperty(ref _checkpoint, value, () =>
                    {
                         IsValid = _checkpoint != null;
                         if (_checkpoint == null)
@@ -108,7 +108,6 @@ namespace SEToolbox.Models
                             _sessionName = _checkpoint?.SessionName;
                             _lastSaveTime = _checkpoint.LastSaveTime;
                         }
-
                         WorkshopId = _checkpoint?.WorkshopId;
                     }, nameof(Checkpoint), nameof(SessionName), nameof(LastSaveTime), nameof(IsValid), () =>
                      _isValid = _checkpoint != null); 
@@ -120,20 +119,20 @@ namespace SEToolbox.Models
         public string SessionName
         {
             get => _sessionName;
-            set => SetProperty(ref _sessionName, nameof(SessionName));
+            set => SetProperty(ref _sessionName, value, nameof(SessionName));
         }
 
         public DateTime LastSaveTime
         {
             get => _lastSaveTime;
-            set => SetProperty(ref _lastSaveTime, nameof(LastSaveTime));
+            set => SetProperty(ref _lastSaveTime, value, nameof(LastSaveTime));
 
         }
 
         public Version Version
         {
             get => _version;
-            set => SetProperty(ref _version, nameof(Version));
+            set => SetProperty(ref _version, value, nameof(Version));
         }
 
         public bool IsWorkshopItem => _workshopId.HasValue;
@@ -141,14 +140,14 @@ namespace SEToolbox.Models
         public ulong? WorkshopId
         {
             get => _workshopId;
-            set => SetProperty(ref _workshopId, nameof(WorkshopId));
+            set => SetProperty(ref _workshopId, value, nameof(WorkshopId));
   
         }
 
         public bool IsValid
         {
             get => _isValid;
-            set => SetProperty(ref _isValid, nameof(IsValid));
+            set => SetProperty(ref _isValid, value, nameof(IsValid));
         }
 
         public string ThumbnailImageFileName => Path.Combine(SavePath, SpaceEngineersConsts.ThumbnailImageFileName);
@@ -161,7 +160,7 @@ namespace SEToolbox.Models
         public MyObjectBuilder_Sector SectorData
         {
             get => _sectorData;
-            set => SetProperty(ref _sectorData, nameof(SectorData));
+            set => SetProperty(ref _sectorData, value, nameof(SectorData));
         }
 
         public SpaceEngineersResources Resources

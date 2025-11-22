@@ -56,7 +56,7 @@ namespace SEToolbox.Models
 
         public CubeItemModel(MyObjectBuilder_CubeBlock cube, MyCubeBlockDefinition definition)
         {
-            SetProperties(cube, definition);
+            SetCubeProperties(cube, definition);
         }
 
         #endregion
@@ -68,92 +68,92 @@ namespace SEToolbox.Models
         public MyObjectBuilder_CubeBlock Cube
         {
             get => _cube;
-            set => SetProperty(ref _cube, nameof(Cube));
+            set => SetProperty(ref _cube, value, nameof(Cube));
             }
 
         public long Owner
         {
             get => _cube.Owner;
-            set => SetProperty(ref _cube.Owner, nameof(Owner));
+            set => SetProperty(ref _cube.Owner, value, nameof(Owner));
         }
 
         public long BuiltBy
         {
             get => Cube.BuiltBy;
-            set => SetProperty(Cube.BuiltBy, nameof(BuiltBy));
+            set => SetProperty(Cube.BuiltBy, value, nameof(BuiltBy));
 
         }
 
         public MyObjectBuilderType TypeId
         {
             get => _typeId;
-            set => SetProperty(ref _typeId, nameof(TypeId));
+            set => SetProperty(ref _typeId, value, nameof(TypeId));
         }
 
         public string SubtypeId
         {
             get => _subtypeId;
-            set => SetProperty(ref _subtypeId, nameof(SubtypeId));
+            set => SetProperty(ref _subtypeId, value, nameof(SubtypeId));
         }
 
         public string TextureFile
         {
             get => _textureFile;
-            set => SetProperty(ref _textureFile, nameof(TextureFile));
+            set => SetProperty(ref _textureFile, value, nameof(TextureFile));
         }
 
         public MyCubeSize CubeSize
         {
             get => _cubeSize;
-            set => SetProperty(ref _cubeSize, nameof(CubeSize));
+            set => SetProperty(ref _cubeSize, value, nameof(CubeSize));
         }
 
         public string FriendlyName
         {
             get => _friendlyName;
-            set => SetProperty(ref _friendlyName, nameof(FriendlyName));
+            set => SetProperty(ref _friendlyName, value, nameof(FriendlyName));
         }
 
         public string OwnerName
         {
             get => _ownerName;
-            set => SetProperty(ref _ownerName, nameof(OwnerName));
+            set => SetProperty(ref _ownerName, value, nameof(OwnerName));
         }
 
         public string BuiltByName
         {
             get => _builtByName;
-            set => SetProperty(ref _builtByName, nameof(BuiltByName));
+            set => SetProperty(ref _builtByName, value, nameof(BuiltByName));
         }
 
         public string ColorText
         {
             get => _colorText;
-            set => SetProperty(ref _colorText, nameof(ColorText));
+            set => SetProperty(ref _colorText, value, nameof(ColorText));
         }
 
         public float ColorHue
         {
             get => _colorHue;
-            set => SetProperty(ref _colorHue, nameof(ColorHue));
+            set => SetProperty(ref _colorHue, value, nameof(ColorHue));
         }
 
         public float ColorSaturation
         {
             get => _colorSaturation;
-            set => SetProperty(ref _colorSaturation, nameof(ColorSaturation));
+            set => SetProperty(ref _colorSaturation, value, nameof(ColorSaturation));
         }
 
         public float ColorLuminance
         {
             get => _colorLuminance;
-            set => SetProperty(ref _colorLuminance, nameof(ColorLuminance));
+            set => SetProperty(ref _colorLuminance, value, nameof(ColorLuminance));
         }
 
         public BindablePoint3DIModel Position
         {
             get => _position;
-            set => SetProperty(ref _position, nameof(Position));
+            set => SetProperty(ref _position, value, nameof(Position));
         }
 
         public override string ToString()
@@ -164,25 +164,25 @@ namespace SEToolbox.Models
         public double BuildPercent
         {
             get => _buildPercent;
-            set => SetProperty(ref _buildPercent, nameof(BuildPercent));
+            set => SetProperty(ref _buildPercent, value, nameof(BuildPercent));
         }
 
         public System.Windows.Media.Brush Color
         {
             get => _color;
-            set => SetProperty(ref _color, nameof(Color));
+            set => SetProperty(ref _color, value, nameof(Color));
         }
 
         public int PCU
         {
             get => _pcu;
-            set => SetProperty(ref _pcu, nameof(PCU));
+            set => SetProperty(ref _pcu, value, nameof(PCU));
         }
 
         public ObservableCollection<InventoryEditorModel> Inventory
         {
             get => _inventory;
-            set => SetProperty(ref _inventory, nameof(Inventory));
+            set => SetProperty(ref _inventory, value, nameof(Inventory));
         }
 
         #endregion
@@ -280,7 +280,7 @@ namespace SEToolbox.Models
             newCube.DeformationRatio = Cube.DeformationRatio;
             newCube.BlockGeneralDamageModifier = Cube.BlockGeneralDamageModifier;
 
-            SetProperties(newCube, definition);
+            SetCubeProperties(newCube, definition);
 
             return newCube;
         }
@@ -328,7 +328,7 @@ namespace SEToolbox.Models
             return true;
         }
 
-        private void SetProperties(MyObjectBuilder_CubeBlock cube, MyCubeBlockDefinition definition)
+        private void SetCubeProperties(MyObjectBuilder_CubeBlock cube, MyCubeBlockDefinition definition)
         {
             Cube = cube;
             Position = new BindablePoint3DIModel(cube.Min);

@@ -52,16 +52,16 @@ namespace SEToolbox.ViewModels
             _dialogService = dialogService;
             _colorDialogFactory = colorDialogFactory;
 
-            CubeItemViewModel viewModelCreator(CubeItemModel model) => new(this, model);
-            ObservableCollection<CubeItemViewModel> collectionCreator() => new ObservableViewModelCollection<CubeItemViewModel, CubeItemModel>(dataModel.CubeList, viewModelCreator);
-            _cubeList = new Lazy<ObservableCollection<CubeItemViewModel>>(collectionCreator);
+            CubeItemViewModel ViewModelCreator(CubeItemModel model) => new(this, model);
+            ObservableCollection<CubeItemViewModel> CollectionCreator() => new ObservableViewModelCollection<CubeItemViewModel, CubeItemModel>(dataModel.CubeList, ViewModelCreator);
+            _cubeList = new Lazy<ObservableCollection<CubeItemViewModel>>(CollectionCreator);
 
             DataModel.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
             {
                 if (e.PropertyName == "CubeList")
                 {
-                    collectionCreator();
-                    _cubeList = new Lazy<ObservableCollection<CubeItemViewModel>>(collectionCreator);
+                    CollectionCreator();
+                    _cubeList = new Lazy<ObservableCollection<CubeItemViewModel>>(CollectionCreator);
                 }
                 // Will bubble property change events from the Model to the ViewModel.
                 OnPropertyChanged(e.PropertyName);
@@ -184,13 +184,13 @@ namespace SEToolbox.ViewModels
         public ObservableCollection<CubeItemViewModel> Selections
         {
             get => _selections;
-            set => SetProperty(ref _selections, nameof(Selections));
+            set => SetProperty(ref _selections, value, nameof(Selections));
         }
 
         public CubeItemViewModel SelectedCubeItem
         {
             get => _selectedCubeItem;
-            set => SetProperty(ref _selectedCubeItem, nameof(SelectedCubeItem));
+            set => SetProperty(ref _selectedCubeItem, value, nameof(SelectedCubeItem));
         }
 
         protected new StructureCubeGridModel DataModel
@@ -201,7 +201,10 @@ namespace SEToolbox.ViewModels
         public bool ToggleExcludedBlocks //why did i put this here??
         {
             get => DataModel.ToggleExcludedBlocks;
-            set => SetProperty( DataModel.ToggleExcludedBlocks, () => { MainViewModel.IsModified = true;}, nameof(ToggleExcludedBlocks));
+            set => SetProperty(DataModel.ToggleExcludedBlocks, value, () => 
+            { 
+                MainViewModel.IsModified = true;
+            }, nameof(ToggleExcludedBlocks));
           
         }
 
@@ -231,11 +234,12 @@ namespace SEToolbox.ViewModels
         {
             get => DataModel.Dampeners;
 
-            set
-            {
-                DataModel.Dampeners = value;
-                MainViewModel.IsModified = true;
-            }
+            set 
+            { 
+                DataModel.Dampeners = value ; 
+                MainViewModel.IsModified = true;  
+            } 
+            
         }
 
         public bool Destructible

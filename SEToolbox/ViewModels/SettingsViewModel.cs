@@ -82,7 +82,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty(ref _closeResult, nameof(CloseResult));
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         public string SEBinPath
@@ -190,7 +190,7 @@ namespace SEToolbox.ViewModels
 
         public void BrowseVoxelPathExecuted()
         {
-            IFolderBrowserDialog folderDialog = _folderDialogFactory();
+            var folderDialog = _folderDialogFactory();
             folderDialog.Description = Res.DialogLocationCustomVoxelFolder;
             folderDialog.SelectedPath = CustomVoxelPath;
             folderDialog.ShowNewFolderButton = true;

@@ -157,9 +157,9 @@ namespace SEToolbox.ViewModels
             BaseViewModel current = this;
             while (current != null)
             {
-                if (current.GetType().Name == "MainViewModel")
+                if (current.GetType().Name == nameof(MainViewModel))
                 {
-                    System.Reflection.PropertyInfo prop = current.GetType().GetProperty("IsModified");
+                    System.Reflection.PropertyInfo prop = current.GetType().GetProperty(nameof(MainViewModel.IsModified));
                     if (prop != null && prop.CanWrite)
                     {
                         prop.SetValue(current, true);

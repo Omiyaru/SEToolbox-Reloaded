@@ -90,7 +90,7 @@ namespace SEToolbox.Interop
                     }
                 }
 
-				//test?
+                //test?
                 //<BlockGroups>
                 //<MyObjectBuilder_BlockGroup>
                 //    <Name>Open</Name>
@@ -174,7 +174,7 @@ namespace SEToolbox.Interop
                 Dictionary<long, long> idReplacementTable = [];
                 if (repairWorld.Checkpoint.Identities != null)
                 {
-                    foreach(var identity in repairWorld.Checkpoint.Identities)
+                    foreach (var identity in repairWorld.Checkpoint.Identities)
                     {
                         if (!SpaceEngineersApi.ValidateEntityType(IDType.IDENTITY, identity.IdentityId))
                         {
@@ -314,44 +314,42 @@ namespace SEToolbox.Interop
                                 if (item.PlayerId == 0)
 
                                     item.PlayerId = SpaceEngineersApi.GenerateEntityId();
-                                    world.Checkpoint.AllPlayersData.Dictionary[key] = new MyObjectBuilder_PlayerItem
-                                    {
-                                        PlayerId = item.PlayerId,
-                                        DisplayName = item.DisplayName,
-                                        IsDead = false, //in VRage.Game.ModAPI.IMyCharacter.IsDead or VRage.Game.ModAPI.IMyIdentity.IsDead
-                                        SteamID = item.SteamID,
-                                        IdentityId = item.IdentityId
-                                    };
-                                    statusNormal = false;
-                                    str.AppendLine("! Fixed corrupt or missing Player definition.");
-                                    saveAfterScan = true;
-                                }
-
+                                world.Checkpoint.AllPlayersData.Dictionary[key] = new MyObjectBuilder_PlayerItem
+                                {
+                                    PlayerId = item.PlayerId,
+                                    DisplayName = item.DisplayName,
+                                    IsDead = false, //in VRage.Game.ModAPI.IMyCharacter.IsDead or VRage.Game.ModAPI.IMyIdentity.IsDead
+                                    SteamID = item.SteamID,
+                                    IdentityId = item.IdentityId
+                                };
+                                statusNormal = false;
+                                str.AppendLine("! Fixed corrupt or missing Player definition.");
+                                saveAfterScan = true;
                             }
-                        }
 
-                        if (saveAfterScan)
-                        {
-                            repairWorld.SaveCheckPointAndSector(true);
-                        str.AppendLine(Res.ClsRepairSavedChanges);
                         }
                     }
 
-                    if (statusNormal)
+                    if (saveAfterScan)
                     {
-                    str.AppendLine(Res.ClsRepairNoIssues);
+                        repairWorld.SaveCheckPointAndSector(true);
+                        str.AppendLine(Res.ClsRepairSavedChanges);
                     }
-
-
                 }
+
+                if (statusNormal)
+                {
+                    str.AppendLine(Res.ClsRepairNoIssues);
+                }
+
+            }
             return str.ToString();
         }
 
-  	internal class MyObjectBuilder_PlayerItem : MyObjectBuilder_Player
-    {
-        public bool IsDead { get; set; }
-
-    }
+        internal class MyObjectBuilder_PlayerItem : MyObjectBuilder_Player
+        {
+            public bool IsDead { get; set; }
+        }
         private static long MergeId(long currentId, IDType type, ref Dictionary<Int64, Int64> idReplacementTable)
         {
             if (currentId == 0)

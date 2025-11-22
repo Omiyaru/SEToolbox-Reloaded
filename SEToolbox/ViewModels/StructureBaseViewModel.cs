@@ -25,7 +25,7 @@ namespace SEToolbox.ViewModels
         public bool IsSelected
         {
             get => _isSelected;
-            set => SetProperty(ref _isSelected, nameof(IsSelected));
+            set => SetProperty(ref _isSelected, value, nameof(IsSelected));
         }
         /// <summary>
         /// Gets or sets a value indicating whether the View is currently in the middle of an asynchonise operation.
@@ -39,19 +39,19 @@ namespace SEToolbox.ViewModels
         public long EntityId
         {
             get => DataModel.EntityId;
-            set => SetProperty( DataModel.EntityId, nameof(EntityId));
+            set => SetProperty( DataModel.EntityId, value, nameof(EntityId));
         }
 
         public MyPositionAndOrientation? PositionAndOrientation
         {
             get => DataModel.PositionAndOrientation;
-            set => SetProperty(DataModel.PositionAndOrientation, nameof(PositionAndOrientation));
+            set => SetProperty(DataModel.PositionAndOrientation, value, nameof(PositionAndOrientation));
         }
 
         public ClassType ClassType
         {
             get => DataModel.ClassType;
-            set => SetProperty( DataModel.ClassType, nameof(ClassType));
+            set => SetProperty(DataModel.ClassType, value, nameof(ClassType));
         }
 
         public string DisplayName
@@ -97,7 +97,7 @@ namespace SEToolbox.ViewModels
         public double PositionX
         {
             get => DataModel.PositionX;
-            set
+            set 
             {
                 DataModel.PositionX = value;
                 MainViewModel.IsModified = true;

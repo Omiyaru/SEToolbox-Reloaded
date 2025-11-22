@@ -75,7 +75,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => _baseModel.SetProperty(ref _closeResult, nameof(CloseResult));
+            set => _baseModel.SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         public string GameApplicationPath

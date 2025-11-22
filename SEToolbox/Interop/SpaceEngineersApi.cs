@@ -125,7 +125,6 @@ namespace SEToolbox.Interop
             return false;
         }
 
-
         public static T Deserialize<T>(string xml) where T : MyObjectBuilder_Base
         {
             T outObject;

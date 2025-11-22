@@ -32,7 +32,7 @@ namespace SEToolbox.Converters
             }
 
             string extension = Path.GetExtension(fileName).ToLower();
-            ImageSource imageSource = extension switch
+            var imageSource = extension switch
             {
                 ".png" => LoadPngImage(fileName, width, height),
                 ".dds" => LoadDdsImage(fileName, width, height, noAlpha),
@@ -58,7 +58,7 @@ namespace SEToolbox.Converters
 
         private static string GenerateCacheKey(string fileName, int width, int height)
         {
-            return Conditional.False(-1,width, height) ? $"{fileName},{width},{height}": fileName;
+            return Conditional.False(-1, width, height) ? $"{fileName},{width},{height}": fileName;
         }
 
         private static ImageSource LoadPngImage(string fileName, int width, int height)

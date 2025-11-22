@@ -48,7 +48,7 @@ namespace SEToolbox.Models
         public SerializableVector3 Color
         {
             get => Character.ColorMaskHSV;
-            set => SetProperty(Character?.ColorMaskHSV, nameof(Color), () => UpdateGeneralFromEntityBase());
+            set => SetProperty(Character?.ColorMaskHSV, value, nameof(Color), () => UpdateGeneralFromEntityBase());
 
         }
 
@@ -56,36 +56,35 @@ namespace SEToolbox.Models
         public bool Light
         {
             get => Character.LightEnabled;
-            set => SetProperty(Character.LightEnabled, nameof(Light));
+            set => SetProperty(Character.LightEnabled, value, nameof(Light));
         }
 
         [XmlIgnore]
         public bool JetPack
         {
             get => Character.JetpackEnabled;
-            set => SetProperty(Character.JetpackEnabled, nameof(JetPack));
+            set => SetProperty(Character.JetpackEnabled, value, nameof(JetPack));
         }
 
         [XmlIgnore]
         public bool Dampeners
         {
             get => Character.DampenersEnabled;
-            set => SetProperty(Character.DampenersEnabled, nameof(Dampeners));
+            set => SetProperty(Character.DampenersEnabled, value, nameof(Dampeners));
         }
 
         [XmlIgnore]
-
         public float BatteryCapacity // Character.Battery.CurrentCapacity ?? 0;
         {
             get => Character.Battery.CurrentCapacity;
-            set => SetProperty(Character.Battery.CurrentCapacity, nameof(BatteryCapacity));
+            set => SetProperty(Character.Battery.CurrentCapacity, value, nameof(BatteryCapacity));
         }
 
         [XmlIgnore]
         public float? Health
         {
             get => Character.Health;
-            set => SetProperty(Character.Health, nameof(Health));
+            set => SetProperty(Character.Health, value, nameof(Health));
         }
 
         //[XmlIgnore]
@@ -140,7 +139,7 @@ namespace SEToolbox.Models
         public bool IsPlayer
         {
             get => _isPlayer;
-            set => SetProperty(ref _isPlayer, nameof(IsPlayer));
+            set => SetProperty(ref _isPlayer, value, nameof(IsPlayer));
         }
 
         [XmlIgnore]
@@ -154,7 +153,7 @@ namespace SEToolbox.Models
         public bool IsPilot
         {
             get => _isPilot;
-            set => SetProperty(ref _isPilot, nameof(IsPilot));
+            set => SetProperty(ref _isPilot, value, nameof(IsPilot));
            
         }
 
@@ -162,7 +161,7 @@ namespace SEToolbox.Models
         public InventoryEditorModel Inventory
         {
             get => _inventory;
-            set => SetProperty(ref _inventory, nameof(Inventory));
+            set => SetProperty(ref _inventory, value, nameof(Inventory));
         }
 
         #endregion

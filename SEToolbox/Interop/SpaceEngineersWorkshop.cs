@@ -20,8 +20,6 @@ using VRage.GameServices;
 using static VRage.Game.MyObjectBuilder_Checkpoint;
 using SEConsts = SEToolbox.Interop.SpaceEngineersConsts;
 
-
-
 namespace SEToolbox.Interop
 {
     public class SpaceEngineersWorkshop
@@ -50,7 +48,6 @@ namespace SEToolbox.Interop
             {
                 MyWorkshop.GetItemsBlockingUGC([.. mods.Keys], [.. mods.Values]);
             }
-
         }
 
         public static MyWorkshop.ResultData DownloadWorldModsBlocking(List<ModItem> mods, MyWorkshop.CancelToken cancelToken)
@@ -119,11 +116,9 @@ namespace SEToolbox.Interop
 
                 foreach (var failedDownload in failedDownloads)
                 {
-
                     sb.AppendLine(failedDownload.ToString());
                     MySandboxGame.Log.WriteLineAndConsole(sb.ToString());
                 }
-
                 if (availableServices.Count == 0 || availableServices.All(x => !x.Value.IsConsoleCompatible || modList.Count == 0))
                 {
                     resultData.Result = MyGameServiceCallResult.Fail;

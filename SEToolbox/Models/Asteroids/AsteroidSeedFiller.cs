@@ -22,7 +22,6 @@ namespace SEToolbox.Models.Asteroids
             var materialsDictionary = materials.ToDictionary(
             m => m.Value,
             m => defaultMaterial.Value == m.Value ? defaultMaterial : m, StringComparer.OrdinalIgnoreCase);
-
             return randomModel;
         }
 
@@ -60,19 +59,17 @@ namespace SEToolbox.Models.Asteroids
             var rare = materialsCollection.Where(m => m.IsRare && m.MinedRatio >= 2).ToList();
             var superRare = materialsCollection.Where(m => m.IsRare && m.MinedRatio < 2).ToList();
 
-            // Parameters
             int chunks = isLarge ? 20 : 10;
             int chunkSize = isLarge ? 5 : 2;
             double multiplier = 1.0;
 
-            // === Rare Assignments ===
             AssignMaterials(index, randomModel, rare, chunks, chunkSize, ref multiplier, isLarge, isSuperRare: false);
 
-            // === Reset for Super-Rare Assignments ===
+           
             multiplier = 1.0;
             chunks = isLarge ? 50 : 10;//large/small 
             chunkSize = isLarge ? 2 : 0; //large/small
-            // === Super-Rare Assignments ===
+       
             AssignMaterials(index, randomModel, superRare, chunks, chunkSize, ref multiplier, isLarge, isSuperRare: true);
 
             return randomModel;
@@ -93,18 +90,13 @@ namespace SEToolbox.Models.Asteroids
             randomModel.MaterialsList = [];
             int slotIndex = isSuperRare ? 5 : 1; // superRare starts filling from slot 5+
 
-            // Set how many we’ll assign depending on size/type
             _ = isSuperRare ?
                 (isLarge ? 7 : 5) :
                  isLarge ? 4 : 3;
 
             var materialsToRemove = new List<MaterialSelectionModel>();
             foreach (var mat in materials)
-            {
-
-               
-              
-                    
+            { 
                 isSecretRandom = RandomUtil.EnableSecretRandom;
                 int idx = RandomUtil.GetInt(materials.Count);
                 
@@ -127,7 +119,6 @@ namespace SEToolbox.Models.Asteroids
                 {
                     bool isSuperRareRange = slotIndex >= 5 && slotIndex <= 7 && isSuperRare;
                     double multiplierFactor = isSuperRareRange ? 0.75 : 0.50;
-              
 
                     foreach (var kv in AsteroidSeedFillProperties.MaterialsData)
                     {
@@ -144,7 +135,6 @@ namespace SEToolbox.Models.Asteroids
 
                     multiplier *= multiplierFactor;
                 }
-
 
                     materials.RemoveAt(idx);
                 }

@@ -53,11 +53,11 @@ namespace SEToolbox.Interop
         }
 
       
-        private static readonly object MatindexLock = new();
+        private static readonly object MatIndexLock = new();
 
         public static byte GetMaterialIndex(string materialName)
         {
-            lock (MatindexLock)
+            lock (MatIndexLock)
             {
                 return MyDefinitionManager.Static.GetVoxelMaterialDefinition(materialName).Index;
             }

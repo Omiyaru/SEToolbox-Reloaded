@@ -57,13 +57,13 @@ namespace SEToolbox.Models
         public double X
         {
             get => _vector.X;
-            set => SetProperty(_vector.X, nameof(X));
+            set => SetProperty(_vector.X, value, nameof(X));
         }
 
         public double Y
         {
             get => _vector.Y;
-            set => SetProperty(_vector.Y, nameof(Y));
+            set => SetProperty(_vector.Y, value, nameof(Y));
         }
 
         
@@ -71,13 +71,13 @@ namespace SEToolbox.Models
         public double Z
         {
             get => _vector.Z;
-            set => SetProperty(_vector.Z, nameof(Z));
+            set => SetProperty(_vector.Z, value, nameof(Z));
         }
 
         public Vector3D Vector3D
         {
             get => _vector;
-            set => SetProperty(ref _vector, nameof(Vector3D));
+            set => SetProperty(ref _vector, value, nameof(Vector3D));
         }
 
         #endregion

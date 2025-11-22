@@ -120,7 +120,7 @@ namespace SEToolbox.Models.Asteroids
             List<byte> materialSelection =
             [
                 // Ensure MainMaterial is not null
-              (byte)Conditional.ConditionCoalesced(null, properties?.MainMaterial, SpaceEngineersResources.GetMaterialIndex(properties.MainMaterial.Value),0),
+              (byte)Conditional.ConditionCoalesced(null,properties?.MainMaterial, SpaceEngineersResources.GetMaterialIndex(properties.MainMaterial.Value),0),
             ];
 
             for (int i = 2; i <= 7; i++)
@@ -182,7 +182,7 @@ namespace SEToolbox.Models.Asteroids
             asteroid.SetVoxelMaterialList(newDistribution);
             //asteroid.ForceVoxelFaceMaterial(_dataModel.BaseMaterial.DisplayName);
         }
-        
+
         public void FillAsteroid(MyVoxelMapBase asteroid, IMyVoxelFillProperties fillProperties, AsteroidFillType.AsteroidFills fillType, int seed)
         {
             // seed = 0;
@@ -196,11 +196,9 @@ namespace SEToolbox.Models.Asteroids
             //     GenerateSeed(seed);
             // }
         }
-
         // public int  GenerateSeed(int seed) {
+    }
 
-    }
-        
-    }
+}
 
 
