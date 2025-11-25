@@ -47,13 +47,13 @@ namespace SEToolbox.Interfaces
 
         double PositionZ { get; set; }
 
-         Vector3D Position { get; set; }
+        Vector3D Position { get; set; }
 
         double LinearVelocity { get; set; }
         
-        Vector3D PlayerLocation { get; set; }
+        //Vector3D PlayerLocation { get; set; }
         
-        Vector3D PlayerPosition { get; set; }
+        //Vector3D PlayerPosition { get; set; }
         
         string SourceVoxelFilePath { get; set; }
 

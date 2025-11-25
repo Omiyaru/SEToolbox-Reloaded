@@ -64,12 +64,12 @@ namespace SEToolbox.Models
             get => _isBusy;
 
             set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
-               {
-                   if (_isBusy)
-                   {
+            {
+                if (_isBusy)
+                {
                        System.Windows.Forms.Application.DoEvents();
-                   }
-               });
+                }
+            });
 
         }
 

@@ -151,11 +151,11 @@ namespace SEToolbox.Support
         {
             try
             {
-                Write($"{value}");
+                Console.Write($"{value}");
             }
             catch (Exception ex)
             {
-                Write($"An error occurred while writing: {ex.Message}");
+                Console.Write($"An error occurred while writing: {ex.Message}");
             }
         }
 

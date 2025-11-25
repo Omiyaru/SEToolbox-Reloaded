@@ -105,15 +105,7 @@ namespace SEToolbox.Models
         private static float ToFloat(double value)
         {
             float result = (float)value;
-            if (float.IsPositiveInfinity(result))
-            {
-                result = float.MaxValue;
-            }
-            else if (float.IsNegativeInfinity(result))
-            {
-                result = float.MinValue;
-            }
-            return result;
+            return float.IsInfinity(result) ? result > 0 ? float.MaxValue : float.MinValue : result;
         }
 
         public BindablePoint3DModel RoundOff(double roundTo)

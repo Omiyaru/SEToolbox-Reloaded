@@ -9,6 +9,7 @@ using SEToolbox.Support;
 using VRage;
 using VRage.Game;
 using Sandbox.Definitions;
+using VRageMath;
 
 namespace SEToolbox.Models
 {
@@ -28,6 +29,7 @@ namespace SEToolbox.Models
         private static double _centerPositionX;
         private static double _centerPositionY;
         private static double _centerPositionZ;
+        private static Vector3D _centerPosition;
         private static AsteroidFillType.AsteroidFills _asteroidFillType;
 
         #endregion
@@ -103,6 +105,12 @@ namespace SEToolbox.Models
         {
             get => _centerPositionZ;
             set => SetProperty(ref _centerPositionZ, value, nameof(CenterPositionZ));
+        }
+
+        public Vector3D CenterPosition
+        {
+            get => _centerPosition;
+            set => SetProperty(ref _centerPosition, value, nameof(CenterPosition));
         }
 
         public AsteroidFillType.AsteroidFills AsteroidFillType
@@ -215,23 +223,17 @@ namespace SEToolbox.Models
 
         public AsteroidByteFillProperties NewDefaultVoxel(int index)
         {
-            var firstMaterial = MaterialsCollection.FirstOrDefault();
-            var firstVoxelFile = VoxelFileList.FirstOrDefault();
-
-            if (firstMaterial == null || firstVoxelFile == null)
-                return null;
-
             return new AsteroidByteFillProperties
             {
                 Index = index,
-                VoxelFile = firstVoxelFile,
-                MainMaterial = MaterialsCollection[0],
-                SecondMaterial = MaterialsCollection[0],
-                ThirdMaterial = MaterialsCollection[0],
-                FourthMaterial = MaterialsCollection[0],
-                FifthMaterial = MaterialsCollection[0],
-                SixthMaterial = MaterialsCollection[0],
-                SeventhMaterial = MaterialsCollection[0],
+                VoxelFile = VoxelFileList.FirstOrDefault(),
+                MainMaterial = MaterialsCollection.FirstOrDefault(),
+                SecondMaterial = MaterialsCollection.FirstOrDefault(),
+                ThirdMaterial = MaterialsCollection.FirstOrDefault(),
+                FourthMaterial = MaterialsCollection.FirstOrDefault(),
+                FifthMaterial = MaterialsCollection.FirstOrDefault(),
+                SixthMaterial = MaterialsCollection.FirstOrDefault(),
+                SeventhMaterial = MaterialsCollection.FirstOrDefault(),
             };
         }
 

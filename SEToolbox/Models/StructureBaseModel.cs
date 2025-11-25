@@ -62,7 +62,7 @@ namespace SEToolbox.Models
         [NonSerialized]
         internal Dispatcher _dispatcher;
 
-        private Vector3D _playerPosition;
+        //private Vector3D _playerPosition;
 
         private string _sourceVoxelFilePath;
 
@@ -88,10 +88,9 @@ namespace SEToolbox.Models
         public virtual MyObjectBuilder_EntityBase EntityBase
         {
             get => _entityBase;
-
             set => SetProperty(ref _entityBase, value, () =>
-            UpdateGeneralFromEntityBase(),
-            nameof(EntityBase));
+                   UpdateGeneralFromEntityBase(),
+                   nameof(EntityBase));
 
         }
 
@@ -108,7 +107,7 @@ namespace SEToolbox.Models
         {
             get => _entityBase.PositionAndOrientation;
 
-            set => SetProperty(ref _entityBase.PositionAndOrientation,value, nameof(PositionAndOrientation));
+            set => SetProperty(ref _entityBase.PositionAndOrientation, value, nameof(PositionAndOrientation));
         }
 
         [XmlIgnore]
@@ -117,10 +116,10 @@ namespace SEToolbox.Models
             get => _entityBase.PositionAndOrientation.Value.Position.X;
             set => SetProperty(_entityBase.PositionAndOrientation.Value.Position.X, value, () =>
             {
-                    var pos = _entityBase.PositionAndOrientation.Value;
-                    pos.Position.X = value;
-                    _entityBase.PositionAndOrientation = pos;
-                  
+                var pos = _entityBase.PositionAndOrientation.Value;
+                pos.Position.X = value;
+                _entityBase.PositionAndOrientation = pos;
+
             }, nameof(PositionX));
         }
 
@@ -130,9 +129,9 @@ namespace SEToolbox.Models
             get => _entityBase.PositionAndOrientation.Value.Position.Y;
             set => SetProperty(_entityBase.PositionAndOrientation.Value.Position.Y, value, () =>
               {
-                      var pos = _entityBase.PositionAndOrientation.Value;
-                      pos.Position.Y = value;
-                      _entityBase.PositionAndOrientation = pos;
+                  var pos = _entityBase.PositionAndOrientation.Value;
+                  pos.Position.Y = value;
+                  _entityBase.PositionAndOrientation = pos;
               }, nameof(PositionY));
         }
 
@@ -141,11 +140,11 @@ namespace SEToolbox.Models
         {
             get => _entityBase.PositionAndOrientation.Value.Position.Z;
             set => SetProperty(_entityBase.PositionAndOrientation.Value.Position.Z, value, () =>
-              {
-                      var pos = _entityBase.PositionAndOrientation.Value;
-                      pos.Position.Z = value;
-                      _entityBase.PositionAndOrientation = pos;
-              }, nameof(PositionZ));
+            {
+                var pos = _entityBase.PositionAndOrientation.Value;
+                pos.Position.Z = value;
+                _entityBase.PositionAndOrientation = pos;
+            }, nameof(PositionZ));
         }
 
         public SerializableVector3D Position
@@ -155,20 +154,20 @@ namespace SEToolbox.Models
                     _entityBase.PositionAndOrientation.Value.Position.Y,
                     _entityBase.PositionAndOrientation.Value.Position.X);
             set => SetProperty(_entityBase.PositionAndOrientation.Value.Position, value, () =>
-              {
-                  if (_entityBase.PositionAndOrientation.HasValue
-                      && value.X != _entityBase.PositionAndOrientation.Value.Position.X
-                      && value.Y != _entityBase.PositionAndOrientation.Value.Position.Y
-                      && value.Z != _entityBase.PositionAndOrientation.Value.Position.Z)
-                  {
-                      MyPositionAndOrientation pos = _entityBase.PositionAndOrientation.Value;
-                      pos.Position.X = value.X;
-                      pos.Position.Y = value.Y;
-                      pos.Position.Z = value.Z;
+            {
+                if (_entityBase.PositionAndOrientation.HasValue
+                    && value.X != _entityBase.PositionAndOrientation.Value.Position.X
+                    && value.Y != _entityBase.PositionAndOrientation.Value.Position.Y
+                    && value.Z != _entityBase.PositionAndOrientation.Value.Position.Z)
+                {
+                    MyPositionAndOrientation pos = _entityBase.PositionAndOrientation.Value;
+                    pos.Position.X = value.X;
+                    pos.Position.Y = value.Y;
+                    pos.Position.Z = value.Z;
 
-                      _entityBase.PositionAndOrientation = pos;
-                  }
-              }, nameof(Position));
+                    _entityBase.PositionAndOrientation = pos;
+                }
+            }, nameof(Position));
         }
 
         [XmlIgnore]
@@ -191,7 +190,6 @@ namespace SEToolbox.Models
         {
             get => _description;
             set => SetProperty(ref _description, value, nameof(Description));
-
         }
 
         [XmlIgnore]
@@ -270,46 +268,48 @@ namespace SEToolbox.Models
             set => SetProperty(ref _isValid, value, nameof(IsValid));
         }
 
-        public double PlayerLocationX
-        {
-            get => _playerPosition.X;
+        // public double PlayerLocationX
+        // {
+        //     get => _playerPosition.X;
 
-            set => SetProperty(ref _playerPosition.X, value, nameof(PlayerLocationX), nameof(PlayerPosition));
+        //     set => SetProperty(ref _playerPosition.X, value, nameof(PlayerLocationX), nameof(PlayerPosition));
 
-        }
+        // }
 
-        public double PlayerLocationY
-        {
-            get => _playerPosition.Y;
+        // public double PlayerLocationY
+        // {
+        //     get => _playerPosition.Y;
 
-            set => SetProperty(ref _playerPosition.Y, value, nameof(PlayerLocationY), nameof(PlayerPosition));
+        //     set => SetProperty(ref _playerPosition.Y, value, nameof(PlayerLocationY), nameof(PlayerPosition));
 
-        }
+        // }
 
-        public double PlayerLocationZ
-        {
-            get => _playerPosition.Z;
-            set => SetProperty(ref _playerPosition.Z, value, nameof(PlayerLocationZ), nameof(PlayerPosition));
+        // public double PlayerLocationZ
+        // {
+        //     get => _playerPosition.Z;
+        //     set => SetProperty(ref _playerPosition.Z, value, nameof(PlayerLocationZ), nameof(PlayerPosition));
 
-        }
+        // }
 
-        public Vector3D PlayerPosition
-        {
-            get => _playerPosition;
-            set => SetProperty(ref _playerPosition, value, nameof(PlayerPosition));
-        }
+        // public Vector3D PlayerPosition
+        // {
+        //     get => _playerPosition;
+        //     set => SetProperty(ref _playerPosition, value, nameof(PlayerPosition));
+        // }
 
-        public Vector3D PlayerLocation
-        {
-            get => _playerPosition;
-            set => SetProperty(ref _playerPosition, value,
-                                nameof(PlayerLocation),
-                                nameof(PlayerLocationX),
-                                nameof(PlayerLocationY),
-                                nameof(PlayerLocationZ),
-                                nameof(PlayerPosition)
-                                );
-        }
+        // public Vector3D PlayerLocation
+        // {
+        //     get => _playerPosition;
+        //     set => SetProperty(ref _playerPosition, value,nameof(PlayerLocation), () =>
+        //     {
+        //         PlayerLocationX = value.X;
+        //         PlayerLocationY = value.Y;
+        //         PlayerLocationZ = value.Z;
+        //     },  nameof(PlayerLocationX),
+        //         nameof(PlayerLocationY),
+        //         nameof(PlayerLocationZ),
+        //         nameof(PlayerPosition));
+        // }
 
         public string SourceVoxelFilePath
         {
@@ -344,7 +344,7 @@ namespace SEToolbox.Models
                 MyObjectBuilder_FloatingObject _ => new StructureFloatingObjectModel(entityBase),
                 MyObjectBuilder_Meteor _ => new StructureMeteorModel(entityBase),
                 MyObjectBuilder_InventoryBagEntity _ => new StructureInventoryBagModel(entityBase),
-               _ => new StructureUnknownModel(entityBase) ?? throw new NotImplementedException($"A new object has not been catered for in the StructureBase, of type '{entityBase.GetType()}'.")
+                _ => new StructureUnknownModel(entityBase) ?? throw new NotImplementedException($"A new object has not been catered for in the StructureBase, of type '{entityBase.GetType()}'.")
             };
         }
 

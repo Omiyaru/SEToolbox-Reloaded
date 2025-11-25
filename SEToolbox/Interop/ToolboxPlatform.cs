@@ -123,6 +123,8 @@ namespace SEToolbox.Interop
             }
         }
 
+        public bool IsUsingGeforceNowCloud => throw new NotImplementedException();
+
         public event Action<string> OnSystemProtocolActivated
         {
             add => _onSystemProtocolActivated += value;

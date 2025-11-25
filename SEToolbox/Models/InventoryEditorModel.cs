@@ -61,12 +61,9 @@ namespace SEToolbox.Models
         {
             _name = string.Empty;
             _items = [];
-
             _item = new MyObjectBuilder_InventoryItem();
-
             _selectedRow = new InventoryModel(_item, name, description);
             _isValid = true;
-
             _inventory.Items.Add(_item);
               return new InventoryModel(item, name, description);
         }

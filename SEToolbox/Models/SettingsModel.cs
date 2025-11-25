@@ -30,7 +30,6 @@ namespace SEToolbox.Models
             get => _customVoxelPath ?? string.Empty;
             set => SetProperty(ref _customVoxelPath, value, nameof(CustomVoxelPath), () => 
             	   Validate());
-
         }
 
         public bool? AlwaysCheckForUpdates
@@ -52,7 +51,6 @@ namespace SEToolbox.Models
         public bool IsValid
         {
             get => _isValid;
-
             private set => SetProperty(ref _isValid, value, nameof(IsValid));
         }
 
