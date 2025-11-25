@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-
 using System.Linq;
 using System.Management;
 using System.Reflection;
@@ -24,7 +23,7 @@ using VRage.Serialization;
 using VRage.Utils;
 using VRageRender;
 
-//implemented generic dummy  implementations to satisfy the interface requirements 
+// generic dummy  implementations to satisfy the interface requirements 
 namespace SEToolbox.Interop
 {
     public class ToolboxPlatform : IVRagePlatform
@@ -257,7 +256,6 @@ namespace SEToolbox.Interop
             used = GC.GetTotalMemory(true) / (1024f * 1024f);
         }
 
-
         public void OnThreadpoolInitialized()
         {
             ThreadPool.GetMinThreads(out int minWorkerThreads, out int minCompletionPortThreads);
@@ -383,6 +381,7 @@ namespace SEToolbox.Interop
             m_typeModel.AutoAddMissingTypes = true;
             m_typeModel.UseImplicitZeroDefaults = false;
         }
+        
         private static ushort Get16BitHash(string s)
         {
             using MD5 mD = MD5.Create();
@@ -419,7 +418,9 @@ namespace SEToolbox.Interop
             }
         }
 
-        public void FlushCaches() => CreateTypeModel();
-
+        public void FlushCaches()
+        {
+            CreateTypeModel();
+        }
     }
 }

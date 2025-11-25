@@ -10,10 +10,8 @@ namespace SEToolbox.Controls
     /// </summary>
     public class MyDataGrid : DataGrid
     {
-
         public MyDataGrid()
         {
-            // Fix the event handler to respond correctly when clicking on dropdown list items.
             PreviewMouseLeftButtonDown += MDG_PreviewMouseLeftButtonDown;
         }
 
@@ -22,26 +20,24 @@ namespace SEToolbox.Controls
             var dataGrid = sender as DataGrid;
             var cell = dataGrid.GetHitControl<DataGridCell>(e);
 
-            if (cell != null)
+            if (cell is { IsReadOnly: false, IsEditing: false })
             {
-                if (!cell.IsEditing && !cell.IsReadOnly)
+                cell?.Focus();
+                dataGrid = cell?.FindVisualParent<DataGrid>();
+                var row = cell?.FindVisualParent<DataGridRow>();
+
+                if (dataGrid?.SelectionUnit != DataGridSelectionUnit.FullRow)
                 {
-                    var content = cell.Content;
-                    if (content is ComboBox)
-                    {
-                        var comboBox = content as ComboBox;
-                        if (comboBox.IsDropDownOpen)
-                            return;
-                    }
-                    cell.Focus();
+                    cell?.IsSelected = !cell.IsSelected;
                 }
-                var row = cell.FindVisualParent<DataGridRow>();
-
-                row?.IsSelected = row.IsSelected ? true : false;
-                cell.IsSelected = cell.IsSelected ? false : true;
-
+                else
+                {
+                    row?.IsSelected = !row.IsSelected;
+                }
             }
+
         }
     }
 }
+
 

@@ -92,7 +92,9 @@ namespace SEToolbox.Models
 
         public VRageMath.Vector3 ToVector3()
         {
-            return new(ToFloat(X), ToFloat(Y), ToFloat(Z));
+            return new(ToFloat(X), 
+                       ToFloat(Y),
+                       ToFloat(Z));
         }
 
         public VRageMath.Vector3D ToVector3D()
@@ -126,7 +128,6 @@ namespace SEToolbox.Models
         {
             return string.Format($"{X},{Y},{Z}");
         }
-        
 
         #endregion
     }

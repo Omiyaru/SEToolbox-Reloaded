@@ -21,7 +21,7 @@ namespace SEToolbox.Interop
             bool statusNormal = true;
             bool missingFiles = false;
             bool saveAfterScan = false;
-            string errorInformation = string.Empty;
+           
 
             // repair will use the WorldResource, thus it won't have access to the wrapper classes.
             // Any repair must be on the raw XML or raw serialized classes.
@@ -35,7 +35,7 @@ namespace SEToolbox.Interop
                 missingFiles = true;
             }
 
-            if (!repairWorld.LoadCheckpoint(out errorInformation))
+            if (!repairWorld.LoadCheckpoint(out string errorInformation))
             {
                 statusNormal = false;
                 str.AppendLine(errorInformation);
@@ -266,7 +266,7 @@ namespace SEToolbox.Interop
                             }
                         }
 
-                        foreach (MyObjectBuilder_CubeBlock block in cubeGrid.CubeBlocks)
+                        foreach (var block in cubeGrid.CubeBlocks)
                         {
                             var definition = SpaceEngineersApi.GetCubeDefinition(block.GetType(), cubeGrid.GridSizeEnum, block.SubtypeName);
                             if (definition == null)
@@ -350,6 +350,7 @@ namespace SEToolbox.Interop
         {
             public bool IsDead { get; set; }
         }
+        
         private static long MergeId(long currentId, IDType type, ref Dictionary<Int64, Int64> idReplacementTable)
         {
             if (currentId == 0)

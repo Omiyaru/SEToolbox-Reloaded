@@ -11,7 +11,6 @@ using SEToolbox.Interop;
 using SEToolbox.Models;
 using SEToolbox.Services;
 using SEToolbox.Support;
-
 using VRage;
 using VRage.Game;
 using VRage.ObjectBuilders;
@@ -105,11 +104,10 @@ namespace SEToolbox.ViewModels
         {
             get => _dataModel.FileName;
 
-            set
+            set => SetProperty(_dataModel.FileName, value, () => 
             {
-                _dataModel.FileName = value;
                 FileNameChanged();
-            }
+            });
         }
 
         public bool IsValidImage
@@ -127,7 +125,8 @@ namespace SEToolbox.ViewModels
         public BindableSizeModel NewImageSize
         {
             get => _dataModel.NewImageSize;
-            set => SetProperty( _dataModel.NewImageSize, value, nameof(NewImageSize), () => ProcessImage());
+            set => SetProperty( _dataModel.NewImageSize, value, () =>
+                   ProcessImage());
         }
             
 
@@ -156,7 +155,8 @@ namespace SEToolbox.ViewModels
 
         public ImportArmorType ArmorType
         {
-            get => _dataModel.ArmorType; set => _dataModel.ArmorType = value;
+            get => _dataModel.ArmorType; 
+            set => _dataModel.ArmorType = value;
         }
 
         public BitmapImage NewImage

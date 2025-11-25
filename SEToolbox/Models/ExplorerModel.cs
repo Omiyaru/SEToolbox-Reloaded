@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Shell;
 using System.Windows.Threading;
 using Microsoft.VisualBasic.FileIO;
+using RestSharp.Extensions;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
 using SEToolbox.Interfaces;
@@ -80,7 +81,7 @@ namespace SEToolbox.Models
         {
             Structures = [];
             _timer = new Stopwatch();
-            _thePlayerCharacter = new(default); // Initialize with a default value
+            _thePlayerCharacter = new(default);
             _customColors = [];
             SetActiveStatus();
             Default = this;
@@ -93,7 +94,7 @@ namespace SEToolbox.Models
         public ObservableCollection<IStructureBase> Structures
         {
             get => _structures;
-            set => SetProperty(_structures, value, nameof(Structures));
+            set => SetProperty(ref _structures, value, nameof(Structures));
         }
 
         public StructureCharacterModel ThePlayerCharacter
@@ -123,17 +124,14 @@ namespace SEToolbox.Models
         {
             get => _isBusy;
             set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
+            {
+                SetActiveStatus();
+                if (_isBusy)
                 {
-
-                    SetActiveStatus();
-                    if (_isBusy)
-                    {
-                        System.Windows.Forms.Application.DoEvents();
-                    }
-                });
+                    System.Windows.Forms.Application.DoEvents();
+                }
+            });
         }
-
-
 
         /// <summary>
         /// Gets or sets a value indicating whether the View content has been changed.
@@ -163,16 +161,14 @@ namespace SEToolbox.Models
         {
             get => _progress;
             set => SetProperty(ref _progress, value, () =>
-                     {
-                         if (!_timer.IsRunning || _timer.ElapsedMilliseconds > 200 && value == _progress)
-                         {
-                             ProgressValue = _progressValue;
-                             DispatcherHelper.DoEvents();
-                             _timer.Restart();
-                         }
-
-                     }, nameof(Progress), nameof(ProgressValue)
-                );
+            {
+                if (!_timer.IsRunning || _timer.ElapsedMilliseconds > 200 && value == _progress)
+                {
+                    ProgressValue = _progressValue;
+                    DispatcherHelper.DoEvents();
+                    _timer.Restart();
+                }
+            }, nameof(Progress), nameof(ProgressValue));
         }
 
 
@@ -200,7 +196,6 @@ namespace SEToolbox.Models
         {
             get => _selectedScriptPath;
             set => SetProperty(ref _selectedScriptPath, value, nameof(SelectedScriptPath));
-
         }
 
 
@@ -250,7 +245,7 @@ namespace SEToolbox.Models
                     foreach (Vector3 hsv in ActiveWorld.Checkpoint.CharacterToolbar.ColorMaskHSVList)
                     {
                         // Add to  ColorMaskHSVList => c.ToSandboxHsvColor();
-                        var c = new SerializableVector3(
+                        SerializableVector3 c = new(
                                       (float)Math.Round(hsv.X / 360, 6),
                                       (float)Math.Round(hsv.Y, 6),
                                       (float)Math.Round(hsv.Z, 6));
@@ -294,51 +289,50 @@ namespace SEToolbox.Models
             IsBusy = true;
             ActiveWorld.SaveCheckPointAndSector(true);
 
-            // Manages the adding of new voxel files.
+            var voxelFilesToRemove = new HashSet<string>();
+            var voxelFilesToCopy = new List<(string, string)>();
+         
             foreach (IStructureBase entity in Structures ?? Enumerable.Empty<IStructureBase>())
             {
                 if (entity is StructureVoxelModel voxel && File.Exists(voxel?.SourceVoxelFilePath))
                 {
-                    // Any asteroid that already exists with same name, must be removed.
+                    // If the voxel file already exists, add it to the remove list.
                     if (File.Exists(voxel.VoxelFilePath))
                     {
-                        FileSystem.DeleteFile(voxel.VoxelFilePath, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                        voxelFilesToRemove.Add(voxel.VoxelFilePath);
                     }
 
-                    if (Path.GetExtension(voxel.SourceVoxelFilePath).Equals(MyVoxelMapBase.FileExtension.V1, StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Convert between formats.
-                        MyVoxelMapBase.UpdateFileFormat(voxel.SourceVoxelFilePath, voxel.VoxelFilePath);
-                    }
-                    else
-                    {
-                        File.Copy(voxel.SourceVoxelFilePath, voxel.VoxelFilePath);
-                    }
-                    voxel.SourceVoxelFilePath = null;
+                    // Add the voxel file to the copy list.
+                    voxelFilesToCopy.Add((voxel.SourceVoxelFilePath, voxel.VoxelFilePath));
                 }
-
-                if (entity is StructurePlanetModel planet && File.Exists(planet?.SourceVoxelFilePath))
+                else if (entity is StructurePlanetModel planet && File.Exists(planet?.SourceVoxelFilePath))
                 {
-                    // Any asteroid that already exists with same name, must be removed.
+                    // If the voxel file already exists, add it to the remove list.
                     if (File.Exists(planet.VoxelFilePath))
                     {
-                        FileSystem.DeleteFile(planet.VoxelFilePath, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                        voxelFilesToRemove.Add(planet.VoxelFilePath);
                     }
-                    File.Copy(planet.SourceVoxelFilePath, planet.VoxelFilePath);
-                    planet.SourceVoxelFilePath = null;
+
+                    // Add the voxel file to the copy list.
+                    voxelFilesToCopy.Add((planet.SourceVoxelFilePath, planet.VoxelFilePath));
                 }
             }
 
-
-            // Manages the removal old voxels files.
-            foreach (string file in SpaceEngineersCore.ManageDeleteVoxelList)
+            // Remove old voxel files.
+            foreach (string file in voxelFilesToRemove)
             {
-                string fileName = Path.Combine(ActiveWorld.SavePath, file);
-                if (File.Exists(fileName))
+                if (File.Exists(file))
                 {
-                    FileSystem.DeleteFile(fileName, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                    FileSystem.DeleteFile(file, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
                 }
             }
+
+            // Copy voxel files.
+            foreach (var (source, destination) in voxelFilesToCopy)
+            {
+                File.Copy(source, destination);
+            }
+
             SpaceEngineersCore.ManageDeleteVoxelList.Clear();
 
             IsModified = false;
@@ -368,9 +362,9 @@ namespace SEToolbox.Models
             ThePlayerCharacter = null;
             _customColors = null;
 
-            if (Conditional.NotNull(ActiveWorld.SectorData, ActiveWorld.Checkpoint))
+            if (Conditional.NotNull(ActiveWorld?.SectorData, ActiveWorld?.Checkpoint))
             {
-                var entityBaseList = ActiveWorld.SectorData.SectorObjects.OfType<MyObjectBuilder_EntityBase>().ToList();
+                List<MyObjectBuilder_EntityBase> entityBaseList = [.. ActiveWorld.SectorData.SectorObjects.OfType<MyObjectBuilder_EntityBase>()];
                 foreach (var entityBase in entityBaseList)
                 {
                     var structure = StructureBaseModel.Create(entityBase, ActiveWorld.SavePath);
@@ -385,7 +379,7 @@ namespace SEToolbox.Models
                     }
                     else if (structure is StructureCubeGridModel cubeGrid)
                     {
-                        var cockpitList = cubeGrid.GetActiveCockpits().ToList();
+                        List<MyObjectBuilder_Cockpit> cockpitList = [.. cubeGrid.GetActiveCockpits()];
                         foreach (var cockpit in cockpitList)
                         {
                             cubeGrid.Pilots++;
@@ -420,7 +414,7 @@ namespace SEToolbox.Models
             if (ActiveWorld.SectorData != null)
             {
                 Vector3D position = ThePlayerCharacter.PositionAndOrientation.HasValue ? (Vector3D)ThePlayerCharacter.PositionAndOrientation.Value.Position : Vector3D.Zero;
-                foreach (IStructureBase structure in Structures)
+                foreach (var structure in Structures)
                 {
                     structure.RecalcPosition(position);
                 }
@@ -434,7 +428,7 @@ namespace SEToolbox.Models
                 throw new ArgumentNullException(nameof(entity), "Entity cannot be null.");
             }
 
-            bool isBinaryFile = Path.GetExtension(fileName).Equals(SpaceEngineersConsts.ProtobuffersExtension, StringComparison.OrdinalIgnoreCase);
+            bool isBinaryFile = Path.GetExtension(fileName).EndsWith(SpaceEngineersConsts.ProtobuffersExtension, StringComparison.OrdinalIgnoreCase);
 
             if (isBinaryFile)
             {
@@ -470,7 +464,6 @@ namespace SEToolbox.Models
             }
         }
 
-
         public List<string> LoadEntities(string[] fileNames)
         {
             IsBusy = true;
@@ -481,17 +474,15 @@ namespace SEToolbox.Models
 
             foreach (var fileName in fileNames)
             {
-
                 MyObjectBuilder_EntityBase entityBase = null;
                 MyObjectBuilder_Definitions definitionBase = null;
-
                 MyObjectBuilder_Base BaseType = entityBase != null ? entityBase : definitionBase;
 
                 // Try to read the file as a CubeGrid first, since it is the most common type.
                 if (SpaceEngineersApi.TryReadSpaceEngineersFile(fileName, out BaseType, out bool isCompressed, out string errorInformation, false, true))
                 {
                     if (BaseType is MyObjectBuilder_Definitions genericDefinitions &&
-                         SpaceEngineersApi.TryReadSpaceEngineersFile(fileName, out BaseType, out isCompressed, out errorInformation, false, true))
+                                    SpaceEngineersApi.TryReadSpaceEngineersFile(fileName, out BaseType, out isCompressed, out errorInformation, false, true))
                     {
                         var definitions = genericDefinitions.Prefabs ?? genericDefinitions.ShipBlueprints;
 
@@ -499,30 +490,26 @@ namespace SEToolbox.Models
                         {
                             foreach (var definition in definitions)
                             {
-                                if (definition.CubeGrid != null)
-                                    MergeData(definition.CubeGrid, ref idReplacementTable);
-                                if (definition.CubeGrids != null)
+                                MergeData(definition?.CubeGrid, ref idReplacementTable);
+
+                                foreach (var cubeGrid in definition?.CubeGrids)
                                 {
-                                    foreach (var cubeGrid in definition.CubeGrids)
-                                    {
-                                        MergeData(cubeGrid, ref idReplacementTable);
-                                    }
+                                    MergeData(cubeGrid, ref idReplacementTable);
                                 }
                             }
                         }
                     }
+                }
 
-                    else if (BaseType is MyObjectBuilder_EntityBase entity)
+                else if (BaseType is MyObjectBuilder_EntityBase entity)
+                {
+                    foreach (var entityType in entityBaseList)
                     {
-                        foreach (var entityType in entityBaseList)
+                        if (entity.GetType() == entityType)
                         {
-
-                            if (entity.GetType() == entityType)
-                            {
-                                newEntity = AddEntity(entity);
-                                newEntity.EntityId = MergeId(entity.EntityId, ref idReplacementTable);
-                                break;
-                            }
+                            newEntity = AddEntity(entity);
+                            newEntity.EntityId = MergeId(entity.EntityId, ref idReplacementTable);
+                            break;
                         }
                     }
                 }
@@ -543,7 +530,7 @@ namespace SEToolbox.Models
             {
                 BoundingBoxD entityBoundingBox = SpaceEngineersApi.GetBoundingBox(cubeGrid);
 
-                foreach (MyObjectBuilder_EntityBase sectorObject in ActiveWorld.SectorData.SectorObjects)
+                foreach (var sectorObject in ActiveWorld.SectorData.SectorObjects)
                 {
                     if (sectorObject is MyObjectBuilder_CubeGrid sectorCubeGrid && sectorCubeGrid != cubeGrid)
                     {
@@ -610,27 +597,23 @@ namespace SEToolbox.Models
 
                 //rewritten as LINQ
                 MyObjectBuilder_CubeGrid[] gridsWithPilot = [.. ActiveWorld.SectorData.SectorObjects
-                        .OfType<MyObjectBuilder_CubeGrid>()
-                        .Where(grid => grid.CubeBlocks
-                        .OfType<MyObjectBuilder_Cockpit>()
-                        .Any(cockpit => cockpit.Pilot == entity))];
+                        .OfType<MyObjectBuilder_CubeGrid>().Where(grid => grid.CubeBlocks
+                        .OfType<MyObjectBuilder_Cockpit>().Any(cockpit => cockpit.Pilot == entity))];
 
                 if (entity is MyObjectBuilder_Character character)
                 {
-                    foreach (MyObjectBuilder_CubeGrid sectorObject in ActiveWorld.SectorData.SectorObjects.OfType<MyObjectBuilder_CubeGrid>())
+                    foreach (var sectorObject in from sectorObject in ActiveWorld.SectorData.SectorObjects.OfType<MyObjectBuilder_CubeGrid>()
+                                                 from cockpit in sectorObject.CubeBlocks.OfType<MyObjectBuilder_Cockpit>()// theoretically with the Hierarchy structure, there could be more than one character attached to a single cube.
+                                                                                                                          // thus, more than 1 pilot.
+                                                 where cockpit.RemoveHierarchyCharacter(character)
+                                                 select sectorObject)
                     {
-                        foreach (MyObjectBuilder_Cockpit cockpit in sectorObject.CubeBlocks.OfType<MyObjectBuilder_Cockpit>())
+                        if (Structures.FirstOrDefault(s => s.EntityBase == sectorObject) is StructureCubeGridModel structure)
                         {
-                            // Remove the character from the cockpit hierarchy
-                            if (cockpit.RemoveHierarchyCharacter(character))
-                            {
-                                if (Structures.FirstOrDefault(s => s.EntityBase == sectorObject) is StructureCubeGridModel structure)
-                                {
-                                    structure.Pilots--;
-                                }
-                                return true;
-                            }
+                            structure.Pilots--;
                         }
+
+                        return true;
                     }
                 }
             }
@@ -680,44 +663,43 @@ namespace SEToolbox.Models
             return fileName;
         }
 
-
         public void MergeData(IList<IStructureBase> data)
         {
-            Dictionary<long, long> idReplacementTable = [];
+            var idReplacementTable = new Dictionary<long, long>();
 
-            foreach (IStructureBase item in data)
+            var collection = new HashSet<Type>
             {
-                string entName = string.Empty;
+                typeof(StructureCubeGridModel),
+                typeof(StructureVoxelModel),
+                typeof(StructurePlanetModel),
+                typeof(StructureFloatingObjectModel),
+                typeof(StructureMeteorModel),
+                typeof(StructureInventoryBagModel),
+                typeof(StructureUnknownModel),
+                typeof(StructureCharacterModel)
+            };
 
-                switch (item)
+            data = [.. data.Where(s => collection.Contains(s.GetType()))];
+
+            foreach (var item in data)
+            {
+                var entityBase = item.EntityBase;
+                long newId = MergeId(entityBase.EntityId, ref idReplacementTable);
+                entityBase.EntityId = newId;
+
+                if (item is StructureVoxelModel voxelModel)
                 {
-                    case StructureCubeGridModel ship:
-                        MergeData(ship.CubeGrid, ref idReplacementTable);
-                        break;
-                    case IStructureBase when item is StructureVoxelModel asteroid && entName == asteroid.Name:
-                    case IStructureBase when item is StructurePlanetModel planet && entName == planet.Name:
-                        var voxModel = item as StructureVoxelModel;
+                    if (ContainsVoxelFileName(voxelModel.Name, null))
+                    {
+                        voxelModel.VoxelFilePath = CreateUniqueVoxelStorageName(voxelModel.Name, null);
+                    }
 
-                        if (ContainsVoxelFileName(entName, null))
-                        {
-                            _ = CreateUniqueVoxelStorageName(entName, null);
-                        }
-
-                        AddEntity(voxModel.VoxelMap);
-                        ((IStructureBase)null).EntityId = MergeId(voxModel.EntityId, ref idReplacementTable);
-                        ((IStructureBase)null).SourceVoxelFilePath = voxModel.SourceVoxelFilePath ?? voxModel.VoxelFilePath;
-                        break;
-
-                    case IStructureBase when item is StructureFloatingObjectModel:
-                    case IStructureBase when item is StructureMeteorModel:
-                    case IStructureBase when item is StructureInventoryBagModel:
-                    case IStructureBase when item is StructureUnknownModel:
-                        AddEntity(item.EntityBase);
-                        item.EntityId = MergeId(item.EntityId, ref idReplacementTable);
-                        break;
-                    default:
-                        break;
-                        // ignore the StructureCharacterModel.
+                    AddEntity(voxelModel.VoxelMap);
+                    voxelModel.SourceVoxelFilePath ??= voxelModel.VoxelFilePath;
+                }
+                else
+                {
+                    AddEntity(entityBase);
                 }
             }
         }
@@ -730,48 +712,23 @@ namespace SEToolbox.Models
             var newId = MergeId(cubeGridObject.EntityId, ref idReplacementTable);
             cubeGridObject.EntityId = newId;
 
-            var blockList = cubeGridObject.CubeBlocks.ToList();
-
-            var toolbarType = typeof(MyObjectBuilder_Toolbar);
-            var functionalTypes = new HashSet<Type>([
-                  typeof(MyObjectBuilder_ButtonPanel),//MyObjectBuilder_FunctionalBlock
-                typeof(MyObjectBuilder_TimerBlock),//MyObjectBuilder_FunctionalBlock
-                typeof(MyObjectBuilder_SensorBlock),//MyObjectBuilder_FunctionalBlock
-                typeof(MyObjectBuilder_ShipController)//,//MyObjectBuilder_FunctionalBlock
+            List<MyObjectBuilder_CubeBlock> blockList = [.. cubeGridObject.CubeBlocks];
+            HashSet<Type> functionalTypes = new([
+                  typeof(MyObjectBuilder_ButtonPanel),
+                  typeof(MyObjectBuilder_TimerBlock),
+                  typeof(MyObjectBuilder_SensorBlock),
+                  typeof(MyObjectBuilder_ShipController)
                 //typeof(MyObjectBuilder_ExtendedPistonBase),//MyObjectBuilder_MechanicalConnectionBlock
                 //typeof(MyObjectBuilder_MechanicalConnectionBlock),//MyObjectBuilder_FunctionalBlock
-            ]);
-            var types = new HashSet<Type>(blockList.Select(b => b.GetType()));
-            var blocktypes = new HashSet<Type>
-            {
-                typeof(MyObjectBuilder_CubeBlock),//MyObjectBuilder_Base
-                typeof(MyObjectBuilder_CubeGrid),//MyObjectBuilder_EntityBase
+                ]);
 
-                typeof(MyObjectBuilder_MotorAdvancedStator), //MyObjectBuilder_MotorStator
-                typeof(MyObjectBuilder_MotorSuspension), //MyObjectBuilder_MotorBase
-                typeof(MyObjectBuilder_MotorStator), //MyObjectBuilder_MotorBase
-                typeof(MyObjectBuilder_MotorAdvancedRotor), //MyObjectBuilder_MotorRotor
-                
-                typeof(MyObjectBuilder_PistonTop), //MyObjectBuilder_AttachableTopBlockBase
-                typeof(MyObjectBuilder_ExtendedPistonBase),//MyObjectBuilder_PistonBase
-                
-
-                
-            };
-
-            var baseTypes = new HashSet<Type>
-            {
-                typeof(MyObjectBuilder_MotorBase),//MyObjectBuilder_MechanicalConnectionBlock
-                typeof(MyObjectBuilder_PistonBase), //MyObjectBuilder_MechanicalConnectionBlock
-                typeof(MyObjectBuilder_MotorRotor), //MyObjectBuilder_AttachableTopBlockBase
-                typeof(MyObjectBuilder_ShipConnector) //MyObjectBuilder_FunctionalBlock
-            };
-            var rootTypes = new HashSet<Type>
-            {
-                typeof(MyObjectBuilder_MechanicalConnectionBlock),
-                typeof(MyObjectBuilder_AttachableTopBlockBase),
-                typeof(MyObjectBuilder_FunctionalBlock),
-            };
+            List<object> toolbarBlocks =
+            [
+                typeof(MyObjectBuilder_Cockpit),//MyObjectBuilder_FunctionalBlock
+                typeof(MyObjectBuilder_MotorBase),//MyObjectBuilder_FunctionalBlock
+                typeof(MyObjectBuilder_PistonBase),//MyObjectBuilder_FunctionalBlock
+                typeof(MyObjectBuilder_ShipConnector)//,//MyObjectBuilder_FunctionalBlock
+            ];
 
             foreach (var block in blockList)
             {
@@ -782,41 +739,36 @@ namespace SEToolbox.Models
                     var toolbarProperty = blockType.GetProperty(typeof(MyObjectBuilder_Toolbar).Name);
                     if (toolbarProperty != null)
                     {
-                        var toolbar = (MyObjectBuilder_Toolbar)toolbarProperty.GetValue(block);
+                        MyObjectBuilder_Toolbar toolbar = (MyObjectBuilder_Toolbar)toolbarProperty.GetValue(block);
                         RenumberToolbar(toolbar, ref idReplacementTable);
                     }
                 }
                 else
                 {
-                    switch (block)
+                    if (block is MyObjectBuilder_Cockpit cockpit)
                     {
-                        case MyObjectBuilder_CubeBlock when block is MyObjectBuilder_Cockpit cockpit:
-                            cockpit.RemoveHierarchyCharacter();
-                            break;
-                        case MyObjectBuilder_CubeBlock when block is MyObjectBuilder_MotorBase:
-                        case MyObjectBuilder_CubeBlock when block is MyObjectBuilder_PistonBase:
-                        case MyObjectBuilder_CubeBlock when block is MyObjectBuilder_ShipConnector:
+                        cockpit.RemoveHierarchyCharacter();
+                    }
+                    foreach (var item in toolbarBlocks)
+                    {
+                        if (block.GetType().IsAssignableFrom(item.GetType()))
+
                             MergeId(block.EntityId, ref idReplacementTable);// reattach functionalBlock to correct entity.
-                            break;
+                        break;
                     }
                 }
-
             }
-
             AddEntity(cubeGridObject);
         }
 
-        // TODO: cubeGridObject.MultiBlockId
+        // TODO: cubeGridObject.MultiBlockId??
 
         //multiblock has to deal with
-        // at least 200+ blocks.fom ooking into the code
+        // at least 200+ blocks looking into the code
         // seemingly rooted in  MySlimBlock.MultiBlockId, and  MySlimBlock.MultiBlockDefinition , dont know whether it neeeds implementation
         //also has something to do with fracturing
 
-
-
-
-        private static void RenumberToolbar(MyObjectBuilder_Toolbar toolbar, ref Dictionary<Int64, Int64> idReplacementTable)
+        private static void RenumberToolbar(MyObjectBuilder_Toolbar toolbar, ref Dictionary<long, long> idReplacementTable)
         {
             if (toolbar == null)
                 return;
@@ -864,7 +816,7 @@ namespace SEToolbox.Models
 
         //         private static int GenerateUniqueMultiblockId()
         //         {
-        //             // todo :Implement logic to generate a unique multiblock ID
+        //             // todo?? : Generate unique multiblock ID
         //            throw new NotImplementedException();
         //         }
 
@@ -899,50 +851,6 @@ namespace SEToolbox.Models
             typeof(MyObjectBuilder_ExtendedPistonBase)
             ];
         }
-        /// <summary>
-        /// Finds overlapping blocks in the given CubeGrid model, optionally logs them, and performs actions based on the operation.
-        /// </summary>
-        /// <param name="viewModel">The CubeGrid model to scan for overlapping blocks.</param>
-        /// <param name="excludedTypes">Optional: Types of blocks to exclude from detection.</param>
-        /// <param name="trackProgress">Whether to track progress during the operation.</param>
-        /// <param name="operation">The operation to perform: "Scan", "Remove", or "Move".</param>
-        /// do i needd this or can i juust implement this ddirectly in thefunctions
-        // public void HandleOverlappingBlocks(StructureCubeGridModel viewModel, HashSet<Type> excludedTypes = null,
-        //     bool trackProgress = false,
-        //     string operation = "Scan")
-        // {
-        //     if (viewModel == null || viewModel.CubeGrid.CubeBlocks == null)
-        //     {
-        //         return;
-        //     }
-
-        //     IsBusy = true;
-        //     List<MyObjectBuilder_CubeBlock> overlappingBlocks = FindOverlappingBlocks(viewModel, excludedTypes, trackProgress);
-
-        //     // Step 2: Perform the specified operation
-        //     switch (operation.ToLower())
-        //     {
-        //         case "scan":
-        //             FindOverlappingBlocks(viewModel, excludedTypes, trackProgress);
-        //             if (overlappingBlocks.Count == 0)
-        //             {
-        //                 IsBusy = false;
-        //                 return;
-        //             }
-        //             break;
-
-        //         case "remove":
-        //             RemoveBlocks(viewModel, overlappingBlocks);
-        //             break;
-
-        //         case "move":
-        //             MoveOverlappingBlocks(viewModel);
-        //             break;
-
-        //         default:
-        //             break;
-        //     }
-        // }
 
         public List<MyObjectBuilder_CubeBlock> FindOverlappingBlocks(
             StructureCubeGridModel viewModel,
@@ -986,23 +894,19 @@ namespace SEToolbox.Models
             return [.. overlappingBlocks];
         }
 
-        private static readonly object _cubeBlocksLock = new();
-
         private static void RemoveBlocks(StructureCubeGridModel viewModel, List<MyObjectBuilder_CubeBlock> blocksToRemove)
         {
             if (viewModel == null || viewModel.CubeGrid?.CubeBlocks == null || blocksToRemove == null)
                 return;
 
             HashSet<MyObjectBuilder_CubeBlock> blocksToRemoveSet = [.. blocksToRemove];
-            foreach (var block in blocksToRemoveSet)
-
-                Parallel.ForEach(blocksToRemoveSet, block =>
+            Parallel.ForEach(blocksToRemoveSet, block =>
+            {
+                lock (viewModel.CubeGrid.CubeBlocks)
                 {
-                    lock (viewModel.CubeGrid.CubeBlocks)
-                    {
-                        viewModel.CubeGrid.CubeBlocks.Remove(block);
-                    }
-                });
+                    viewModel.CubeGrid.CubeBlocks.Remove(block);
+                }
+            });
         }
 
         public void RemoveOverlappingBlocks(StructureCubeGridModel viewModel, bool ToggleExcludedTypes = true, ConcurrentBag<MyObjectBuilder_CubeBlock> overlappingBlocks = null)
@@ -1095,16 +999,16 @@ namespace SEToolbox.Models
             return EnableExclusions;
         }
 
-        private static void LogOverlappingBlocksToFile(List<MyObjectBuilder_CubeBlock> overlappingBlocks)
-        {
-            string filePath = "OverlappingBlocks.txt";
-            using StreamWriter writer = new(filePath);
-            writer.WriteLine($"Found {overlappingBlocks.Count} overlapping blocks:");
-            foreach (MyObjectBuilder_CubeBlock block in overlappingBlocks)
-            {
-                writer.WriteLine($"- Block at position {block.Min} with SubtypeName: {block.SubtypeName}");
-            }
-        }
+        // private static void LogOverlappingBlocksToFile(List<MyObjectBuilder_CubeBlock> overlappingBlocks)
+        // {
+        //     string filePath = "OverlappingBlocks.txt";
+        //     using StreamWriter writer = new(filePath);
+        //     writer.WriteLine($"Found {overlappingBlocks.Count} overlapping blocks:");
+        //     foreach (MyObjectBuilder_CubeBlock block in overlappingBlocks)
+        //     {
+        //         writer.WriteLine($"- Block at position {block.Min} with SubtypeName: {block.SubtypeName}");
+        //     }
+        // }
 
         private BoundingBoxD CalculateBoundingBox(IEnumerable<MyObjectBuilder_CubeBlock> blocks)
         {
@@ -1156,7 +1060,7 @@ namespace SEToolbox.Models
 
             _ = new List<MyObjectBuilder_CubeBlock>();
 
-            foreach (MyObjectBuilder_CubeBlock block in viewModel.CubeGrid.CubeBlocks)
+            foreach (var block in viewModel.CubeGrid.CubeBlocks)
             {
                 if (block.SubtypeName == SubtypeId.SmallBlockArmorBlock.ToString())
                 {
@@ -1248,9 +1152,9 @@ namespace SEToolbox.Models
             model1.CubeGrid.CubeBlocks.AddRange(model2.CubeGrid.CubeBlocks);
 
             // Merge Groupings
-            foreach (MyObjectBuilder_BlockGroup group in model2.CubeGrid.BlockGroups)
+            foreach (var group in model2.CubeGrid.BlockGroups)
             {
-                MyObjectBuilder_BlockGroup existingGroup = model1.CubeGrid.BlockGroups.FirstOrDefault(bg => bg.Name == group.Name);
+                var existingGroup = model1.CubeGrid.BlockGroups.FirstOrDefault(bg => bg.Name == group.Name);
                 if (existingGroup == null)
                 {
                     model1.CubeGrid.BlockGroups.Add(group);
@@ -1293,21 +1197,22 @@ namespace SEToolbox.Models
             Vector3D pos2 = (Vector3D)model2.PositionAndOrientation.Value.Position;
             Quaternion orient1 = model1.PositionAndOrientation.Value.ToQuaternion();
             Quaternion orient2 = model2.PositionAndOrientation.Value.ToQuaternion();
-            float multi1 = model1.GridSize.ToLength();
-            float multi2 = model2.GridSize.ToLength();
+            var multi1 = model1.GridSize.ToLength();
+            var multi2 = model2.GridSize.ToLength();
 
             float maxDistance = float.MaxValue;
             MyObjectBuilder_CubeBlock maxCube1 = null;
             MyObjectBuilder_CubeBlock maxCube2 = null;
 
-            foreach (MyObjectBuilder_CubeBlock cube1 in model1.CubeGrid.CubeBlocks)
+            foreach (var cube1 in model1.CubeGrid.CubeBlocks)
             {
-                foreach (MyObjectBuilder_CubeBlock cube2 in model2.CubeGrid.CubeBlocks)
-                {
-                    Vector3D cPos1 = pos1 + Vector3.Transform(cube1.Min.ToVector3() * multi1, orient1);
-                    Vector3D cPos2 = pos2 + Vector3.Transform(cube2.Min.ToVector3() * multi2, orient2);
+                var cPos1 = pos1 + Vector3.Transform(cube1.Min.ToVector3() * multi1, orient1);
 
-                    float d = Vector3.Distance(cPos1, cPos2);
+                foreach (var cube2 in model2.CubeGrid.CubeBlocks)
+                {
+                    var cPos2 = pos2 + Vector3.Transform(cube2.Min.ToVector3() * multi2, orient2);
+
+                    var d = Vector3.Distance(cPos1, cPos2);
                     if (maxDistance > d)
                     {
                         maxDistance = d;
@@ -1320,67 +1225,66 @@ namespace SEToolbox.Models
             // Ignore ships that are too far away from one another.
             // A distance of 4 cubes to allow for large cubes, as we are only using the Min as position, not the entire size of a cube.
             if (maxDistance < (model1.GridSize.ToLength() * 5))
-                if (maxDistance < (model1.GridSize.ToLength() * 5))
+            {
+                Vector3D cPos1 = pos1 + Vector3.Transform(maxCube1.Min.ToVector3() * multi1, orient1);
+                Vector3D cPos2 = pos2 + Vector3.Transform(maxCube2.Min.ToVector3() * multi2, orient2);
+                Vector3 adjustedPos = Vector3.Transform(cPos2 - pos1, VRageMath.Quaternion.Inverse(orient1)) / multi1;
+                Vector3I offset = adjustedPos.RoundToVector3I() - maxCube2.Min.ToVector3I();
+
+                foreach (var cube2 in model2.CubeGrid.CubeBlocks)
                 {
-                    Vector3D cPos1 = pos1 + Vector3.Transform(maxCube1.Min.ToVector3() * multi1, orient1);
-                    Vector3D cPos2 = pos2 + Vector3.Transform(maxCube2.Min.ToVector3() * multi2, orient2);
-                    Vector3 adjustedPos = Vector3.Transform(cPos2 - pos1, VRageMath.Quaternion.Inverse(orient1)) / multi1;
-                    Vector3I offset = adjustedPos.RoundToVector3I() - maxCube2.Min.ToVector3I();
-
-                    foreach (MyObjectBuilder_CubeBlock cube2 in model2.CubeGrid.CubeBlocks)
-                    {
-                        MyObjectBuilder_CubeBlock newcube = (MyObjectBuilder_CubeBlock)cube2.Clone();
-                        newcube.Min = cube2.Min + offset;
-                        model1.CubeGrid.CubeBlocks.Add(newcube);
-                    }
-
-                    foreach (MyObjectBuilder_BlockGroup group in model2.CubeGrid.BlockGroups)
-                    {
-                        MyObjectBuilder_BlockGroup existingGroup = model1.CubeGrid.BlockGroups.FirstOrDefault(bg => bg.Name == group.Name);
-                        if (existingGroup == null)
-                        {
-                            existingGroup = new MyObjectBuilder_BlockGroup { Name = group.Name };
-                            model1.CubeGrid.BlockGroups.Add(existingGroup);
-                        }
-
-                        foreach (Vector3I block in group.Blocks)
-                        {
-                            existingGroup.Blocks.Add(block + offset);
-                        }
-                    }
-
-                    //Merge Bones
-                    if (model2.CubeGrid.Skeleton != null)
-                    {
-                        model1.CubeGrid.Skeleton ??= [];
-
-                        foreach (BoneInfo bone in model2.CubeGrid.Skeleton)
-                        {
-                            model1.CubeGrid.Skeleton.Insert(0, new BoneInfo
-                            {
-                                BonePosition = bone.BonePosition + offset,
-                                BoneOffset = bone.BoneOffset
-                            });
-                        }
-                    }
-
-                    //  Merge ConveyorLines
-                    if (model2.CubeGrid.ConveyorLines != null)
-                    {
-                        Quaternion Rotation = Quaternion.Inverse(model2.PositionAndOrientation.Value.ToQuaternion()) * model1.PositionAndOrientation.Value.ToQuaternion();
-                        var newLines = model2.CubeGrid.ConveyorLines.Select(line => new MyObjectBuilder_ConveyorLine
-                        {
-                            StartPosition = Vector3I.Transform(line.StartPosition, Rotation) + offset,
-                            EndPosition = Vector3I.Transform(line.EndPosition, Rotation) + offset,
-                            StartDirection = Base6Directions.GetDirection(Vector3.Transform(Base6Directions.GetVector(line.StartDirection), Rotation)),
-                            EndDirection = Base6Directions.GetDirection(Vector3.Transform(Base6Directions.GetVector(line.EndDirection), Rotation))
-                        }).ToList();
-                        model1.CubeGrid.ConveyorLines.AddRange(newLines);
-                    }
-
-
-                    return true;
+                    MyObjectBuilder_CubeBlock newcube = (MyObjectBuilder_CubeBlock)cube2.Clone();
+                    newcube.Min = cube2.Min + offset;
+                    model1.CubeGrid.CubeBlocks.Add(newcube);
                 }
+
+                foreach (var group in model2.CubeGrid.BlockGroups)
+                {
+                    MyObjectBuilder_BlockGroup existingGroup = model1.CubeGrid.BlockGroups.FirstOrDefault(bg => bg.Name == group.Name);
+                    if (existingGroup == null)
+                    {
+                        existingGroup = new MyObjectBuilder_BlockGroup { Name = group.Name };
+                        model1.CubeGrid.BlockGroups.Add(existingGroup);
+                    }
+
+                    foreach (Vector3I block in group.Blocks)
+                    {
+                        existingGroup.Blocks.Add(block + offset);
+                    }
+                }
+
+                //Merge Bones
+                if (model2.CubeGrid.Skeleton != null)
+                {
+                    model1.CubeGrid.Skeleton ??= [];
+
+                    foreach (BoneInfo bone in model2.CubeGrid.Skeleton)
+                    {
+                        model1.CubeGrid.Skeleton.Insert(0, new BoneInfo
+                        {
+                            BonePosition = bone.BonePosition + offset,
+                            BoneOffset = bone.BoneOffset
+                        });
+                    }
+                }
+
+                //  Merge ConveyorLines
+                if (model2.CubeGrid.ConveyorLines != null)
+                {
+                    Quaternion Rotation = Quaternion.Inverse(model2.PositionAndOrientation.Value.ToQuaternion()) * model1.PositionAndOrientation.Value.ToQuaternion();
+                    List<MyObjectBuilder_ConveyorLine> newLines = [.. model2.CubeGrid.ConveyorLines.Select(line => new MyObjectBuilder_ConveyorLine
+                    {
+                        StartPosition = Vector3I.Transform(line.StartPosition, Rotation) + offset,
+                        EndPosition = Vector3I.Transform(line.EndPosition, Rotation) + offset,
+                        StartDirection = Base6Directions.GetDirection(Vector3.Transform(Base6Directions.GetVector(line.StartDirection), Rotation)),
+                        EndDirection = Base6Directions.GetDirection(Vector3.Transform(Base6Directions.GetVector(line.EndDirection), Rotation))
+                    })];
+                    model1.CubeGrid.ConveyorLines.AddRange(newLines);
+                }
+
+
+                return true;
+            }
             return false;
         }
 
@@ -1418,13 +1322,13 @@ namespace SEToolbox.Models
             if (ConnectedTopBlockCache.TryGetValue(topBlockId, out MyObjectBuilder_CubeGrid value))
                 return value;
             {
-                foreach (MyObjectBuilder_EntityBase entBase in ActiveWorld.SectorData.SectorObjects)
+                foreach (var entBase in ActiveWorld.SectorData.SectorObjects)
                 {
                     if (entBase is MyObjectBuilder_CubeGrid grid)
                     {
-                        for (int j = 0; j < grid.CubeBlocks.Count; j++)
+                        foreach (MyObjectBuilder_CubeBlock v in grid.CubeBlocks)
                         {
-                            MyObjectBuilder_MechanicalConnectionBlock mechanicalBlock = grid.CubeBlocks[j] as T;
+                            MyObjectBuilder_MechanicalConnectionBlock mechanicalBlock = v as T;
                             if (mechanicalBlock?.TopBlockId == topBlockId)
                             {
                                 ConnectedTopBlockCache[topBlockId] = grid;
@@ -1445,7 +1349,7 @@ namespace SEToolbox.Models
 
             public MyObjectBuilder_CubeGrid RemoteParentEntity;
             public long RemoteParentEntityId;
-            public long RemoteEntityId;
+            public long? RemoteEntityId;
             public MyObjectBuilder_CubeBlock RemoteEntity;
             public GridConnectionTypes GridConnectionType;
         }
@@ -1462,7 +1366,7 @@ namespace SEToolbox.Models
             GridEntityNodes.Clear();
 
             // Build the main list of entities
-            foreach (StructureCubeGridModel structure in Structures.OfType<StructureCubeGridModel>())
+            foreach (var structure in Structures.OfType<StructureCubeGridModel>())
             {
                 // Create a new GridEntityNode for each StructureCubeGridModel
                 GridEntityNode gridEntityNode = new()
@@ -1474,22 +1378,68 @@ namespace SEToolbox.Models
                 // Add the GridEntityNode to the dictionary using the structure's EntityId as the key
                 GridEntityNodes[structure.EntityId] = gridEntityNode;
 
-
-                foreach (MyObjectBuilder_CubeBlock block in structure.CubeGrid.CubeBlocks)
+                foreach (var block in structure.CubeGrid.CubeBlocks)
                 {
                     AddCubeEntityNode(gridEntityNode, block);
                 }
             }
 
             // Crosscheck the remote entities to establish connections between blocks
-            foreach (StructureCubeGridModel structure in Structures.OfType<StructureCubeGridModel>())
+            foreach (var structure in Structures.OfType<StructureCubeGridModel>())
             {
-                foreach (MyObjectBuilder_CubeBlock block in structure.CubeGrid.CubeBlocks)
+                foreach (var block in structure.CubeGrid.CubeBlocks)
                 {
                     CrosscheckRemoteEntities(structure, block);
                 }
             }
         }
+
+        private readonly List<Type> blockTypes = [
+                typeof(MyObjectBuilder_Wheel),
+                typeof(MyObjectBuilder_MechanicalConnectionBlock),
+                typeof(MyObjectBuilder_ShipConnector),
+                typeof(MyObjectBuilder_MotorAdvancedRotor),
+                typeof(MyObjectBuilder_MotorRotor),
+                typeof(MyObjectBuilder_PistonTop),
+                typeof(MyObjectBuilder_AttachableTopBlockBase)
+            ];
+
+        private void AddCubeEntityNode(GridEntityNode gridEntityNode, MyObjectBuilder_CubeBlock block)
+        {
+            if (block == null) throw new ArgumentNullException(nameof(block));
+            Type blockType = block.GetType();
+
+            var isRemoteBlock = Conditional.ConditionCoalesced(blockTypes?.FirstOrDefault(blockType.IsAssignableFrom), ((MyObjectBuilder_MechanicalConnectionBlock)block).TopBlockId, ((MyObjectBuilder_ShipConnector)block).ConnectedEntityId, ((MyObjectBuilder_AttachableTopBlockBase)block).ParentEntityId, null);
+            var connectionBlockType = GridConnectionTypes.Mechanical | GridConnectionTypes.ConnectorLock;
+
+            if (!gridEntityNode.CubeEntityNodes.TryGetValue(block.EntityId, out var cubeEntityNode) && cubeEntityNode != null)
+            {
+                foreach (Type type in blockTypes)
+                {
+                    if (type.IsAssignableFrom(blockType))
+                    {
+                        cubeEntityNode = new()
+                        {
+                            GridConnectionType = connectionBlockType,
+                            EntityId = block.EntityId,
+                            Entity = block,
+                            RemoteEntityId = isRemoteBlock ?? null
+                        };
+                        gridEntityNode.CubeEntityNodes[block.EntityId] = cubeEntityNode;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Crosscheck the remote entities to establish connections between blocks
+
+        /// <summary>
+        /// Adds a CubeBlock to the GridEntityNode and determines its connection type.
+        /// </summary>
+        /// <param name="gridEntityNode">The GridEntityNode to which the block belongs.</param>
+        /// <param name="block">The CubeBlock to add.</param>
+
         private void CrosscheckRemoteEntities(StructureCubeGridModel gridModel, MyObjectBuilder_CubeBlock block)
         {
             foreach (var kvp in GridEntityNodes)
@@ -1515,75 +1465,16 @@ namespace SEToolbox.Models
                     }
                 }
             }
-
-        }
-
-        /// <summary>
-        /// Adds a CubeBlock to the GridEntityNode and determines its connection type.
-        /// </summary>
-        /// <param name="gridEntityNode">The GridEntityNode to which the block belongs.</param>
-        /// <param name="block">The CubeBlock to add.</param>
-        private static void AddCubeEntityNode(GridEntityNode gridEntityNode, MyObjectBuilder_CubeBlock block)
-        {
-            // Determine the type of the block and add it to the CubeEntityNodes dictionary
-            switch (block)
-            {
-                case MyObjectBuilder_Wheel:
-                    // Add a mechanical connection for wheels
-                    gridEntityNode.CubeEntityNodes[block.EntityId] = new CubeEntityNode
-                    {
-                        GridConnectionType = GridConnectionTypes.Mechanical,
-                        EntityId = block.EntityId,
-                        Entity = block
-                    };
-                    break;
-                case MyObjectBuilder_MechanicalConnectionBlock:
-                    // Add a mechanical connection for pistons or similar blocks
-                    gridEntityNode.CubeEntityNodes[block.EntityId] = new CubeEntityNode
-                    {
-                        GridConnectionType = GridConnectionTypes.Mechanical,
-                        EntityId = block.EntityId,
-                        Entity = block,
-                        RemoteEntityId = ((MyObjectBuilder_MechanicalConnectionBlock)block).TopBlockId ?? 0
-                    };
-                    break;
-
-                case MyObjectBuilder_ShipConnector when ((MyObjectBuilder_ShipConnector)block).MasterToSlaveTransform != null:
-                    // Add a connector lock for ship connectors
-                    gridEntityNode.CubeEntityNodes[block.EntityId] = new CubeEntityNode
-                    {
-                        GridConnectionType = GridConnectionTypes.ConnectorLock,
-                        EntityId = block.EntityId,
-                        Entity = block,
-                        RemoteEntityId = ((MyObjectBuilder_ShipConnector)block).ConnectedEntityId
-                    };
-                    break;
-                case MyObjectBuilder_MotorAdvancedRotor:
-                case MyObjectBuilder_MotorRotor:
-                case MyObjectBuilder_PistonTop:
-                case MyObjectBuilder_AttachableTopBlockBase:
-
-                    // Add a mechanical connection for rotors
-                    gridEntityNode.CubeEntityNodes[block.EntityId] = new CubeEntityNode
-                    {
-                        GridConnectionType = GridConnectionTypes.Mechanical,
-                        EntityId = block.EntityId,
-                        Entity = block,
-                        RemoteEntityId = ((MyObjectBuilder_AttachableTopBlockBase)block).ParentEntityId
-                    };
-                    break;
-            }
         }
 
         public List<MyObjectBuilder_CubeGrid> GetConnectedGridNodes(StructureCubeGridModel structureCubeGrid, GridConnectionTypes minimumConnectionType)
         {
-            var list = new List<MyObjectBuilder_CubeGrid>();
+            List<MyObjectBuilder_CubeGrid> list = [];
             GridEntityNode parentNode = GridEntityNodes[structureCubeGrid.EntityId];
             if (parentNode != null)
             {
-                var remoteEntities = parentNode.CubeEntityNodes
-                            .Where(e => minimumConnectionType.HasFlag(e.Value.GridConnectionType) && e.Value.RemoteParentEntity != null)
-                            .Select(e => e.Value.RemoteParentEntity ?? throw new InvalidOperationException("RemoteParentEntity is null"));
+                IEnumerable<MyObjectBuilder_CubeGrid> remoteEntities = parentNode.CubeEntityNodes.Where(e => minimumConnectionType.HasFlag(e.Value.GridConnectionType) && e.Value.RemoteParentEntity != null)
+                                                               .Select(e => e.Value.RemoteParentEntity ?? throw new InvalidOperationException("RemoteParentEntity is null"));
                 foreach (MyObjectBuilder_CubeGrid cubeGrid in remoteEntities)
                 {
                     if (cubeGrid != null && !list.Contains(cubeGrid))

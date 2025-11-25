@@ -50,7 +50,7 @@ namespace SEToolbox.Interop
             public static readonly MOBTypes PhysicalGunObject = new(typeof(MyObjectBuilder_PhysicalGunObject));
 
         }
-        //FOLIAGE, HARVESTABLE??
+        //TODO: FOLIAGE, HARVESTABLE??
 
 
     /// <summary>

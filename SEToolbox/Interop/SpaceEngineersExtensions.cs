@@ -396,8 +396,7 @@ namespace SEToolbox.Interop
         }
 
         public static System.Windows.Media.Color FromHsvMaskToPaletteMediaColor(this SerializableVector3 hsv)
-        {
-           
+        {           
             FromHsvMaskToPaletteColor(hsv, out int r, out int g, out int b);
             return System.Windows.Media.Color.FromArgb(255, (byte)r, (byte)g, (byte)b);
         }
@@ -669,7 +668,7 @@ namespace SEToolbox.Interop
             {
                 var inventoryBase = componentContainer.Components.FirstOrDefault(e => e.TypeId == "MyInventoryBase");
 
-                if (inventoryBase != null && inventoryBase.Component is MyObjectBuilder_Inventory singleInventory && singleInventory != null)
+                if (inventoryBase?.Component is MyObjectBuilder_Inventory singleInventory && singleInventory != null)
                     {
                         InventoryEditorModel iem = ParseInventory(singleInventory, definition);
                         if (iem != null)

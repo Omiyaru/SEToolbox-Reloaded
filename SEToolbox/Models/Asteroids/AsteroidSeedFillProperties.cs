@@ -29,31 +29,30 @@ namespace SEToolbox.Models.Asteroids
             public int Index;
             public string Name;
             public MaterialSelectionModel Material;
-            public double Radius ;
+            public double Radius;
             public int Veins;
-        }           
-            public static Dictionary<int, (string Name, MaterialSelectionModel Material, double? Radius, int? Veins)> _materialsData = MaterialsData;
-            private static readonly Dictionary<int, (string Name, MaterialSelectionModel Material, double? Radius, int? Veins)> _materialsDataCache = [];
-            public static Dictionary<int, (string Name, MaterialSelectionModel Material, double? Radius, int? Veins)> MaterialsData => _materialsDataCache;
-            // private static void BuildMaterialsDataCache()
-            // {
-            //     if (_materialsDataCache.Count > 0)
-            //         return;
-            //     var index = 0;
-            //     foreach (var material in _materialsData.Select(x => x.Value.Material))
-            //     {
-            //         _materialsDataCache.Add(index, ($"{material}", material, index > 0 ? material.Radius : null, index > 0 ? material.Veins : null));
-            //         index++;
-            //     }
-            //}
-    
-      
+        }
+        public static Dictionary<int, (string Name, MaterialSelectionModel Material, double? Radius, int? Veins)> _materialsData = MaterialsData;
+        private static readonly Dictionary<int, (string Name, MaterialSelectionModel Material, double? Radius, int? Veins)> _materialsDataCache = [];
+        public static Dictionary<int, (string Name, MaterialSelectionModel Material, double? Radius, int? Veins)> MaterialsData => _materialsDataCache;
+        // private static void BuildMaterialsDataCache()
+        // {
+        //     if (_materialsDataCache.Count > 0)
+        //         return;
+        //     var index = 0;
+        //     foreach (var material in _materialsData.Select(x => x.Value.Material))
+        //     {
+        //         _materialsDataCache.Add(index, ($"{material}", material, index > 0 ? material.Radius : null, index > 0 ? material.Veins : null));
+        //         index++;
+        //     }
+        //}
+
+
         #region Properties
         public ObservableCollection<GenerateVoxelDetailModel> VoxelFileList
         {
             get => _voxelFileList;
             set => SetProperty(ref _voxelFileList, value, nameof(VoxelFileList));
-
         }
 
         public List<MaterialSelectionModel> MaterialsList
@@ -67,7 +66,6 @@ namespace SEToolbox.Models.Asteroids
             get => _voxelFile;
             set => SetProperty(ref _voxelFile, value, nameof(VoxelFile));
         }
-
 
         public int Index
         {
@@ -107,7 +105,7 @@ namespace SEToolbox.Models.Asteroids
 
         public int SecondVeins
         {
-            get =>  _secondVeins;
+            get => _secondVeins;
             set => _secondVeins = value;
         }
 
@@ -161,13 +159,13 @@ namespace SEToolbox.Models.Asteroids
 
         public int FifthVeins
         {
-            get => _fifthVeins == 0 ? 1 : _fifthVeins;
+            get => _fifthVeins;
             set => _fifthVeins = value;
         }
 
         public double FifthRadius
         {
-            get => _fifthRadius == 0 ? 1 : _fifthRadius;
+            get => _fifthRadius;
             set => _fifthRadius = value;
         }
 
@@ -193,9 +191,9 @@ namespace SEToolbox.Models.Asteroids
         {
             get => _seventhMaterial;
             set => SetProperty(ref _seventhMaterial, value, nameof(SeventhMaterial));
-	  }
+        }
 
-       	public int SeventhVeins
+        public int SeventhVeins
         {
             get => _seventhVeins;
             set => _seventhVeins = value;
@@ -206,7 +204,7 @@ namespace SEToolbox.Models.Asteroids
             get => _seventhRadius;
             set => _seventhRadius = value;
         }
-        
+
         public List<VoxelMaterialAssetModel> MaterialsAssets
         {
             get => _materialsAssets;
@@ -228,7 +226,7 @@ namespace SEToolbox.Models.Asteroids
             }
             return clone;
         }
-        
+
         static AsteroidSeedFillProperties()
         {
             var properties = new AsteroidSeedFillProperties();
@@ -260,7 +258,7 @@ namespace SEToolbox.Models.Asteroids
             var materials = MaterialsData.Select(x => x.Value.Material).ToList();
             return GetMaterial(index, materials).Radius;
         }
-      
+
         public static MaterialSelectionModel GetMaterial(int index, List<MaterialSelectionModel> materialList)
         {
             if (materialList == null)
@@ -278,8 +276,8 @@ namespace SEToolbox.Models.Asteroids
                 throw new ArgumentOutOfRangeException(nameof(index), "Invalid vein index: " + index);
             return materialsList[index].Veins;
         }
-    
-        public static void SetMaterial( int index, MaterialSelectionModel material, int? radius, int? veins)
+
+        public static void SetMaterial(int index, MaterialSelectionModel material, int? radius, int? veins)
         {
             if (material == null)
                 throw new ArgumentNullException(nameof(material));
@@ -300,9 +298,9 @@ namespace SEToolbox.Models.Asteroids
 
             var veins = RandomUtil.GetInt((int)(MaterialsData.Select(x => x.Value.Veins).Min() * 0.85),
                                     (int)(MaterialsData.Select(x => x.Value.Veins).Max() * 1.5 * 0.85));
-            
-            var radius = RandomUtil.GetInt((int)( MaterialsData.Select(x => x.Value.Radius).Min() * 0.85),
-                                     (int)( MaterialsData.Select(x => x.Value.Radius).Max() * 1.5 * 0.85));
+
+            var radius = RandomUtil.GetInt((int)(MaterialsData.Select(x => x.Value.Radius).Min() * 0.85),
+                                     (int)(MaterialsData.Select(x => x.Value.Radius).Max() * 1.5 * 0.85));
 
             MainMaterial = MaterialsList[indices[0]];
             var materialIndices = indices.Skip(1).Take(veins).ToArray();
@@ -311,7 +309,7 @@ namespace SEToolbox.Models.Asteroids
                 GetMaterial(index, MaterialsList[index], radius, veins);
             }
         }
-        
+
     }
 }
 

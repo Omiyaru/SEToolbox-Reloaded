@@ -82,7 +82,10 @@ namespace SEToolbox.Support
                 {
                     file.Delete();
                 }
-                catch { }
+                catch
+                {
+                    
+                }
             }
 
             foreach (DirectoryInfo dir in basePath.GetDirectories())
@@ -91,7 +94,10 @@ namespace SEToolbox.Support
                 {
                     dir.Delete(true);
                 }
-                catch { }
+                catch
+                {
+                    
+                }
             }
         }
     }

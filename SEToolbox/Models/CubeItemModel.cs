@@ -317,7 +317,7 @@ namespace SEToolbox.Models
         {
             BuiltBy = newOwnerId;
 
-            MyObjectBuilder_Identity identity = SpaceEngineersCore.WorldResource.Checkpoint.Identities.FirstOrDefault(p => p.PlayerId == BuiltBy);
+            var identity = SpaceEngineersCore.WorldResource.Checkpoint.Identities.FirstOrDefault(p => p.PlayerId == BuiltBy);
             string dead = $" ({Res.ClsCharacterDead})";
             if (SpaceEngineersCore.WorldResource.Checkpoint.AllPlayersData != null)
             {
@@ -344,8 +344,8 @@ namespace SEToolbox.Models
             CubeSize = definition.CubeSize;
             FriendlyName = SpaceEngineersApi.GetResourceName(value: definition.DisplayNameText);
 
-            MyObjectBuilder_Identity ownerIdentity = SpaceEngineersCore.WorldResource.Checkpoint.Identities.FirstOrDefault(p => p.PlayerId == Owner);
-            MyObjectBuilder_Identity buyiltByIdentity = SpaceEngineersCore.WorldResource.Checkpoint.Identities.FirstOrDefault(p => p.PlayerId == BuiltBy);
+            var ownerIdentity = SpaceEngineersCore.WorldResource.Checkpoint.Identities.FirstOrDefault(p => p.PlayerId == Owner);
+            var buyiltByIdentity = SpaceEngineersCore.WorldResource.Checkpoint.Identities.FirstOrDefault(p => p.PlayerId == BuiltBy);
             string ownerDead = $" ({Res.ClsCharacterDead})";
             string builtByDead = $" ({Res.ClsCharacterDead})";
             if (SpaceEngineersCore.WorldResource.Checkpoint.AllPlayersData != null)
@@ -366,7 +366,7 @@ namespace SEToolbox.Models
 
             Inventory ??= [];
             Inventory.Clear();
-            foreach (InventoryEditorModel item in cube.ComponentContainer.GetInventory(definition))
+            foreach (var item in cube.ComponentContainer.GetInventory(definition))
                 Inventory.Add(item);
 
             while (Inventory.Count < 2)

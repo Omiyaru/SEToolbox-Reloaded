@@ -94,6 +94,7 @@ namespace SEToolbox.Interop
                 Directory.Delete(sourcePath, true);
             }
         }
+        
         private static void CopyFilesAndDirectories(string sourcePath,
                                                     string targetPath,
                                                     IProgress<int> progress = null)

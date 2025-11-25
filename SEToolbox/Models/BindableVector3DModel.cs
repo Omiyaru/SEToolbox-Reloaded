@@ -64,9 +64,7 @@ namespace SEToolbox.Models
         {
             get => _vector.Y;
             set => SetProperty(_vector.Y, value, nameof(Y));
-        }
-
-        
+        } 
 
         public double Z
         {
@@ -86,7 +84,9 @@ namespace SEToolbox.Models
 
         public VRageMath.Vector3 ToVector3()
         {
-            return new(ToFloat(X), ToFloat(Y), ToFloat(Z));
+            return new(ToFloat(X), 
+                       ToFloat(Y), 
+                       ToFloat(Z));
         }
 
         public VRageMath.Vector3D ToVector3D()
@@ -129,8 +129,8 @@ namespace SEToolbox.Models
                       (Math.Abs(_vector.Y) > Math.Abs(_vector.Z) ? 1 : 2);
 
             Vector3D v = new(axis == 0 ? Math.Sign(_vector.X) : 0,
-                        axis == 1 ? Math.Sign(_vector.Y) : 0,
-                        axis == 2 ? Math.Sign(_vector.Z) : 0);
+                             axis == 1 ? Math.Sign(_vector.Y) : 0,
+                             axis == 2 ? Math.Sign(_vector.Z) : 0);
 
             return new BindableVector3DModel(v);
         }

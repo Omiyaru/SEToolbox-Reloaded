@@ -8,7 +8,7 @@ namespace SEToolbox.Controls
         #region Fields
 
         private BindingBase _sortBinding;
-        private BaseModel _model;
+        private BaseModel _model = new();
 
         #endregion
 
@@ -17,7 +17,7 @@ namespace SEToolbox.Controls
         public BindingBase SortBinding
         {
             get => _sortBinding;
-            set => _model.SetProperty(ref _sortBinding, () => OnDisplayMemberBindingChanged());
+            set => _model.SetProperty(ref _sortBinding, value, () => OnDisplayMemberBindingChanged());
         }
         
    

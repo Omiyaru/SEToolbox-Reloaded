@@ -232,11 +232,11 @@ namespace SEToolbox.Models
             var invItem = _inventory.Items[index];
 
             // Remove HandWeapon if item is HandWeapon.
-            if (_character != null && _character.HandWeapon != null && invItem.PhysicalContent.TypeId == MOBTypeIds.PhysicalGunObject)
+            if (_character != null && invItem.PhysicalContent.TypeId == MOBTypeIds.PhysicalGunObject)
             {
                 if (((MyObjectBuilder_PhysicalGunObject)invItem.PhysicalContent).GunEntity?.EntityId == _character.HandWeapon.EntityId)
                 {
-                    _character.HandWeapon = null;
+                    _character?.HandWeapon = null;
                 }
             }
 

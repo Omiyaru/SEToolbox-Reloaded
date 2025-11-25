@@ -68,9 +68,9 @@ namespace SEToolbox.Models
         {
             get => _sourceFile;
             set => SetProperty(ref _sourceFile, value, nameof(SourceFile), () =>
-                {StockMaterial ??= MaterialsCollection[0];});
-                
-            
+            {
+                StockMaterial ??= MaterialsCollection[0];
+            });
         }
 
         public bool IsValidVoxelFile
@@ -101,8 +101,8 @@ namespace SEToolbox.Models
         {
             get => _characterPosition;
             set => SetProperty(ref _characterPosition, value, nameof(CharacterPosition));
-                //if (value != characterPosition) // Unable to check for equivilence, without long statement. And, mostly uncessary.
-           
+            //if (value != characterPosition) // Unable to check for equivilence, without long statement. And, mostly uncessary.
+
         }
 
         public bool IsStockVoxel
@@ -128,10 +128,10 @@ namespace SEToolbox.Models
         {
             get => _stockVoxel;
             set => SetProperty(ref _stockVoxel, value, nameof(StockVoxel), () =>
-                    {
-                    IsStockVoxel = true;
-                    StockMaterial ??= MaterialsCollection[0];
-                    });
+            {
+                IsStockVoxel = true;
+                StockMaterial ??= MaterialsCollection[0];
+            });
         }
 
         public List<GenerateVoxelDetailModel> VoxelFileList
@@ -143,7 +143,7 @@ namespace SEToolbox.Models
         public ObservableCollection<MaterialSelectionModel> MaterialsCollection
         {
             get => _materialsCollection;
-         }
+        }
 
         public MaterialSelectionModel StockMaterial
         {

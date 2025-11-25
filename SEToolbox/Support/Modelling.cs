@@ -429,7 +429,7 @@ namespace SEToolbox.Support
                          from Z in Enumerable.Range(z, zCount)
                          select new { X, Y, Z, Value = cubic[X][Y][Z] };
             CubeType cubeType = CubeType.None;
-            Parallel.ForEach(cRange, item =>
+            _ = Parallel.ForEach(cRange, item =>
              {
                  if (item.Value != CubeType.None)
                  {
@@ -495,34 +495,29 @@ namespace SEToolbox.Support
                 new(xCount - 1, 0, zCount - 1),
                 new(xCount - 1, yCount - 1, zCount - 1)
             ];
-
-            foreach (Vector3I point in cornerPoints)
+            foreach (var point in from Vector3I point in cornerPoints
+                                  where cubic[point.X][point.Y][point.Z] == CubeType.None
+                                  select point)
             {
-                if (cubic[point.X][point.Y][point.Z] == CubeType.None)
-                {
-                    list.Enqueue(point);
-                }
+                list.Enqueue(point);
             }
 
-            foreach (var item in list)
+            foreach (var item in from item in list
+                                 where cubic[item.X][item.Y][item.Z] == CubeType.None
+                                 select item)
             {
-                if (cubic[item.X][item.Y][item.Z] == CubeType.None)
+                cubic[item.X][item.Y][item.Z] = CubeType.Exterior;
+                var neighbors = GetNeighbors(item, xCount, yCount, zCount).Where(n => cubic[n.X][n.Y][n.Z] == CubeType.None).ToList();
+                if (neighbors.Count > 0)
                 {
-                    cubic[item.X][item.Y][item.Z] = CubeType.Exterior;
-
-                    var neighbors = GetNeighbors(item, xCount, yCount, zCount).Where(n => cubic[n.X][n.Y][n.Z] == CubeType.None).ToList();
-
-                    if (neighbors.Count > 0)
+                    foreach (Vector3I neighbor in neighbors)
                     {
-                        foreach (Vector3I neighbor in neighbors)
-                        {
-                            list.Enqueue(neighbor);
-                        }
+                        list.Enqueue(neighbor);
                     }
                 }
             }
 
-            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
+            _ = ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
             {
                 if (cubic[x][y][z] == CubeType.None)
                 {
@@ -545,7 +540,7 @@ namespace SEToolbox.Support
             int xCount = cubic.Length,
                 yCount = cubic[0].Length,
                 zCount = cubic[0][0].Length;
-            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
+            _ = ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
             {
                 if (cubic[x][y][z] != CubeType.None)
                 {
@@ -584,7 +579,7 @@ namespace SEToolbox.Support
                 yCount = cubic[0].Length,
                 zCount = cubic[0][0].Length;
 
-            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
+            _ = ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
             {
                 incrementProgress?.Invoke();
                 if (cubic[x][y][z] == CubeType.Cube)
@@ -597,8 +592,6 @@ namespace SEToolbox.Support
             });
 
         }
-
-
 
         public static List<CubeType> Slopes =
         [
@@ -617,7 +610,6 @@ namespace SEToolbox.Support
             CubeType.SlopeLeftBackCenter
 
         ];
-
 
         public static CubeType DetermineAddedSlopeType(CubeType[][][] cubic, int x, int y, int z, int xCount, int yCount, int zCount)
         {
@@ -645,15 +637,16 @@ namespace SEToolbox.Support
         }
 
         #endregion
+
         #region CalculateAddedCorners
+        
         public static void CalculateAddedCorners(CubeType[][][] cubic, Action incrementProgress = null)
         {
             int xCount = cubic.Length,
                 yCount = cubic[0].Length,
                 zCount = cubic[0][0].Length;
 
-
-            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
+            _ = ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
            {
                incrementProgress?.Invoke();
                if (cubic[x][y][z] == CubeType.None)
@@ -664,7 +657,6 @@ namespace SEToolbox.Support
                }
            });
         }
-
 
         public static List<CubeType> Corners =
         [
@@ -702,8 +694,12 @@ namespace SEToolbox.Support
 
             (CubeType result, (int cx1, int cy1, int cz1, CubeType type1), (int cx2, int cy2, int cz2, CubeType type2), (int cx3, int cy3, int cz3, CubeType type3))[] tripleChecks =
             [
-                (CubeType.NormalCornerRightBackBottom, (+1, 0, 0, CubeType.InverseCornerLeftFrontTop), (0, -1, 0, CubeType.InverseCornerLeftFrontTop), (0, 0, -1, CubeType.InverseCornerLeftFrontTop)),
-                (CubeType.NormalCornerLeftFrontTop, (-1, 0, 0, CubeType.InverseCornerRightBackBottom), (0, +1, 0, CubeType.InverseCornerRightBackBottom), (0, 0, +1, CubeType.InverseCornerRightBackBottom))
+                (CubeType.NormalCornerRightBackBottom, (+1, 0, 0, CubeType.InverseCornerLeftFrontTop), 
+                                                       (0, -1, 0, CubeType.InverseCornerLeftFrontTop), 
+                                                       (0, 0, -1, CubeType.InverseCornerLeftFrontTop)),
+                (CubeType.NormalCornerLeftFrontTop, (-1, 0, 0, CubeType.InverseCornerRightBackBottom), 
+                                                    (0, +1, 0, CubeType.InverseCornerRightBackBottom), 
+                                                    (0, 0, +1, CubeType.InverseCornerRightBackBottom))
             ];
 
             foreach ((CubeType result, (int cx1, int cy1, int cz1, CubeType type1) check1, (int cx2, int cy2, int cz2, CubeType type2) check2, (int cx3, int cy3, int cz3, CubeType type3) check3) in tripleChecks)
@@ -729,19 +725,17 @@ namespace SEToolbox.Support
                 zCount = cubic[0][0].Length;
 
 
-            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
+            _ = ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
             {
-               incrementProgress?.Invoke();
-               if (cubic[x][y][z] == CubeType.None)
-               {
-                   CubeType result = DetermineInverseCornerType(cubic, x, y, z, xCount, yCount, zCount);
-                   if (result != CubeType.None)
-                       cubic[x][y][z] = result;
-               }
-           });
+                incrementProgress?.Invoke();
+                if (cubic[x][y][z] == CubeType.None)
+                {
+                    CubeType result = DetermineInverseCornerType(cubic, x, y, z, xCount, yCount, zCount);
+                    if (result != CubeType.None)
+                        cubic[x][y][z] = result;
+                }
+            });
         }
-
-
 
         public static List<CubeType> InverseCorners =
         [
@@ -754,7 +748,6 @@ namespace SEToolbox.Support
                 CubeType.InverseCornerLeftFrontBottom,
                 CubeType.InverseCornerRightFrontBottom,
         ];
-
 
         public static CubeType DetermineInverseCornerType(CubeType[][][] cubic, int x, int y, int z, int xCount, int yCount, int zCount)
         {
@@ -848,7 +841,6 @@ namespace SEToolbox.Support
 
         #endregion
 
-
         #region BuildStructureFromCubic
 
         internal static void BuildStructureFromCubic(MyObjectBuilder_CubeGrid entity, CubeType[][][] cubic, bool fillObject, SubtypeId blockType, SubtypeId slopeBlockType, SubtypeId cornerBlockType, SubtypeId inverseCornerBlockType, Action incrementProgress = null)
@@ -857,9 +849,8 @@ namespace SEToolbox.Support
                 yCount = cubic[0].Length,
                 zCount = cubic[0][0].Length;
 
-            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
+            _ = ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
             {
-
                 incrementProgress?.Invoke();
                 CubeType cubeType = cubic[x][y][z];
 
@@ -889,19 +880,17 @@ namespace SEToolbox.Support
                 yCount = cubic[0].Length,
                 zCount = cubic[0][0].Length;
 
-            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
+            _ = ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
             {
                 incrementProgress?.Invoke();
                 if (cubic[x][y][z] == CubeType.Cube)
                 {
                     CubeType result = DetermineSubtractedCornerType(cubic, x, y, z, xCount, yCount, zCount);
-
                     if (result != CubeType.Cube)
                         cubic[x][y][z] = result;
                 }
             });
         }
-
 
         private static CubeType DetermineSubtractedCornerType(CubeType[][][] cubic, int x, int y, int z, int xCount, int yCount, int zCount)
         {
@@ -937,7 +926,7 @@ namespace SEToolbox.Support
         public static void CalculateSubtractedSlopes(CubeType[][][] cubic, Action incrementProgress = null)
         {
             int xCount = cubic.Length, yCount = cubic[0].Length, zCount = cubic[0][0].Length;
-            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
+            _ = ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
             {
                 incrementProgress?.Invoke();
                 if (cubic[x][y][z] == CubeType.Cube)
@@ -948,7 +937,6 @@ namespace SEToolbox.Support
                 }
             });
         }
-
 
         public static CubeType DetermineSubtractedSlopeType(CubeType[][][] cubic, int x, int y, int z, int xCount, int yCount, int zCount)
         {
@@ -993,7 +981,7 @@ namespace SEToolbox.Support
                 yCount = cubic[0].Length,
                 zCount = cubic[0][0].Length;
 
-            ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
+            _ = ProcessCubicRange(cubic, xCount, yCount, zCount, (x, y, z) =>
             {
                 incrementProgress?.Invoke();
                 if (cubic[x][y][z] == CubeType.Cube)
@@ -1005,9 +993,6 @@ namespace SEToolbox.Support
             });
         }
 
-
-        ///
-        ///
         private static CubeType DetermineSubtractedInverseCornerType(CubeType[][][] cubic, int x, int y, int z, int xCount, int yCount, int zCount)
         {
             (CubeType cornerType, (int dx1, int dy1, int dz1), (int dx2, int dy2, int dz2), (int dx3, int dy3, int dz3))[] inverseCornerChecks =
@@ -1035,6 +1020,7 @@ namespace SEToolbox.Support
         }
 
         #endregion
+
         private static MyObjectBuilder_CubeBlock CreateCubeBlock(CubeType cubeType, SubtypeId blockType, SubtypeId slopeBlockType, SubtypeId cornerBlockType, SubtypeId inverseCornerBlockType, bool fillObject, int x, int y, int z)
         {
             return new MyObjectBuilder_CubeBlock
@@ -1059,7 +1045,7 @@ namespace SEToolbox.Support
             };
         }
 
-
+        #endregion
         #region SetCubeOrientation
 
         internal static readonly Dictionary<CubeType, SerializableBlockOrientation> CubeOrientations = new()

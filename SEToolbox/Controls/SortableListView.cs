@@ -176,6 +176,7 @@ namespace SEToolbox.Controls
             UpdateSortList(headerClicked, direction, headerPaths);
             Sort(listView, _sortList);
         }
+        
         private static List<string> GetHeaderPaths(GridViewColumnHeader headerClicked)
         {
             if (headerClicked.Column is not SortableGridViewColumn sortableColumn)
@@ -236,7 +237,6 @@ namespace SEToolbox.Controls
                 return;
             //ICollectionView dataView = listView.Items as ICollectionView;
 
-
                 dataView.SortDescriptions.Clear();
 
             foreach (SortColumn sortColumn in sortList)
@@ -265,9 +265,9 @@ namespace SEToolbox.Controls
 
         public class SortColumn(string sortPath, ListSortDirection direction, GridViewColumn gridViewColumn)
         {
-            public string SortPath { get; } = sortPath;
-            public ListSortDirection SortDirection { get; } = direction;
-            public GridViewColumn Column { get; } = gridViewColumn;
+            public string SortPath { get; set; } = sortPath;
+            public ListSortDirection SortDirection { get; set; } = direction;
+            public GridViewColumn Column { get; set; } = gridViewColumn;
         }
     }
 }

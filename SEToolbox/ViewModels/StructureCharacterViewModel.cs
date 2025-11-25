@@ -87,41 +87,38 @@ namespace SEToolbox.ViewModels
         public System.Windows.Media.Brush Color
         {
             get => new System.Windows.Media.SolidColorBrush(DataModel.Color.FromHsvMaskToPaletteMediaColor());
-            set
+            set => SetProperty(DataModel.Color, ((System.Windows.Media.SolidColorBrush)value).Color.FromPaletteColorToHsvMask(), () =>
             {
-                DataModel.Color = ((System.Windows.Media.SolidColorBrush)value).Color.FromPaletteColorToHsvMask();
                 MainViewModel.IsModified = true;
-            }
+            });
         }
 
         public bool Light
         {
             get => DataModel.Light;
-            set
+            set => SetProperty(DataModel.Light, value, () =>
             {
-                DataModel.Light = value;
                 MainViewModel.IsModified = true;
-            }
+            });
         }
 
         public bool JetPack
         {
             get => DataModel.JetPack;
-            set
+            set => SetProperty(DataModel.JetPack, value, () =>
             {
-                DataModel.JetPack = value;
                 MainViewModel.IsModified = true;
-            }
+            });
         }
 
         public bool Dampeners
         {
             get => DataModel.Dampeners;
-            set
+            set => SetProperty(DataModel.Dampeners, value, () =>
             {
                 DataModel.Dampeners = value;
-                MainViewModel.IsModified = true;
-            }
+            });  
+  
         }
 
         public override double LinearVelocity

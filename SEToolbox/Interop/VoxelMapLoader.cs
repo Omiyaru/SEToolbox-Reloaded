@@ -39,7 +39,7 @@ namespace SEToolbox.Interop
 
             catch (ReflectionTypeLoadException ex)
             {
-                // Handle the exception and log the loader exceptions if needed
+               
                 foreach (Exception loaderException in ex.LoaderExceptions)
                 {
                     SConsole.WriteLine(loaderException.Message);

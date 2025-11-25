@@ -88,9 +88,8 @@ namespace SEToolbox.Models
         public int? Units
         {
             get => _units;
-            set => SetProperty(ref _units, value, nameof(Units), () => SetMassVolume());
-                   
-
+            set => SetProperty(ref _units, value, nameof(Units), () => 
+                   SetMassVolume());
         }
 
         public decimal? DecimalUnits

@@ -95,7 +95,7 @@ namespace SEToolbox.ViewModels
 
         public ObservableCollection<WorldResource> Worlds
         {
-            get=> _dataModel.Worlds;
+            get => _dataModel.Worlds;
         }
 
         /// <summary>
@@ -111,8 +111,11 @@ namespace SEToolbox.ViewModels
 
         #region Methods
 
-        public bool LoadCanExecute() => SelectedWorld is { IsValid: true };
-       
+        public bool LoadCanExecute()
+        {
+            return _dataModel.SelectedWorld is { IsValid: true };
+        }
+
         public void LoadExecuted()
         {
             IsBusy = true;
@@ -227,7 +230,7 @@ namespace SEToolbox.ViewModels
 
         public void OpenFolderExecuted()
         {
-            Process.Start(new ProcessStartInfo("Explorer", string.Format($"\"{ SelectedWorld.SavePath}\"")) { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("Explorer", string.Format($"\"{SelectedWorld.SavePath}\"")) { UseShellExecute = true });
         }
 
         public bool OpenWorkshopCanExecute()
@@ -239,12 +242,12 @@ namespace SEToolbox.ViewModels
         public void OpenWorkshopExecuted()
         {
             if (SelectedWorld.WorkshopId.HasValue)
-               Process.Start(new ProcessStartInfo(string.Format($"http://steamcommunity.com/sharedfiles/filedetails/?id={SelectedWorld.WorkshopId.Value}")) { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo(string.Format($"http://steamcommunity.com/sharedfiles/filedetails/?id={SelectedWorld.WorkshopId.Value}")) { UseShellExecute = true });
         }
 
         public bool ZoomThumbnailCanExecute()
         {
-            return SelectedWorld != null && SelectedWorld.ThumbnailImageFileName != null;
+            return SelectedWorld?.ThumbnailImageFileName != null;
         }
 
         public void ZoomThumbnailExecuted()

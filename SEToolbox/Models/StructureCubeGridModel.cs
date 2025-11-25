@@ -435,9 +435,9 @@ namespace SEToolbox.Models
 
             if (CubeGrid.CubeBlocks.Count == 1)
             {
-                if (CubeGrid.CubeBlocks[0] is MyObjectBuilder_Wheel)
+                if (CubeGrid.CubeBlocks.First() is MyObjectBuilder_Wheel)
                 {
-                    MyObjectBuilder_CubeGrid grid = ExplorerModel.Default.FindConnectedTopBlock<MyObjectBuilder_MotorSuspension>(CubeGrid.CubeBlocks[0].EntityId);
+                    MyObjectBuilder_CubeGrid grid = (MyObjectBuilder_CubeGrid)ExplorerModel.Default.FindConnectedTopBlock<MyObjectBuilder_MotorSuspension>(CubeGrid.CubeBlocks[0].EntityId);
 
                     if (grid == null)
                         Description = Res.ClsCubeGridWheelDetached;
@@ -951,22 +951,20 @@ namespace SEToolbox.Models
             CubeGrid.IsStatic = false;
             UpdateGeneralFromEntityBase();
         }
-
+        List<SubtypeId> armorTypes = new List<SubtypeId> { SubtypeId.LargeRoundArmor_Corner, SubtypeId.LargeRoundArmor_Slope, SubtypeId.LargeRoundArmor_CornerInv };
         public bool ConvertToCornerArmor()
         {
             int count = 0;
-            count += CubeGrid.CubeBlocks.Where(c => c.SubtypeName == SubtypeId.LargeRoundArmor_Corner.ToString()).Select(c => { c.SubtypeName = SubtypeId.LargeBlockArmorCorner.ToString(); return c; }).ToList().Count;
-            count += CubeGrid.CubeBlocks.Where(c => c.SubtypeName == SubtypeId.LargeRoundArmor_Slope.ToString()).Select(c => { c.SubtypeName = SubtypeId.LargeBlockArmorSlope.ToString(); return c; }).ToList().Count;
-            count += CubeGrid.CubeBlocks.Where(c => c.SubtypeName == SubtypeId.LargeRoundArmor_CornerInv.ToString()).Select(c => { c.SubtypeName = SubtypeId.LargeBlockArmorCornerInv.ToString(); return c; }).ToList().Count;
+            foreach (var block in armorTypes)
+                count += CubeGrid.CubeBlocks.Where(c => c.SubtypeName == block.ToString()).Count();
             return count > 0;
         }
 
         public bool ConvertToRoundArmor()
         {
             int count = 0;
-            count += CubeGrid.CubeBlocks.Where(c => c.SubtypeName == SubtypeId.LargeBlockArmorCorner.ToString()).Select(c => { c.SubtypeName = SubtypeId.LargeRoundArmor_Corner.ToString(); return c; }).ToList().Count;
-            count += CubeGrid.CubeBlocks.Where(c => c.SubtypeName == SubtypeId.LargeBlockArmorSlope.ToString()).Select(c => { c.SubtypeName = SubtypeId.LargeRoundArmor_Slope.ToString(); return c; }).ToList().Count;
-            count += CubeGrid.CubeBlocks.Where(c => c.SubtypeName == SubtypeId.LargeBlockArmorCornerInv.ToString()).Select(c => { c.SubtypeName = SubtypeId.LargeRoundArmor_CornerInv.ToString(); return c; }).ToList().Count;
+            foreach (var block in armorTypes)
+            count += CubeGrid.CubeBlocks.Where(c => c.SubtypeName == block.ToString()).Count();
             return count > 0;
         }
 
@@ -1021,7 +1019,7 @@ namespace SEToolbox.Models
                         }
                     }
 
-
+               
                     MyObjectBuilder_CubeBlock[] cubes = [.. MirrorCubes(this, false, xMirror, xAxis, yMirror, yAxis, zMirror, zAxis)];
                     CubeGrid.CubeBlocks.AddRange(cubes);
                     count += cubes.Length;
@@ -1109,7 +1107,6 @@ namespace SEToolbox.Models
 
         }
 
-
         // Helper method to mirror a block
         private MyObjectBuilder_CubeBlock MirrorBlock(MyObjectBuilder_CubeBlock block, Mirror xMirror, int xAxis, Mirror yMirror, int yAxis, Mirror zMirror, int zAxis)
         {
@@ -1125,8 +1122,6 @@ namespace SEToolbox.Models
             {
                 ((MyObjectBuilder_PistonBase)newBlock).TopBlockId = pistonBlock.TopBlockId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
             }
-
-
 
             MyCubeBlockDefinition definition = SpaceEngineersApi.GetCubeDefinition(block.TypeId, CubeGrid.GridSizeEnum, block.SubtypeName);
             MirrorCubeOrientation(definition, block.BlockOrientation, xMirror, yMirror, zMirror, out MyCubeBlockDefinition mirrorDefinition, out newBlock.BlockOrientation);
@@ -1166,6 +1161,7 @@ namespace SEToolbox.Models
             );
             return mirroredPosition;
         }
+        
         private static IEnumerable<MyObjectBuilder_CubeBlock> MirrorCubes(StructureCubeGridModel viewModel, bool integrate, Mirror xMirror, int xAxis, Mirror yMirror, int yAxis, Mirror zMirror, int zAxis)
         {
             List<MyObjectBuilder_CubeBlock> blocks = [];
@@ -1177,10 +1173,9 @@ namespace SEToolbox.Models
             {
                 MyObjectBuilder_CubeBlock newBlock = block.Clone() as MyObjectBuilder_CubeBlock;
                 newBlock.EntityId = block.EntityId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
-
                 switch (block)
                 {
-                    case MyObjectBuilder_MotorBase motorBlock:
+                    case  MyObjectBuilder_MotorBase motorBlock :
                         ((MyObjectBuilder_MotorBase)newBlock).RotorEntityId = motorBlock.RotorEntityId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
                         break;
                     case MyObjectBuilder_PistonBase pistonBlock:

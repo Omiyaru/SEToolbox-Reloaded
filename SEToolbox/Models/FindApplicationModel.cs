@@ -54,7 +54,6 @@ namespace SEToolbox.Models
             GameBinPath = null;
 
             if (!string.IsNullOrEmpty(GameApplicationPath))
-    
 			{
             	try
             	{

@@ -27,6 +27,7 @@ namespace SEToolbox.Support
             None = 0,
             ByteFiller = 1,
         }
+        
         private static readonly Dictionary<int, AsteroidFills> FillTypeIdMap = Enum.GetValues(typeof(AsteroidFills))
             .Cast<AsteroidFills>()
             .ToDictionary(fill => (int)fill, fill => fill);

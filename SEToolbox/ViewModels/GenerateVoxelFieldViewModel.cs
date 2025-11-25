@@ -47,32 +47,32 @@ namespace SEToolbox.ViewModels
 
         public ICommand ClearRowsCommand
         {
-           get => new DelegateCommand(ClearRowsExecuted, ClearRowsCanExecute);
+            get => new DelegateCommand(ClearRowsExecuted, ClearRowsCanExecute);
         }
 
         public ICommand AddRandomRowCommand
         {
-           get => new DelegateCommand(AddRandomRowExecuted, AddRandomRowCanExecute);
+            get => new DelegateCommand(AddRandomRowExecuted, AddRandomRowCanExecute);
         }
 
         public ICommand AddRowCommand
         {
-           get => new DelegateCommand(AddRowExecuted, AddRowCanExecute);
+            get => new DelegateCommand(AddRowExecuted, AddRowCanExecute);
         }
 
         public ICommand DeleteRowCommand
         {
-           get => new DelegateCommand(DeleteRowExecuted, DeleteRowCanExecute);
+            get => new DelegateCommand(DeleteRowExecuted, DeleteRowCanExecute);
         }
 
         public ICommand CreateCommand
         {
-           get => new DelegateCommand(CreateExecuted, CreateCanExecute);
+            get => new DelegateCommand(CreateExecuted, CreateCanExecute);
         }
 
         public ICommand CancelCommand
         {
-           get => new DelegateCommand(CancelExecuted, CancelCanExecute);
+            get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         #endregion
@@ -92,25 +92,24 @@ namespace SEToolbox.ViewModels
         {
             get => _selectedRow;
             set => SetProperty(ref _selectedRow, value, nameof(SelectedRow));
-         
         }
 
         public ObservableCollection<AsteroidByteFillProperties> VoxelCollection
         {
-        get => _dataModel.VoxelCollection;
-        set => _dataModel.VoxelCollection = value;
+            get => _dataModel.VoxelCollection;
+            set => _dataModel.VoxelCollection = value;
         }
 
         public int MinimumRange
         {
-        get => _dataModel.MinimumRange;
-        set => _dataModel.MinimumRange = value;
+            get => _dataModel.MinimumRange;
+            set => _dataModel.MinimumRange = value;
         }
 
         public int MaximumRange
         {
-        get => _dataModel.MaximumRange;
-        set => _dataModel.MaximumRange = value;
+            get => _dataModel.MaximumRange;
+            set => _dataModel.MaximumRange = value;
         }
 
         /// <summary>
@@ -120,25 +119,27 @@ namespace SEToolbox.ViewModels
         {
             get => _isBusy;
 
-            set
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
-                    SetProperty(ref _isBusy, value, nameof(IsBusy));
-                    if (_isBusy)
-                    {
-                        System.Windows.Forms.Application.DoEvents();
-                    }
+
+
+                if (_isBusy)
+                {
+                    System.Windows.Forms.Application.DoEvents();
                 }
-            }
-        
+            });
+        }
+
+
 
         public ObservableCollection<GenerateVoxelDetailModel> VoxelFileList
         {
-           get => _dataModel.VoxelFileList;
+            get => _dataModel.VoxelFileList;
         }
 
         public ObservableCollection<MaterialSelectionModel> MaterialsCollection
         {
-           get => _dataModel.MaterialsCollection;
+            get => _dataModel.MaterialsCollection;
         }
 
         public List<int> PercentList
@@ -148,26 +149,26 @@ namespace SEToolbox.ViewModels
 
         public double CenterPositionX
         {
-        get => _dataModel.CenterPositionX;
-        set => _dataModel.CenterPositionX = value;
+            get => _dataModel.CenterPositionX;
+            set => _dataModel.CenterPositionX = value;
         }
 
         public double CenterPositionY
         {
-        get => _dataModel.CenterPositionY;
-        set => _dataModel.CenterPositionY = value;
+            get => _dataModel.CenterPositionY;
+            set => _dataModel.CenterPositionY = value;
         }
 
         public double CenterPositionZ
         {
-        get => _dataModel.CenterPositionZ;
-        set => _dataModel.CenterPositionZ = value;
+            get => _dataModel.CenterPositionZ;
+            set => _dataModel.CenterPositionZ = value;
         }
 
         public AsteroidFillType.AsteroidFills AsteroidFillType
         {
-        get => _dataModel.AsteroidFillType;
-        set => _dataModel.AsteroidFillType = value;
+            get => _dataModel.AsteroidFillType;
+            set => _dataModel.AsteroidFillType = value;
         }
 
         #endregion
@@ -284,15 +285,15 @@ namespace SEToolbox.ViewModels
             {
                 MainViewModel.Progress++;
 
-                if (string.IsNullOrEmpty(voxelDesign.VoxelFile.SourceFileName) || ! MyVoxelMapBase.IsVoxelMapFile(voxelDesign.VoxelFile.SourceFileName))
+                if (string.IsNullOrEmpty(voxelDesign.VoxelFile.SourceFileName) || !MyVoxelMapBase.IsVoxelMapFile(voxelDesign.VoxelFile.SourceFileName))
                     continue;
 
-                using  MyVoxelMapBase asteroid = new();
+                using MyVoxelMapBase asteroid = new();
                 string tempSourceFileName = null;
-                AsteroidFillType asteroidFillType = new( 1,string.Empty);
-                    int id = asteroidFillType.Id;
+                AsteroidFillType asteroidFillType = new(1, string.Empty);
+                int id = asteroidFillType.Id;
 
-                        switch (asteroidFillType.Id)
+                switch (asteroidFillType.Id)
                 {
                     case 0: //AsteroidFillType.None:
                         asteroid.Load(voxelDesign.VoxelFile.SourceFileName);
@@ -303,23 +304,20 @@ namespace SEToolbox.ViewModels
                         asteroid.Load(voxelDesign.VoxelFile.SourceFileName);
                         AsteroidByteFiller filler = new();
                         filler.FillAsteroid(asteroid, voxelDesign);
-                        tempSourceFileName = TempFileUtil.NewFileName( MyVoxelMapBase.FileExtension.V2);
+                        tempSourceFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
                         asteroid.Save(tempSourceFileName);
                         break;
                     case 2:  //AsteroidFillType.Custom
                         asteroid.Load(voxelDesign.VoxelFile.SourceFileName);
                         tempSourceFileName = voxelDesign.VoxelFile.SourceFileName;
-
                         break;
-
                     default:
                         throw new InvalidOperationException("Unsupported AsteroidFillType.");
                 }
-
-
+                
 
                 // automatically number all files, and check for duplicate fileNames.
-                string fileName = MainViewModel.CreateUniqueVoxelStorageName(voxelDesign.VoxelFile.Name +  MyVoxelMapBase.FileExtension.V2, [.. entities]);
+                string fileName = MainViewModel.CreateUniqueVoxelStorageName(voxelDesign.VoxelFile.Name + MyVoxelMapBase.FileExtension.V2, [.. entities]);
 
                 double radius = RandomUtil.GetDouble(MinimumRange, MaximumRange);
                 double longitude = RandomUtil.GetDouble(0, 2 * Math.PI);

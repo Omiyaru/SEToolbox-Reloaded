@@ -52,9 +52,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult; 
-
             set => SetProperty(ref _closeResult, value, nameof(CloseResult));
-         
         }
 
         /// <summary>
@@ -71,8 +69,6 @@ namespace SEToolbox.ViewModels
                     }
             });
         }
-
-      
 
         public string BlueprintName
         {
@@ -133,7 +129,6 @@ namespace SEToolbox.ViewModels
                 if (_dialogService.ShowMessageBox(this, Res.ErrorInvalidBlueprintExists, Res.ErrorInvalidBlueprintExistsTitle, System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) != System.Windows.MessageBoxResult.Yes)
                     return;
             }
-
             CloseResult = true;
         }
 

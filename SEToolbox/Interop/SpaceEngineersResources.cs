@@ -7,6 +7,7 @@ using VRage.ObjectBuilders;
 using static VRage.Game.MyObjectBuilder_Checkpoint;
 using MOBSerializerKeen = VRage.ObjectBuilders.Private.MyObjectBuilderSerializerKeen;
 using SEConsts = SEToolbox.Interop.SpaceEngineersConsts;
+
 namespace SEToolbox.Interop
 {
     /// <summary>
@@ -48,10 +49,8 @@ namespace SEToolbox.Interop
                 MyDefinitionManager.Static.PreloadDefinitions();
                 MyDefinitionManager.Static.LoadData(mods);
                 MaterialIndex = [];
-            } 
-          
+            }
         }
-
       
         private static readonly object MatIndexLock = new();
 
@@ -67,7 +66,6 @@ namespace SEToolbox.Interop
         {
             get => [.. MyDefinitionManager.Static.GetPlanetsGeneratorsDefinitions()];
         }
-
 
         public static DictionaryReader<string, MyAsteroidGeneratorDefinition> AsteroidDefinitions
         {
@@ -120,12 +118,12 @@ namespace SEToolbox.Interop
             {
                 return MyDefinitionManager.Static.GetVoxelMaterialDefinition(materialIndex).Id.SubtypeName;
             }
-            if (defaultMaterialIndex <= MyDefinitionManager.Static.GetVoxelMaterialDefinitions().Count)
-            {
+            //if (defaultMaterialIndex <= MyDefinitionManager.Static.GetVoxelMaterialDefinitions().Count)
+            //{
                 return MyDefinitionManager.Static.GetVoxelMaterialDefinition(defaultMaterialIndex).Id.SubtypeName;
             }
-            return null;
-        }
+           // return null;
+        //}
         //return _definitions.VoxelMaterials[materialIndex].Id.SubtypeName;
         //return _definitions.VoxelMaterials[defaultMaterialIndex].Id.SubtypeName;
 
@@ -157,19 +155,6 @@ namespace SEToolbox.Interop
         {
             return (T)MOBSerializerKeen.CreateNewObject(typeId, subtypeId);
         }
-
-
-        // private static readonly Dictionary<Type, MyObjectBuilderType> _types = new();
-
-
-        // public static MyObjectBuilderType CreateType<T>(MyObjectBuilderType typeId, string subtypeId) where T : MyObjectBuilder_Base
-        // {
-        //     var type = typeof(T);
-        //     if (!_types.TryGetValue(type, out var result))
-        //     {
-        //         _types[type] = result = (MyObjectBuilderType)(object)MOBSerializerKeen.CreateNewObject(typeId, subtypeId);
-        //     }
-        //     return result;
 
     }
 }

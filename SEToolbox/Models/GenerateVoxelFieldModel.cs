@@ -234,7 +234,6 @@ namespace SEToolbox.Models
                 SeventhMaterial = MaterialsCollection[0],
             };
         }
-        
 
         public void RenumberCollection()
         {

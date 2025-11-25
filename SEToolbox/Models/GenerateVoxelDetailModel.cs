@@ -18,7 +18,7 @@ namespace SEToolbox.Models
         public string Name
         {
             get => _name;
-            set => SetProperty(ref _name, nameof(Name));
+            set => SetProperty(ref _name, value, nameof(Name));
         }
 
         public string SourceFileName

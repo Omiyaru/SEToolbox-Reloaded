@@ -198,4 +198,3 @@ namespace SEToolbox.Models.Asteroids
         }
     }
 }
-

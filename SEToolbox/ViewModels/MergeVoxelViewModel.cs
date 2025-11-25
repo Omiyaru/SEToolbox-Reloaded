@@ -163,18 +163,18 @@ namespace SEToolbox.ViewModels
             SelectionLeft.LoadDetailsSync();
             SelectionRight.LoadDetailsSync();
 
-            var minLeft = SelectionLeft.WorldAabb.Min + SelectionLeft.InflatedContentBounds.Min - offsetPosLeft;
-            var minRight = SelectionRight.WorldAabb.Min + SelectionRight.InflatedContentBounds.Min - offsetPosRight;
-            var min = Vector3D.Zero;
-            var posOffset = Vector3D.Zero;
-            var asteroidSize = Vector3I.Zero;
+            Vector3D minLeft = SelectionLeft.WorldAabb.Min + SelectionLeft.InflatedContentBounds.Min - offsetPosLeft;
+            Vector3D minRight = SelectionRight.WorldAabb.Min + SelectionRight.InflatedContentBounds.Min - offsetPosRight;
+            Vector3D min = Vector3D.Zero;
+            Vector3D posOffset = Vector3D.Zero;
+            Vector3I asteroidSize = Vector3I.Zero;
 
             switch (VoxelMergeType)
             {
                 case VoxelMergeType.UnionVolumeLeftToRight:
                 case VoxelMergeType.UnionVolumeRightToLeft:
                     min = Vector3D.Min(minLeft, minRight) - paddCells;
-                    var max = Vector3D.Max(
+                    Vector3D max = Vector3D.Max(
                         SelectionLeft.WorldAabb.Min + SelectionLeft.InflatedContentBounds.Max - offsetPosLeft,
                         SelectionRight.WorldAabb.Min + SelectionRight.InflatedContentBounds.Max - offsetPosRight) + paddCells;
                     posOffset = GetPosOffset(minLeft, minRight, offsetPosLeft, offsetPosRight);
@@ -202,6 +202,7 @@ namespace SEToolbox.ViewModels
 
             // Merge operations.
             PerformMerge(ref newAsteroid, min, minLeft, minRight);
+
 
             // Generate Entity
             var tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
@@ -323,7 +324,7 @@ namespace SEToolbox.ViewModels
 
             newAsteroid.Storage.ReadRange(newCache, MyStorageDataTypeFlags.ContentAndMaterial, 0, newBlock, newBlock + cacheSize - 1);
 
-            var p = Vector3I.Zero;
+            Vector3I p = Vector3I.Zero;
             PRange.ProcessRange(p, cacheSize);
 
             byte volume = cache.Content(ref p);
@@ -421,7 +422,6 @@ namespace SEToolbox.ViewModels
 
             Vector3I p = Vector3I.Zero;
             PRange.ProcessRange(p, cacheSize);
-
 
             byte volume = cache.Content(ref p);
 
@@ -550,7 +550,9 @@ namespace SEToolbox.ViewModels
             return [.. points];
         }
         #endregion
+
         #region IsWithinBounds
+        
         private static bool IsWithinBounds(Vector3I point, Vector3I max)
         {
             return point.X >= 0 && point.X <= max.X &&

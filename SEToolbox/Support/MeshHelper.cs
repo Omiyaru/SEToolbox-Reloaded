@@ -216,11 +216,10 @@ namespace SEToolbox.Support
             //if (roundTest < 0.0f )
             if (Math.Round(roundTest, 12) < 0.0f)
                 if (Math.Round(dTest, 12) < 0.0f)
-                    {
+                {
                     // No intersection on edges P1-P2,P3-P2,P1-P3.
                     return false;
                 }
-
             }
 
             // Determine if Normal is facing towards or away from Ray.

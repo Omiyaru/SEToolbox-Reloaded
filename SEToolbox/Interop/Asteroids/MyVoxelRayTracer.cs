@@ -176,37 +176,37 @@ namespace SEToolbox.Interop.Asteroids
                     return null;
                 }
 
-                // Merge individual model results into final
-                var fullCount = new byte[xCount, yCount, zCount];
-
-                for (int x = 0; x < xCount; x++)
+             var range = from X in Enumerable.Range(0, xCount)
+                         from Y in Enumerable.Range(0, yCount)
+                         from Z in Enumerable.Range(0, zCount)
+                         select new { X, Y, Z };
+                Parallel.ForEach(range, item =>
                 {
-                    for (int y = 0; y < yCount; y++)
+                    int x = item.X;
+                    int y = item.Y;
+                    int z = item.Z;
+
+                    byte content = modelCubic[x, y, z];
+                    byte mat = modelMats[x, y, z];
+
+              
+                    if (mat == 0xff && content != 0)
                     {
-                        for (int z = 0; z < zCount; z++)
-                        {
-                
-                            byte content = modelCubic[x, y, z];
-                            byte mat = modelMats[x, y, z];
-
-                            if (mat == 0xff && content != 0)
-                            {
-                                finalCubic[x, y, z] = (byte)Math.Max(finalCubic[x, y, z] - content, 0);
-                            }
-                            else if (content != 0)
-                            {
-                                finalCubic[x, y, z] = Math.Max(finalCubic[x, y, z], content);
-                                finalMats[x, y, z] = mat;
-                            }
-                            else if (finalCubic[x, y, z] == 0 && finalMats[x, y, z] == 0 && mat != 0xff)
-                            {
-                                finalMats[x, y, z] = mat;
-                            }
-                        }
+                        finalCubic[x, y, z] = (byte)Math.Max(finalCubic[x, y, z] - content, 0);
                     }
-                }
+                    else if (content != 0)
+                    {
+                        finalCubic[x, y, z] = Math.Max(finalCubic[x, y, z], content);
+                        finalMats[x, y, z] = mat;
+                    }
+                    else if (finalCubic[x, y, z] == 0 && finalMats[x, y, z] == 0 && mat != 0xff)
+                    {
+                        finalMats[x, y, z] = mat;
+                    }
+                });
+            }
 
-            } // End models
+            // End models
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -214,7 +214,7 @@ namespace SEToolbox.Interop.Asteroids
                 return null;
             }
             //lookintoSurcaceMaterial
-            
+
             Vector3I size = new(xCount, yCount, zCount);
             // TODO: At the moment the Mesh list is not complete, so the faceMaterial setting is kind of vague.
             byte? defaultMaterial = model.Meshes[0].MaterialIndex; // Use the FaceMaterial from the first Mesh in the object list.
@@ -379,7 +379,7 @@ namespace SEToolbox.Interop.Asteroids
             Vector3 coordMin = axisMin + coordF;
             Vector3 coordMax = axisMax + coordF;
             var rayPoints = new Point3DCollection();
-           
+
             foreach (MeshGeometery geometry in geometries)
             {
                 for (int t = 0; t < geometry.Triangles.Length; t += 3)

@@ -8,7 +8,6 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
-
 using SEToolbox.Interfaces;
 using SEToolbox.Interop;
 using SEToolbox.Services;
@@ -26,44 +25,45 @@ namespace SEToolbox
     public partial class App : Application
     {
         private CoreToolbox _toolboxApplication;
-
+        private static GlobalSettings settings = GlobalSettings.Default;
         private void OnStartup(object sender, StartupEventArgs e)
         {
             bool appendLog = Enumerable.Contains(e.Args, "/appendlog");
 
             Log.Init("./log.txt", appendLog);
-            Log.Info("Starting.");
+            SConsole.Init();
+            SConsole.WriteLine("Starting.");
 
 
             TException.InitializeListeners();
             BindingErrorTraceListener.SetTrace();
             SConsole.Init();
+            PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Error;
+            PresentationTraceSources.DataBindingSource.Listeners.Add(new ConsoleTraceListener());
 
             if (e?.Args.Length > 0)
                 HandleReset();
-            ConfigureLocalization();
-            InitializeSplashScreen();
-            CheckForUpdates(e.Args);
-            ConfigureServices();
-            DisableTextBoxSynchronization();
-            InitializeToolboxApplication(e.Args);
+                ConfigureLocalization();
+                InitializeSplashScreen();
+                CheckForUpdates(e.Args);
+                ConfigureServices();
+                DisableTextBoxSynchronization();
+                InitializeToolboxApplication(e.Args);
         }
-
 
         private static void HandleReset()
         {
             if ((NativeMethods.GetKeyState(System.Windows.Forms.Keys.ShiftKey) & KeyStates.Down) == KeyStates.Down)
             {
-                Log.Info("Restting global settings.");
-
+                SConsole.WriteLine("Restting global settings.");
                 // Reset User Settings when Shift is held down during start up.
-                GlobalSettings.Default.Reset();
-                GlobalSettings.Default.PromptUser = true;
+                settings.Reset();
+                settings.PromptUser = true;
             }
         }
+
         private static void ClearBinCache()
         {
-
             // Clear app bin cache.
             string binCache = ToolboxUpdater.GetBinCachePath();
             if (Directory.Exists(binCache))
@@ -82,24 +82,11 @@ namespace SEToolbox
 
         private static void ConfigureLocalization()
         {
-
-            LocalizeDictionary.Instance.SetCurrentThreadCulture = false;
-
-            try
-            {
-                GlobalSettings.Default.Load();
-            }
-            catch (Exception ex)
-            {
-                SConsole.WriteLine($"SEToolbox: Could not load GlobalSettings.Default. {ex.Message}");
-            }
-
-            // Try to use user-saved language, else system
             CultureInfo culture;
             try
             {
-                culture = !string.IsNullOrWhiteSpace(GlobalSettings.Default.LanguageCode)
-                          ? CultureInfo.GetCultureInfoByIetfLanguageTag(GlobalSettings.Default.LanguageCode)
+                culture = !string.IsNullOrWhiteSpace(settings.LanguageCode)
+                          ? CultureInfo.GetCultureInfoByIetfLanguageTag(settings.LanguageCode)
                           : CultureInfo.CurrentUICulture;
             }
             catch (Exception ex)
@@ -108,22 +95,24 @@ namespace SEToolbox
                 culture = CultureInfo.CurrentUICulture;
             }
 
+            LocalizeDictionary.Instance.SetCurrentThreadCulture = false;
             LocalizeDictionary.Instance.Culture = culture ?? throw new NullReferenceException("Culture cannot be null");
+
             Thread.CurrentThread.CurrentUICulture = culture;
-            Log.Info($"Language: {LocalizeDictionary.Instance.Culture.Name}");
+
+            SConsole.WriteLine($"Language: {LocalizeDictionary.Instance.Culture.Name}");
         }
 
         private static void InitializeSplashScreen()
         {
-            Log.Debug("Showing splash screen.");
+            SConsole.WriteLine("Showing splash screen.");
             Splasher.Splash = new WindowSplashScreen();
             Splasher.ShowSplash();
-
         }
 
         private static void CheckForUpdates(string[] args)
         {
-            Log.Info("Checking for updates.");
+            SConsole.WriteLine("Checking for updates.");
 
             string delimiter = "/" ?? "-";
             if (args.Length == 0 || (args.Length == 1 && args[0].Equals($"{delimiter}U", StringComparison.OrdinalIgnoreCase)))
@@ -131,6 +120,8 @@ namespace SEToolbox
                 ApplicationRelease update = CodeRepositoryReleases.CheckForUpdates(GlobalSettings.GetAppVersion());
                 if (update != null)
                 {
+                    SConsole.WriteLine($"Found update: {update.Version}");
+
                     var dialogResult = MessageBox.Show(
                                 string.IsNullOrEmpty(update.Notes)
                               ? string.Format(Res.DialogNewVersionMessage, update.Version)
@@ -139,16 +130,16 @@ namespace SEToolbox
 
                     if (dialogResult == MessageBoxResult.Yes)
                     {
-
+                        SConsole.WriteLine($"Opening release URL: {update.Link}");
                         Process.Start(update.Link);// Opens release URL in browser
-                        GlobalSettings.Default.Save();
+                        settings.Save();
                         Current.Shutdown();
                         return;
                     }
 
                     if (dialogResult == MessageBoxResult.No)
                     {
-                        GlobalSettings.Default.IgnoreUpdateVersion = update.Version.ToString();
+                        settings.IgnoreUpdateVersion = update.Version.ToString();
                     }
                 }
             }
@@ -156,7 +147,7 @@ namespace SEToolbox
 
         private static void ConfigureServices()
         {
-              Log.Debug("Configuring ServiceLocator.");
+            SConsole.WriteLine("Configuring Service Locator.");
             ServiceLocator.RegisterSingleton<IDialogService, DialogService>();
             ServiceLocator.Register<IOpenFileDialog, OpenFileDialogViewModel>();
             ServiceLocator.Register<ISaveFileDialog, SaveFileDialogViewModel>();
@@ -168,14 +159,27 @@ namespace SEToolbox
         {
             FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty = false;
         }
+        void WriteProgressDots()
+        {
+            const int repeatCount = 3;
+            string progressDots = ".";
+            while (progressDots.Length < repeatCount)
+            {
+                progressDots = string.Concat(Enumerable.Repeat(progressDots, repeatCount));
+            }
+
+            SConsole.Write($"Initializing CoreToolbox {progressDots}");
+        }
 
         private void InitializeToolboxApplication(string[] args)
         {
             _toolboxApplication = new CoreToolbox();
             string message = string.Empty;
 
+            WriteProgressDots();
             switch (_toolboxApplication)
             {
+
                 case CoreToolbox when _toolboxApplication.Init(args):
                     _toolboxApplication.Load(args);
                     return;
@@ -185,7 +189,6 @@ namespace SEToolbox
                 default:
                     SConsole.WriteLine($"SEToolbox: {message} {nameof(CoreToolbox)}. Aborting.");
                     Current.Shutdown();
-
                     break;
             }
             SConsole.WriteLine($"SEToolbox: {nameof(CoreToolbox)} started successfully.");
@@ -203,7 +206,6 @@ namespace SEToolbox
                 Exception exception = e.Exception;
                 while (exception != null)
                 {
-
                     SConsole.WriteLine(exception.Message);
                     exception = exception.InnerException;
                 }
@@ -227,8 +229,6 @@ namespace SEToolbox
                 e.Handled = true;
                 return;
             }
-
-
 
             string message = e.Exception is ToolboxException ? e.Exception.Message : string.Format(Res.DialogUnhandledExceptionMessage, e.Exception.Message + $"{new StackTrace(e.Exception, true)}");
 

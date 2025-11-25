@@ -23,7 +23,6 @@ namespace SEToolbox.Views
             Language = XmlLanguage.GetLanguage(Thread.CurrentThread.CurrentCulture.IetfLanguageTag);
             
             InitializeComponent();
-
             InitializeTaskbar();
         }
 

@@ -66,7 +66,6 @@ namespace SEToolbox.ViewModels
             get => new DelegateCommand(OkayExecuted, OkayCanExecute);
         }
 
-
         public ICommand CancelCommand
         {
             get => new DelegateCommand(CancelExecuted, CancelCanExecute);
@@ -120,7 +119,6 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _isBusy;
-
             set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
                 if (_isBusy)
@@ -176,7 +174,10 @@ namespace SEToolbox.ViewModels
                             gameBinPath = Path.GetDirectoryName(fullPath);
                         }
                     }
-                    catch { }
+                    catch
+                    {
+                        
+                    }
                 }
 
                 SEBinPath = gameBinPath;

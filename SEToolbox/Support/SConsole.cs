@@ -37,8 +37,6 @@ namespace SEToolbox.Support
 
         #region Standard Methods
        
-
-
         public static void WriteLink([CallerFilePath] string filePath = "")
         {
             string fileLink = GetFileLink(filePath);
@@ -55,7 +53,7 @@ namespace SEToolbox.Support
         {
             redirector.WriteLine($"{value}");
 
-            if (value is string && value.ToString().Contains($"{typeof(Exception).Name}") && _isAttached)
+            if (value != null && value is string && value.ToString().Contains($"{typeof(Exception).Name}") && _isAttached)
             {
                 redirector.WriteLine($"{value}", new Exception());
             }
@@ -97,7 +95,7 @@ namespace SEToolbox.Support
             }
             Console.CancelKeyPress += (sender, e) => e.Cancel = true;
         }
-
+        
         public static void Output()
         {
             string output = redirector.Output();
@@ -108,7 +106,7 @@ namespace SEToolbox.Support
                 Console.WriteLine(output);
                 Console.ResetColor();
             }
-           redirector.WriteLine(output);
+            redirector.WriteLine(output);
         }
 
         private static bool EnsureAttachment()
@@ -172,17 +170,17 @@ namespace SEToolbox.Support
                 {    
                 var severity = Severity.GetSeverity(frame);
                 color = severity(frame).Item2;
-                if(!Conditional.Equals(severity(frame).Item1,TraceEventType.Information,TraceEventType.Verbose)  && value is string && value.ToString().Contains(typeof(Exception).Name))
+                if(value != null && value is string && value.ToString().Contains(typeof(Exception).Name))
                 output += $"({frame.GetFileLineNumber()}, {frame.GetFileColumnNumber()}){Environment.NewLine}{new StackTrace(frame)}";
                 var consoleColor = Console.ForegroundColor;
                 if (color != default)
                 {
                     Console.ForegroundColor = color;
-                    WriteLine(output);
+                    Console.WriteLine(output);
                 }
                 else
                 {
-                    WriteLine(output);
+                    Console.WriteLine(output);
                 }
                 Console.ResetColor();
                 }
@@ -200,19 +198,17 @@ namespace SEToolbox.Support
         #region Severity
 
         public static class Severity
-
         {
             private static readonly Dictionary<string, Func<StackFrame,(TraceEventType, ConsoleColor) >> _severityDictionary =
                 new(StringComparer.OrdinalIgnoreCase)
-                {
+                {   
                     { "Critical", f => (TraceEventType.Critical, ConsoleColor.DarkRed)},
                     { "Error", f => (TraceEventType.Error, ConsoleColor.Red) },
                     { "Warning", f => (TraceEventType.Warning, ConsoleColor.Yellow) },
                     { "Info", f => (TraceEventType.Information, ConsoleColor.Green) },
-                    { "Debug", f => (TraceEventType.Verbose, ConsoleColor.DarkGray) }
+                    { "Debug", f => (TraceEventType.Verbose, ConsoleColor.Gray) }
                 };
-
-
+            
             private static readonly Dictionary<string, (TraceEventType, ConsoleColor)> _severityCache =
                 new(StringComparer.OrdinalIgnoreCase);
 
@@ -243,5 +239,4 @@ namespace SEToolbox.Support
 }
 
 
-#endregion
-
+    #endregion

@@ -58,7 +58,7 @@ namespace SEToolbox.ViewModels
         /// </summary>
         public bool IsBusy
         {
-             get => _isBusy;
+            get => _isBusy;
             set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
                 if (_isBusy)

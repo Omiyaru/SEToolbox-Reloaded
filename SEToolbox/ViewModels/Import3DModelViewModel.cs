@@ -66,17 +66,17 @@ namespace SEToolbox.ViewModels
 
         public ICommand Browse3DModelCommand
         {
-           get => new DelegateCommand(Browse3DModelExecuted, Browse3DModelCanExecute);
+            get => new DelegateCommand(Browse3DModelExecuted, Browse3DModelCanExecute);
         }
 
         public ICommand CreateCommand
         {
-           get => new DelegateCommand(CreateExecuted, CreateCanExecute);
+            get => new DelegateCommand(CreateExecuted, CreateCanExecute);
         }
 
         public ICommand CancelCommand
         {
-           get => new DelegateCommand(CancelExecuted, CancelCanExecute);
+            get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         #endregion
@@ -99,20 +99,21 @@ namespace SEToolbox.ViewModels
         {
             get => _isBusy;
             set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
+            {
+                if (_isBusy)
                 {
-                    if (_isBusy)
-                    {
-                        Application.DoEvents();
-                    }
-                }); 
-            
+                    Application.DoEvents();
+                }
+            });
+
         }
-            
+
 
         public string FileName
         {
             get => _dataModel.FileName;
-            set => SetProperty( _dataModel.FileName, () => FileNameChanged());
+            set => SetProperty(_dataModel.FileName, value, () =>
+                   FileNameChanged());
         }
 
         public Model3D Model
@@ -136,7 +137,8 @@ namespace SEToolbox.ViewModels
         public BindableSize3DIModel NewModelSize
         {
             get => _dataModel.NewModelSize;
-            set => SetProperty(_dataModel.NewModelSize, () => ProcessModelScale());
+            set => SetProperty(_dataModel.NewModelSize, value, () =>
+                   ProcessModelScale());
         }
 
         public BindablePoint3DModel NewModelScale
@@ -172,18 +174,19 @@ namespace SEToolbox.ViewModels
         public ImportModelClassType ClassType
         {
             get => _dataModel.ClassType;
-            set => SetProperty(_dataModel.ClassType, () => ProcessModelScale());
-     
+            set => SetProperty(_dataModel.ClassType, value, () =>
+                   ProcessModelScale());
+
         }
 
         public bool IsAsteroid
         {
-           get => _dataModel.IsAsteroid;
+            get => _dataModel.IsAsteroid;
         }
 
         public bool IsShip
         {
-           get => _dataModel.IsShip;
+            get => _dataModel.IsShip;
         }
 
         public ImportArmorType ArmorType
@@ -196,13 +199,15 @@ namespace SEToolbox.ViewModels
         public double MultipleScale
         {
             get => _dataModel.MultipleScale;
-            set => SetProperty(_dataModel.MultipleScale, () => ProcessModelScale());
+            set => SetProperty(_dataModel.MultipleScale, value, () =>
+                   ProcessModelScale());
         }
 
         public double MaxLengthScale
         {
             get => _dataModel.MaxLengthScale;
-            set => SetProperty(_dataModel.MaxLengthScale, () => ProcessModelScale());
+            set => SetProperty(_dataModel.MaxLengthScale, value, () =>
+                   ProcessModelScale());
         }
 
         public double BuildDistance
@@ -219,13 +224,16 @@ namespace SEToolbox.ViewModels
         public bool IsMultipleScale
         {
             get => _dataModel.IsMultipleScale;
-            set => SetProperty(_dataModel.IsMultipleScale, () => ProcessModelScale());
+            set => SetProperty(_dataModel.IsMultipleScale, value, () =>
+                   ProcessModelScale());
         }
 
         public bool IsMaxLengthScale
         {
             get => _dataModel.IsMaxLengthScale;
-            set => SetProperty(_dataModel.IsMaxLengthScale, () => ProcessModelScale());
+            set => SetProperty(_dataModel.IsMaxLengthScale, value, () =>
+            
+                   ProcessModelScale());
         }
 
         public ObservableCollection<MaterialSelectionModel> OutsideMaterialsCollection
@@ -405,10 +413,8 @@ namespace SEToolbox.ViewModels
             };
 
             string blockPrefix = entity.GridSizeEnum.ToString();
-
             string cornerBlockPrefix = entity.GridSizeEnum.ToString();
-            //string blockContains = entity.GridSizeEnum.ToString().contains();
-
+            //string blockContains = entity.GridSizeEnum.ToString().Contains();
 
             entity.IsStatic = false;
             blockPrefix += "BlockArmor";        // HeavyBlockArmor|BlockArmor;
@@ -444,7 +450,7 @@ namespace SEToolbox.ViewModels
             entity.CubeBlocks = [];
 
             bool smoothObject = true;
-            bool subtractiveSmoothObject= false;
+            bool subtractiveSmoothObject = false;
 
             // Read in voxel and set main cube space.
             //var cubic = TestCreateSplayedDiagonalPlane();
@@ -461,12 +467,12 @@ namespace SEToolbox.ViewModels
                 Mod.CalculateAddedSlopes(cubic);
                 Mod.CalculateAddedCorners(cubic);
             }
-            else
+
+            if (subtractiveSmoothObject)
             {
-                if (subtractiveSmoothObject)
-                    Mod.CalculateSubtractedCorners(cubic);
-                    Mod.CalculateSubtractedSlopes(cubic);
-                    Mod.CalculateSubtractedInverseCorners(cubic);
+                Mod.CalculateSubtractedCorners(cubic);
+                Mod.CalculateSubtractedSlopes(cubic);
+                Mod.CalculateSubtractedInverseCorners(cubic);
             }
 
             Mod.BuildStructureFromCubic(entity, cubic, fillObject, blockType, slopeBlockType, cornerBlockType, inverseCornerBlockType);
@@ -491,7 +497,7 @@ namespace SEToolbox.ViewModels
         private MyObjectBuilder_VoxelMap BuildAsteroidEntity()
         {
             string fileNamePart = Path.GetFileNameWithoutExtension(FileName);
-            string fileName = MainViewModel.CreateUniqueVoxelStorageName(fileNamePart +  MyVoxelMapBase.FileExtension.V2);
+            string fileName = MainViewModel.CreateUniqueVoxelStorageName(fileNamePart + MyVoxelMapBase.FileExtension.V2);
             Position = Position.RoundOff(1.0);
             Forward = Forward.RoundToAxis();
             Up = Up.RoundToAxis();
@@ -514,7 +520,7 @@ namespace SEToolbox.ViewModels
             }
 
             var transform = MeshHelper.TransformVector(new Vector3D(0, 0, 0), 0, 0, 0);
-            SourceFile = TempFileUtil.NewFileName( MyVoxelMapBase.FileExtension.V2);
+            SourceFile = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
 
             var baseMaterial = SpaceEngineersResources.VoxelMaterialDefinitions.FirstOrDefault(m => m.IsRare == false) ?? SpaceEngineersResources.VoxelMaterialDefinitions.FirstOrDefault();
 
@@ -555,6 +561,12 @@ namespace SEToolbox.ViewModels
                     entity.IsStatic = false;
                     break;
 
+                case ImportModelClassType.LargeShip:
+                    entity.GridSizeEnum = MyCubeSize.Large;
+                    blockPrefix += "Large";
+                    entity.IsStatic = false;
+                    break;
+
                 case ImportModelClassType.SmallStation:
                     entity.GridSizeEnum = MyCubeSize.Small;
                     blockPrefix += "Small";
@@ -562,12 +574,6 @@ namespace SEToolbox.ViewModels
                     Position = Position.RoundOff(MyCubeSize.Small.ToLength());
                     Forward = Forward.RoundToAxis();
                     Up = Up.RoundToAxis();
-                    break;
-
-                case ImportModelClassType.LargeShip:
-                    entity.GridSizeEnum = MyCubeSize.Large;
-                    blockPrefix += "Large";
-                    entity.IsStatic = false;
                     break;
 
                 case ImportModelClassType.LargeStation:
@@ -587,24 +593,23 @@ namespace SEToolbox.ViewModels
                 //Round Armor
                 case ImportArmorType.HeavyRounded:
                 case ImportArmorType.LightRounded:
-                    blockPrefix += "Rounded"; break;
-
+                    blockPrefix += "Rounded";
+                    break;
                 // Angled
                 case ImportArmorType.HeavyAngled:
                 case ImportArmorType.LightAngled:
-                    blockPrefix += "Angled"; break;
-
+                    blockPrefix += "Angled"; 
+                    break;
                 // Slope
                 case ImportArmorType.HeavySlope:
                 case ImportArmorType.LightSlope:
-                    blockPrefix += "Slope"; break;
-
+                    blockPrefix += "Slope";
+                    break;
                 // Corner
                 case ImportArmorType.HeavyCorner:
                 case ImportArmorType.LightCorner:
-                    blockPrefix += "Corner"; break;
-
-
+                    blockPrefix += "Corner"; 
+                    break;
             }
 
             // Large|BlockArmor|Corner
@@ -622,7 +627,6 @@ namespace SEToolbox.ViewModels
             SubtypeId slopeBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Slope");
             SubtypeId cornerBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Corner");
             SubtypeId inverseCornerBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "CornerInv");
-
 
             entity.CubeBlocks = [];
 

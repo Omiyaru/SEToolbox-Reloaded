@@ -35,13 +35,13 @@ namespace SEToolbox.Models
 
         public OwnerModel SelectedPlayer
         {
-            get => _selectedPlayer; 
+            get => _selectedPlayer;
             set => SetProperty(ref _selectedPlayer, value, nameof(SelectedPlayer));
         }
 
         public string Title
         {
-            get => _title; 
+            get => _title;
             set => SetProperty(ref _title, value, nameof(Title));
         }
 

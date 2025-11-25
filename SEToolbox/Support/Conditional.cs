@@ -108,6 +108,7 @@ namespace SEToolbox.Support
 
             return conditionMatchesValues ? null : value ?? swap ?? condition ?? Condition(condition, values);
         }
+         public static T ConditionCoalesced<T>(object condition, T value, T swap = default, params T[] values) => ConditionCoalesced(condition, value, swap, values);
 
     }
 }

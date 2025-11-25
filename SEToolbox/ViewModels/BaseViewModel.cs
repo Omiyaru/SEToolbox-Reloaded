@@ -51,11 +51,14 @@ namespace SEToolbox.ViewModels
         BaseModel baseModel = new();
 
       
-        public void SetProperty<T>(T field, params object[] parameters) => baseModel.SetProperty(field, parameters);
-        public void SetProperty<T>(ref T field, params object[] parameters) => baseModel.SetProperty(ref field, parameters);
-        public void SetProperty(ref bool? field, bool? value, string propertyName) => baseModel.SetProperty(ref field, value, propertyName);
+        public void SetProperty<T>(T field, T value, params object[] parameters) => baseModel.SetProperty(field, value, parameters);
+        public void SetProperty<T>(ref T field, T value, params object[] parameters) => baseModel.SetProperty(ref field, value, parameters);
+        public void SetProperty(bool? field, bool? value, string[] propertyName) => baseModel.SetProperty(field, value, propertyName);
+        public void SetProperty(ref bool? field, bool? value, string[] propertyName) => baseModel.SetProperty(ref field, value, propertyName);
+        public void SetValue<T>(T field, T value, params object[] parameters) => baseModel.SetValue(field, value, parameters);
+        public void SetValue<T>(ref T field, T value, params object[] parameters) => baseModel.SetValue( ref field, value, parameters);
         #endregion
-
+        
         #region INotifyPropertyChanged Members
 
         /// <summary>

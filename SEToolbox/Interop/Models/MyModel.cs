@@ -59,21 +59,17 @@ namespace SEToolbox.Interop.Models
 
             using FileStream fileStream = new(fileName, FileMode.Create);
             BinaryWriter writer = new(fileStream);
-            foreach (var kvp in data)
+            foreach (KeyValuePair<string, object> kvp in data)
             {
                 MethodInfo method = methods.FirstOrDefault(m => m.Name.Equals("ExportData") && m.GetParameters().Length > 2 && m.GetParameters()[2].ParameterType == kvp.Value.GetType());
 
-                if (method != null)
-                {
-                    method.Invoke(null, [writer, kvp.Key, kvp.Value]);
-                }
-                else
-                {
-                    method = methods.FirstOrDefault(m => m.Name.Equals("ExportData") && m.GetParameters().Length > 2 && m.GetParameters()[2].ParameterType == kvp.Value.GetType().MakeByRefType());
-                    method.Invoke(null, [writer, kvp.Key, kvp.Value]);
-                }
+                method?.Invoke(null, [writer, kvp.Key, kvp.Value]);
+                
+                method = methods.FirstOrDefault(m => m.Name.Equals("ExportData") && m.GetParameters().Length > 2 && m.GetParameters()[2].ParameterType == kvp.Value.GetType().MakeByRefType());
+                method?.Invoke(null, [writer, kvp.Key, kvp.Value]);
             }
         }
+
 
         #endregion
 
@@ -918,6 +914,7 @@ namespace SEToolbox.Interop.Models
 
             return vectorArray;
         }
+
         private static Vector4I[] ReadArrayOfVector4I(BinaryReader reader)
         {
             int nCount = reader.ReadInt32();
@@ -1106,7 +1103,7 @@ namespace SEToolbox.Interop.Models
 
             return list;
         }
-          
+
         /// <summary>
         /// ReadDummies
         /// </summary>
@@ -1200,7 +1197,7 @@ namespace SEToolbox.Interop.Models
             return modelAnimations;
         }
 
-        
+
         private static MyModelBone[] ReadMyModelBoneArray(BinaryReader reader)
         {
             int nCount = reader.ReadInt32();
@@ -1216,7 +1213,7 @@ namespace SEToolbox.Interop.Models
 
             return myModelBoneArray;
         }
-        
+
         private static MyLODDescriptor[] ReadMyLodDescriptorArray(BinaryReader reader)
         {
             int nCount = reader.ReadInt32();
@@ -1234,30 +1231,31 @@ namespace SEToolbox.Interop.Models
         }
 
         #endregion
-         private static MyModelInfo ReadMyModelInfo(BinaryReader reader) {
-        
-                int triCount = reader.ReadInt32();
-				int vertCount = reader.ReadInt32();
-				Vector3 boundingBoxSize = ReadVector3(reader);
-				return new MyModelInfo(triCount, vertCount, boundingBoxSize);
-            
+        private static MyModelInfo ReadMyModelInfo(BinaryReader reader)
+        {
+
+            int triCount = reader.ReadInt32();
+            int vertCount = reader.ReadInt32();
+            Vector3 boundingBoxSize = ReadVector3(reader);
+            return new MyModelInfo(triCount, vertCount, boundingBoxSize);
+
         }
         #region Import Data Readers
-      
+
         /// <summary>
         /// LoadTagData
         /// </summary>
         /// <returns></returns>
-        
+
         private static void LoadTagData(BinaryReader reader, Dictionary<string, object> data)
         {
             while (reader.BaseStream.Position != reader.BaseStream.Length)
             {
                 string tagName = reader.ReadString();
-                
+
                 switch (tagName)
                 {
-                    
+
                     case MyImporterConstants.TAG_DEBUG:
                         data.Add(tagName, reader.ReadBoolean());
                         break;
@@ -1269,17 +1267,17 @@ namespace SEToolbox.Interop.Models
                     case MyImporterConstants.TAG_VERTICES:
                         data.Add(tagName, ReadArrayOfHalfVector4(reader));
                         break;
-                     case MyImporterConstants.TAG_TEXCOORDS0:
+                    case MyImporterConstants.TAG_TEXCOORDS0:
                     case MyImporterConstants.TAG_TEXCOORDS1:
                         data.Add(tagName, ReadArrayOfHalfVector2(reader));
                         break;
-            
+
                     case MyImporterConstants.TAG_INDICES:
                         data.Add(tagName, ReadArrayOfInt(reader));
                         break;
-                   case MyImporterConstants.TAG_MODEL_INFO:
-                       data.Add(tagName, ReadMyModelInfo(reader));
-                       break;
+                    case MyImporterConstants.TAG_MODEL_INFO:
+                        data.Add(tagName, ReadMyModelInfo(reader));
+                        break;
                     case MyImporterConstants.TAG_BOUNDING_BOX:
                         data.Add(tagName, ReadBoundingBox(reader));
                         break;
@@ -1295,7 +1293,7 @@ namespace SEToolbox.Interop.Models
                     case MyImporterConstants.TAG_BLENDINDICES:
                         data.Add(tagName, ReadArrayOfVector4I(reader));
                         break;
-                      
+
                     case MyImporterConstants.TAG_BLENDWEIGHTS:
                         data.Add(tagName, ReadArrayOfVector4(reader));
                         break;
@@ -1314,7 +1312,7 @@ namespace SEToolbox.Interop.Models
                     case MyImporterConstants.TAG_LODS:
                         data.Add(tagName, ReadMyLodDescriptorArray(reader));
                         break;
-                      case MyImporterConstants.TAG_PATTERN_SCALE:
+                    case MyImporterConstants.TAG_PATTERN_SCALE:
                     case MyImporterConstants.TAG_RESCALE_FACTOR:
                         data.Add(tagName, reader.ReadSingle());
                         break;
@@ -1329,14 +1327,14 @@ namespace SEToolbox.Interop.Models
                         data.Add(tagName, ReadArrayOfBytes(reader));
                         break;
                     case MyImporterConstants.TAG_GEOMETRY_DATA_ASSET:
-                          //data.Add(tagName, ReadArrayOfBytes(reader));
-                       // break; 
+                    //data.Add(tagName, ReadArrayOfBytes(reader));
+                    // break; 
                     case MyImporterConstants.TAG_FBXHASHSTRING:
                     case MyImporterConstants.TAG_HKTHASHSTRING:
                     case MyImporterConstants.TAG_XMLHASHSTRING:
                         data.Add(tagName, reader.ReadString());
                         break;
-                    case MyImporterConstants.TAG_USE_CHANNEL_TEXTURES:   
+                    case MyImporterConstants.TAG_USE_CHANNEL_TEXTURES:
                     case MyImporterConstants.TAG_IS_SKINNED:
                     case MyImporterConstants.TAG_SWAP_WINDING_ORDER:
                         data.Add(tagName, reader.ReadBoolean());

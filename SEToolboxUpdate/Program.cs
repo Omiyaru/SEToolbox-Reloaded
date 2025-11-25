@@ -81,6 +81,7 @@ namespace SEToolboxUpdate
             DiagnosticsLogging.RemoveLog();
             CleanBinCache();
         }
+        
         private static readonly string updaterExePath = Assembly.GetExecutingAssembly().Location;
         private static readonly string appDirectory = Path.GetDirectoryName(updaterExePath);
         private static readonly string toolboxExePath = Path.Combine(appDirectory, "SEToolbox.exe");
@@ -138,6 +139,7 @@ namespace SEToolboxUpdate
                     Environment.Exit(errorCode);
             }
         }
+        
         private static void ToolboxUpdaterRunElevated(string arg, bool? elevate = false, bool? waitForExit = false)
         {
             if (elevate != null && waitForExit != null)

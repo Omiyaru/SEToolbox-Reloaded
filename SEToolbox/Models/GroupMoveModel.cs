@@ -52,16 +52,13 @@ namespace SEToolbox.Models
         public bool IsBusy
         {
             get => _isBusy;
-            set 
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
-                 SetProperty(ref _isBusy, value, nameof(IsBusy));
-           
-                    if (_isBusy)
-                    {
-                        System.Windows.Forms.Application.DoEvents();
-                    }
-             
-            }
+                if (_isBusy)
+                {
+                    System.Windows.Forms.Application.DoEvents();
+                }
+            });
         }
 
         public float GlobalOffsetPositionX
@@ -123,7 +120,7 @@ namespace SEToolbox.Models
             get => _isRelativePosition;
             set => SetProperty(ref _isRelativePosition, value, nameof(IsRelativePosition));
         }
-       
+
         #endregion
 
         #region Methods
@@ -162,8 +159,8 @@ namespace SEToolbox.Models
                 }
             }
         }
-        
-        public Vector3D CalculateGroupCenter( Vector3D centerPosition)
+
+        public Vector3D CalculateGroupCenter(Vector3D centerPosition)
         {
             if (Selections == null || Selections.Count == 0)
                 return centerPosition;

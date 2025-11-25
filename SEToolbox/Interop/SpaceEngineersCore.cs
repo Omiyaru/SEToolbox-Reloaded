@@ -30,8 +30,6 @@ using SEResources = SEToolbox.Interop.SpaceEngineersResources;
 using SGW_MySession = Sandbox.Game.World.MySession;
 using ReflUtil = SEToolbox.Support.ReflectionUtil;
 using MOBSerializerKeen = VRage.ObjectBuilders.Private.MyObjectBuilderSerializerKeen;
-using System.Threading.Tasks;
-using VRage.Game.Components;
 
 
 namespace SEToolbox.Interop
@@ -237,11 +235,16 @@ namespace SEToolbox.Interop
             MyRenderProxy.Initialize(new MyNullRender());
             InitSandboxGame();
 
+            SConsole.WriteLine("loading localization.");
+
             // Reapply CurrentUICulture after MySandboxGame creation
             string languageCode = GlobalSettings.Default.LanguageCode;
             if (!string.IsNullOrWhiteSpace(languageCode))
                 Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfoByIetfLanguageTag(languageCode);
             SpaceEngineersApi.LoadLocalization();
+
+
+            SConsole.WriteLine("Initializing MySession.");
             // Create an empty instance of MySession for use by low level code.
             SGW_MySession session = (SGW_MySession)GetUninitializedObject(typeof(SGW_MySession));
 
@@ -351,7 +354,7 @@ namespace SEToolbox.Interop
 
             RegisterAssemblies();
 
-            SConsole.WriteLine("Initializing MyGlobalTypeMetadata .");
+            SConsole.WriteLine("Initializing MyGlobalTypeMetadata.");
 
             VRage.Game.ObjectBuilder.MyGlobalTypeMetadata.Static.Init();
 

@@ -62,7 +62,7 @@ namespace SEToolbox.ViewModels
         public string HomepageUrl
         {
             get => Properties.Resources.GlobalHomepageUrl;
-        } 
+        }
 
         #endregion
 

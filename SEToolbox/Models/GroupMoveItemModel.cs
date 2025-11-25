@@ -60,10 +60,10 @@ namespace SEToolbox.Models
         
         public Vector3D PlayerPosition
         {
-            get => new( _positionX, _positionY, _positionZ);
+            get => new(_positionX, _positionY, _positionZ);
             set => SetProperty(ref _positionX, value.X, nameof(PositionX),
                                    _positionY, value.Y, nameof(PositionY),
-                                   _positionZ, value.Z,  nameof(PositionZ),
+                                   _positionZ, value.Z, nameof(PositionZ),
                                 nameof(Position));
         }
 

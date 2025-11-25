@@ -13,8 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using SEToolbox.Support;
-using Steamworks;
+
 using VRage.Game;
 using VRage.GameServices;
 using static VRage.Game.MyObjectBuilder_Checkpoint;
@@ -54,7 +53,8 @@ namespace SEToolbox.Interop
         {
             MyWorkshop.ResultData ret = default;
 
-            Task task = Task.Factory.StartNew(() => ret = DownloadWorldModsBlockingInternal(mods, cancelToken));
+            Task task = Task.Factory.StartNew(() => 
+            ret = DownloadWorldModsBlockingInternal(mods, cancelToken));
 
             while (!task.IsCompleted)
             {
@@ -152,11 +152,10 @@ namespace SEToolbox.Interop
 
         static void AddModDependencies(List<ModItem> mods, List<WorkshopId> workshopIds)
         {
-            if (mods == null) throw new ArgumentNullException(nameof(mods));
-            if (workshopIds == null) throw new ArgumentNullException(nameof(workshopIds));
+           
 
             var modsToProcess = mods.Where(x => !x.IsDependency && x.PublishedFileId != 0L)
-                                                      .Select(x => new WorkshopId(x.PublishedFileId, x.PublishedServiceName))
+                                    .Select(x => new WorkshopId(x.PublishedFileId, x.PublishedServiceName))
                                                       .ToHashSet();
             var modsToAdd = MyWorkshop.GetModsDependencyHiearchy(modsToProcess, out _)
                                       .Where(x => !mods.Any(y => y.PublishedFileId == x.Id && y.PublishedServiceName == x.ServiceName))

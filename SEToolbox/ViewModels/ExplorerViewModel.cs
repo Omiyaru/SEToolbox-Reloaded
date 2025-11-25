@@ -2,8 +2,6 @@
 using Sandbox.Common.ObjectBuilders;
 using SEToolbox.Interfaces;
 using SEToolbox.Interop;
-
-using SEToolbox.Interop.Asteroids;
 using SEToolbox.Models;
 using SEToolbox.Services;
 using SEToolbox.Support;
@@ -25,8 +23,6 @@ using System.Windows.Input;
 using System.Windows.Shell;
 using VRage;
 using VRage.Game;
-
-using VRage.Game.ObjectBuilders.Components;
 using VRage.ObjectBuilders;
 using VRage.ObjectBuilders.Private;
 using VRageMath;
@@ -90,10 +86,10 @@ namespace SEToolbox.ViewModels
             _dataModel = dataModel;
 
             Selections = [];
-            Selections.CollectionChanged += (sender, e) => OnPropertyChanged(nameof(IsMultipleSelections));
+            Selections?.CollectionChanged += (sender, e) => OnPropertyChanged(nameof(IsMultipleSelections));
 
             Structures = [];
-            foreach (IStructureBase item in _dataModel.Structures ?? Enumerable.Empty<IStructureBase>())
+            foreach (var item in _dataModel.Structures ?? Enumerable.Empty<IStructureBase>())
             {
                 AddViewModel(item);
             }
@@ -220,18 +216,17 @@ namespace SEToolbox.ViewModels
         public ObservableCollection<IStructureViewBase> Structures
         {
             get => _structures;
-            set => SetProperty(ref _structures, value, nameof(Structures));
+            private set => SetProperty(ref _structures, value, nameof(Structures));
         }
 
         public IStructureViewBase SelectedStructure
         {
             get => _selectedStructure;
             set => SetProperty(ref _selectedStructure, value, () =>
-                    {
-                        if (_selectedStructure != null &&
-                            !_ignoreUpdateSelection && _selectedStructure == value)
-                            _selectedStructure.DataModel.InitializeAsync();
-                    }, nameof(SelectedStructure));
+            {
+                if (!_ignoreUpdateSelection && _selectedStructure == value)
+                    _selectedStructure?.DataModel.InitializeAsync();
+            }, nameof(SelectedStructure));
 
         }
 
@@ -241,7 +236,7 @@ namespace SEToolbox.ViewModels
             set => SetProperty(ref _selections, value, nameof(Selections));
         }
 
-        public bool? IsMultipleSelections
+        public bool IsMultipleSelections
         {
             get => _selections.Count > 1;
         }
@@ -337,14 +332,12 @@ namespace SEToolbox.ViewModels
                     SaveExecuted();
                 }
             }
-
             if (!CheckCloseWindow())
             {
                 e.Cancel = true;
                 CloseResult = null;
                 return;
             }
-
             CloseRequested.Invoke(this, EventArgs.Empty);
         }
 
@@ -393,7 +386,7 @@ namespace SEToolbox.ViewModels
 
         public bool SaveCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } &&
+            return IsActiveWorldValid() &&
                 ((_dataModel.ActiveWorld.SaveType != SaveWorldType.DedicatedServerService && _dataModel.ActiveWorld.SaveType != SaveWorldType.CustomAdminRequired) ||
                 ((_dataModel.ActiveWorld.SaveType == SaveWorldType.DedicatedServerService || _dataModel.ActiveWorld.SaveType == SaveWorldType.CustomAdminRequired) &&
                 ToolboxUpdater.IsRunningElevated()));
@@ -406,7 +399,7 @@ namespace SEToolbox.ViewModels
 
         public bool SaveAsCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } &&
+            return IsActiveWorldValid() &&
                    _dataModel.ActiveWorld.SaveType != SaveWorldType.Custom &&
                  ((_dataModel.ActiveWorld.SaveType != SaveWorldType.DedicatedServerService &&
                    _dataModel.ActiveWorld.SaveType != SaveWorldType.CustomAdminRequired) ||
@@ -446,21 +439,18 @@ namespace SEToolbox.ViewModels
 
         public bool ClearCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true };
+            return IsActiveWorldValid();
         }
 
         public void ClearExecuted()
         {
-            if (_dataModel != null)
-            {
-                _dataModel.Structures.Clear();
-                _dataModel.ActiveWorld = null;
-                Selections.Clear();
-                Structures.Clear();
-                SelectedStructure = null;
-                OnPropertyChanged(nameof(Structures));
-                OnPropertyChanged(nameof(Selections));
-            }
+
+            _dataModel?.Structures.Clear();
+            _dataModel.ActiveWorld = null;
+            Selections.Clear();
+            Structures.Clear();
+            SelectedStructure = null;
+            OnPropertyChanged(nameof(Structures), nameof(Selections));
         }
 
         public bool ReloadCanExecute()
@@ -498,7 +488,6 @@ namespace SEToolbox.ViewModels
             {
                 // leave world in Invalid state, allowing Reload to be called again.
                 ActiveWorld.IsValid = false;
-
                 _dialogService.ShowErrorDialog(this, Res.ErrorLoadSaveGameFileError, errorInformation, false);
             }
 
@@ -506,14 +495,13 @@ namespace SEToolbox.ViewModels
             _dataModel.EndLoad();
         }
 
-
         public bool IsSavePathValid()
         {
             var savePath = GetSavePath();
             return !string.IsNullOrWhiteSpace(savePath)
                    && Directory.Exists(savePath)
                    && !savePath.Contains("..", StringComparison.Ordinal)
-                   && !Path.IsPathRooted(savePath); // ensure no directory traversal
+                   && !Path.IsPathRooted(savePath);
         }
 
         public string GetSavePath()
@@ -523,12 +511,12 @@ namespace SEToolbox.ViewModels
 
         public bool IsActiveCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true };
+            return IsActiveWorldValid();
         }
 
         public bool ImportVoxelCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true };
+            return IsActiveWorldValid();
         }
 
         public void ImportVoxelExecuted()
@@ -553,7 +541,7 @@ namespace SEToolbox.ViewModels
 
         public bool ImportImageCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true };
+            return IsActiveWorldValid();
         }
 
         public void ImportImageExecuted()
@@ -581,18 +569,14 @@ namespace SEToolbox.ViewModels
 
         public bool ImportModelCanExecute()
         {
-            return _dataModel.ActiveWorld.IsValid;
+            return IsActiveWorldValid();
         }
 
         public void ImportModelExecuted()
         {
             Import3DModelModel model = new();
-            if (ThePlayerCharacter.PositionAndOrientation != null)
-            {
-                MyPositionAndOrientation position = ThePlayerCharacter?.PositionAndOrientation ?? new(Vector3D.Zero, Vector3.Forward, Vector3.Up);
-                model.Load(position);
-            }
-
+            MyPositionAndOrientation position = ThePlayerCharacter?.PositionAndOrientation ?? new(Vector3D.Zero, Vector3.Forward, Vector3.Up);
+            model.Load(position);
             Import3DModelViewModel loadVm = new(this, model);
             bool? result = _dialogService.ShowDialog<WindowImportModel>(this, loadVm);
             if (result == true)
@@ -603,23 +587,21 @@ namespace SEToolbox.ViewModels
                 {
                     _dataModel.CollisionCorrectEntity(newEntity);
                     IStructureBase structure = _dataModel.AddEntity(newEntity);
+                    if (structure is StructureVoxelModel voxelModel)
                     {
-                        if (structure is StructureVoxelModel model1)
-                        {
-                            model1.SourceVoxelFilePath = loadVm.SourceFile;
-                        }
-
-                        if (_preSelectedStructure != null)
-                            SelectedStructure = _preSelectedStructure;
+                        voxelModel.SourceVoxelFilePath = loadVm.SourceFile;
                     }
-                    IsBusy = false;
+
+                    if (_preSelectedStructure != null)
+                        SelectedStructure = _preSelectedStructure;
                 }
+                IsBusy = false;
             }
         }
 
         public bool ImportAsteroidModelCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true };
+            return IsActiveWorldValid();
         }
 
         public void ImportAsteroidModelExecuted()
@@ -649,7 +631,7 @@ namespace SEToolbox.ViewModels
 
         public bool ImportSandboxObjectCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true };
+            return IsActiveWorldValid();
         }
 
         public void ImportSandboxObjectExecuted()
@@ -672,7 +654,7 @@ namespace SEToolbox.ViewModels
 
         public bool WorldReportCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true };
+            return IsActiveWorldValid();
         }
 
         public void WorldReportExecuted()
@@ -685,7 +667,7 @@ namespace SEToolbox.ViewModels
 
         public bool OpenFolderCanExecute()
         {
-            return _dataModel.ActiveWorld != null;
+            return IsActiveWorldValid();
         }
 
         static void StartShellProcess(string fileName, string arguments)
@@ -705,31 +687,27 @@ namespace SEToolbox.ViewModels
 
         public bool ViewSandboxCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true };
+            return IsActiveWorldValid();
         }
 
         public void ViewSandboxExecuted()
         {
-            if (_dataModel != null)
-            {
-                string fileName = _dataModel.SaveTemporarySandbox();
-                Process.Start($"\"{fileName}\"");
-            }
+            string fileName = _dataModel?.SaveTemporarySandbox();
+            Process.Start($"\"{fileName}\"");
         }
 
         public bool OpenWorkshopCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && _dataModel.ActiveWorld.WorkshopId.HasValue && _dataModel.ActiveWorld.WorkshopId.Value != 0;
+            return IsActiveWorldValid() && _dataModel.ActiveWorld.WorkshopId.HasValue && _dataModel.ActiveWorld.WorkshopId.Value != 0;
         }
 
         public void OpenWorkshopExecuted()
         {
             StartShellProcess(string.Format($"http://steamcommunity.com/sharedfiles/filedetails/?id={_dataModel.ActiveWorld.WorkshopId.Value}"));
         }
-
         public bool ExportSandboxObjectCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0;
+            return SelectionsCanExecute();
         }
 
         public void ExportSandboxObjectExecuted()
@@ -739,7 +717,7 @@ namespace SEToolbox.ViewModels
 
         public bool ExportBasicSandboxObjectCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0;
+            return SelectionsCanExecute();
         }
 
         public void ExportBasicSandboxObjectExecuted()
@@ -749,17 +727,22 @@ namespace SEToolbox.ViewModels
 
         public bool ExportPrefabObjectCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0 && Selections.Any(e => e is StructureCubeGridViewModel);
+            return SelectionsCanExecute() &&
+                   Selections.Any(e => e is StructureCubeGridViewModel);
+
         }
 
         public void ExportPrefabObjectExecuted()
         {
             ExportPrefabObjectToFile(true, [.. Selections]);
+
         }
 
         public bool ExportSpawnGroupObjectCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0 && Selections.Any(e => e is StructureCubeGridViewModel || e is StructureVoxelViewModel);
+            return SelectionsCanExecute() &&
+                    Selections.Any(e => e is StructureCubeGridViewModel ||
+                                        e is StructureVoxelViewModel);
         }
 
         public void ExportSpawnGroupObjectExecuted()
@@ -769,7 +752,8 @@ namespace SEToolbox.ViewModels
 
         public bool ExportBlueprintCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0 && Selections.Any(e => e is StructureCubeGridViewModel);
+            return SelectionsCanExecute() &&
+                   Selections.Any(e => e is StructureCubeGridViewModel);
         }
 
         public void ExportBlueprintExecuted()
@@ -779,7 +763,7 @@ namespace SEToolbox.ViewModels
 
         public bool CreateFloatingItemCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true };
+            return IsActiveWorldValid();
         }
 
         public void CreateFloatingItemExecuted()
@@ -796,9 +780,9 @@ namespace SEToolbox.ViewModels
                 if (loadVm.IsValidItemToImport)
                 {
                     _selectNewStructure = true;
-                    foreach (var t in newEntities)
+                    foreach (var ent in newEntities)
                     {
-                        _dataModel.AddEntity(t);
+                        _dataModel.AddEntity(ent);
                     }
                     _selectNewStructure = false;
                 }
@@ -808,7 +792,7 @@ namespace SEToolbox.ViewModels
 
         public bool GenerateVoxelFieldCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true };
+            return IsActiveWorldValid();
         }
 
         public void GenerateVoxelFieldExecuted()
@@ -895,7 +879,6 @@ namespace SEToolbox.ViewModels
             ApplicationRelease update = CodeRepositoryReleases.CheckForUpdates(new Version(), true);
             string message = string.Empty, title = string.Empty;
             switch (update)
-
             {
                 case null when GlobalSettings.GetAppVersion() == null:
                     message = Res.DialogNoNetworkMessage;
@@ -983,17 +966,17 @@ namespace SEToolbox.ViewModels
 
         public bool DeleteObjectCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0;
+            return SelectionsCanExecute();
         }
 
         public void DeleteObjectExecuted()
         {
-            DeleteModel([.. Selections]); ;
+            DeleteModel([.. Selections]);
         }
 
         public bool CopyObjectGpsCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0;
+            return SelectionsCanExecute();
         }
 
         public void CopyObjectGpsExecuted()
@@ -1012,7 +995,21 @@ namespace SEToolbox.ViewModels
 
         public bool SelectJoinedGridsCanExecute(GridConnectionTypes minimumConnectionType)
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0;
+            return SelectionsCanExecute();
+        }
+
+        public bool SelectionsCanExecute(bool? greaterThan = null, int? count = null)
+        {
+            return IsActiveWorldValid() && (count == null ? Selections.Count > 0 :
+                                      greaterThan == null ? Selections.Count == count :
+                                      greaterThan == true ? Selections.Count > count :
+                                      Selections.Count < count);
+
+        }
+
+        public bool IsActiveWorldValid()
+        {
+            return _dataModel?.ActiveWorld is { IsValid: true };
         }
 
         public void SelectJoinedGridsExecuted(GridConnectionTypes minimumConnectionType)
@@ -1022,12 +1019,12 @@ namespace SEToolbox.ViewModels
             List<IStructureViewBase> newSelectionModels = [];
             List<long> searchedIds = [];
 
-            foreach (var t in Selections)
+            foreach (var selection in Selections)
             {
-                if (t.DataModel is StructureCubeGridModel gridModel)
+                if (selection.DataModel is StructureCubeGridModel gridModel)
                 {
                     searchModels.Enqueue(gridModel);
-                    newSelectionModels.Add(t);
+                    newSelectionModels.Add(selection);
                 }
             }
 
@@ -1037,11 +1034,11 @@ namespace SEToolbox.ViewModels
 
                 if (!searchedIds.Contains(gridModel.EntityId))
                 {
-                    List<MyObjectBuilder_CubeGrid> list = _dataModel.GetConnectedGridNodes(gridModel, minimumConnectionType);
+                    List<MyObjectBuilder_CubeGrid> structureList = _dataModel.GetConnectedGridNodes(gridModel, minimumConnectionType);
 
                     var structures = Structures.ToDictionary(st => st.DataModel.EntityId, st => st);
 
-                    foreach (MyObjectBuilder_CubeGrid cubegrid in list)
+                    foreach (MyObjectBuilder_CubeGrid cubegrid in structureList)
                     {
                         if (!searchedIds.Contains(cubegrid.EntityId))
                         {
@@ -1068,13 +1065,13 @@ namespace SEToolbox.ViewModels
 
         public bool GroupMoveCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 1;
+            return SelectionsCanExecute(true, 1);
         }
 
         public void GroupMoveExecuted()
         {
             GroupMoveModel model = new();
-            Vector3D position = ThePlayerCharacter.PositionAndOrientation.Value.Position;
+            Vector3D position = ThePlayerCharacter != null ? (Vector3D)ThePlayerCharacter.PositionAndOrientation.Value.Position : Vector3D.Zero;
             model.Load(Selections, position);
             GroupMoveViewModel loadVm = new(this, model);
             bool? result = _dialogService.ShowDialog<WindowGroupMove>(this, loadVm);
@@ -1093,52 +1090,47 @@ namespace SEToolbox.ViewModels
         {
             if (MoveGroup && Selections.Count >= 1)
             {
-                return _dataModel?.ActiveWorld != null
-                    && _dataModel.ActiveWorld.IsValid
-                    && Selections?.Count > 1;
+                return SelectionsCanExecute(true, 1);
             }
-            else if (_dataModel?.ActiveWorld == null ||
-                    !_dataModel.ActiveWorld.IsValid ||
-                    Selections?.Count == 0)
-            {
-                return false;
-            }
-
-            return true;
+            return false;
         }
 
         private void GroupMoveToNewPositionExecuted()
         {
-            if (_dataModel?.ActiveWorld == null || !_dataModel.ActiveWorld.IsValid || Selections.Count == 0)
-                return;
+            if (SelectionsCanExecute(true, 1))
 
-            if (ThePlayerCharacter.PositionAndOrientation != null)
-            {
-                Vector3D position = ThePlayerCharacter.PositionAndOrientation.Value.Position;
-                if (MoveGroup && Selections.Count >= 1)
+                if (ThePlayerCharacter.PositionAndOrientation != null)
                 {
-
-                    GroupMoveModel model = new();
-                    Vector3D centerPosition = new(Selections[0].DataModel.PositionX, Selections[0].DataModel.PositionY, Selections[0].DataModel.PositionZ);
-                    model.Load(Selections, position, true, centerPosition);
-
-                    GroupMoveViewModel loadVm = new(this, model);
-
-                    bool? result = _dialogService.ShowDialog<WindowGroupMove>(this, loadVm);
-                    if (result == true)
+                    Vector3D position = ThePlayerCharacter.PositionAndOrientation.Value.Position;
+                    if (MoveGroup && Selections.Count >= 1)
                     {
-                        model.ApplyNewPositions();
-                        _dataModel.CalcDistances();
-                        IsModified = true;
 
+                        GroupMoveModel model = new();
+                        Vector3D centerPosition = new(Selections[0].DataModel.PositionX, Selections[0].DataModel.PositionY, Selections[0].DataModel.PositionZ);
+                        model.Load(Selections, position, true, centerPosition);
+
+                        GroupMoveViewModel loadVm = new(this, model);
+
+                        bool? result = _dialogService.ShowDialog<WindowGroupMove>(this, loadVm);
+                        if (result == true)
+                        {
+                            model.ApplyNewPositions();
+                            _dataModel.CalcDistances();
+                            IsModified = true;
+
+                        }
                     }
                 }
-            }
         }
 
-        public bool RejoinShipCanExecute() => _dataModel.ActiveWorld is { IsValid: true } && Selections.Count == 2 &&
-                                              ((Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType && Selections[0].DataModel.ClassType == ClassType.LargeShip) ||
-                                               (Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType && Selections[0].DataModel.ClassType == ClassType.SmallShip));
+        public bool RejoinShipCanExecute()
+        {
+            return SelectionsCanExecute(null, 2) &&
+                (Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType &&
+                 Selections[0].DataModel.ClassType == ClassType.LargeShip ||
+                 Selections[0].DataModel.ClassType == ClassType.SmallShip);
+
+        }
 
 
         public void RejoinShipExecuted()
@@ -1150,9 +1142,11 @@ namespace SEToolbox.ViewModels
 
         public bool JoinShipPartsCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count == 2 &&
-                    ((Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType && Selections[0].DataModel.ClassType == ClassType.LargeShip) ||
-                    (Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType && Selections[0].DataModel.ClassType == ClassType.SmallShip));
+            return SelectionsCanExecute(null, 2) &&
+                    Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType &&
+                    Selections[0].DataModel.ClassType == (ClassType.LargeShip) ||
+                    Selections[0].DataModel.ClassType == (ClassType.SmallShip);
+
         }
 
         public void JoinShipPartsExecuted()
@@ -1164,9 +1158,13 @@ namespace SEToolbox.ViewModels
 
         public bool VoxelMergeCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count == 2 &&
-                   ((Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType && Selections[0].DataModel.ClassType == ClassType.Voxel && Selections[0].DataModel.IsValid) ||
-                    (Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType && Selections[0].DataModel.ClassType == ClassType.Voxel && Selections[0].DataModel.IsValid));
+            return SelectionsCanExecute(null, 2) &&
+                   ((Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType && 
+                     Selections[0].DataModel.ClassType == ClassType.Voxel && 
+                     Selections[0].DataModel.IsValid) ||
+                    (Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType && 
+                     Selections[0].DataModel.ClassType == ClassType.Voxel && 
+                     Selections[0].DataModel.IsValid));
         }
 
         public void VoxelMergeExecuted()
@@ -1197,7 +1195,7 @@ namespace SEToolbox.ViewModels
 
         public bool RepairShipsCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0;
+            return SelectionsCanExecute();
         }
 
         public void RepairShipsExecuted()
@@ -1209,7 +1207,7 @@ namespace SEToolbox.ViewModels
 
         public bool ResetVelocityCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0;
+            return SelectionsCanExecute();
         }
 
         public void ResetVelocityExecuted()
@@ -1222,7 +1220,7 @@ namespace SEToolbox.ViewModels
 
         public bool ConvertToShipCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0;
+            return SelectionsCanExecute();
         }
 
         public void ConvertToShipExecuted()
@@ -1234,7 +1232,7 @@ namespace SEToolbox.ViewModels
 
         public bool ConvertToStationCanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0;
+            return SelectionsCanExecute();
         }
 
         public void ConvertToStationExecuted()
@@ -1246,7 +1244,7 @@ namespace SEToolbox.ViewModels
 
         public bool InertiaTensorCanExecute(bool state)
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0;
+            return SelectionsCanExecute();
         }
 
         public void InertiaTensorExecuted(bool state)
@@ -1315,7 +1313,7 @@ namespace SEToolbox.ViewModels
 
         public bool Test1CanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true };
+            return IsActiveWorldValid();
         }
 
         public void Test1Executed()
@@ -1342,7 +1340,7 @@ namespace SEToolbox.ViewModels
 
         public bool Test2CanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0;
+            return SelectionsCanExecute();
         }
 
         public void Test2Executed()
@@ -1353,7 +1351,7 @@ namespace SEToolbox.ViewModels
 
         public bool Test3CanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true };
+            return IsActiveWorldValid();
         }
 
         public void Test3Executed()
@@ -1375,7 +1373,6 @@ namespace SEToolbox.ViewModels
                 Up = new BindableVector3DModel(Vector3.Up)
             };
 
-
             IsBusy = true;
             MyObjectBuilder_EntityBase newEntity = loadVm.BuildEntity();
 
@@ -1391,7 +1388,7 @@ namespace SEToolbox.ViewModels
 
         public bool Test4CanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0;
+            return SelectionsCanExecute();
         }
 
         public void Test4Executed()
@@ -1401,7 +1398,7 @@ namespace SEToolbox.ViewModels
 
         public bool Test5CanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count > 0;
+            return SelectionsCanExecute();
         }
 
         public void Test5Executed()
@@ -1411,8 +1408,9 @@ namespace SEToolbox.ViewModels
 
         public bool Test6CanExecute()
         {
-            return _dataModel.ActiveWorld is { IsValid: true } && Selections.Count == 1 &&
-                   ((Selections[0].DataModel.ClassType == ClassType.Planet && Selections[0].DataModel.IsValid));
+            return IsActiveWorldValid() &&
+                   Selections[0].DataModel.ClassType == ClassType.Planet &&
+                   Selections[0].DataModel.IsValid;
         }
 
         public void Test6Executed()
@@ -1508,15 +1506,16 @@ namespace SEToolbox.ViewModels
 
         public void DeleteModel(params IStructureViewBase[] viewModels)
         {
-            if (viewModels == null || viewModels.Length == 0) return;
+            if (viewModels == null || viewModels.Length == 0) 
+                return;
 
             int index = Structures.IndexOf(viewModels[0]);
             _ignoreUpdateSelection = true;
 
             foreach (IStructureViewBase viewModel in viewModels)
             {
-                if (viewModel == null || !CanDelete(viewModel)) continue;
-
+                if (viewModel == null || !CanDelete(viewModel)) 
+                    continue;
                 viewModel.DataModel.CancelAsync();
                 _dataModel.Structures.Remove(viewModel.DataModel);
             }
@@ -1580,7 +1579,6 @@ namespace SEToolbox.ViewModels
             //RemoveOverlappingBlocks(viewModel1, viewModel2);
         }
 
-
         public void RemoveOverlappingShipBlocks(params IStructureViewBase[] viewModels)
         {
             foreach (var viewModel in viewModels.OfType<StructureCubeGridViewModel>())
@@ -1627,8 +1625,6 @@ namespace SEToolbox.ViewModels
                 // Any overlapping blocks between the two, will automatically be removed by Space Engineers when the world is loaded.
                 //sometimes that doesnt work
                 //RemoveOverlappingBlocks(viewModel1, viewModel2);
-
-
                 viewModel1.DataModel.UpdateGeneralFromEntityBase();
             }
         }
@@ -1637,10 +1633,10 @@ namespace SEToolbox.ViewModels
         {
             foreach (var structure in structures)
             {
-                if (structure.DataModel.ClassType == ClassType.SmallShip
-                    || structure.DataModel.ClassType == ClassType.LargeShip
-                    || structure.DataModel.ClassType == ClassType.LargeStation
-                    || structure.DataModel.ClassType == ClassType.SmallStation)
+                if (structure.DataModel.ClassType == ClassType.SmallShip ||
+                    structure.DataModel.ClassType == ClassType.LargeShip ||
+                    structure.DataModel.ClassType == ClassType.LargeStation ||
+                    structure.DataModel.ClassType == ClassType.SmallStation)
                 {
                     ((StructureCubeGridViewModel)structure).RepairObjectExecuted();
                 }
@@ -1651,10 +1647,10 @@ namespace SEToolbox.ViewModels
         {
             foreach (var structure in structures)
             {
-                if (structure.DataModel.ClassType == ClassType.SmallShip
-                    || structure.DataModel.ClassType == ClassType.LargeShip
-                    || structure.DataModel.ClassType == ClassType.LargeStation
-                    || structure.DataModel.ClassType == ClassType.SmallStation)
+                if (structure.DataModel.ClassType == ClassType.SmallShip || 
+                    structure.DataModel.ClassType == ClassType.LargeShip ||
+                    structure.DataModel.ClassType == ClassType.LargeStation ||
+                    structure.DataModel.ClassType == ClassType.SmallStation)
                 {
                     ((StructureCubeGridViewModel)structure).ResetVelocityExecuted();
                 }
@@ -1665,8 +1661,8 @@ namespace SEToolbox.ViewModels
         {
             foreach (var structure in structures)
             {
-                if (structure.DataModel.ClassType == ClassType.LargeStation
-                    || structure.DataModel.ClassType == ClassType.SmallStation)
+                if (structure.DataModel.ClassType == ClassType.LargeStation ||
+                    structure.DataModel.ClassType == ClassType.SmallStation)
                 {
                     ((StructureCubeGridViewModel)structure).ConvertToShipExecuted();
                 }
@@ -1677,8 +1673,8 @@ namespace SEToolbox.ViewModels
         {
             foreach (IStructureViewBase structure in structures)
             {
-                if (structure.DataModel.ClassType == ClassType.SmallShip
-                    || structure.DataModel.ClassType == ClassType.LargeShip)
+                if (structure.DataModel.ClassType == ClassType.SmallShip ||
+                    structure.DataModel.ClassType == ClassType.LargeShip)
                 {
                     ((StructureCubeGridViewModel)structure).ConvertToStationExecuted();
                 }
@@ -1690,8 +1686,8 @@ namespace SEToolbox.ViewModels
             int count = 0;
             foreach (var structure in structures)
             {
-                if (structure.DataModel.ClassType == ClassType.SmallShip
-                    || structure.DataModel.ClassType == ClassType.LargeShip)
+                if (structure.DataModel.ClassType == ClassType.SmallShip ||
+                    structure.DataModel.ClassType == ClassType.LargeShip)
                 {
                     count += ((StructureCubeGridViewModel)structure).SetInertiaTensor(state);
                 }
@@ -1753,7 +1749,6 @@ namespace SEToolbox.ViewModels
                 string res = null;
                 switch (viewModel)
                 {
-
                     case StructureVoxelViewModel voxelStructure:
                         filter = AppConstants.VoxelFilter;
                         title = Res.DialogExportVoxelTitle;
@@ -1785,7 +1780,6 @@ namespace SEToolbox.ViewModels
                         _dialogService.ShowMessageBox(this, res, Res.ClsExportTitleFailed, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
                         continue;
                     default:
-
                         continue;
 
                 }
@@ -1822,7 +1816,9 @@ namespace SEToolbox.ViewModels
                             {
                                 ClearMedicalRoomAndOwners(cloneEntity);
                             }
+                            // Remove all pilots.
                             cloneEntity.RemoveHierarchyCharacter();
+
                             _dataModel.SaveEntity(cloneEntity, FileName);
                             break;
                         case IStructureBase when viewModel is StructureInventoryBagViewModel inventoryBagViewModel &&
@@ -1833,14 +1829,10 @@ namespace SEToolbox.ViewModels
                             ent == planetViewModel.DataModel.EntityBase &&
                             prefix == "exportedPlanet" &&
                             res == Res.ClsExportPlanet:
-
                             string name = ent.EntityId.ToString();
-
                             ExportEntity(ent, $"{prefix}_", name, res);
                             break;
                         case StructureUnknownViewModel _:
-                            _dialogService.ShowMessageBox(this, Res.ClsExportUnknown, Res.ClsExportTitleFailed, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
-                            break;
                         default:
                             _dialogService.ShowMessageBox(this, Res.ClsExportTitleFailed, Res.ClsExportTitleFailed, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
                             break;
@@ -1855,27 +1847,23 @@ namespace SEToolbox.ViewModels
             string fileName = ent.EntityId.ToString();
 
             string exportedFileName = $"{prefix}_{entName}{fileName}.xml";
-            using (var stream = new FileStream(exportedFileName, FileMode.Create, FileAccess.Write))
-            {
-                MyObjectBuilderSerializerKeen.SerializeXML(stream, ent);
-            }
+            using var stream = new FileStream(exportedFileName, FileMode.Create, FileAccess.Write);
+            MyObjectBuilderSerializerKeen.SerializeXML(stream, ent);
             _dialogService.ShowMessageBox(this, res, Res.ClsExportTitleFailed, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
         }
-
-
 
         private void ClearMedicalRoomAndOwners(MyObjectBuilder_CubeGrid cloneEntity)
         {
             // Clear Medical room SteamId.
             cloneEntity.CubeBlocks
-              .Where(c => c.TypeId == MOBTypeIds.MedicalRoom)
-              .ToList()
-              .ForEach(c => ((MyObjectBuilder_MedicalRoom)c).SteamUserId = 0);
+                       .Where(c => c.TypeId == MOBTypeIds.MedicalRoom)
+                       .ToList()
+                       .ForEach(c => ((MyObjectBuilder_MedicalRoom)c).SteamUserId = 0);
 
             // Clear Owners.
             cloneEntity.CubeBlocks
-              .ToList()
-              .ForEach(c => { c.Owner = 0; c.ShareMode = MyOwnershipShareModeEnum.None; });
+                       .ToList()
+                       .ForEach(c => { c.Owner = 0; c.ShareMode = MyOwnershipShareModeEnum.None; });
         }
 
         public void ExportPrefabObjectToFile(bool blankOwnerAndMedBays, params IStructureViewBase[] viewModels)
@@ -1909,11 +1897,8 @@ namespace SEToolbox.ViewModels
 
                         if (blankOwnerAndMedBays)
                         {
-                            // Call to ToArray() to force Linq to update the value.
-                            // Clear Medical room SteamId.
-                            cloneEntity.CubeBlocks.Where(c => c.TypeId == MOBTypeIds.MedicalRoom).Select(c => { ((MyObjectBuilder_MedicalRoom)c).SteamUserId = 0; return c; }).ToArray();
-                            // Clear Owners.
-                            cloneEntity.CubeBlocks.Select(c => { c.Owner = 0; c.ShareMode = MyOwnershipShareModeEnum.None; return c; }).ToArray();
+                            // Clear Medical room, SteamId and Owners.
+                            ClearMedicalRoomAndOwners(cloneEntity);
                         }
 
                         // Remove all pilots.
@@ -1938,30 +1923,12 @@ namespace SEToolbox.ViewModels
             string defaultName = null;
             bool hasGrids = false;
             bool hasVoxels = false;
+            var firstCubeViewModel = viewModels.OfType<StructureCubeGridViewModel>().FirstOrDefault();
+            var firstVoxelViewModel = viewModels.OfType<StructureVoxelViewModel>().FirstOrDefault();
 
-            foreach (IStructureViewBase viewModel in viewModels)
-            {
-                if (viewModel is StructureCubeGridViewModel)
-                {
-                    hasGrids = true;
-                    defaultName = viewModel.DataModel.DisplayName;
-                    break;
-                }
-            }
-
-            foreach (IStructureViewBase viewModel in viewModels)
-            {
-                if (viewModel is StructureVoxelViewModel)
-                {
-                    hasVoxels = true;
-                    if (defaultName == null)
-                    {
-                        defaultName = viewModel.DataModel.DisplayName;
-                        break;
-                    }
-                }
-            }
-
+            hasGrids = firstCubeViewModel != null;
+            hasVoxels = firstVoxelViewModel != null;
+            defaultName = hasGrids ? firstCubeViewModel.DataModel.DisplayName : (hasVoxels ? firstVoxelViewModel.DataModel.DisplayName : null);
             defaultName ??= "";
             defaultName = defaultName.Replace(' ', '_') ?? string.Empty;
             ISaveFileDialog saveFileDialog = _saveFileDialogFactory();
@@ -2020,9 +1987,7 @@ namespace SEToolbox.ViewModels
                             // Call to ToArray() to force Linq to update the value.
                             //use ClearMedicalRoomAndOwners instead
                             // Clear Medical room SteamId.
-                            cloneEntity.CubeBlocks.Where(c => c.TypeId == MOBTypeIds.MedicalRoom).Select(c => { ((MyObjectBuilder_MedicalRoom)c).SteamUserId = 0; return c; }).ToArray();
-                            // Clear Owners.
-                            cloneEntity.CubeBlocks.Select(c => { c.Owner = 0; c.ShareMode = MyOwnershipShareModeEnum.None; return c; }).ToArray();
+                           ClearMedicalRoomAndOwners(cloneEntity);
                         }
 
                         // Remove all pilots.
@@ -2050,13 +2015,13 @@ namespace SEToolbox.ViewModels
                         switch (minimum)
                         {
                             case Vector3 value when value.X > viewModel.DataModel.PositionAndOrientation.Value.Position.X:
-                                minimum.X = (float)viewModel.DataModel.PositionAndOrientation.Value.Position.X;
+                                           minimum.X = (float)viewModel.DataModel.PositionAndOrientation.Value.Position.X;
                                 break;
                             case Vector3 value when value.Y > viewModel.DataModel.PositionAndOrientation.Value.Position.Y:
-                                minimum.Y = (float)viewModel.DataModel.PositionAndOrientation.Value.Position.Y;
+                                           minimum.Y = (float)viewModel.DataModel.PositionAndOrientation.Value.Position.Y;
                                 break;
                             case Vector3 value when value.Z > viewModel.DataModel.PositionAndOrientation.Value.Position.Z:
-                                minimum.Z = (float)viewModel.DataModel.PositionAndOrientation.Value.Position.Z;
+                                           minimum.Z = (float)viewModel.DataModel.PositionAndOrientation.Value.Position.Z;
                                 break;
                         }
 
@@ -2164,8 +2129,9 @@ namespace SEToolbox.ViewModels
                 prefab.Id.TypeId = new MyObjectBuilderType(typeof(MyObjectBuilder_ShipBlueprintDefinition));
                 prefab.Id.SubtypeId = model.BlueprintName;
                 prefab.DisplayName = "SEToolbox Export";  // Appears as AuthorName in game for the highlighted blueprint.
-                prefab.OwnerSteamId = ActiveWorld?.Checkpoint?.AllPlayersData?.Dictionary
-                                                  .Where(p => p.Value != null).Select(p => p.Value.SteamID).FirstOrDefault() ?? 0;
+                prefab.OwnerSteamId = ActiveWorld?.Checkpoint?.AllPlayersData?.Dictionary.Where(p => p.Value != null)
+                                                  .Select(p => p.Value.SteamID)
+                                                  .FirstOrDefault() ?? 0;
                 // 0 is the default value for the owner, so it will be set to the current player when loaded in game.
                 MyObjectBuilder_Definitions spawngroupDefinition = new()
                 {
@@ -2202,14 +2168,14 @@ namespace SEToolbox.ViewModels
                         grids.Add(cloneEntity);
 
                         minimum = Vector3.Min(minimum, new Vector3((float)cloneEntity.PositionAndOrientation.Value.Position.X,
-                                                                  (float)cloneEntity.PositionAndOrientation.Value.Position.Y,
-                                                                  (float)cloneEntity.PositionAndOrientation.Value.Position.Z));
+                                                                   (float)cloneEntity.PositionAndOrientation.Value.Position.Y,
+                                                                   (float)cloneEntity.PositionAndOrientation.Value.Position.Z));
                     }
                     if (viewModel is StructureVoxelViewModel { PositionAndOrientation: not null })
                     {
                         minimum = Vector3.Min(minimum, new Vector3((float)viewModel.DataModel.PositionAndOrientation.Value.Position.X,
-                                                      (float)viewModel.DataModel.PositionAndOrientation.Value.Position.Y,
-                                                      (float)viewModel.DataModel.PositionAndOrientation.Value.Position.Z));
+                                                                   (float)viewModel.DataModel.PositionAndOrientation.Value.Position.Y,
+                                                                   (float)viewModel.DataModel.PositionAndOrientation.Value.Position.Z));
                     }
                 }
 
@@ -2259,28 +2225,18 @@ namespace SEToolbox.ViewModels
                     foreach (MyObjectBuilder_CubeBlock b in list)
                     {
                         CubeType cubeType = CubeType.Exterior;
-
+                        var str = string.Empty;
+                        string name = string.Empty;
                         switch (b.SubtypeName)
                         {
-                            case string name when name.Contains("ArmorSlope"):
-                                {
-                                    var keys = Modelling.CubeOrientations.Keys.Where(k => k.ToString().Contains("Slope")).ToArray();
-                                    cubeType = Modelling.CubeOrientations.FirstOrDefault(c => keys.Contains(c.Key) && c.Value.Forward == b.BlockOrientation.Forward && c.Value.Up == b.BlockOrientation.Up).Key;
-                                    break;
-                                }
-                            case string name when name.Contains("ArmorCornerInv"):
-                                {
-                                    var keys = Modelling.CubeOrientations.Keys.Where(k => k.ToString().Contains("InverseCorner")).ToArray();
-                                    cubeType = Modelling.CubeOrientations.FirstOrDefault(c => keys.Contains(c.Key) && c.Value.Forward == b.BlockOrientation.Forward && c.Value.Up == b.BlockOrientation.Up).Key;
-                                    break;
-                                }
-                            case string name when name.Contains("ArmorCorner"):
-                                {
-                                    var keys = Modelling.CubeOrientations.Keys.Where(k => k.ToString().Contains("NormalCorner")).ToArray();
-                                    cubeType = Modelling.CubeOrientations.FirstOrDefault(c => keys.Contains(c.Key) && c.Value.Forward == b.BlockOrientation.Forward && c.Value.Up == b.BlockOrientation.Up).Key;
-                                    break;
-                                }
+                            case string when name.Contains("ArmorSlope") && str == "Slope":
+                            case string when name.Contains("ArmorCornerInv") && str == "InverseCorner":
+                            case string when name.Contains("ArmorCorner") && str == "NormalCorner":
+                                var keys = Modelling.CubeOrientations.Keys.Where(k => k.ToString().Contains(str)).ToArray();
+                                cubeType = Modelling.CubeOrientations.FirstOrDefault(c => keys.Contains(c.Key) && c.Value.Forward == b.BlockOrientation.Forward && c.Value.Up == b.BlockOrientation.Up).Key;
+                                break;
                         }
+
 
                         //SpaceEngineersApi.CubeOrientations
 
@@ -2406,6 +2362,6 @@ namespace SEToolbox.ViewModels
 
     internal class ScriptEditorViewModel(ExplorerModel dataModel)
     {
-        private readonly ExplorerModel dataModel = dataModel;
+        private readonly ExplorerModel _dataModel = dataModel;
     }
 }

@@ -29,7 +29,6 @@ namespace SEToolbox.Models
         {
             _size = new Size3D(size.X, size.Y, size.Z);
         }
-        
 
         #region Properties
 
@@ -42,8 +41,7 @@ namespace SEToolbox.Models
         public double Height
         {
             get => _size.Y;
-            set => SetProperty(_size.Y, value, nameof(Height));
-        
+            set => SetProperty(_size.Y, value, nameof(Height));    
         }
 
         public double Depth

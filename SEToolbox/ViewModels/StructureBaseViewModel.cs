@@ -57,11 +57,10 @@ namespace SEToolbox.ViewModels
         public string DisplayName
         {
             get => DataModel.DisplayName;
-            set
+            set => SetProperty(DataModel.DisplayName, value, () =>
             {
-                DataModel.DisplayName = value;
                 MainViewModel.IsModified = true;
-            }
+            });
         }
 
         public string Description
@@ -97,34 +96,32 @@ namespace SEToolbox.ViewModels
         public double PositionX
         {
             get => DataModel.PositionX;
-            set 
+            set => SetProperty(DataModel.PositionX, value, () =>
             {
-                DataModel.PositionX = value;
+
                 MainViewModel.IsModified = true;
                 MainViewModel.CalcDistances();
-            }
+            });
         }
 
         public double PositionY
         {
             get => DataModel.PositionY;
-            set
+            set => SetProperty(DataModel.PositionY, value, () =>
             {
-                DataModel.PositionY = value;
                 MainViewModel.IsModified = true;
                 MainViewModel.CalcDistances();
-            }
+            });
         }
 
         public double PositionZ
         {
             get => DataModel.PositionZ;
-            set
+            set => SetProperty(DataModel.PositionZ, value, () =>
             {
-                DataModel.PositionZ = value;
                 MainViewModel.IsModified = true;
                 MainViewModel.CalcDistances();
-            }
+            });
         }
 
         #endregion

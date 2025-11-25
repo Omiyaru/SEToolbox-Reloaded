@@ -219,7 +219,7 @@ namespace SEToolbox.Interop.Asteroids
 
         public static void ProcessAsteroid(MyVoxelMapBase voxelMap, bool multiThread, byte materialIndex, VoxelBuilderAction func, bool readWrite = true)
         {
-            // Debug.Write($"Building Asteroid : {0.0:000},");
+            Debug.Write($"Building Asteroid : {0.0:000},");
             SConsole.Write($"Building Asteroid : {0.0:000},");
 
             Stopwatch timer = Stopwatch.StartNew();
@@ -278,7 +278,6 @@ namespace SEToolbox.Interop.Asteroids
 
             if (args.MaterialIndex != cellMaterial)
                 oldCache.Set(MyStorageDataTypeEnum.Material, ref p, args.MaterialIndex);
-
 
 
             voxelMap.Storage.WriteRange(oldCache, MyStorageDataTypeFlags.ContentAndMaterial, block, maxRange);

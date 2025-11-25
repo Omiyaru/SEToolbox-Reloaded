@@ -41,13 +41,13 @@ namespace SEToolbox.Services
             {
                 case NotifyCollectionChangedAction.Add:
                     var viewModelsToAdd = e.NewItems.Cast<TModel>().Select(CreateViewModel);
-                    InsertNewIndex(newIndex, viewModelsToAdd, e);
+                    InsertNewIndex(newIndex, viewModelsToAdd);
                     break;
 
                 case NotifyCollectionChangedAction.Move:
                     var itemsToMove = this.Skip(oldIndex).Take(e.OldItems.Count).ToList();
                     RemoveOld(oldIndex, e);
-                    InsertNewIndex(newIndex, itemsToMove, e);
+                    InsertNewIndex(newIndex, itemsToMove);
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
@@ -56,7 +56,7 @@ namespace SEToolbox.Services
                 case NotifyCollectionChangedAction.Replace:
                     RemoveOld(oldIndex, e);
                     var viewModelsToReplace = e.NewItems.Cast<TModel>().Select(CreateViewModel);
-                    InsertNewIndex(newIndex, viewModelsToReplace, e);
+                    InsertNewIndex(newIndex, viewModelsToReplace);
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
@@ -65,7 +65,7 @@ namespace SEToolbox.Services
                         if (e.NewItems.Count > 0)
                         {
                             var viewModels = e.NewItems.Cast<TModel>().Select(CreateViewModel);
-                            AddViewModel(viewModels, e);
+                            AddViewModel(viewModels);
                         }
                     }
                     break;
@@ -73,20 +73,22 @@ namespace SEToolbox.Services
                     break;
             }
         }
+        
         private void RemoveOld(int oldIndex, NotifyCollectionChangedEventArgs e)
         {
             for (int i = 0; i < e.OldItems.Count; i++)
                 RemoveAt(oldIndex);
         }
 
-        private void InsertNewIndex(int newIndex, IEnumerable<TViewModel> viewModels, NotifyCollectionChangedEventArgs e)
+        private void InsertNewIndex(int newIndex, IEnumerable<TViewModel> viewModels)
         {
             foreach (var viewModel in viewModels)
                 
                 Insert(newIndex++, viewModel);
 
         }
-        private void AddViewModel(IEnumerable<TViewModel> viewModels, NotifyCollectionChangedEventArgs e)
+        
+        private void AddViewModel(IEnumerable<TViewModel> viewModels)
         {
             foreach (var viewModel in viewModels)
                     Add(viewModel);

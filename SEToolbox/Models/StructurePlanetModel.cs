@@ -85,7 +85,7 @@ namespace SEToolbox.Models
         /// <summary>
         /// This is the location of the temporary source file for importing/generating a Voxel file.
         /// </summary>
-        public string SourceVoxelFilepath
+        public new string SourceVoxelFilePath
         {
             get => _sourceVoxelFilePath;
             set => SetProperty(ref _sourceVoxelFilePath, value, nameof(SourceVoxelFilePath),
@@ -283,6 +283,7 @@ namespace SEToolbox.Models
             }
 
         }
+        
         private void ReadVoxelDetails(string fileName)
         {
             if (fileName != null && File.Exists(fileName) && _voxelMap == null)
@@ -338,10 +339,10 @@ namespace SEToolbox.Models
 
             string tempFileName = TempFileUtil.NewFileName( MyVoxelMapBase.FileExtension.V2);
             asteroid.Save(tempFileName);
-            SourceVoxelFilepath = tempFileName;
+            SourceVoxelFilePath = tempFileName;
             UpdateNewSource(asteroid, tempFileName);
-            
-         OnPropertyChanged(nameof(Seed),  nameof(Radius), nameof(AtmosphereRadius), nameof(MinimumSurfaceRadius), nameof(MaximumHillRadius));
+        
+            OnPropertyChanged(nameof(Seed),  nameof(Radius), nameof(AtmosphereRadius), nameof(MinimumSurfaceRadius), nameof(MaximumHillRadius));
             // Update properties after regeneration
             Size = _voxelMap.Size;
             _contentCenter = _voxelMap.ContentCenter;
@@ -351,7 +352,7 @@ namespace SEToolbox.Models
             WorldAabb = new BoundingBoxD(PositionAndOrientation.Value.Position, PositionAndOrientation.Value.Position + new Vector3D(Size));
         }
 
-        public void UpdateNewSource( MyVoxelMapBase newMap, string fileName)
+        public void UpdateNewSource(MyVoxelMapBase newMap, string fileName)
         {
             _voxelMap?.Dispose();
             _voxelMap = newMap;
@@ -369,5 +370,6 @@ namespace SEToolbox.Models
         }
 
         #endregion
+
     }
 }

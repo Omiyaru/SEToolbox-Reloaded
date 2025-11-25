@@ -12,7 +12,7 @@ using VRage.Game;
 using VRage.ObjectBuilders;
 using MOBTypeIds = SEToolbox.Interop.SpaceEngineersTypes.MOBTypeIds;
 using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
-using VRage.Network;
+
 
 namespace SEToolbox.ViewModels
 {
@@ -71,12 +71,12 @@ namespace SEToolbox.ViewModels
         {
             get => _isBusy;
             set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
+            {
+                if (_isBusy)
                 {
-                    if (_isBusy)
-                    {
-                        System.Windows.Forms.Application.DoEvents();
-                    }
-                });
+                    System.Windows.Forms.Application.DoEvents();
+                }
+            });
         }
 
         public ObservableCollection<ComponentItemModel> StockItemList
@@ -192,12 +192,12 @@ namespace SEToolbox.ViewModels
                 Item = new MyObjectBuilder_InventoryItem { ItemId = 0 },
             };
             entity.Item.Amount = IsDecimal && DecimalUnits.HasValue ? DecimalUnits.Value.ToFixedPoint() :
-                                     IsInt && Units.HasValue ? Units.Value.ToFixedPoint() :
+                                IsInt && Units.HasValue ? Units.Value.ToFixedPoint() :
                                 IsUnique ? GenerateFloatingObjectModel.UniqueUnits.ToFixedPoint() : 1;
 
             IsValidItemToImport = true;
             entity.Item.PhysicalContent = SpaceEngineersResources.CreateNewObject<MyObjectBuilder_PhysicalObject>(StockItem.TypeId, StockItem.SubtypeId);
-           
+
             /// <summary> See <see cref="Interop.SpaceEngineersTypeIds"/> for a list of all possible types.</summary
             switch (StockItem.TypeId)
             {
@@ -218,7 +218,7 @@ namespace SEToolbox.ViewModels
                 default:
                     // As yet uncatered for items which may be new.
                     IsValidItemToImport = false;
-                break;
+                    break;
             }
 
             // Figure out where the Character is facing, and plant the new construct 1m out in front, and 1m up from the feet, facing the Character.
@@ -257,7 +257,6 @@ namespace SEToolbox.ViewModels
         // This is a hack approach for enums like AngleGrinderItem
         void CreateGunEntity(MyObjectBuilder_FloatingObject entity)
         {
-
             string enumName = StockItem.SubtypeId.Substring(0, StockItem.SubtypeId.Length - 4);
             if (Enum.TryParse(enumName, out MyObjectBuilderType itemEnum))
             {

@@ -89,7 +89,7 @@ namespace SEToolbox.Models
         {
             get => _entityBase;
 
-            set => SetProperty(ref _entityBase, () =>
+            set => SetProperty(ref _entityBase, value, () =>
             UpdateGeneralFromEntityBase(),
             nameof(EntityBase));
 
@@ -108,7 +108,7 @@ namespace SEToolbox.Models
         {
             get => _entityBase.PositionAndOrientation;
 
-            set => SetProperty(ref _entityBase.PositionAndOrientation, nameof(PositionAndOrientation));
+            set => SetProperty(ref _entityBase.PositionAndOrientation,value, nameof(PositionAndOrientation));
         }
 
         [XmlIgnore]
@@ -130,7 +130,7 @@ namespace SEToolbox.Models
         public double PositionY
         {
             get => _entityBase.PositionAndOrientation.Value.Position.Y;
-            set => SetProperty(_entityBase.PositionAndOrientation.Value.Position.Y, () =>
+            set => SetProperty(_entityBase.PositionAndOrientation.Value.Position.Y, value, () =>
               {
                   if (value != _entityBase.PositionAndOrientation.Value.Position.Y)
                   {
@@ -154,7 +154,7 @@ namespace SEToolbox.Models
                     _entityBase.PositionAndOrientation.Value.Position.Z,
                     _entityBase.PositionAndOrientation.Value.Position.Y,
                     _entityBase.PositionAndOrientation.Value.Position.X);
-            set => SetProperty(_entityBase.PositionAndOrientation.Value.Position, () =>
+            set => SetProperty(_entityBase.PositionAndOrientation.Value.Position, value, () =>
               {
                   if (_entityBase.PositionAndOrientation.HasValue
                       && value.X != _entityBase.PositionAndOrientation.Value.Position.X

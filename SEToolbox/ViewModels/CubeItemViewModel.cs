@@ -68,8 +68,7 @@ namespace SEToolbox.ViewModels
 
         private void ApplyExecuted(object parameter)
         {
-            if (_dataModel == null) return;
-
+            if (_dataModel != null)
             // Save changes to the data model
             _dataModel.FriendlyName = FriendlyName;
             _dataModel.Owner = Owner;
@@ -92,8 +91,7 @@ namespace SEToolbox.ViewModels
 
         private void CancelExecuted(object parameter)
         {
-            if (_dataModel == null) return;
-
+            if (_dataModel != null)
             // Revert changes
             FriendlyName = _dataModel.FriendlyName;
             Owner = _dataModel.Owner;

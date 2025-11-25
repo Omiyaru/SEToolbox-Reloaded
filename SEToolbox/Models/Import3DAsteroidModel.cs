@@ -10,7 +10,6 @@ namespace SEToolbox.Models
     {
         #region Fields
 
-
         private string _fileName;
         private Model3D _model;
         private bool _isValidModel;

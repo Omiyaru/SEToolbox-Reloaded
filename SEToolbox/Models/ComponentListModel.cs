@@ -16,7 +16,7 @@ using Res = SEToolbox.Properties.Resources;
 using PhysItemDef = Sandbox.Definitions.MyPhysicalItemDefinition;
 using ComponentDef = Sandbox.Definitions.MyComponentDefinition;
 using BlueprintDef = Sandbox.Definitions.MyBlueprintDefinitionBase;
-using Ext = SEToolbox.Support.HtmlExtensions;
+
 using TexUtil = SEToolbox.ImageLibrary.ImageTextureUtil;
 
 namespace SEToolbox.Models
@@ -83,15 +83,14 @@ namespace SEToolbox.Models
         public bool IsBusy
         {
             get => _isBusy;
-
-            set
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
-                SetProperty(ref _isBusy, value, nameof(IsBusy));
                 if (_isBusy)
                 {
                     System.Windows.Forms.Application.DoEvents();
                 }
-            }
+            });
+
         }
 
         public ComponentItemModel SelectedCubeAsset
@@ -150,7 +149,7 @@ namespace SEToolbox.Models
                     Name = cubeDefinition.DisplayNameText,
                     Definition = cubeDefinition,
                     TypeId = cubeDefinition.Id.TypeId,
-                    TypeIdString = cubeDefinition.Id.TypeId.ToString(),
+                    TypeIdString = $"{cubeDefinition.Id.TypeId}",
                     SubtypeId = cubeDefinition.Id.SubtypeName,
                     TextureFile = textureFile,
                     Time = buildTime,
@@ -175,7 +174,7 @@ namespace SEToolbox.Models
                 {
                     Name = componentDefinition.DisplayNameText,
                     TypeId = componentDefinition.Id.TypeId,
-                    TypeIdString = componentDefinition.Id.TypeId.ToString(),
+                    TypeIdString = $"{componentDefinition.Id.TypeId}",
                     SubtypeId = componentDefinition.Id.SubtypeName,
                     Mass = componentDefinition.Mass,
                     TextureFile = (componentDefinition.Icons == null || componentDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(componentDefinition.Icons.First(), Path.Combine(contentPath, componentDefinition.Icons.First())),
@@ -203,7 +202,7 @@ namespace SEToolbox.Models
                 {
                     Name = physicalItemDefinition.DisplayNameText,
                     TypeId = physicalItemDefinition.Id.TypeId,
-                    TypeIdString = physicalItemDefinition.Id.TypeId.ToString(),
+                    TypeIdString = $"{physicalItemDefinition.Id.TypeId}",
                     SubtypeId = physicalItemDefinition.Id.SubtypeName,
                     Mass = physicalItemDefinition.Mass,
                     Volume = physicalItemDefinition.Volume * SpaceEngineersConsts.VolumeMultiplyer,
@@ -271,7 +270,7 @@ namespace SEToolbox.Models
 
                     foreach (var asset in componentCollection.Value)
                     {
-                        writer.RenderTagStart("td");
+                        writer.RenderTagStart("tr");
 
                         writer.RenderTagStart("td");
                         if (asset.TextureFile != null)
@@ -316,7 +315,7 @@ namespace SEToolbox.Models
 
                 foreach (ComponentItemModel asset in MaterialAssets)
                 {
-                    writer.RenderTagStart("td");
+                    writer.RenderTagStart("tr");
 
                     writer.RenderTagStart("td");
                     if (asset.TextureFile != null)
@@ -354,7 +353,7 @@ namespace SEToolbox.Models
             }
 
             // Write to disk.
-            File.WriteAllText(fileName, stringWriter.ToString());
+            File.WriteAllText(fileName, $"{stringWriter}");
         }
 
         #endregion
@@ -374,7 +373,7 @@ namespace SEToolbox.Models
             if (field.FieldType == typeof(SerializableVector3I))
             {
                 var vector = (SerializableVector3I)item;
-                return string.Format($"{vector.X}, {vector.Y}, {vector.Z}");
+                return $"{vector.X}, {vector.Y}, {vector.Z}";
             }
 
             if (field.FieldType == typeof(SerializableVector3))
@@ -386,15 +385,13 @@ namespace SEToolbox.Models
             if (field.FieldType == typeof(SerializableBounds))
             {
                 SerializableBounds bounds = (SerializableBounds)item;
-                CultureInfo culture = CultureInfo.CurrentUICulture;
-                return string.Format(culture, $"Default: {bounds.Default}, Min: {bounds.Min}, Max: {bounds.Max}");
+                return $"Default: {bounds.Default}, Min: {bounds.Min}, Max: {bounds.Max}".ToString(CultureInfo.CurrentUICulture);
             }
 
             if (field.FieldType == typeof(VRageMath.Vector3))
             {
-                VRageMath.Vector3 vector3 = (VRageMath.Vector3)item;
-                CultureInfo culture = CultureInfo.CurrentUICulture;
-                return string.Format(culture, $"X:{vector3.X:F2}, Y:{vector3.Y:F2}, Z:{vector3.Z:F2}");
+                var vector3 = (VRageMath.Vector3)item;
+                return $"X:{vector3.X:F2}, Y:{vector3.Y:F2}, Z:{vector3.Z:F2}".ToString(CultureInfo.CurrentCulture);
             }
 
             if (field.FieldType == typeof(string))
@@ -407,7 +404,7 @@ namespace SEToolbox.Models
                 return string.Empty;
             }
 
-            return item.ToString();
+            return $"{item}";
         }
 
         #endregion

@@ -64,7 +64,6 @@ namespace SEToolbox.ViewModels
         {
             get => _closeResult;
 
-
             set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
@@ -80,7 +79,7 @@ namespace SEToolbox.ViewModels
         public float GlobalOffsetPositionX
         {
             get => _dataModel.GlobalOffsetPositionX;
-            set => SetProperty(_dataModel.GlobalOffsetPositionX, () =>
+            set => SetProperty(_dataModel.GlobalOffsetPositionX, value, () =>
             {
                 _dataModel.CalcOffsetDistances();
             });
@@ -90,7 +89,7 @@ namespace SEToolbox.ViewModels
         {
             get => _dataModel.GlobalOffsetPositionY;
 
-            set => SetProperty(_dataModel.GlobalOffsetPositionY, () =>
+            set => SetProperty(_dataModel.GlobalOffsetPositionY, value, () =>
             {
                 _dataModel.CalcOffsetDistances();
             });
@@ -99,7 +98,7 @@ namespace SEToolbox.ViewModels
         public float GlobalOffsetPositionZ
         {
             get => _dataModel.GlobalOffsetPositionZ;
-            set => SetProperty(_dataModel.GlobalOffsetPositionZ, () =>
+            set => SetProperty(_dataModel.GlobalOffsetPositionZ, value, () =>
             {
                 _dataModel.CalcOffsetDistances();
             });
@@ -108,7 +107,7 @@ namespace SEToolbox.ViewModels
         public bool IsGlobalOffsetPosition
         {
             get => _dataModel.IsGlobalOffsetPosition;
-            set => SetProperty(_dataModel.IsGlobalOffsetPosition, () =>
+            set => SetProperty(_dataModel.IsGlobalOffsetPosition, value, () =>
             {
                 _dataModel.CalcOffsetDistances();
             });
@@ -117,7 +116,7 @@ namespace SEToolbox.ViewModels
         public float SinglePositionX
         {
             get => _dataModel.SinglePositionX;
-            set => SetProperty(_dataModel.SinglePositionX, () =>
+            set => SetProperty(_dataModel.SinglePositionX, value, () =>
             {
                 _dataModel.CalcOffsetDistances();
             });
@@ -126,7 +125,7 @@ namespace SEToolbox.ViewModels
         public float SinglePositionY
         {
             get => _dataModel.SinglePositionY;
-            set => SetProperty(_dataModel.SinglePositionY, () =>
+            set => SetProperty(_dataModel.SinglePositionY, value, () =>
             {
 
                 _dataModel.CalcOffsetDistances();
@@ -136,7 +135,7 @@ namespace SEToolbox.ViewModels
         public float SinglePositionZ
         {
             get => _dataModel.SinglePositionZ;
-            set => SetProperty(_dataModel.SinglePositionZ, () =>
+            set => SetProperty(_dataModel.SinglePositionZ, value, () =>
             {
                 _dataModel.CalcOffsetDistances();
             });
@@ -146,7 +145,7 @@ namespace SEToolbox.ViewModels
         {
             get => _dataModel.IsSinglePosition;
 
-            set => SetProperty(_dataModel.IsSinglePosition, () =>
+            set => SetProperty(_dataModel.IsSinglePosition, value, () =>
             {
                 _dataModel.CalcOffsetDistances();
             });
@@ -155,7 +154,7 @@ namespace SEToolbox.ViewModels
         public bool IsRelativePosition
         {
             get => _dataModel.IsRelativePosition;
-            set => SetProperty(_dataModel.IsRelativePosition, () =>
+            set => SetProperty(_dataModel.IsRelativePosition, value, () =>
             {
                 _dataModel.CalculateGroupCenter(_dataModel.CenterPosition);
                 _dataModel.CalcOffsetDistances();

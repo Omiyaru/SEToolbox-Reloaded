@@ -7,13 +7,11 @@ using SEToolbox.Views;
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -26,21 +24,20 @@ using Screen = System.Windows.Forms.Screen;
 
 namespace SEToolbox
 {
-
     public class CoreToolbox
     {
-        private string _tempBinPath;
+        #region Fields
         private readonly SpaceEngineersCore core = new();
         private string gameBinDir = ToolboxUpdater.GetApplicationFilePath();
+        #endregion
 
-        #region  Methods
+        #region Methods
 
         public bool Init(string[] args)
         {
             // Detection and correction of local settings of SE install location.
             DetectInstall();
             LoadAssemblies(args);
-
             //AltLoad(filePath, true);
 
             return true;
@@ -52,7 +49,6 @@ namespace SEToolbox
                 //"MedievalEngineers.exe",
                 //"MedievalEngineersDedicated.exe"
             ];
-
 
         public bool DetectInstall()
         {
@@ -68,10 +64,10 @@ namespace SEToolbox
                     gameBinDir = Path.Combine(filePath, validApplication);
                 }
 
-                var faModel = new FindApplicationModel()
-                {
-                    GameApplicationPath = gameBinDir
-                };
+                var faModel = new FindApplicationModel();
+                
+                    faModel.GameApplicationPath = gameBinDir;
+                
                 var faViewModel = new FindApplicationViewModel(faModel);
                 var faWindow = new WindowFindApplication(faViewModel);
 
@@ -83,12 +79,10 @@ namespace SEToolbox
                 {
                     return false;
                 }
-             
             }
 
-            if (string.IsNullOrEmpty(filePath))
+            if (!string.IsNullOrEmpty(filePath))
             {
-            	
                 filePath = Default.SEBinPath;
             }
 
@@ -102,14 +96,14 @@ namespace SEToolbox
         public Task<bool> LoadAssemblies(string[] args)
         {
             string delimiter = "/" ?? "-";
-            bool ignoreUpdates = args.Any(arg => arg.Equals(delimiter + "X", StringComparison.OrdinalIgnoreCase));
+            bool ignoreUpdates = args.Any(arg => arg.Equals($"{delimiter}X", StringComparison.OrdinalIgnoreCase));
             bool oldDlls = true; // argsContains($"{("/"||"-")}" + ("OLDDLL", StringComparison.CurrentCultureIgnoreCase));
             bool altDlls = !oldDlls;
 
             // Go looking for any changes in the Dependant Space Engineers assemblies and immediately attempt to update.
             if (!ignoreUpdates && !altDlls && ToolboxUpdater.IsBaseAssembliesChanged() && !Debugger.IsAttached)
             {
-            	Log.Info("Running non-elevated update process.");
+            	SConsole.WriteLine("Running non-elevated update process.");
                 ToolboxUpdater.RunElevated(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "SEToolboxUpdate"), $"{delimiter}/B " + String.Join(" ", args), false, false);
                 return Task.FromResult(false);
             }
@@ -177,9 +171,7 @@ namespace SEToolbox
                     .Select(GetWorldDirectory)
                     .FirstOrDefault();
 
-
                 return Task.FromResult(!string.IsNullOrEmpty(worldDirectory));
-
             }
         }
 
@@ -193,8 +185,6 @@ namespace SEToolbox
             return fileName.Equals(Consts.SandBoxCheckpointFileName, StringComparison.InvariantCultureIgnoreCase)
                 || fileName.Equals(Consts.SandBoxSectorFileName, StringComparison.InvariantCultureIgnoreCase);
         }
-
-
 
         private static string GetWorldDirectory(string path)
         {
@@ -220,7 +210,9 @@ namespace SEToolbox
 
             return true;
         }
+        
         private static WindowExplorer eWindow = new();
+
         private static readonly ExplorerModel explorerModel = new();
 
         public static void RestoreExplorerWindow(bool allowClose = true)
@@ -277,8 +269,8 @@ namespace SEToolbox
                         eWindow.Dispatcher.Invoke(() =>
                         {
                             Default.WindowDimensions?.Keys
-                                .Where(key => key.HasValue)
-                                .ForEach(key => Default.SetWindowDimension(key.Value));
+                                   .Where(key => key.HasValue)
+                                   .ForEach(key => Default.SetWindowDimension(key.Value));
                             if (Default.WindowState.HasValue)
                             {
                                 eWindow.WindowState = Default.WindowState.GetValueOrDefault();
@@ -289,15 +281,14 @@ namespace SEToolbox
             }
         }
 
-       
-
         public static bool ValidateLoadState(WindowExplorer eWindow)
         {
-            if (!Default.TimesStartedTotal.HasValue)
+            if (!Default.TimesStartedTotal.HasValue && eWindow != null)
                 Default.TimesStartedTotal = Default.TimesStartedTotal.GetValueOrDefault() + 1;
             	Default.TimesStartedLastReset = Default.TimesStartedLastReset.GetValueOrDefault() + 1;
             	Default.TimesStartedLastGameUpdate = Default.TimesStartedLastGameUpdate.GetValueOrDefault() + 1;
             	Default.Save();
+                SConsole.WriteLine("Showing main window.");
             eWindow?.ShowDialog();
 
             return true;

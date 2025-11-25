@@ -113,6 +113,7 @@ namespace SEToolbox.Views
             TextBlock statusText = (TextBlock)FindName("StatusText");
             statusText.Text = $"Mode: {(isSliceView ? "Slice" : "Volume")} | Layer: {currentZ}";
         }
+        
         private void RenderSlice()
         {
             sliceVisuals.Children.Clear();

@@ -29,6 +29,7 @@ namespace SEToolbox.Support
 
             return (MyStringId?)value;
         }
+        
         private static MyStringId CreateMyStringId(int id)
             => (MyStringId)Activator.CreateInstance(typeof(MyStringId), id);
         

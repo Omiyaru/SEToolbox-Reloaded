@@ -155,6 +155,7 @@ namespace ToolboxTest
             }
 
         }
+        
         private static long _counter;
         private static long _maximumProgress;
         private static int _percent;

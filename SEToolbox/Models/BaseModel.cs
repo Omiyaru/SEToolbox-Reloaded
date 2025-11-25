@@ -4,12 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
-using Sandbox.Engine.Multiplayer;
-using SEToolbox.Support;
-using VRage.Game.ModAPI.Ingame;
+
 
 namespace SEToolbox.Models
 {
@@ -35,45 +30,43 @@ namespace SEToolbox.Models
                 }
             }
         }
-
-
-        public void SetProperty<T>(T field, T value, params string[] parameters) => SetProperty(ref field, value, parameters);
-    
-        public void SetProperty<T>(ref T field, T value, params object[] properetyNames)
+        
+        public void SetProperty<T>(T field, T value, params string[] propertyNames) => SetProperty(ref field, value, propertyNames);
+        public void SetProperty<T>(ref T field, T value, params string[] propertyNames)
         {
-            var propertyName = properetyNames.OfType<string>().FirstOrDefault() ?? string.Empty;
+            var propertyName = propertyNames.FirstOrDefault() ?? string.Empty;
             if (EqualityComparer<T>.Default.Equals(field, value))
                 return;
             field = value;
-            if (properetyNames.Length > 0 && !string.IsNullOrEmpty(propertyName))
+            if (propertyNames.Length > 0 && !string.IsNullOrEmpty(propertyName))
             {
                 OnPropertyChanged(propertyName);
             }
         }
-
-        public void SetProperty<T>(T field, params object[] parameters) => SetProperty(ref field, parameters);
-        public void SetProperty<T>(ref T field, params object[] parameters)
+       
+        public void SetProperty<T>(T field, T value, params object[] parameters) => SetProperty(ref field, value, parameters);
+        public void SetProperty<T>(ref T field, T value, params object[] parameters)
         {
-            T value = (T)parameters[0] ?? default;
             if (EqualityComparer<T>.Default.Equals(field, value))
                 return;
             if (parameters.Length > 1)
             {
                 var propertyName = parameters.OfType<string>().FirstOrDefault() ?? string.Empty;
-                var actionToInvoke = parameters.OfType<Action>().FirstOrDefault();
+                var actionToInvoke = parameters.OfType<Action>().FirstOrDefault() ?? parameters.OfType<Expression<Action>>().FirstOrDefault()?.Compile();
                 bool? invokeBefore = Array.IndexOf(parameters, actionToInvoke) < Array.IndexOf(parameters, propertyName);
                 var propertyNames = parameters.OfType<string>().ToArray();
 
                 if (actionToInvoke != null)
                 {
                     if (invokeBefore == true)
-                        actionToInvoke?.Invoke();
+                        
+                    actionToInvoke?.Invoke();
                     field = value;
                     OnPropertyChanged(propertyName);
                     if (invokeBefore == false)
                         actionToInvoke?.Invoke();
                 }
-                if (invokeBefore == null && actionToInvoke != null && propertyName == null)
+                if (actionToInvoke != null && propertyNames == null)
                 {
                     field = value;
                     actionToInvoke?.Invoke();
@@ -82,6 +75,35 @@ namespace SEToolbox.Models
                 {
                     field = value;
                     OnPropertyChanged(propertyName);
+                }
+            }
+        }
+
+        public void SetValue<T>(T field, T value, params object[] parameters) => SetValue(ref field, value, parameters);
+        public void SetValue<T>(ref T field, T value, params object[] parameters) 
+        {
+          if (parameters.Length > 1)
+            {
+                var actionToInvoke = parameters.OfType<Action>().FirstOrDefault() ?? parameters.OfType<Expression<Action>>().FirstOrDefault()?.Compile();
+                bool? invokeBefore = Array.IndexOf(parameters, actionToInvoke) < Array.IndexOf(parameters, field);
+                var propertyNames = parameters.OfType<string>().ToArray();
+
+                if (actionToInvoke != null)
+                {
+                    if (invokeBefore == true)   
+                    actionToInvoke?.Invoke();
+                    field = value;
+                    if (invokeBefore == false)
+                        actionToInvoke?.Invoke();
+                }
+                if (actionToInvoke != null && propertyNames == null)
+                {
+                    field = value;
+                    actionToInvoke?.Invoke();
+                }
+                else
+                {
+                    field = value;
                 }
             }
         }

@@ -595,7 +595,7 @@
                                 </Style.Triggers>
                             </Style>
                         </ContentControl.Style>
-                        <views:ControlMultiple />
+                        <views:ControlMultiple/>
                     </ContentControl>
                 </Grid>
             </Grid>

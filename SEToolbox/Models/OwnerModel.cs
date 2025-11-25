@@ -22,7 +22,7 @@ namespace SEToolbox.Models
         {
             get => _name;
             
-            set => SetProperty(ref _name, value, nameof(Name), value, nameof(DisplayName));
+            set => SetProperty(ref _name, value, nameof(Name), nameof(DisplayName));
         }
 
 

@@ -72,7 +72,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty(ref _closeResult, nameof(CloseResult));
+            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
         }
 
         public string FileName
@@ -84,7 +84,8 @@ namespace SEToolbox.ViewModels
         public string SourceFile
         {
             get => _dataModel.SourceFile;
-            set => SetProperty( _dataModel.SourceFile,() => SourceFileChanged());
+            set => SetProperty(_dataModel.SourceFile, value,() =>
+                   SourceFileChanged());
         }
 
         public bool IsValidVoxelFile
@@ -117,13 +118,13 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _isBusy;
-            set => SetProperty(ref _isBusy, nameof(IsBusy),() =>
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy),() =>
             {
                 if (_isBusy)
                 {
                     Application.DoEvents();
                 }
-            }   );
+            });
           
         
         }
@@ -274,14 +275,14 @@ namespace SEToolbox.ViewModels
                     SourceFile = stockfile;
                     originalFile = SourceFile;
 
-                    using  MyVoxelMapBase asteroid = new();
+                    using MyVoxelMapBase asteroid = new();
                     asteroid.Load(stockfile);
                     asteroidCenter = asteroid.BoundingContent.Center;
                     asteroidSize = asteroid.BoundingContent.Size + 1; // Content size
                 }
                 else
                 {
-                    using  MyVoxelMapBase asteroid = new();
+                    using MyVoxelMapBase asteroid = new();
                     asteroid.Load(stockfile);
                     asteroid.ForceBaseMaterial(SpaceEngineersResources.GetDefaultMaterialName(), StockMaterial.Value);
                     SourceFile = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
@@ -296,7 +297,7 @@ namespace SEToolbox.ViewModels
             {
                 originalFile = SourceFile;
 
-                using  MyVoxelMapBase asteroid = new();
+                using MyVoxelMapBase asteroid = new();
                 asteroid.Load(SourceFile);
                 asteroidCenter = asteroid.BoundingContent.Center;
                 asteroidSize = asteroid.BoundingContent.Size + 1; // Content size

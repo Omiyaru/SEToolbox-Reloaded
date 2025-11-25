@@ -164,6 +164,7 @@ namespace SEToolbox.Controls
                 _lastDropTarget = null;
             }
         }
+        
         private void OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _dragStartPoint = e.GetPosition(null);
