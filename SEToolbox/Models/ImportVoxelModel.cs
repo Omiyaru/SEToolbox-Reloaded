@@ -121,7 +121,6 @@ namespace SEToolbox.Models
         {
             get => _isSphere;
             set => SetProperty(ref _isSphere, value, nameof(IsSphere));
-
         }
 
         public GenerateVoxelDetailModel StockVoxel
@@ -171,10 +170,10 @@ namespace SEToolbox.Models
         {
             CharacterPosition = characterPosition;
 
-            IList<Sandbox.Definitions.MyVoxelMapStorageDefinition> vms = SpaceEngineersResources.VoxelMapStorageDefinitions;
+            IList<Sandbox.Definitions.MyVoxelMapStorageDefinition> voxelMapStorage = SpaceEngineersResources.VoxelMapStorageDefinitions;
             string contentPath = ToolboxUpdater.GetApplicationContentPath();
 
-            foreach (Sandbox.Definitions.MyVoxelMapStorageDefinition voxelMap in vms)
+            foreach (Sandbox.Definitions.MyVoxelMapStorageDefinition voxelMap in voxelMapStorage)
             {
                 string fileName = SpaceEngineersCore.GetDataPathOrDefault(voxelMap.StorageFile, Path.Combine(contentPath, voxelMap.StorageFile));
 

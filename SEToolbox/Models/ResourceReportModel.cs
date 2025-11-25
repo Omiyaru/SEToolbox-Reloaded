@@ -15,7 +15,6 @@ using System.Xml;
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.ObjectBuilders;
-
 using VRageMath;
 using MOBTypeIds = SEToolbox.Interop.SpaceEngineersTypes.MOBTypeIds;
 using Res = SEToolbox.Properties.Resources;
@@ -53,8 +52,8 @@ td.right { text-align: right; }";
         /// <summary>
         /// untouched (in all asteroids), measured in m³.
         /// </summary>
-
         private static List<VoxelMaterialAssetModel> _untouchedOre = [];
+
         /// <summary>
         /// untouched (by asteroid), measured in m³.
         /// </summary>
@@ -93,13 +92,16 @@ td.right { text-align: right; }";
 
         private decimal _totalCubes;
         private int _totalPCU;
+
         private readonly object typeId;
+
         private readonly MyObjectBuilder_EntityBase tallyItem;
 
         #endregion
 
 
         #region Ctor
+        
         public ResourceReportModel(object typeId)
         {
             this.typeId = typeId ?? throw new ArgumentNullException(nameof(typeId));
@@ -174,8 +176,6 @@ td.right { text-align: right; }";
                 _timer.Restart();
             });
         }
-
-
 
         public double MaximumProgress
         {
@@ -286,12 +286,12 @@ td.right { text-align: right; }";
 
                             if (bp != null && bp.CanBeHarvested)
                             {
-                                MyDefinitionBase cd = MyDefinitionManager.Static.GetDefinition(MOBTypeIds.Ore, bp.MinedOre);
+                                MyDefinitionBase defBase = MyDefinitionManager.Static.GetDefinition(MOBTypeIds.Ore, bp.MinedOre);
 
-                                if (cd != null)
+                                if (defBase != null)
                                 {
                                     // stock ores require DisplayNameEnum. Modded ores require DisplayNameString.
-                                    string key = cd.DisplayNameEnum != null ? cd?.DisplayNameEnum.Value.String : cd.DisplayNameString;
+                                    string key = defBase.DisplayNameEnum != null ? defBase?.DisplayNameEnum.Value.String : defBase.DisplayNameString;
 
                                     if (ores.ContainsKey(key))
                                         ores[key] += kvp.Value;
@@ -340,7 +340,7 @@ td.right { text-align: right; }";
                         TallyItems(floating.FloatingObject.Item.PhysicalContent.TypeId, floating.FloatingObject.Item.PhysicalContent.SubtypeName, (decimal)floating.FloatingObject.Item.Amount, contentPath, accumulateUsedOres, accumulateItems, accumulateComponents);
                     }
                 }
-                else if (entity is StructureCharacterModel character && !character.IsPilot && character.Character.Inventory != null) // ignore pilots,
+                else if (entity is StructureCharacterModel character && !character.IsPilot) // ignore pilots,
                 {
 
                     foreach (var item in character.Character?.Inventory.Items)
@@ -396,9 +396,9 @@ td.right { text-align: right; }";
 
                                 MyDefinitionBase def = MyDefinitionManager.Static.GetDefinition(item.PhysicalContent.TypeId, item.PhysicalContent.SubtypeName);
                                 float componentMass = 0;
-                                if (def is MyComponentDefinition cd)
+                                if (def is MyComponentDefinition compDef)
                                 {
-                                    componentMass = cd.Mass * item.Amount;
+                                    componentMass = compDef.Mass * item.Amount;
                                 }
                                 else if (def is MyPhysicalItemDefinition pd)
                                 {
@@ -423,7 +423,7 @@ td.right { text-align: right; }";
                                 }
 
                                 // Round up to nearest whole number.
-                                double completeCount = Math.Min(componentList.Count, Math.Ceiling((double)componentList.Count * (double)block.BuildPercent));
+                                double completeCount = Math.Min(componentList.Count, Math.Ceiling(componentList.Count * (double)block.BuildPercent));
 
                                 // count only the components used to reach the BuildPercent, 1 component at a time.
                                 for (int i = 0; i < completeCount; i++)
@@ -582,17 +582,17 @@ td.right { text-align: right; }";
 
         private void TallyItems(MyObjectBuilderType tallyTypeId, string tallySubTypeId, decimal amountDecimal, string contentPath, SortedDictionary<string, OreContent> accumulateOres, SortedDictionary<string, ComponentItemModel> accumulateItems, SortedDictionary<string, ComponentItemModel> accumulateComponents)
         {
-            if (MyDefinitionManager.Static.GetDefinition(tallyTypeId, tallySubTypeId) is not MyPhysicalItemDefinition cd)
+            if (MyDefinitionManager.Static.GetDefinition(tallyTypeId, tallySubTypeId) is not MyPhysicalItemDefinition pd)
             {
                 // A component, gun, ore that doesn't exist (Depricated by KeenSH, or Mod that isn't loaded).
                 return;
             }
 
-            string componentTexture = SpaceEngineersCore.GetDataPathOrDefault(cd.Icons.First(), Path.Combine(contentPath, cd.Icons.First()));
+            string componentTexture = SpaceEngineersCore.GetDataPathOrDefault(pd.Icons.First(), Path.Combine(contentPath, pd.Icons.First()));
             if (tallyTypeId == MOBTypeIds.Ore)
             {
-                double mass = Math.Round((double)amountDecimal * cd.Mass, 7);
-                double volume = Math.Round((double)amountDecimal * cd.Volume * SpaceEngineersConsts.VolumeMultiplyer, 7);
+                double mass = Math.Round((double)amountDecimal * pd.Mass, 7);
+                double volume = Math.Round((double)amountDecimal * pd.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
 
                 #region Unused Ore Value
 
@@ -605,7 +605,7 @@ td.right { text-align: right; }";
                 }
                 else
                 {
-                    accumulateOres.Add(unusedKey, value: new OreContent { Name = cd.DisplayNameText, Amount = amountDecimal, Mass = mass, Volume = volume, TextureFile = componentTexture });
+                    accumulateOres.Add(unusedKey, value: new OreContent { Name = pd.DisplayNameText, Amount = amountDecimal, Mass = mass, Volume = volume, TextureFile = componentTexture });
                 }
 
                 #endregion
@@ -614,7 +614,7 @@ td.right { text-align: right; }";
 
                 if (accumulateItems != null)
                 {
-                    string itemsKey = cd.DisplayNameText;
+                    string itemsKey = pd.DisplayNameText;
                     if (accumulateItems.TryGetValue(itemsKey, out ComponentItemModel compValue))
                     {
                         compValue.Count += amountDecimal;
@@ -623,7 +623,7 @@ td.right { text-align: right; }";
                     }
                     else
                     {
-                        accumulateItems.Add(itemsKey, value: new ComponentItemModel { Name = cd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture, Time = TimeSpan.Zero });
+                        accumulateItems.Add(itemsKey, value: new ComponentItemModel { Name = pd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture, Time = TimeSpan.Zero });
                     }
                 }
 
@@ -631,8 +631,8 @@ td.right { text-align: right; }";
             }
             else if (tallyTypeId == MOBTypeIds.Ingot)
             {
-                double mass = Math.Round((double)amountDecimal * cd.Mass, 7);
-                double volume = Math.Round((double)amountDecimal * cd.Volume * SpaceEngineersConsts.VolumeMultiplyer, 7);
+                double mass = Math.Round((double)amountDecimal * pd.Mass, 7);
+                double volume = Math.Round((double)amountDecimal * pd.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
                 var bp = SpaceEngineersApi.GetBlueprint(tallyTypeId, tallySubTypeId);
                 TimeSpan timeToMake = TimeSpan.Zero;
 
@@ -658,7 +658,7 @@ td.right { text-align: right; }";
 
                 if (accumulateItems != null)
                 {
-                    string itemsKey = cd.DisplayNameText;
+                    string itemsKey = pd.DisplayNameText;
                     if (accumulateItems.TryGetValue(itemsKey, out ComponentItemModel value))
                     {
                         value.Count += amountDecimal;
@@ -668,7 +668,7 @@ td.right { text-align: right; }";
                     }
                     else
                     {
-                        accumulateItems.Add(itemsKey, new ComponentItemModel { Name = cd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture, Time = timeToMake });
+                        accumulateItems.Add(itemsKey, new ComponentItemModel { Name = pd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture, Time = timeToMake });
                     }
                 }
 
@@ -678,8 +678,8 @@ td.right { text-align: right; }";
                 tallyTypeId == MOBTypeIds.PhysicalGunObject ||
                 tallyTypeId == MOBTypeIds.OxygenContainerObject)
             {
-                double mass = Math.Round((double)amountDecimal * cd.Mass, 7);
-                double volume = Math.Round((double)amountDecimal * cd.Volume * SpaceEngineersConsts.VolumeMultiplyer, 7);
+                double mass = Math.Round((double)amountDecimal * pd.Mass, 7);
+                double volume = Math.Round((double)amountDecimal * pd.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
                 var bp = SpaceEngineersApi.GetBlueprint(tallyTypeId, tallySubTypeId);
                 TimeSpan timeToMake = TimeSpan.FromSeconds(bp == null ? 0 : bp.BaseProductionTimeInSeconds * (double)amountDecimal);
 
@@ -699,7 +699,7 @@ td.right { text-align: right; }";
 
                 if (accumulateItems != null)
                 {
-                    string itemsKey = cd.DisplayNameText;
+                    string itemsKey = pd.DisplayNameText;
                     if (accumulateItems.TryGetValue(itemsKey, out ComponentItemModel value))
                     {
                         value.Count += amountDecimal;
@@ -709,7 +709,7 @@ td.right { text-align: right; }";
                     }
                     else
                     {
-                        accumulateItems.Add(itemsKey, new ComponentItemModel() { Name = cd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture, Time = timeToMake });
+                        accumulateItems.Add(itemsKey, new ComponentItemModel() { Name = pd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture, Time = timeToMake });
                     }
                 }
 
@@ -717,8 +717,8 @@ td.right { text-align: right; }";
             }
             else if (tallyTypeId == MOBTypeIds.Component)
             {
-                double mass = Math.Round((double)amountDecimal * cd.Mass, 7);
-                double volume = Math.Round((double)amountDecimal * cd.Volume * SpaceEngineersConsts.VolumeMultiplyer, 7);
+                double mass = Math.Round((double)amountDecimal * pd.Mass, 7);
+                double volume = Math.Round((double)amountDecimal * pd.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
                 MyBlueprintDefinitionBase bp = SpaceEngineersApi.GetBlueprint(tallyTypeId, tallySubTypeId);
                 TimeSpan timeToMake = new();
 
@@ -742,7 +742,7 @@ td.right { text-align: right; }";
 
                 if (accumulateComponents != null)
                 {
-                    string itemsKey = cd.DisplayNameText;
+                    string itemsKey = pd.DisplayNameText;
                     if (accumulateComponents.TryGetValue(itemsKey, out ComponentItemModel value))
                     {
                         value.Count += amountDecimal;
@@ -752,7 +752,7 @@ td.right { text-align: right; }";
                     }
                     else
                     {
-                        accumulateComponents.Add(itemsKey, new ComponentItemModel() { Name = cd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture, Time = timeToMake });
+                        accumulateComponents.Add(itemsKey, new ComponentItemModel() { Name = pd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture, Time = timeToMake });
                     }
                 }
 
@@ -761,12 +761,12 @@ td.right { text-align: right; }";
             }
             else if (typeId is MyObjectBuilderType type && type == MOBTypeIds.CubeBlock)
             {
-                double mass = Math.Round((double)amountDecimal * cd.Mass, 7);
-                double volume = Math.Round((double)amountDecimal * cd.Volume * SpaceEngineersConsts.VolumeMultiplyer, 7);
+                double mass = Math.Round((double)amountDecimal * pd.Mass, 7);
+                double volume = Math.Round((double)amountDecimal * pd.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
 
                 if (accumulateItems != null)
                 {
-                    string itemsKey = cd.DisplayNameText;
+                    string itemsKey = pd.DisplayNameText;
                     if (accumulateItems.TryGetValue(itemsKey, out ComponentItemModel value))
                     {
                         value.Count += amountDecimal;
@@ -775,18 +775,18 @@ td.right { text-align: right; }";
                     }
                     else
                     {
-                        accumulateItems.Add(itemsKey, new ComponentItemModel() { Name = cd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture });
+                        accumulateItems.Add(itemsKey, new ComponentItemModel() { Name = pd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture });
                     }
                 }
             }
             else if (tallyItem != null)
             {
-                double mass = Math.Round((double)amountDecimal * cd.Mass, 7);
-                double volume = Math.Round((double)amountDecimal * cd.Volume * SpaceEngineersConsts.VolumeMultiplyer, 7);
+                double mass = Math.Round((double)amountDecimal * pd.Mass, 7);
+                double volume = Math.Round((double)amountDecimal * pd.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
 
                 if (accumulateItems != null)
                 {
-                    string itemsKey = cd.DisplayNameText;
+                    string itemsKey = pd.DisplayNameText;
                     if (accumulateItems.TryGetValue(itemsKey, out var value))
                     {
                         value.Count += amountDecimal;
@@ -795,7 +795,7 @@ td.right { text-align: right; }";
                     }
                     else
                     {
-                        accumulateItems.Add(itemsKey, new ComponentItemModel { Name = cd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture });
+                        accumulateItems.Add(itemsKey, new ComponentItemModel { Name = pd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture });
                     }
                 }
             }

@@ -79,35 +79,22 @@ namespace SEToolbox.Models
         {
             ClassType = ClassType.FloatingObject;
 
-            MyPhysicalItemDefinition cd = (MyPhysicalItemDefinition)MyDefinitionManager.Static.GetDefinition(FloatingObject.Item.PhysicalContent.TypeId, FloatingObject.Item.PhysicalContent.SubtypeName);
-            string friendlyName = cd != null ? SpaceEngineersApi.GetResourceName(cd.DisplayNameText) : FloatingObject.Item.PhysicalContent.SubtypeName;
-
-            if (FloatingObject.Item.PhysicalContent is MyObjectBuilder_Ore)
+            MyPhysicalItemDefinition pd = (MyPhysicalItemDefinition)MyDefinitionManager.Static.GetDefinition(FloatingObject.Item.PhysicalContent.TypeId, FloatingObject.Item.PhysicalContent.SubtypeName);
+            string friendlyName = pd != null ? SpaceEngineersApi.GetResourceName(pd.DisplayNameText) : FloatingObject.Item.PhysicalContent.SubtypeName;
+            string desc = string.Empty ?? null;
+           if (FloatingObject.Item.PhysicalContent is MyObjectBuilder_Ore || FloatingObject.Item.PhysicalContent is MyObjectBuilder_Ingot)
             {
-                DisplayName = friendlyName;
-                Units = (decimal)FloatingObject.Item.Amount;
-                Volume = cd == null ? 0 : cd.Volume * SpaceEngineersConsts.VolumeMultiplyer * (double)FloatingObject.Item.Amount;
-                Mass = cd == null ? 0 : cd.Mass * (double)FloatingObject.Item.Amount;
-                Description = string.Format($"{Mass:#,##0.00} {Res.GlobalSIMassKilogram}");
+                desc = desc != null ? $"{Mass:#,##0.00} {Res.GlobalSIMassKilogram}" : null;
             }
-            else if (FloatingObject.Item.PhysicalContent is MyObjectBuilder_Ingot)
-            {
-                DisplayName = friendlyName;
-                Units = (decimal)FloatingObject.Item.Amount;
-                Volume = cd == null ? 0 : cd.Volume * SpaceEngineersConsts.VolumeMultiplyer * (double)FloatingObject.Item.Amount;
-                Mass = cd == null ? 0 : cd.Mass * (double)FloatingObject.Item.Amount;
-                Description = string.Format($"{Mass:#,##0.00} {Res.GlobalSIMassKilogram}");
-            }
-            else
-            {
                 DisplayName = friendlyName;
                 Description = string.Format($"x {FloatingObject.Item.Amount}");
                 Units = (decimal)FloatingObject.Item.Amount;
-                Volume = cd == null ? 0 : cd.Volume * SpaceEngineersConsts.VolumeMultiplyer * (double)FloatingObject.Item.Amount;
-                Mass = cd == null ? 0 : cd.Mass * (double)FloatingObject.Item.Amount;
+                Volume = pd == null ? 0 : pd.Volume * SpaceEngineersConsts.VolumeMultiplier * (double)FloatingObject.Item.Amount;
+                Mass = pd == null ? 0 : pd.Mass * (double)FloatingObject.Item.Amount;
+                Description = desc;
             }
         }
 
         #endregion
     }
-}
+

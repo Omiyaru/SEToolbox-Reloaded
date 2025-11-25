@@ -286,11 +286,11 @@ namespace SEToolbox.Interop
                         });
                     }
 
-                    double timeMassMultiplyer = 1;
+                    double timeMassMultiplier = 1;
                     if (typeId == typeof(MyObjectBuilder_Ore) || typeId == typeof(MyObjectBuilder_Ingot))
-                        timeMassMultiplyer = (double)bp.Results[0].Amount;
+                        timeMassMultiplier = (double)bp.Results[0].Amount;
 
-                    var ts = TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds * (double)amount / timeMassMultiplyer);
+                    var ts = TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds * (double)amount / timeMassMultiplier);
                     time += ts;
                 }
             }

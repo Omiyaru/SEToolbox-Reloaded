@@ -61,10 +61,12 @@ namespace SEToolbox.Models
                 	if (File.Exists(fullPath))
                 	{
                     	GameBinPath = Path.GetDirectoryName(fullPath);
-                    
                 	}
             	}
-            	catch { }
+            	catch 
+                {
+                    
+                }
         	}
         		IsValidApplication = ToolboxUpdater.ValidateSpaceEngineersInstall(GameBinPath);
             	IsWrongApplication = !IsValidApplication;

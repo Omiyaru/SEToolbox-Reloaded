@@ -48,7 +48,8 @@ namespace SEToolbox.Models
         public SerializableVector3 Color
         {
             get => Character.ColorMaskHSV;
-            set => SetProperty(Character?.ColorMaskHSV, value, nameof(Color), () => UpdateGeneralFromEntityBase());
+            set => SetProperty(Character?.ColorMaskHSV, value, nameof(Color), () => 
+                   UpdateGeneralFromEntityBase());
 
         }
 
@@ -76,7 +77,7 @@ namespace SEToolbox.Models
         [XmlIgnore]
         public float BatteryCapacity // Character.Battery.CurrentCapacity ?? 0;
         {
-            get => Character.Battery.CurrentCapacity;
+            get => Character.Battery.CurrentCapacity ;
             set => SetProperty(Character.Battery.CurrentCapacity, value, nameof(BatteryCapacity));
         }
 
@@ -99,18 +100,11 @@ namespace SEToolbox.Models
         [XmlIgnore]
         public float OxygenLevel
         {
-            get
-            {
-                if (Character?.StoredGases == null)
-                    return 0;
-                // doesn't matter if Oxygen is not there, as it will still be 0.
-                MyObjectBuilder_Character.StoredGas gas = Character.StoredGases.FirstOrDefault(e => e.Id.SubtypeName == "Oxygen");
-                return gas.FillLevel;
-            }
+            get => Character.StoredGases.FirstOrDefault(e => e.Id.SubtypeName == "Oxygen").FillLevel;
 
-            set
-            {
-                if (Character != null && ReplaceGasValue("Oxygen", value))
+            set 
+            { 
+                if (ReplaceGasValue("Oxygen", value)) 
                     OnPropertyChanged(nameof(OxygenLevel));
             }
         }
@@ -118,19 +112,11 @@ namespace SEToolbox.Models
         [XmlIgnore]
         public float HydrogenLevel
         {
-            get
-            {
-
-                if (Character?.StoredGases == null)
-                    return 0;
-                // doesn't matter if Hydrogen is not there, as it will still be 0.
-                MyObjectBuilder_Character.StoredGas gas = Character.StoredGases.FirstOrDefault(e => e.Id.SubtypeName == "Hydrogen");
-                return gas.FillLevel;
-            }
+            get => Character.StoredGases.FirstOrDefault(e => e.Id.SubtypeName == "Hydrogen").FillLevel;
 
             set
             {
-                if (Character != null && ReplaceGasValue("Hydrogen", value))
+                if (ReplaceGasValue("Hydrogen", value))
                     OnPropertyChanged(nameof(HydrogenLevel));
             }
         }

@@ -163,10 +163,8 @@ namespace SEToolbox.Models
                 // Still check every potential game world path.
                 foreach (string savePath in savePaths)
                 {
-
-                    // This should still allow Games to be copied into the Save path manually.
                     var saveResource = LoadSaveFromPath(savePath, userName, saveType, dataPath);
-
+                    // This should still allow Games to be copied into the Save path manually.
                     saveResource.LoadWorldInfo();
                     list.Add(saveResource);
                 }
@@ -206,7 +204,6 @@ namespace SEToolbox.Models
                         // Still check every potential game world path.
                         foreach (string savePath in savePaths)
                         {
-
                             saveResource = new WorldResource
                             {
                                 SaveName = Path.GetFileName(savePath),
@@ -216,9 +213,9 @@ namespace SEToolbox.Models
                             };
 
                             saveResource.LoadWorldInfo();
-
-
-                            if (saveResource != null && saveResource.IsValid && (saveResource.SaveName.Equals(findSession, System.StringComparison.CurrentCultureIgnoreCase) || saveResource.SessionName.Equals(findSession, System.StringComparison.CurrentCultureIgnoreCase)))
+                            if (saveResource != null && saveResource.IsValid && 
+                               (saveResource.SaveName.Equals(findSession, System.StringComparison.CurrentCultureIgnoreCase) || 
+                                saveResource.SessionName.Equals(findSession, System.StringComparison.CurrentCultureIgnoreCase)))
                             {
                                 return saveResource.LoadCheckpoint(out errorInformation);
                             }

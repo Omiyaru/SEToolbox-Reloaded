@@ -323,7 +323,7 @@ namespace SEToolbox.Models
 
         public override void UpdateGeneralFromEntityBase()
         {
-            double scaleMultiplyer = CubeGrid.GridSizeEnum.ToLength();
+            double scaleMultiplier = CubeGrid.GridSizeEnum.ToLength();
 
             _ = (IsStatic, CubeGrid.GridSizeEnum) switch
             {
@@ -407,7 +407,7 @@ namespace SEToolbox.Models
             Min = min;
             Max = max;
             Scale = scale;
-            Size = new Size3D(scale.X * scaleMultiplyer, scale.Y * scaleMultiplyer, scale.Z * scaleMultiplyer);
+            Size = new Size3D(scale.X * scaleMultiplier, scale.Y * scaleMultiplier, scale.Z * scaleMultiplier);
             Mass = totalMass;
 
             QuaternionD quaternion = CubeGrid.PositionAndOrientation.Value.ToQuaternionD();
@@ -577,7 +577,7 @@ namespace SEToolbox.Models
                                     timeTaken += componentTime;
 
                                     float componentMass = component.Definition.Mass * component.Count;
-                                    float componentVolume = component.Definition.Volume * SpaceEngineersConsts.VolumeMultiplyer * component.Count;
+                                    float componentVolume = component.Definition.Volume * SpaceEngineersConsts.VolumeMultiplier * component.Count;
                                     cubeMass += componentMass;
 
                                     string componentName = component.Definition.Id.SubtypeName;
@@ -626,22 +626,22 @@ namespace SEToolbox.Models
                             MyDefinitionBase mydb = MyDefinitionManager.Static.GetDefinition(kvp.Value.Id);
                             if (mydb.Id.TypeId.IsNull)
                                 continue;
-                            MyPhysicalItemDefinition cd = (MyPhysicalItemDefinition)mydb;
-                            string componentTexture = SpaceEngineersCore.GetDataPathOrDefault(cd.Icons.First(), Path.Combine(contentPath, cd.Icons.First()));
-                            double volume = (double)kvp.Value.Amount * cd.Volume * SpaceEngineersConsts.VolumeMultiplyer;
-                            OreAssetModel ingotAsset = new() { Name = cd.DisplayNameText, Amount = kvp.Value.Amount, Mass = (double)kvp.Value.Amount * cd.Mass, Volume = volume, Time = ingotTime, TextureFile = componentTexture };
+                            MyPhysicalItemDefinition pd = (MyPhysicalItemDefinition)mydb;
+                            string componentTexture = SpaceEngineersCore.GetDataPathOrDefault(pd.Icons.First(), Path.Combine(contentPath, pd.Icons.First()));
+                            double volume = (double)kvp.Value.Amount * pd.Volume * SpaceEngineersConsts.VolumeMultiplier;
+                            OreAssetModel ingotAsset = new() { Name = pd.DisplayNameText, Amount = kvp.Value.Amount, Mass = (double)kvp.Value.Amount * pd.Mass, Volume = volume, Time = ingotTime, TextureFile = componentTexture };
                             ingotAssets.Add(ingotAsset);
                             timeTaken += ingotTime;
                         }
 
                         foreach (KeyValuePair<string, BlueprintRequirement> kvp in oreRequirements)
                         {
-                            if (MyDefinitionManager.Static.GetDefinition(kvp.Value.Id) is MyPhysicalItemDefinition cd)
-                                if (cd != null)
+                            if (MyDefinitionManager.Static.GetDefinition(kvp.Value.Id) is MyPhysicalItemDefinition pd)
+                                if (pd != null)
                                 {
-                                    string componentTexture = SpaceEngineersCore.GetDataPathOrDefault(cd.Icons.First(), Path.Combine(contentPath, cd.Icons.First()));
-                                    double volume = (double)kvp.Value.Amount * cd.Volume * SpaceEngineersConsts.VolumeMultiplyer;
-                                    OreAssetModel oreAsset = new() { Name = cd.DisplayNameText, Amount = kvp.Value.Amount, Mass = (double)kvp.Value.Amount * cd.Mass, Volume = volume, TextureFile = componentTexture };
+                                    string componentTexture = SpaceEngineersCore.GetDataPathOrDefault(pd.Icons.First(), Path.Combine(contentPath, pd.Icons.First()));
+                                    double volume = (double)kvp.Value.Amount * pd.Volume * SpaceEngineersConsts.VolumeMultiplier;
+                                    OreAssetModel oreAsset = new() { Name = pd.DisplayNameText, Amount = kvp.Value.Amount, Mass = (double)kvp.Value.Amount * pd.Mass, Volume = volume, TextureFile = componentTexture };
                                     oreAssets.Add(oreAsset);
                                 }
                         }
@@ -1080,7 +1080,7 @@ namespace SEToolbox.Models
                         Name = group.Name + "_Mirrored",
                         Blocks = [.. group.Blocks.Select(pos => {
                                 MyObjectBuilder_CubeBlock block = CubeGrid.CubeBlocks.FirstOrDefault(b => b.Min.X == pos.X && b.Min.Y == pos.Y && b.Min.Z == pos.Z);
-                                return block != null ? MirrorBlock(block, xMirror, xAxis, yMirror, yAxis, zMirror, zAxis).Min.ToVector3I() : pos;
+                                return block != null ? MirrorCube(block, xMirror, xAxis, yMirror, yAxis, zMirror, zAxis).Min.ToVector3I() : pos;
                             })]
                     };
                     CubeGrid.BlockGroups.Add(mirroredGroup);
@@ -1108,20 +1108,21 @@ namespace SEToolbox.Models
         }
 
         // Helper method to mirror a block
-        private MyObjectBuilder_CubeBlock MirrorBlock(MyObjectBuilder_CubeBlock block, Mirror xMirror, int xAxis, Mirror yMirror, int yAxis, Mirror zMirror, int zAxis)
+        private MyObjectBuilder_CubeBlock MirrorCube(MyObjectBuilder_CubeBlock block, Mirror xMirror, int xAxis, Mirror yMirror, int yAxis, Mirror zMirror, int zAxis)
         {
             MyObjectBuilder_CubeBlock newBlock = block.Clone() as MyObjectBuilder_CubeBlock;
-            newBlock.EntityId = block.EntityId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
-
-            if (block is MyObjectBuilder_MotorBase motorBlock)
-            {
-                ((MyObjectBuilder_MotorBase)newBlock).RotorEntityId = motorBlock.RotorEntityId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
-            }
-
-            if (block is MyObjectBuilder_PistonBase pistonBlock)
-            {
-                ((MyObjectBuilder_PistonBase)newBlock).TopBlockId = pistonBlock.TopBlockId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
-            }
+                             newBlock.EntityId = block.EntityId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
+                switch (block)
+                {
+                    case MyObjectBuilder_MotorBase motorBlock :
+                        ((MyObjectBuilder_MotorBase)newBlock).RotorEntityId = motorBlock.RotorEntityId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
+                        break;
+                    case MyObjectBuilder_PistonBase pistonBlock:
+                        ((MyObjectBuilder_PistonBase)newBlock).TopBlockId = pistonBlock.TopBlockId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
+                        break;
+                    default:
+                        break;
+                }
 
             MyCubeBlockDefinition definition = SpaceEngineersApi.GetCubeDefinition(block.TypeId, CubeGrid.GridSizeEnum, block.SubtypeName);
             MirrorCubeOrientation(definition, block.BlockOrientation, xMirror, yMirror, zMirror, out MyCubeBlockDefinition mirrorDefinition, out newBlock.BlockOrientation);
@@ -1137,14 +1138,13 @@ namespace SEToolbox.Models
             else
             {
                 Vector3I orientSize = definition.Size.Add(-1).Transform(block.BlockOrientation).Abs();
-                min = block.Min.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
+                                min = block.Min.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
                 SerializableVector3I blockMax = new(block.Min.X + orientSize.X, block.Min.Y + orientSize.Y, block.Min.Z + orientSize.Z);
-                max = blockMax.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
+                                max = blockMax.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
 
-                newBlock.Min = new SerializableVector3I(
-                    xMirror != Mirror.None ? max.X : min.X,
-                    yMirror != Mirror.None ? max.Y : min.Y,
-                    zMirror != Mirror.None ? max.Z : min.Z
+                newBlock.Min = new SerializableVector3I(xMirror != Mirror.None ? max.X : min.X,
+                                                        yMirror != Mirror.None ? max.Y : min.Y,
+                                                        zMirror != Mirror.None ? max.Z : min.Z
                 );
             }
 
@@ -1175,7 +1175,7 @@ namespace SEToolbox.Models
                 newBlock.EntityId = block.EntityId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
                 switch (block)
                 {
-                    case  MyObjectBuilder_MotorBase motorBlock :
+                    case MyObjectBuilder_MotorBase motorBlock :
                         ((MyObjectBuilder_MotorBase)newBlock).RotorEntityId = motorBlock.RotorEntityId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
                         break;
                     case MyObjectBuilder_PistonBase pistonBlock:
@@ -1191,7 +1191,7 @@ namespace SEToolbox.Models
                 newBlock.SubtypeName = mirrorDefinition.Id.SubtypeName;
 
                 SerializableVector3I min, max;
-                if (definition.Size.X == 1 && definition.Size.Y == 1 && definition.Size.Z == 1)
+                if (Conditional.Equals(1, definition.Size.X, definition.Size.Y , definition.Size.Z))
                 {
                     newBlock.Min = block.Min.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
                     max = newBlock.Min;
@@ -1199,9 +1199,9 @@ namespace SEToolbox.Models
                 else
                 {
                     Vector3I orientSize = definition.Size.Add(-1).Transform(block.BlockOrientation).Abs();
-                    min = block.Min.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
+                                              min = block.Min.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
                     SerializableVector3I blockMax = new(block.Min.X + orientSize.X, block.Min.Y + orientSize.Y, block.Min.Z + orientSize.Z);
-                    max = blockMax.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
+                                              max = blockMax.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
 
                     newBlock.Min = new SerializableVector3I(
                         xMirror != Mirror.None ? max.X : min.X,
@@ -1227,9 +1227,8 @@ namespace SEToolbox.Models
                 : SpaceEngineersApi.GetCubeDefinition(definition.Id.TypeId, definition.CubeSize, definition.MirroringBlock);
 
             // Create the source matrix from the block orientation
-            Matrix sourceMatrix = Matrix.CreateFromDir(
-                Base6Directions.GetVector(orientation.Forward),
-                Base6Directions.GetVector(orientation.Up)
+            Matrix sourceMatrix = Matrix.CreateFromDir(Base6Directions.GetVector(orientation.Forward),
+                                                       Base6Directions.GetVector(orientation.Up)
             );
 
             Vector3 mirrorNormal = xMirror != Mirror.None ? Vector3.Right :

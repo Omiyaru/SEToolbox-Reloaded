@@ -178,7 +178,7 @@ namespace SEToolbox.Models
                     SubtypeId = componentDefinition.Id.SubtypeName,
                     Mass = componentDefinition.Mass,
                     TextureFile = (componentDefinition.Icons == null || componentDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(componentDefinition.Icons.First(), Path.Combine(contentPath, componentDefinition.Icons.First())),
-                    Volume = componentDefinition.Volume * SpaceEngineersConsts.VolumeMultiplyer,
+                    Volume = componentDefinition.Volume * SpaceEngineersConsts.VolumeMultiplier,
                     Accessible = componentDefinition.Public,
                     Time = bp != null ? TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds / amount) : null,
                     IsMod = !componentDefinition.Context.IsBaseGame,
@@ -193,10 +193,10 @@ namespace SEToolbox.Models
                     amount = (float)bp.Results[0].Amount;
 
 
-                float timeMassMultiplyer = 1f;
+                float timeMassMultiplier = 1f;
                 if (physicalItemDefinition.Id.TypeId == typeof(MyObjectBuilder_Ore)
                     || physicalItemDefinition.Id.TypeId == typeof(MyObjectBuilder_Ingot))
-                    timeMassMultiplyer = physicalItemDefinition.Mass;
+                    timeMassMultiplier = physicalItemDefinition.Mass;
 
                 ItemAssets.Add(new ComponentItemModel
                 {
@@ -205,10 +205,10 @@ namespace SEToolbox.Models
                     TypeIdString = $"{physicalItemDefinition.Id.TypeId}",
                     SubtypeId = physicalItemDefinition.Id.SubtypeName,
                     Mass = physicalItemDefinition.Mass,
-                    Volume = physicalItemDefinition.Volume * SpaceEngineersConsts.VolumeMultiplyer,
+                    Volume = physicalItemDefinition.Volume * SpaceEngineersConsts.VolumeMultiplier,
                     TextureFile = physicalItemDefinition.Icons == null ? null : SpaceEngineersCore.GetDataPathOrDefault(physicalItemDefinition.Icons.First(), Path.Combine(contentPath, physicalItemDefinition.Icons.First())),
                     Accessible = physicalItemDefinition.Public,
-                    Time = bp != null ? TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds / amount / timeMassMultiplyer) : null,
+                    Time = bp != null ? TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds / amount / timeMassMultiplier) : null,
                     IsMod = !physicalItemDefinition.Context.IsBaseGame,
                 });
             }

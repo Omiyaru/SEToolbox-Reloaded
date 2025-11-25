@@ -118,12 +118,10 @@ namespace SEToolbox.Models
 
         public void ClearProgress()
         {
-            if (_updateTimer != null)
-            {
-                _updateTimer.Stop();
-                _updateTimer.Dispose();
-                _updateTimer = null;
-            }
+
+            _updateTimer?.Stop();
+            _updateTimer = null;
+
 
             _elapsedTimer.Stop();
             _elapsedTimer.Reset();
@@ -140,15 +138,13 @@ namespace SEToolbox.Models
         {
             if (disposing)
             {
-                if (_updateTimer != null)
-                {
-                    _updateTimer.Stop();
-                    _updateTimer.Dispose();
-                }
-                _progressTimer?.Stop();
+                _updateTimer?.Stop();
+                _updateTimer?.Dispose();
             }
+            _progressTimer?.Stop();
         }
-
-        #endregion
     }
+
+    #endregion
 }
+

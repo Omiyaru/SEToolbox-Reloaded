@@ -47,7 +47,7 @@ namespace SEToolbox.Interop
         /// <summary>
         /// Converts the internal game value (mL) to the nominal metric (L) for display.
         /// </summary>
-        public const float VolumeMultiplyer = 1000f;
+        public const float VolumeMultiplier = 1000f;
 
         /// <summary>
         /// The base path of the save files, minus the userid.

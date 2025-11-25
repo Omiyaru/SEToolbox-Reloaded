@@ -23,7 +23,6 @@ namespace SEToolbox.Models
     {
         #region Fields
         private string _sourceVoxelFilePath;
-
         private string _voxelFilePath;
         private Vector3I _size;
         private Vector3D _contentCenter;
@@ -36,8 +35,10 @@ namespace SEToolbox.Models
 
         [NonSerialized]
         private bool _isLoadingAsync;
-    
-        public BoundingBoxI ContentBounds { get; private set; }
+        private BoundingBoxI _contentBounds;
+
+
+
         #endregion
 
         #region Ctor
@@ -88,8 +89,8 @@ namespace SEToolbox.Models
         public new string SourceVoxelFilePath
         {
             get => _sourceVoxelFilePath;
-            set => SetProperty(ref _sourceVoxelFilePath, value, nameof(SourceVoxelFilePath),
-                    () => ReadVoxelDetails(SourceVoxelFilePath));
+            set => SetProperty(ref _sourceVoxelFilePath, value, nameof(SourceVoxelFilePath), () =>
+                   ReadVoxelDetails(SourceVoxelFilePath));
         }
 
         /// <summary>
@@ -101,6 +102,18 @@ namespace SEToolbox.Models
             set => SetProperty(ref _voxelFilePath, value, nameof(VoxelFilePath));
             
         }
+
+        [XmlIgnore]
+        public Vector3D ContentCenter
+        {
+            get => _contentCenter;
+            set => SetProperty(ref _contentCenter, value, nameof(ContentCenter));
+        }
+        public BoundingBoxI ContentBounds 
+        { 
+            get => _contentBounds;
+   private set => SetProperty(ref _contentBounds, value, nameof(ContentBounds)) ; }
+
 
         [XmlIgnore]
         public Vector3I Size

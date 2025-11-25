@@ -57,7 +57,6 @@ namespace SEToolbox.Models
             IsValid = isValid;
 		}
 
-
         public InventoryModel GetInventoryModel(MyObjectBuilder_InventoryItem item, string name, string description)
         {
             _name = string.Empty;
@@ -180,21 +179,21 @@ namespace SEToolbox.Models
 
             string name;
             string textureFile;
-            double massMultiplyer;
-            double volumeMultiplyer;
+            double massMultiplier;
+            double volumeMultiplier;
 
             if (definition == null)
             {
                 name = item.PhysicalContent.SubtypeName + " " + item.PhysicalContent.TypeId;
-                massMultiplyer = 1;
-                volumeMultiplyer = 1;
+                massMultiplier = 1;
+                volumeMultiplier = 1;
                 textureFile = null;
             }
             else
             {
                 name = definition.DisplayNameText;
-                massMultiplyer = definition.Mass;
-                volumeMultiplyer = definition.Volume * SpaceEngineersConsts.VolumeMultiplyer;
+                massMultiplier = definition.Mass;
+                volumeMultiplier = definition.Volume * SpaceEngineersConsts.VolumeMultiplier;
                 textureFile = (definition.Icons == null || definition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(definition.Icons.First(), Path.Combine(contentPath, definition.Icons.First()));
             }
 
@@ -204,8 +203,8 @@ namespace SEToolbox.Models
                 Amount = (decimal)item.Amount,
                 SubtypeId = item.PhysicalContent.SubtypeName,
                 TypeId = item.PhysicalContent.TypeId,
-                MassMultiplier = massMultiplyer,
-                VolumeMultiplier = volumeMultiplyer,
+                MassMultiplier = massMultiplier,
+                VolumeMultiplier = volumeMultiplier,
                 TextureFile = textureFile,
                 IsUnique = item.PhysicalContent.TypeId == MOBTypeIds.PhysicalGunObject || item.PhysicalContent.TypeId == MOBTypeIds.OxygenContainerObject,
                 IsInteger = item.PhysicalContent.TypeId == MOBTypeIds.Component || item.PhysicalContent.TypeId == MOBTypeIds.AmmoMagazine,
@@ -234,7 +233,7 @@ namespace SEToolbox.Models
             // Remove HandWeapon if item is HandWeapon.
             if (_character != null && invItem.PhysicalContent.TypeId == MOBTypeIds.PhysicalGunObject)
             {
-                if (((MyObjectBuilder_PhysicalGunObject)invItem.PhysicalContent).GunEntity?.EntityId == _character.HandWeapon.EntityId)
+                if (((MyObjectBuilder_PhysicalGunObject)invItem.PhysicalContent).GunEntity?.EntityId == _character?.HandWeapon.EntityId)
                 {
                     _character?.HandWeapon = null;
                 }

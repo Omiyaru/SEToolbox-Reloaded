@@ -36,7 +36,7 @@ namespace SEToolbox.Models
             get => _name;
             set => SetProperty(ref _name, value, () => 
                    FriendlyName == SpaceEngineersApi.GetResourceName(Name),
-                nameof(Name));
+                    nameof(Name));
         }
 
         public MyObjectBuilderType TypeId { get; set; }

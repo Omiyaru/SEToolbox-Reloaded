@@ -373,18 +373,18 @@ namespace SEToolbox.ViewModels
                 }
 
                 double vectorDistance = BuildDistance;
-                double scaleMultiplyer = 1;
+                double scaleMultiplier = 1;
 
                 switch (ClassType)
                 {
-                    case ImportModelClassType.SmallShip: scaleMultiplyer = MyCubeSize.Small.ToLength(); break;
-                    case ImportModelClassType.SmallStation: scaleMultiplyer = MyCubeSize.Small.ToLength(); break;
-                    case ImportModelClassType.LargeShip: scaleMultiplyer = MyCubeSize.Large.ToLength(); break;
-                    case ImportModelClassType.LargeStation: scaleMultiplyer = MyCubeSize.Large.ToLength(); break;
-                    case ImportModelClassType.Asteroid: scaleMultiplyer = 1; break;
+                    case ImportModelClassType.SmallShip: scaleMultiplier = MyCubeSize.Small.ToLength(); break;
+                    case ImportModelClassType.SmallStation: scaleMultiplier = MyCubeSize.Small.ToLength(); break;
+                    case ImportModelClassType.LargeShip: scaleMultiplier = MyCubeSize.Large.ToLength(); break;
+                    case ImportModelClassType.LargeStation: scaleMultiplier = MyCubeSize.Large.ToLength(); break;
+                    case ImportModelClassType.Asteroid: scaleMultiplier = 1; break;
                 }
-                vectorDistance += NewModelSize.Depth * scaleMultiplyer;
-                NewModelScale = new BindablePoint3DModel(NewModelSize.Width * scaleMultiplyer, NewModelSize.Height * scaleMultiplyer, NewModelSize.Depth * scaleMultiplyer);
+                vectorDistance += NewModelSize.Depth * scaleMultiplier;
+                NewModelScale = new BindablePoint3DModel(NewModelSize.Width * scaleMultiplier, NewModelSize.Height * scaleMultiplier, NewModelSize.Depth * scaleMultiplier);
 
                 // Figure out where the Character is facing, and plant the new construct right in front, by "10" units, facing the Character.
                 Vector3D vector = new BindableVector3DModel(_dataModel.CharacterPosition.Forward).Vector3D;

@@ -116,14 +116,12 @@ namespace SEToolbox.Models
         {
             get => _entityBase.PositionAndOrientation.Value.Position.X;
             set => SetProperty(_entityBase.PositionAndOrientation.Value.Position.X, value, () =>
-              {
-                  if (value != _entityBase.PositionAndOrientation.Value.Position.X)
-                  {
-                      var pos = _entityBase.PositionAndOrientation.Value;
-                      pos.Position.X = value;
-                      _entityBase.PositionAndOrientation = pos;
-                  }
-              }, nameof(PositionX));
+            {
+                    var pos = _entityBase.PositionAndOrientation.Value;
+                    pos.Position.X = value;
+                    _entityBase.PositionAndOrientation = pos;
+                  
+            }, nameof(PositionX));
         }
 
         [XmlIgnore]
@@ -132,12 +130,9 @@ namespace SEToolbox.Models
             get => _entityBase.PositionAndOrientation.Value.Position.Y;
             set => SetProperty(_entityBase.PositionAndOrientation.Value.Position.Y, value, () =>
               {
-                  if (value != _entityBase.PositionAndOrientation.Value.Position.Y)
-                  {
                       var pos = _entityBase.PositionAndOrientation.Value;
                       pos.Position.Y = value;
                       _entityBase.PositionAndOrientation = pos;
-                  }
               }, nameof(PositionY));
         }
 
@@ -145,7 +140,12 @@ namespace SEToolbox.Models
         public double PositionZ
         {
             get => _entityBase.PositionAndOrientation.Value.Position.Z;
-            set => SetProperty(_entityBase.PositionAndOrientation.Value.Position.Z, value, nameof(PositionZ));
+            set => SetProperty(_entityBase.PositionAndOrientation.Value.Position.Z, value, () =>
+              {
+                      var pos = _entityBase.PositionAndOrientation.Value;
+                      pos.Position.Z = value;
+                      _entityBase.PositionAndOrientation = pos;
+              }, nameof(PositionZ));
         }
 
         public SerializableVector3D Position
@@ -166,9 +166,7 @@ namespace SEToolbox.Models
                       pos.Position.Y = value.Y;
                       pos.Position.Z = value.Z;
 
-
                       _entityBase.PositionAndOrientation = pos;
-
                   }
               }, nameof(Position));
         }
@@ -346,9 +344,7 @@ namespace SEToolbox.Models
                 MyObjectBuilder_FloatingObject _ => new StructureFloatingObjectModel(entityBase),
                 MyObjectBuilder_Meteor _ => new StructureMeteorModel(entityBase),
                 MyObjectBuilder_InventoryBagEntity _ => new StructureInventoryBagModel(entityBase),
-                _ => new StructureUnknownModel(entityBase)
-                // _=> new NotImplementedException($"A new object has not been catered for in the StructureBase, of type '{entityBase.GetType()}'.");
-
+               _ => new StructureUnknownModel(entityBase) ?? throw new NotImplementedException($"A new object has not been catered for in the StructureBase, of type '{entityBase.GetType()}'.")
             };
         }
 

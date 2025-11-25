@@ -38,8 +38,6 @@ namespace SEToolbox.Models
             get => _alwaysCheckForUpdates;
             set => SetProperty(ref _alwaysCheckForUpdates, value, nameof(AlwaysCheckForUpdates), () => 
             	   Validate());
-
-
         }
         
 
@@ -48,7 +46,6 @@ namespace SEToolbox.Models
             get => _useCustomResource;
             set => SetProperty(ref _useCustomResource, value, nameof(UseCustomResource), () => 
             	   Validate());
-               
         }
 
 

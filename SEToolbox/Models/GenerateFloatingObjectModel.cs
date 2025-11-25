@@ -157,7 +157,7 @@ namespace SEToolbox.Models
                     SubtypeId = componentDefinition.Id.SubtypeName,
                     Mass = componentDefinition.Mass,
                     TextureFile = componentDefinition.Icons == null ? null : SpaceEngineersCore.GetDataPathOrDefault(componentDefinition.Icons.First(), Path.Combine(contentPath, componentDefinition.Icons.First())),
-                    Volume = componentDefinition.Volume * SpaceEngineersConsts.VolumeMultiplyer,
+                    Volume = componentDefinition.Volume * SpaceEngineersConsts.VolumeMultiplier,
                     Accessible = componentDefinition.Public,
                     Time = bp != null ? TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds) : (TimeSpan?)null,
                 });
@@ -177,7 +177,7 @@ namespace SEToolbox.Models
                     TypeId = physicalItemDefinition.Id.TypeId,
                     SubtypeId = physicalItemDefinition.Id.SubtypeName,
                     Mass = physicalItemDefinition.Mass,
-                    Volume = physicalItemDefinition.Volume * SpaceEngineersConsts.VolumeMultiplyer,
+                    Volume = physicalItemDefinition.Volume * SpaceEngineersConsts.VolumeMultiplier,
                     TextureFile = physicalItemDefinition.Icons == null ? null : SpaceEngineersCore.GetDataPathOrDefault(physicalItemDefinition.Icons.First(), Path.Combine(contentPath, physicalItemDefinition.Icons.First())),
                     Accessible = physicalItemDefinition.Public,
                     Time = bp != null ? TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds) : (TimeSpan?)null,

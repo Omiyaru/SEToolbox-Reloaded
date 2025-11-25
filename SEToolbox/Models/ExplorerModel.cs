@@ -71,6 +71,9 @@ namespace SEToolbox.Models
         private double _maximumProgress;
 
         private List<int> _customColors;
+
+        private string _selectedScriptPath;
+
         private readonly Dictionary<long, GridEntityNode> GridEntityNodes = [];
 
         #endregion
@@ -164,7 +167,7 @@ namespace SEToolbox.Models
             {
                 if (!_timer.IsRunning || _timer.ElapsedMilliseconds > 200 && value == _progress)
                 {
-                    ProgressValue = _progressValue;
+                    ProgressValue = _progressValue / _maximumProgress;
                     DispatcherHelper.DoEvents();
                     _timer.Restart();
                 }
@@ -190,8 +193,12 @@ namespace SEToolbox.Models
             set => SetProperty(ref _maximumProgress, value, nameof(MaximumProgress));
         }
 
-        public ObservableCollection<string> ScriptPaths { get; } = [];
-        private string _selectedScriptPath;
+        public ObservableCollection<string> ScriptPaths
+        {
+            get => _scriptPaths;
+            set => SetProperty(ref _scriptPaths, value, nameof(ScriptPaths));
+         }
+        
         public string SelectedScriptPath
         {
             get => _selectedScriptPath;
@@ -301,7 +308,6 @@ namespace SEToolbox.Models
                     {
                         voxelFilesToRemove.Add(voxel.VoxelFilePath);
                     }
-
                     // Add the voxel file to the copy list.
                     voxelFilesToCopy.Add((voxel.SourceVoxelFilePath, voxel.VoxelFilePath));
                 }
@@ -339,7 +345,6 @@ namespace SEToolbox.Models
             IsBusy = false;
         }
 
-
         public string SaveTemporarySandbox()
         {
             IsBusy = true;
@@ -364,14 +369,14 @@ namespace SEToolbox.Models
 
             if (Conditional.NotNull(ActiveWorld?.SectorData, ActiveWorld?.Checkpoint))
             {
-                List<MyObjectBuilder_EntityBase> entityBaseList = [.. ActiveWorld.SectorData.SectorObjects.OfType<MyObjectBuilder_EntityBase>()];
+                List<MyObjectBuilder_EntityBase> entityBaseList = [.. ActiveWorld.SectorData?.SectorObjects.OfType<MyObjectBuilder_EntityBase>()];
                 foreach (var entityBase in entityBaseList)
                 {
                     var structure = StructureBaseModel.Create(entityBase, ActiveWorld.SavePath);
 
                     if (structure is StructureCharacterModel character)
                     {
-                        if (ActiveWorld.Checkpoint != null && character.EntityId == ActiveWorld.Checkpoint.ControlledObject)
+                        if (ActiveWorld.Checkpoint != null && character.EntityId == ActiveWorld.Checkpoint?.ControlledObject)
                         {
                             character.IsPlayer = true;
                             ThePlayerCharacter = character;
@@ -557,6 +562,8 @@ namespace SEToolbox.Models
         }
 
         private Stopwatch _elapsedTimer;
+        private ObservableCollection<string> _scriptPaths;
+
         public IStructureBase AddEntity(MyObjectBuilder_EntityBase entity)
         {
             if (entity != null)
@@ -852,10 +859,9 @@ namespace SEToolbox.Models
             ];
         }
 
-        public List<MyObjectBuilder_CubeBlock> FindOverlappingBlocks(
-            StructureCubeGridModel viewModel,
-            HashSet<Type> excludedTypes = null,
-            bool trackProgress = false)
+        public List<MyObjectBuilder_CubeBlock> FindOverlappingBlocks(StructureCubeGridModel viewModel,
+                                                                     HashSet<Type> excludedTypes = null,
+                                                                     bool trackProgress = false)
         {
             if (viewModel == null) return [];
 
@@ -1231,6 +1237,7 @@ namespace SEToolbox.Models
                 Vector3 adjustedPos = Vector3.Transform(cPos2 - pos1, VRageMath.Quaternion.Inverse(orient1)) / multi1;
                 Vector3I offset = adjustedPos.RoundToVector3I() - maxCube2.Min.ToVector3I();
 
+                // Merge cubes in.
                 foreach (var cube2 in model2.CubeGrid.CubeBlocks)
                 {
                     MyObjectBuilder_CubeBlock newcube = (MyObjectBuilder_CubeBlock)cube2.Clone();
@@ -1238,6 +1245,7 @@ namespace SEToolbox.Models
                     model1.CubeGrid.CubeBlocks.Add(newcube);
                 }
 
+                // Merge Groupings in.
                 foreach (var group in model2.CubeGrid.BlockGroups)
                 {
                     MyObjectBuilder_BlockGroup existingGroup = model1.CubeGrid.BlockGroups.FirstOrDefault(bg => bg.Name == group.Name);
@@ -1326,14 +1334,13 @@ namespace SEToolbox.Models
                 {
                     if (entBase is MyObjectBuilder_CubeGrid grid)
                     {
-                        foreach (MyObjectBuilder_CubeBlock v in grid.CubeBlocks)
+                        foreach (var _ in from MyObjectBuilder_CubeBlock v in grid.CubeBlocks
+                                          let mechanicalBlock = v as T
+                                          where mechanicalBlock?.TopBlockId == topBlockId
+                                          select new { })
                         {
-                            MyObjectBuilder_MechanicalConnectionBlock mechanicalBlock = v as T;
-                            if (mechanicalBlock?.TopBlockId == topBlockId)
-                            {
-                                ConnectedTopBlockCache[topBlockId] = grid;
-                                return grid;
-                            }
+                            ConnectedTopBlockCache[topBlockId] = grid;
+                            return grid;
                         }
                     }
                 }
