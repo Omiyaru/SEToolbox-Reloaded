@@ -1138,12 +1138,12 @@
 
         OffroadRealWheel1x1mirrored,
         OffroadRealWheel2x2Mirrored,
-        
-        OffroadSmallRealWheelmirrored
+        OffroadRealWheel3x3mirrored, 
+        OffroadRealWheel5x5mirrored,
+        OffroadSmallRealWheelmirrored,
         OffroadSmallRealWheel1x1mirrored,
         OffroadSmallRealWheel2x2Mirrored,
         OffroadSmallRealWheel5x5mirrored,        
-        OffroadRealWheel5x5mirrored,
         OffroadWheel1x1,
         OffroadWheel2x2,
         OffroadWheel3x3,

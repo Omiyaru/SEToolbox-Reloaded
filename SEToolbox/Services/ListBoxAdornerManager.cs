@@ -26,9 +26,7 @@ namespace SEToolbox.Services
             Clear();
             //draw new adorner
             adorner = new ListBoxDropAdorner(adornedElement, adornerLayer);
-            {
-                adorner.IsAboveElement = isAboveElement;
-            };
+            adorner.IsAboveElement = isAboveElement;
             adorner.Update();
             shouldCreateNewAdorner = false;
         }

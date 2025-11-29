@@ -59,6 +59,7 @@ namespace SEToolbox.Support
 
             int totalLength = array1.Length + (array2?.Length ?? 0);
             T[] mergedArray = new T[totalLength];
+
             Array.Copy(array1, 0, mergedArray, 0, array1.Length);
             if (array2 != null)
                 Array.Copy(array2, 0, mergedArray, array1.Length, array2.Length);

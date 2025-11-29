@@ -33,26 +33,19 @@ namespace SEToolbox.Services
 
         protected override void OnRender(DrawingContext drawingContext)
         {
-            //double width = AdornedElement.DesiredSize.Width;
-            //double height = AdornedElement.DesiredSize.Height;
+            var adornedElementRect = new Rect(AdornedElement.DesiredSize);
+            var renderPen = new Pen(Brushes.White, 1.5);
+            var renderBrush = new SolidColorBrush(Colors.Red) { Opacity = 0.5 };
+            var renderRadius = 5.0;
 
-            Rect adornedElementRect = new(AdornedElement.DesiredSize);
-
-            SolidColorBrush renderBrush = new(Colors.Red);
-            renderBrush.Opacity = 0.5;
-            Pen renderPen = new Pen(new SolidColorBrush(Colors.White), 1.5);
-            double renderRadius = 5.0;
-
-            if (IsAboveElement)
+            var points = new[] { adornedElementRect.TopLeft, adornedElementRect.TopRight };
+            if (!IsAboveElement)
             {
-                drawingContext.DrawEllipse(renderBrush, renderPen, adornedElementRect.TopLeft, renderRadius, renderRadius);
-                drawingContext.DrawEllipse(renderBrush, renderPen, adornedElementRect.TopRight, renderRadius, renderRadius);
+                points = [adornedElementRect.BottomLeft, adornedElementRect.BottomRight];
             }
-            else
-            {
-                drawingContext.DrawEllipse(renderBrush, renderPen, adornedElementRect.BottomLeft, renderRadius, renderRadius);
-                drawingContext.DrawEllipse(renderBrush, renderPen, adornedElementRect.BottomRight, renderRadius, renderRadius);
-            }
+
+            drawingContext.DrawEllipse(renderBrush, renderPen, points[0], renderRadius, renderRadius);
+            drawingContext.DrawEllipse(renderBrush, renderPen, points[1], renderRadius, renderRadius);
         }
     }
 }

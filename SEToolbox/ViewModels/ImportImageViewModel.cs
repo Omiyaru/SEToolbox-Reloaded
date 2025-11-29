@@ -104,7 +104,7 @@ namespace SEToolbox.ViewModels
         {
             get => _dataModel.FileName;
 
-            set => SetProperty(_dataModel.FileName, value, () => 
+            set => SetValue(_dataModel.FileName, value, () => 
             {
                 FileNameChanged();
             });
@@ -125,7 +125,7 @@ namespace SEToolbox.ViewModels
         public BindableSizeModel NewImageSize
         {
             get => _dataModel.NewImageSize;
-            set => SetProperty( _dataModel.NewImageSize, value, () =>
+            set => SetValue( _dataModel.NewImageSize, value, () =>
                    ProcessImage());
         }
             

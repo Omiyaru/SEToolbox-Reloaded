@@ -135,9 +135,9 @@ namespace SEToolbox.Models
                 Selections.Add(new GroupMoveItemModel
                 {
                     Item = selection,
-                    PositionX = selection.DataModel.PositionX,
-                    PositionY = selection.DataModel.PositionY,
-                    PositionZ = selection.DataModel.PositionZ,
+                    PositionX = selection.DataModel.Position.X,
+                    PositionY = selection.DataModel.Position.Y,
+                    PositionZ = selection.DataModel.Position.Z,
                     PlayerDistance = selection.DataModel.PlayerDistance
                 });
             }

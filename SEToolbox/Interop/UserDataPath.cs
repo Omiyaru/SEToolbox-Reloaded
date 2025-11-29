@@ -69,33 +69,27 @@ namespace SEToolbox.Interop
             }
         }
 
-        public string GetDataPathOrDefault(string key, string defaultValue)
-        {
-
-            // TODO: this code is obsolete and needs to be cleaned up.
-            // #31 https://github.com/midspace/SEToolbox/commit/354fd4cba31d1d8accac4c8188189dd1b114209b#diff-816c9c8868fbb3625db0cc45485797ef
-            //if deleted this breaks things, something else needs to be done.
-
-            var userDataPath = new UserDataPath(SEConsts.BaseLocalPath.DataPath, SEConsts.Folders.SavesFolder, SEConsts.Folders.ModsFolder, SEConsts.Folders.BlueprintsFolder);
-            string path = userDataPath.GetPathOrDefault(key);
-
-            if (string.IsNullOrWhiteSpace(path))
-                return defaultValue;
-
-            return path;
-        }
-        internal static readonly Dictionary<string, string> PathMap = new()
+         internal static readonly Dictionary<string, string> PathMap = new()
         {
             {SEConsts.Folders.ModsFolder, nameof(ModsPath)},
             {SEConsts.Folders.BlueprintsFolder, nameof(BlueprintsPath)},
             {SEConsts.Folders.ModsCacheFolder, nameof(ModsCache)},
             {SEConsts.Folders.ShadersFolder, nameof(ShaderPath)},
         };
-
-        internal string GetPathOrDefault(string key)
+        
+        public string GetDataPathOrDefault(string key, string defaultValue)
         {
-            return PathMap.TryGetValue(key, out var value) ? value : null;
+            
+            string path = PathMap.TryGetValue(key, out var value) ? value : null;
+
+            if (string.IsNullOrWhiteSpace(path))
+                return defaultValue;
+
+            return path;
         }
+       
+
+
         
         #endregion
     }

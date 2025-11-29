@@ -159,9 +159,9 @@ namespace SEToolbox.ViewModels
         public bool CreateCanExecute()
         {
             return StockItem != null &&
-                (IsUnique ||
-                (IsInt && Units.HasValue && Units.Value > 0) ||
-                (IsDecimal && DecimalUnits.HasValue && DecimalUnits.Value > 0));
+                  (IsUnique ||
+                  (IsInt && Units.HasValue && Units.Value > 0) ||
+                  (IsDecimal && DecimalUnits.HasValue && DecimalUnits.Value > 0));
         }
 
         public void CreateExecuted()
@@ -268,9 +268,7 @@ namespace SEToolbox.ViewModels
                 }
             }
             #endregion
-
         }
-
         #endregion
     }
 }

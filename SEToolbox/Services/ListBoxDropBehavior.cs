@@ -33,14 +33,14 @@ namespace SEToolbox.Services
         public bool AllowDropToSource
         {
             get => (bool)GetValue(AllowDropToSourceProperty);
-			set => SetValue(AllowDropToSourceProperty, value);
+            set => SetValue(AllowDropToSourceProperty, value);
         }
 
         public static readonly DependencyProperty ShowDropIndicatorProperty = DependencyProperty.Register("ShowDropIndicator", typeof(bool), typeof(ListBoxDropBehavior), new PropertyMetadata(true));
         public bool ShowDropIndicator
         {
             get => (bool)GetValue(ShowDropIndicatorProperty);
-			set => SetValue(ShowDropIndicatorProperty, value);
+            set => SetValue(ShowDropIndicatorProperty, value);
         }
 
         public static readonly DependencyProperty DropTypeProperty = DependencyProperty.Register("DropType", typeof(Type), typeof(ListBoxDropBehavior));
@@ -50,7 +50,7 @@ namespace SEToolbox.Services
         public Type DropType
         {
             get => (Type)GetValue(DropTypeProperty);
-			set => SetValue(DropTypeProperty, value);
+            set => SetValue(DropTypeProperty, value);
         }
 
         #endregion
@@ -158,19 +158,13 @@ namespace SEToolbox.Services
 
         void AssociatedObject_DragEnter(object sender, DragEventArgs e)
         {
-            if (_dataType == null)
+            if (_dataType == null && AssociatedObject.DataContext is IDropable)
             {
                 // if the DataContext implements IDropable, record the data type that can be dropped.
-                if (AssociatedObject.DataContext != null)
-                {
-                    if (AssociatedObject.DataContext as IDropable != null)
-                    {
-                        if (DropType != null)
-                            _dataType = typeof(List<>).MakeGenericType([DropType]);
-                        else
-                            _dataType = typeof(List<>).MakeGenericType([((IDropable)AssociatedObject.DataContext).DataType]);
-                    }
-                }
+                if (DropType != null)
+                    _dataType = typeof(List<>).MakeGenericType([DropType]);
+                else
+                    _dataType = typeof(List<>).MakeGenericType([((IDropable)AssociatedObject.DataContext).DataType]);
             }
 
             // initialize adorner manager with the adorner layer of the itemsControl.

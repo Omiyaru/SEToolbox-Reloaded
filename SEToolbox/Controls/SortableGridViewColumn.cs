@@ -17,10 +17,10 @@ namespace SEToolbox.Controls
         public BindingBase SortBinding
         {
             get => _sortBinding;
-            set => _model.SetProperty(ref _sortBinding, value, () => OnDisplayMemberBindingChanged());
+            set => _model.SetValue(ref _sortBinding, value, () =>
+                   OnDisplayMemberBindingChanged());
         }
         
-   
 
         private void OnDisplayMemberBindingChanged()
         {

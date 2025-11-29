@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -32,17 +34,20 @@ namespace SEToolbox
 
             Log.Init("./log.txt", appendLog);
             SConsole.Init();
-            SConsole.WriteLine("Starting.");
+            SConsole.WriteLine($"Starting. {WriteProgressDots()}");
+            
 
-
-            TException.InitializeListeners();
-            BindingErrorTraceListener.SetTrace();
+            //TException.InitializeListeners();
+            //BindingErrorTraceListener.SetTrace();
             SConsole.Init();
             PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Error;
-            PresentationTraceSources.DataBindingSource.Listeners.Add(new ConsoleTraceListener());
+            SConsole.WriteLine("Binding Error Trace Set");
 
-            if (e?.Args.Length > 0)
+           
+            PresentationTraceSources.DataBindingSource.Listeners.Add(new ConsoleTraceListener());
+     
                 HandleReset();
+                ClearBinCache();
                 ConfigureLocalization();
                 InitializeSplashScreen();
                 CheckForUpdates(e.Args);
@@ -65,6 +70,7 @@ namespace SEToolbox
         private static void ClearBinCache()
         {
             // Clear app bin cache.
+            SConsole.WriteLine($"Clearing bin cache{WriteProgressDots()}");
             string binCache = ToolboxUpdater.GetBinCachePath();
             if (Directory.Exists(binCache))
             {
@@ -85,18 +91,20 @@ namespace SEToolbox
             CultureInfo culture;
             try
             {
+                SConsole.WriteLine($"Configuring localization{WriteProgressDots()}");
                 culture = !string.IsNullOrWhiteSpace(settings.LanguageCode)
                           ? CultureInfo.GetCultureInfoByIetfLanguageTag(settings.LanguageCode)
                           : CultureInfo.CurrentUICulture;
             }
             catch (Exception ex)
             {
-                SConsole.WriteLine($"SEToolbox: Could not set language from GlobalSettings.Default.LanguageCode. {ex.Message}");
+                SConsole.WriteLine($"SEToolbox: Could not set language from GlobalSettings. {ex.Message}");
                 culture = CultureInfo.CurrentUICulture;
             }
 
             LocalizeDictionary.Instance.SetCurrentThreadCulture = false;
             LocalizeDictionary.Instance.Culture = culture ?? throw new NullReferenceException("Culture cannot be null");
+             
 
             Thread.CurrentThread.CurrentUICulture = culture;
 
@@ -112,7 +120,7 @@ namespace SEToolbox
 
         private static void CheckForUpdates(string[] args)
         {
-            SConsole.WriteLine("Checking for updates.");
+            SConsole.WriteLine($"Checking for updates{WriteProgressDots()}");
 
             string delimiter = "/" ?? "-";
             if (args.Length == 0 || (args.Length == 1 && args[0].Equals($"{delimiter}U", StringComparison.OrdinalIgnoreCase)))
@@ -139,6 +147,7 @@ namespace SEToolbox
 
                     if (dialogResult == MessageBoxResult.No)
                     {
+                        SConsole.WriteLine($"Ignoring update: {update.Version}");
                         settings.IgnoreUpdateVersion = update.Version.ToString();
                     }
                 }
@@ -147,7 +156,7 @@ namespace SEToolbox
 
         private static void ConfigureServices()
         {
-            SConsole.WriteLine("Configuring Service Locator.");
+            SConsole.WriteLine($"Configuring Service Locator.{WriteProgressDots()}");
             ServiceLocator.RegisterSingleton<IDialogService, DialogService>();
             ServiceLocator.Register<IOpenFileDialog, OpenFileDialogViewModel>();
             ServiceLocator.Register<ISaveFileDialog, SaveFileDialogViewModel>();
@@ -159,28 +168,19 @@ namespace SEToolbox
         {
             FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty = false;
         }
-        void WriteProgressDots()
-        {
-            const int repeatCount = 3;
-            string progressDots = ".";
-            while (progressDots.Length < repeatCount)
-            {
-                progressDots = string.Concat(Enumerable.Repeat(progressDots, repeatCount));
-            }
-
-            SConsole.Write($"Initializing CoreToolbox {progressDots}");
-        }
+        
 
         private void InitializeToolboxApplication(string[] args)
         {
             _toolboxApplication = new CoreToolbox();
             string message = string.Empty;
 
-            WriteProgressDots();
+           SConsole.WriteLine($"SEToolbox: {$"Initializing {nameof(CoreToolbox)}{WriteProgressDots()}"}");
             switch (_toolboxApplication)
             {
 
                 case CoreToolbox when _toolboxApplication.Init(args):
+                 
                     _toolboxApplication.Load(args);
                     return;
                 case CoreToolbox when _toolboxApplication == null && message.Contains("Could not start"):// args.Length == 0
@@ -191,6 +191,7 @@ namespace SEToolbox
                     Current.Shutdown();
                     break;
             }
+           
             SConsole.WriteLine($"SEToolbox: {nameof(CoreToolbox)} started successfully.");
         }
 

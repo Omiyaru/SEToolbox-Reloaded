@@ -10,9 +10,9 @@ using SEToolbox.Support;
 namespace SEToolbox.Interop
 {
 
-   public static class VoxelFileLoader
+    public static class VoxelFileLoader
     {
-       
+
 
         public static VoxelGridModel Load(string path)
         {
@@ -47,15 +47,13 @@ namespace SEToolbox.Interop
             var size = new Vector3I(sizeX, sizeY, sizeZ);
             int index = 0;
             int x = 0, y = 0, z = 0;
-            PRange.ProcessRange( x, y, z, size);
+            PRange.ProcessRange(x, y, z, size);
 
-                if (index < content.Length)
-                {
-                    grid.SetContent(x, y, z, content[index]);
-                    grid.SetMaterial(x, y, z, material[index]);
-                }
-            
-
+            if (index < content.Length)
+            {
+                grid.SetContent(x, y, z, content[index]);
+                grid.SetMaterial(x, y, z, material[index]);
+            }
             return grid;
         }
 

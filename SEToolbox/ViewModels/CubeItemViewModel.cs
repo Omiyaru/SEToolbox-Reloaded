@@ -37,16 +37,16 @@ namespace SEToolbox.ViewModels
             _dialogService = dialogService;
             _dataModel = dataModel;
 
-            InventoryEditorViewModel viewModelCreator(InventoryEditorModel model) => new(this, model);
-            ObservableCollection<InventoryEditorViewModel> collectionCreator() => new ObservableViewModelCollection<InventoryEditorViewModel, InventoryEditorModel>(dataModel.Inventory, viewModelCreator);
-            _inventory = new Lazy<ObservableCollection<InventoryEditorViewModel>>(collectionCreator);
+            InventoryEditorViewModel ViewModelCreator(InventoryEditorModel model) => new(this, model);
+            ObservableCollection<InventoryEditorViewModel> CollectionCreator() => new ObservableViewModelCollection<InventoryEditorViewModel, InventoryEditorModel>(dataModel.Inventory, ViewModelCreator);
+            _inventory = new Lazy<ObservableCollection<InventoryEditorViewModel>>(CollectionCreator);
 
             _dataModel.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
             {
                 if (e.PropertyName == "Inventory")
                 {
-                    collectionCreator();
-                    _inventory = new Lazy<ObservableCollection<InventoryEditorViewModel>>(collectionCreator);
+                    CollectionCreator();
+                    _inventory = new Lazy<ObservableCollection<InventoryEditorViewModel>>(CollectionCreator);
                 }
                 // Will bubble property change events from the Model to the ViewModel.
                 OnPropertyChanged(e.PropertyName);

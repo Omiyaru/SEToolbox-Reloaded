@@ -32,16 +32,16 @@ namespace SEToolbox.Interop
             int vecAxisX = vector.X - xAxis;
             int vecAxisY = vector.Y - yAxis;
             int vecAxisZ = vector.Z - zAxis;
-            int offsetX =  xMirror == Support.Mirror.Odd ? -vecAxisX : 0;
-                offsetX += xMirror == Support.Mirror.EvenUp ? 1 :
-                          (xMirror == Support.Mirror.EvenDown ? -1 : 0);
-            int offsetY =  yMirror == Support.Mirror.Odd ? -vecAxisY : 0;
-                offsetY += yMirror == Support.Mirror.EvenUp ? 1 :
-                          (yMirror == Support.Mirror.EvenDown ? -1 : 0);
-            int offsetZ =  zMirror == Support.Mirror.Odd ? -vecAxisZ : 0;
-                offsetZ += zMirror == Support.Mirror.EvenUp ? 1 :
-                          (zMirror == Support.Mirror.EvenDown ? -1 : 0);  
-                
+            int offsetX = xMirror == Support.Mirror.Odd ? -vecAxisX : 0;
+            offsetX += xMirror == Support.Mirror.EvenUp ? 1 :
+                      (xMirror == Support.Mirror.EvenDown ? -1 : 0);
+            int offsetY = yMirror == Support.Mirror.Odd ? -vecAxisY : 0;
+            offsetY += yMirror == Support.Mirror.EvenUp ? 1 :
+                      (yMirror == Support.Mirror.EvenDown ? -1 : 0);
+            int offsetZ = zMirror == Support.Mirror.Odd ? -vecAxisZ : 0;
+            offsetZ += zMirror == Support.Mirror.EvenUp ? 1 :
+                      (zMirror == Support.Mirror.EvenDown ? -1 : 0);
+
             Vector3I newVector = new(vector.X + offsetX,
                                      vector.Y + offsetY,
                                      vector.Z + offsetZ);
@@ -60,13 +60,13 @@ namespace SEToolbox.Interop
 
         public static Vector3I RoundToVector3I(this Vector3 vector)
         {
-             return new((int)Math.Round(vector.X, 0, MidpointRounding.ToEven),
-                        (int)Math.Round(vector.Y, 0, MidpointRounding.ToEven),
-                        (int)Math.Round(vector.Z, 0, MidpointRounding.ToEven));
+            return new((int)Math.Round(vector.X, 0, MidpointRounding.ToEven),
+                       (int)Math.Round(vector.Y, 0, MidpointRounding.ToEven),
+                       (int)Math.Round(vector.Z, 0, MidpointRounding.ToEven));
         }
 
         public static Vector3I RoundToVector3I(this Vector3D vector)
-        {    
+        {
             return new((int)Math.Round(vector.X, 0, MidpointRounding.ToEven),
                        (int)Math.Round(vector.Y, 0, MidpointRounding.ToEven),
                        (int)Math.Round(vector.Z, 0, MidpointRounding.ToEven));
@@ -76,9 +76,9 @@ namespace SEToolbox.Interop
         {
             return new(vector.X, vector.Y, vector.Z);
         }
-        
+
         public static Vector3D ToVector3D(this SerializableVector3I vector)
-        {    
+        {
             return new(vector.X, vector.Y, vector.Z);
         }
 
@@ -208,7 +208,7 @@ namespace SEToolbox.Interop
         {
             var matrix = MatrixD.CreateFromDir(Base6Directions.GetVector(orientation.Forward),
                                                Base6Directions.GetVector(orientation.Up));
-           
+
             return Vector3D.Transform(vector, matrix);
         }
 
@@ -232,7 +232,7 @@ namespace SEToolbox.Interop
 
         public static SerializableVector3I Add(this SerializableVector3I size, int value)
         {
-            return new(size.X + value, 
+            return new(size.X + value,
                        size.Y + value,
                        size.Z + value);
 
@@ -240,7 +240,7 @@ namespace SEToolbox.Interop
 
         public static Vector3I Add(this Vector3I size, int value)
         {
-            return new(size.X + value, 
+            return new(size.X + value,
                        size.Y + value,
                        size.Z + value);
 
@@ -274,7 +274,7 @@ namespace SEToolbox.Interop
 
         public static SerializableVector3D RoundOff(this SerializableVector3D vector, float roundTo)
         {
-            return  new(Math.Round(vector.X / roundTo, 0, MidpointRounding.ToEven) * roundTo,
+            return new(Math.Round(vector.X / roundTo, 0, MidpointRounding.ToEven) * roundTo,
                         Math.Round(vector.Y / roundTo, 0, MidpointRounding.ToEven) * roundTo,
                         Math.Round(vector.Z / roundTo, 0, MidpointRounding.ToEven) * roundTo);
 
@@ -305,7 +305,7 @@ namespace SEToolbox.Interop
                 2.0d * (yz - wx),
                 1.0d - 2.0d * (xx + yy),
                 0d, 0d, 0d, 0d, 1d);
-              
+
             return result;
         }
 
@@ -396,7 +396,7 @@ namespace SEToolbox.Interop
         }
 
         public static System.Windows.Media.Color FromHsvMaskToPaletteMediaColor(this SerializableVector3 hsv)
-        {           
+        {
             FromHsvMaskToPaletteColor(hsv, out int r, out int g, out int b);
             return System.Windows.Media.Color.FromArgb(255, (byte)r, (byte)g, (byte)b);
         }
@@ -509,7 +509,7 @@ namespace SEToolbox.Interop
                     vectors.Add(new(vector.X, vector.Y, vector.Z));
                 }
 
-                if (MeshHelper.RayIntersectTriangleRound(vectors, position.ToPoint3D(), rayTo.ToPoint3D(), 
+                if (MeshHelper.RayIntersectTriangleRound(vectors, position.ToPoint3D(), rayTo.ToPoint3D(),
                                                          out Point3D intersection, out int normal))
                 {
                     return intersection.ToVector3D();
@@ -520,7 +520,7 @@ namespace SEToolbox.Interop
 
         public static SerializableVector3UByte Transform(this SerializableVector3UByte value, Quaternion rotation)
         {
-            Vector3I vector = Vector3I.Transform(new (value.X - 127, value.Y - 127, value.Z - 127), rotation);
+            Vector3I vector = Vector3I.Transform(new(value.X - 127, value.Y - 127, value.Z - 127), rotation);
             return new SerializableVector3UByte((byte)(vector.X + 127),
                                                 (byte)(vector.Y + 127),
                                                 (byte)(vector.Z + 127));
@@ -669,25 +669,25 @@ namespace SEToolbox.Interop
                 var inventoryBase = componentContainer.Components.FirstOrDefault(e => e.TypeId == "MyInventoryBase");
 
                 if (inventoryBase?.Component is MyObjectBuilder_Inventory singleInventory && singleInventory != null)
+                {
+                    InventoryEditorModel iem = ParseInventory(singleInventory, definition);
+                    if (iem != null)
+                        inventoryEditors.Add(iem);
+                }
+
+                if (inventoryBase.Component is MyObjectBuilder_InventoryAggregate aggregate)
+                {
+                    foreach (var inventory in aggregate.Inventories)
                     {
-                        InventoryEditorModel iem = ParseInventory(singleInventory, definition);
+                        var iem = ParseInventory(inventory as MyObjectBuilder_Inventory, definition);
                         if (iem != null)
                             inventoryEditors.Add(iem);
                     }
-
-                    if (inventoryBase.Component is MyObjectBuilder_InventoryAggregate aggregate)
-                    {
-                        foreach (var inventory in aggregate.Inventories)
-                        {
-                            var iem = ParseInventory(inventory as MyObjectBuilder_Inventory, definition);
-                            if (iem != null)
-                                inventoryEditors.Add(iem);
-                        }
-                    }
                 }
-            
+            }
+
             return inventoryEditors;
-    }
+        }
 
         private static InventoryEditorModel ParseInventory(MyObjectBuilder_Inventory inventory, MyCubeBlockDefinition definition, MyObjectBuilder_Character character = null)
         {
@@ -702,27 +702,24 @@ namespace SEToolbox.Interop
                 var definitionType = definition.GetType();
                 var invSizeField = definitionType.GetField("InventorySize");
                 var inventoryMaxVolumeField = definitionType.GetField("InventoryMaxVolume");
-                if (invSizeField != null)
-                {
-                    var invSize = (Vector3)invSizeField.GetValue(definition);
-                    volumeMultiplier = invSize.X * invSize.Y * invSize.Z;
-                }
-                if (inventoryMaxVolumeField != null)
-                {
-                    var maxSize = (float)inventoryMaxVolumeField.GetValue(definition);
-                    volumeMultiplier = MathHelper.Min(volumeMultiplier, maxSize);
-                }
+
+                var invSize = (Vector3)invSizeField?.GetValue(definition);
+                volumeMultiplier = invSize.X * invSize.Y * invSize.Z;
+
+                var maxSize = (float)inventoryMaxVolumeField?.GetValue(definition);
+                volumeMultiplier = MathHelper.Min(volumeMultiplier, maxSize);
+
             }
 
             var settings = SpaceEngineersCore.WorldResource.Checkpoint.Settings;
             return new(inventory, volumeMultiplier * 1000 * settings.InventorySizeMultiplier, character ?? throw new ArgumentNullException(nameof(character)));
         }
 
-        public static List<MyGasProperties> GetGasDefinitions(this MyDefinitionManager definitionManager) 
+        public static List<MyGasProperties> GetGasDefinitions(this MyDefinitionManager definitionManager)
         {
-         return [.. definitionManager.GetAllDefinitions().Where(e => e.Id.TypeId == typeof(VRage.Game.ObjectBuilders.Definitions.MyObjectBuilder_GasProperties)).Cast<MyGasProperties>()];
+            return [.. definitionManager.GetAllDefinitions().Where(e => e.Id.TypeId == typeof(VRage.Game.ObjectBuilders.Definitions.MyObjectBuilder_GasProperties)).Cast<MyGasProperties>()];
         }
-        
+
         public static MyDefinitionBase GetDefinition(this MyDefinitionManager definitionManager, MyObjectBuilderType typeId, string subTypeId)
         {
             return definitionManager.GetAllDefinitions().FirstOrDefault(e => e.Id.TypeId == typeId && e.Id.SubtypeName == subTypeId);

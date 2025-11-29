@@ -84,7 +84,7 @@ namespace SEToolbox.ViewModels
         public string SourceFile
         {
             get => _dataModel.SourceFile;
-            set => SetProperty(_dataModel.SourceFile, value,() =>
+            set => SetValue(_dataModel.SourceFile, value,() =>
                    SourceFileChanged());
         }
 
@@ -125,8 +125,6 @@ namespace SEToolbox.ViewModels
                     Application.DoEvents();
                 }
             });
-          
-        
         }
 
         public bool IsStockVoxel

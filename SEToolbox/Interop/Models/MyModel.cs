@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
+
 using BulletXNA.BulletCollision;
 using VRage.Import;
 using VRageMath;
@@ -69,7 +69,6 @@ namespace SEToolbox.Interop.Models
                 method?.Invoke(null, [writer, kvp.Key, kvp.Value]);
             }
         }
-
 
         #endregion
 
@@ -1233,13 +1232,12 @@ namespace SEToolbox.Interop.Models
         #endregion
         private static MyModelInfo ReadMyModelInfo(BinaryReader reader)
         {
-
             int triCount = reader.ReadInt32();
             int vertCount = reader.ReadInt32();
             Vector3 boundingBoxSize = ReadVector3(reader);
             return new MyModelInfo(triCount, vertCount, boundingBoxSize);
-
         }
+
         #region Import Data Readers
 
         /// <summary>
@@ -1344,6 +1342,9 @@ namespace SEToolbox.Interop.Models
                     case MyImporterConstants.TAG_TANGENTS:
                         data.Add(tagName, ReadArrayOfByte4(reader));
                         break;
+                          //case MyImporterConstants.TAG_CENTERED:
+                    //    data.Add(tagName, reader.ReadBoolean());
+                    //    break;
                     default:
                         throw new NotImplementedException(string.Format($"tag '{tagName}' has not been implemented"));
                 }

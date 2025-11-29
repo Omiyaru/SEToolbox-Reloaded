@@ -94,8 +94,6 @@ namespace SEToolbox.Support
             }
         }
         
-        
-
         /// <summary>
         /// Finds a parent of a given item on the visual tree.
         /// </summary>

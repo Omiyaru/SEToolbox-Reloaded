@@ -277,7 +277,6 @@
                     <MenuItem Command="{Binding LanguageCommand}" Header="{lex:Loc WnExplorerMnuOptionsLanguages}" ItemsSource="{Binding Languages}">
                         <MenuItem.Resources>
                             <Image x:Shared="False" x:Key="MenuIcon" Width="16" Height="16" Source="{Binding ImageName, Converter={StaticResource ResourceToImageConverter}}"/>
-                            <!--  <CheckBox Content="Enable automatic background translation"  IsChecked="{Binding GlobalSettings.AllowBackgroundTranslation, Mode=TwoWay}" ToolTip="Automatically generate translations for system languages not yet available." />-->
                         </MenuItem.Resources>
                         <MenuItem.ItemContainerStyle>
                             <Style TargetType="MenuItem">
@@ -548,55 +547,46 @@
                 </Grid>
                 <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
                 <Grid Grid.Column="2">
-                    <ContentControl Content="{Binding SelectedStructure}">
-                        <ContentControl.Resources>
-                            <DataTemplate DataType="{x:Type vm:StructureCharacterViewModel}">
-                                <views:ControlCharacter />
-                            </DataTemplate>
-                            <DataTemplate DataType="{x:Type vm:StructurePlanetViewModel}">
-                                <views:ControlPlanet />
-                            </DataTemplate>
-                            <DataTemplate DataType="{x:Type vm:StructureVoxelViewModel}">
-                                <views:ControlVoxel />
-                            </DataTemplate>
-                            <DataTemplate DataType="{x:Type vm:StructureCubeGridViewModel}">
-                                <views:ControlCubeGrid />
-                            </DataTemplate>
-                            <DataTemplate DataType="{x:Type vm:StructureFloatingObjectViewModel}">
-                                <views:ControlFloatingObject />
-                            </DataTemplate>
-                            <DataTemplate DataType="{x:Type vm:StructureMeteorViewModel}">
-                                <views:ControlMeteor />
-                            </DataTemplate>
-                            <DataTemplate DataType="{x:Type vm:StructureInventoryBagViewModel}">
-                                <views:ControlInventoryBag />
-                            </DataTemplate>
-                            <DataTemplate DataType="{x:Type vm:StructureUnknownViewModel}">
-                                <views:ControlUnknown />
-                            </DataTemplate>
-                        </ContentControl.Resources>
-                        <ContentControl.Style>
-                            <Style TargetType="ContentControl">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding DataContext.IsMultipleSelections, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Value="True">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ContentControl.Style>
-                    </ContentControl>
-                    <ContentControl>
-                        <ContentControl.Style>
-                            <Style TargetType="ContentControl">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding DataContext.IsMultipleSelections, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Value="False">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ContentControl.Style>
-                        <views:ControlMultiple/>
-                    </ContentControl>
+                   <ContentControl Content="{Binding SelectedStructure}">
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type vm:StructureCharacterViewModel}">
+                        <views:ControlCharacter />
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:StructurePlanetViewModel}">
+                        <views:ControlPlanet />
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:StructureVoxelViewModel}">
+                        <views:ControlVoxel />
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:StructureCubeGridViewModel}">
+                        <views:ControlCubeGrid />
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:StructureFloatingObjectViewModel}">
+                        <views:ControlFloatingObject />
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:StructureMeteorViewModel}">
+                        <views:ControlMeteor />
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:StructureInventoryBagViewModel}">
+                        <views:ControlInventoryBag />
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:StructureUnknownViewModel}">
+                        <views:ControlUnknown />
+                    </DataTemplate>
+                </ContentControl.Resources>
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsMultipleSelections, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentControl.Style>
+            </ContentControl>
+        <ContentControl x:Name="MultipleSelection" Visibility="{Binding DataContext.IsMultipleSelections, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <views:ControlMultiple />
+    </ContentControl>
                 </Grid>
             </Grid>
         </DockPanel>

@@ -85,7 +85,7 @@ namespace SEToolbox.Models
          
         }
 
-        public void SetValue<T>(ref T field, T value) => field = value;
+        public void SetValue<T>( T field, T value, params object[] parameters) => SetValue(field, value, parameters);
 
         public void SetValue<T>(ref T field, T value, params object[] parameters)
         {

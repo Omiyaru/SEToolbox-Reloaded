@@ -118,8 +118,8 @@ namespace SEToolbox.ViewModels
         {
             get => _dataModel.FileName;
 
-            set => SetProperty(_dataModel.FileName, value, () => 
-            FileNameChanged());
+            set => SetValue(_dataModel.FileName, value, () => 
+                   FileNameChanged());
         }
 
         public Model3D Model
@@ -154,7 +154,8 @@ namespace SEToolbox.ViewModels
         public BindableSize3DIModel NewModelSize
         {
             get => _dataModel.NewModelSize;
-            set => SetProperty(_dataModel.NewModelSize, value, () => ProcessModelScale());
+            set => SetValue(_dataModel.NewModelSize, value, () => 
+                   ProcessModelScale());
         }
 
         public BindablePoint3DModel NewModelScale
@@ -202,35 +203,35 @@ namespace SEToolbox.ViewModels
         public double MultipleScale
         {
             get => _dataModel.MultipleScale;
-            set => SetProperty(_dataModel.MultipleScale, value, () => 
+            set => SetValue(_dataModel.MultipleScale, value, () => 
                    ProcessModelScale());
         }
 
         public double MaxLengthScale
         {
             get => _dataModel.MaxLengthScale;
-            set => SetProperty(_dataModel.MaxLengthScale, value, () =>
+            set => SetValue(_dataModel.MaxLengthScale, value, () =>
                    ProcessModelScale());
         }
 
         public double BuildDistance
         {
             get => _dataModel.BuildDistance;
-            set => SetProperty(_dataModel.BuildDistance, value, () => 
+            set => SetValue(_dataModel.BuildDistance, value, () => 
                    ProcessModelScale());
         }
 
         public bool IsMultipleScale
         {
             get => _dataModel.IsMultipleScale;
-            set => SetProperty(_dataModel.IsMultipleScale, value, () =>
+            set => SetValue(_dataModel.IsMultipleScale, value, () =>
                    ProcessModelScale());
         }
 
         public bool IsMaxLengthScale
         {
             get => _dataModel.IsMaxLengthScale;
-            set => SetProperty(_dataModel.IsMaxLengthScale, value, () => 
+            set => SetValue(_dataModel.IsMaxLengthScale, value, () => 
                    ProcessModelScale());
         }
 
@@ -283,21 +284,21 @@ namespace SEToolbox.ViewModels
         public double RotatePitch
         {
             get => _dataModel.RotatePitch;
-            set => SetProperty(_dataModel.RotatePitch, value, () =>
+            set => SetValue(_dataModel.RotatePitch, value, () =>
                    ProcessModelScale());
         }
 
         public double RotateYaw
         {
             get => _dataModel.RotateYaw;
-            set => SetProperty(_dataModel.RotateYaw, value, () =>
+            set => SetValue(_dataModel.RotateYaw, value, () =>
                    ProcessModelScale());
         }
 
         public double RotateRoll
         {
             get => _dataModel.RotateRoll;
-            set => SetProperty(_dataModel.RotateRoll, value, () =>
+            set => SetValue(_dataModel.RotateRoll, value, () =>
                    ProcessModelScale());
         }
 

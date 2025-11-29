@@ -51,7 +51,7 @@ partial class Log
             }
         }
 
-        WriteLine(diagReport.ToString(), LogLevel.FATAL, exception);
+        WriteLine(diagReport.ToString(),TraceEventType.Critical, exception);
     }
 
     static string ObfuscatePathNames(string path)

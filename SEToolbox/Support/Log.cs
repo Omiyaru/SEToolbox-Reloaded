@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
@@ -13,17 +14,13 @@ public static partial class Log
         writer = new StreamWriter(fileName, appendFile);
     }
 
-    enum LogLevel
-    {
-        DEBUG, INFO, WARN, ERROR, FATAL,
-    }
 
-    static void WriteLine(string message, LogLevel level, Exception exception = null)
+    static void WriteLine(string message, TraceEventType traceEvent, Exception exception = null)
     {
         var thread = Thread.CurrentThread;
         var threadStr = thread.Name ?? thread.ManagedThreadId.ToString();
-        var logStr = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} {level,-5} [{threadStr}] - {message}";
-        var exStr = exception == null ? null : $"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} {LogLevel.FATAL,-5} [{threadStr}] - {exception}";
+        var logStr = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} {traceEvent,-5} [{threadStr}] - {message}";
+        var exStr = exception == null ? null : $"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} {TraceEventType.Critical,-5} [{threadStr}] - {exception}";
 
         lock (writer)
         {
@@ -38,31 +35,31 @@ public static partial class Log
 
     public static void Debug(string message)
     {
-        WriteLine(message, LogLevel.DEBUG);
+        WriteLine(message, TraceEventType.Verbose);
     }
 
     public static void Info(string message)
     {
-        WriteLine(message, LogLevel.INFO);
+        WriteLine(message, TraceEventType.Information);
     }
 
     public static void Warning(string message)
     {
-        WriteLine(message, LogLevel.WARN);
+        WriteLine(message, TraceEventType.Warning);
     }
 
     public static void Warning(string message, Exception exception)
     {
-        WriteLine(message, LogLevel.WARN, exception);
+        WriteLine(message, TraceEventType.Warning, exception);
     }
 
     public static void Error(string message)
     {
-        WriteLine(message, LogLevel.ERROR);
+        WriteLine(message, TraceEventType.Error);
     }
 
     public static void Error(string message, Exception exception)
     {
-        WriteLine(message, LogLevel.ERROR, exception);
+        WriteLine(message, TraceEventType.Error, exception);
     }
 }

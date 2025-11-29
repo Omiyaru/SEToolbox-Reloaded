@@ -45,15 +45,15 @@ namespace SEToolbox.Interop
             public static readonly MOBTypes HandheldDevice = new(typeof(IMyHandheldGunObject<MyDeviceBase>));
             public static readonly MOBTypes AutomaticRifle = new(typeof(MyObjectBuilder_AutomaticRifle));
             public static readonly MOBTypes ObjectAutomaticRifleGun = new(typeof(IMyAutomaticRifleGun));
-            public static readonly MOBTypes PhysicalGunObjectBase = new(typeof(IMyGunObject<MyGunBase>));
+            public static readonly MOBTypes GunObject    = new(typeof(IMyGunObject<MyGunBase>));
             public static readonly MOBTypes MissileGunObject = new(typeof(IMyMissileGunObject));
             public static readonly MOBTypes PhysicalGunObject = new(typeof(MyObjectBuilder_PhysicalGunObject));
 
         }
-        //TODO: FOLIAGE, HARVESTABLE??
+        //TODO: FOLIAGE/Plants, HARVESTABLE??
 
 
-    /// <summary>
+        /// <summary>
         /// The base path of the save files, minus the userid.
         /// </summary>
         public static readonly UserDataPath BaseLocalPath;

@@ -98,9 +98,9 @@ namespace SEToolbox.Models.Asteroids
             foreach (var mat in materials)
             { 
                 isSecretRandom = RandomUtil.EnableSecretRandom;
-                int idx = RandomUtil.GetInt(materials.Count);
+                int idEXx = RandomUtil.GetInt(materials.Count);
                 
-                var material = materials[idx];
+                var material = materials[index];
                 int veins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));
                 double radius = chunkSize > 0 ? RandomUtil.GetInt((int)(chunkSize * multiplier), (int)(chunkSize * 1.5 * multiplier)) : 0;
                 AsteroidSeedFillProperties.MaterialsData[index] = (material.Value.ToString(), material, radius, veins);
@@ -109,8 +109,8 @@ namespace SEToolbox.Models.Asteroids
                 foreach (var m in materialsToRemove)
                 {
                     var inst = mat;
-                    idx = materials.IndexOf(mat);
-                    material = materials[idx];
+                    index = materials.IndexOf(mat);
+                    material = materials[index];
                     materials.Remove(material);
                 }
                 multiplier = 1.0;
@@ -125,7 +125,7 @@ namespace SEToolbox.Models.Asteroids
                         material = kv.Value.Material;
                         veins = (int)kv.Value.Veins;
                         radius = (double)kv.Value.Radius;
-                        }
+                    }
                     if (isSecretRandom)
                     {
                         int hash;
@@ -136,7 +136,7 @@ namespace SEToolbox.Models.Asteroids
                     multiplier *= multiplierFactor;
                 }
 
-                    materials.RemoveAt(idx);
+                    materials.RemoveAt(index);
                 }
                 multiplier *= isLarge ? 0.85 : 0.75;
             }
@@ -159,7 +159,7 @@ namespace SEToolbox.Models.Asteroids
             //asteroid.ForceVoxelFaceMaterial("Uraninite_01");
             //asteroid.ForceVoxelFaceMaterial(properties.MainMaterial.Value);
 
-            ///look into SurfaceMaterial?? (something to do withh planets??
+            ///look into SurfaceMaterial?? (something to do with planets??
             // Cycle through veins info and add 'spherical' depisits to the voxel cell grid (not voxels themselves)
 
             // Add ore veins into the asteroid voxel field

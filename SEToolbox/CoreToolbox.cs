@@ -14,6 +14,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 
 using static Sandbox.Game.World.MyWorldGenerator;
 using static SEToolbox.Support.GlobalSettings;
@@ -64,10 +65,11 @@ namespace SEToolbox
                     gameBinDir = Path.Combine(filePath, validApplication);
                 }
 
-                var faModel = new FindApplicationModel();
-                
-                    faModel.GameApplicationPath = gameBinDir;
-                
+                FindApplicationModel faModel = new()
+                {
+                    GameApplicationPath = gameBinDir
+                };
+
                 var faViewModel = new FindApplicationViewModel(faModel);
                 var faWindow = new WindowFindApplication(faViewModel);
 
@@ -130,6 +132,7 @@ namespace SEToolbox
             RestoreExplorerWindow(false);
             InitializeWindow(eWindow);
             ValidateLoadState(eWindow);
+            
             return true;
         }
 
@@ -217,7 +220,7 @@ namespace SEToolbox
 
         public static void RestoreExplorerWindow(bool allowClose = true)
         {
-            var eViewModel = new ExplorerViewModel(explorerModel);
+            ExplorerViewModel eViewModel = new(explorerModel);
 
             if (allowClose)
             {
@@ -239,9 +242,9 @@ namespace SEToolbox
             {
                 eWindow.Loaded += (sender, e) =>
                 {
-                    Log.Debug("Main window loaded.");
+                    SConsole.WriteLine("Main window loaded.");
                     Splasher.CloseSplash();
-                    var windowDimensions = Default?.WindowDimensions?.Values?.FirstOrDefault();
+                    var windowDimensions = Default.WindowDimensions?.Values?.FirstOrDefault();
                     var workingAreaRect = Screen.PrimaryScreen.WorkingArea;
                     var windowRect = new Rectangle(
                         (int)(windowDimensions.Value.Left ?? eWindow.Left),
@@ -253,7 +256,7 @@ namespace SEToolbox
                     bool isInsideDesktop = workingAreaRect.Contains(windowRect);
                     bool hasWindowDimensions = Default?.WindowDimensions?.Count > 0;
                     foreach (Screen screen in Screen.AllScreens)
-                    {
+                    {   
                         try
                         {
                             isInsideDesktop |= screen.WorkingArea.IntersectsWith(windowRect);
@@ -283,13 +286,14 @@ namespace SEToolbox
 
         public static bool ValidateLoadState(WindowExplorer eWindow)
         {
+            SConsole.WriteLine("Validating load state.");
             if (!Default.TimesStartedTotal.HasValue && eWindow != null)
                 Default.TimesStartedTotal = Default.TimesStartedTotal.GetValueOrDefault() + 1;
             	Default.TimesStartedLastReset = Default.TimesStartedLastReset.GetValueOrDefault() + 1;
             	Default.TimesStartedLastGameUpdate = Default.TimesStartedLastGameUpdate.GetValueOrDefault() + 1;
             	Default.Save();
                 SConsole.WriteLine("Showing main window.");
-            eWindow?.ShowDialog();
+            _ = (eWindow?.ShowDialog());
 
             return true;
         }
@@ -314,11 +318,7 @@ namespace SEToolbox
                 _windowDimensions.Add(item);
             }
 
-            Default.Save();
-            foreach (var item in _windowDimensions)
-            {
-                _windowDimensions.Add(item);
-            }
+
 
             Default.Save();
         }

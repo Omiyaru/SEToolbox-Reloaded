@@ -64,7 +64,7 @@ namespace SEToolbox.Interop
             public const string LocalBlueprintsSubFolder = "local";
             public const string BackupsFolder = "Backups";
             public const string ModsCacheFolder = "ModCache";
-            public const string ShadersFolder = "Shaders";
+            public const string ShadersFolder = "Shaders";//"Shaders2??";
         }
 
         static SpaceEngineersConsts()

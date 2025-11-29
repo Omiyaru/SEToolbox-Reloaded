@@ -5,11 +5,12 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Linq;
 
 
 namespace SEToolbox.Support
 {
-    public class SConsole 
+    public class SConsole
     {
         #region Imports
         [DllImport("kernel32.dll", SetLastError = true, EntryPoint = "AttachConsole")]  // [return: MarshalAs(UnmanagedType.Bool)]
@@ -19,54 +20,19 @@ namespace SEToolbox.Support
 
         #endregion
 
-        #region Constants
-        private static int ATTACH_PARENT_PROCESS = 0;
-        #endregion
+      #region Properties
+        private static readonly int ATTACH_PARENT_PROCESS = Process.GetCurrentProcess().Id;
+        private static readonly Redirector redirector = new Redirector();
+        private static readonly nint dwProcessId = Process.GetCurrentProcess().Id > 0 ? ATTACH_PARENT_PROCESS : 0;
 
-        #region Debug
-
-        [Conditional("DEBUG")]
-        public static void WriteLine(string message, [CallerMemberName] string caller = "")
-        {
-            string debugTrace = GetDebugTrace(message);
-            redirector.WriteLine(debugTrace);
-            
-        }
-
-        #endregion
-
-        #region Standard Methods
-       
-        public static void WriteLink([CallerFilePath] string filePath = "")
-        {
-            string fileLink = GetFileLink(filePath);
-            redirector.WriteLine($"File link: {fileLink}");
-        }
-
-        public static void Write<T>(params T[] values)
-        {   
-            if (values != null && values.Length > 0 && _isAttached)
-                redirector.Write(string.Join("\t", values));
-        }
-
-        public static void WriteLine<T>(T value)
-        {
-            redirector.WriteLine($"{value}");
-
-            if (value != null && value is string && value.ToString().Contains($"{typeof(Exception).Name}") && _isAttached)
-            {
-                redirector.WriteLine($"{value}", new Exception());
-            }
-        }
+        private static bool _isAttached = EnsureAttachment();
 
         #endregion
 
         #region Internal Methods    
-        private static readonly nint dwProcessId = Process.GetCurrentProcess().Id > 0 ? Process.GetCurrentProcess().Id : ATTACH_PARENT_PROCESS;
+      
 
-        private static bool _isAttached = EnsureAttachment();
-
-        public static string GetFileLink([CallerFilePath] string filePath = "")
+        internal static string GetFileLink([CallerFilePath] string filePath = "")
         {
             if (File.Exists(filePath))
             {
@@ -74,8 +40,8 @@ namespace SEToolbox.Support
             }
             return string.Empty;
         }
-
-        private static string GetDebugTrace(string message, [CallerFilePath] string filePath = "", [CallerMemberName] string caller = "")
+        
+        internal static string GetDebugTrace(string message, [CallerFilePath] string filePath = "", [CallerMemberName] string caller = "")
         {
             var frame = new StackFrame(1);
             string position = $"{frame.GetFileLineNumber()}, {frame.GetFileColumnNumber()}";
@@ -84,29 +50,45 @@ namespace SEToolbox.Support
             return output ?? string.Empty;
         }
 
-        private static readonly Redirector redirector = new();
+        #region Methods
+
+        [Conditional("DEBUG")]
+        public static void WriteLine(string message, [CallerMemberName] string caller = "")
+        {
+            string debugTrace = GetDebugTrace(message);
+            redirector.WriteLine(debugTrace);
+
+        }
+        #endregion
+
+        #region Methods
+     
+        public static void WriteLine()
+        {
+            redirector.WriteLine();
+        }
+        public static void WriteLink([CallerFilePath] string filePath = "")
+        {
+            string fileLink = GetFileLink(filePath);
+            redirector.WriteLine($"File link: {fileLink}");
+        }
+
+        public static void Write<T>(params T[] values)
+        {
+            if (values != null && values.Length > 0 && _isAttached)
+                redirector.Write(string.Join("\t", values));
+        }
+
+        #endregion
 
         public static void Init()
         {
             _isAttached = true;
             if (redirector != null && _isAttached)
             {
-                Console.SetOut(redirector);
+                redirector.WriteLine(redirector);
             }
             Console.CancelKeyPress += (sender, e) => e.Cancel = true;
-        }
-        
-        public static void Output()
-        {
-            string output = redirector.Output();
-
-            if (!string.IsNullOrWhiteSpace(output))
-            {
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine(output);
-                Console.ResetColor();
-            }
-            redirector.WriteLine(output);
         }
 
         private static bool EnsureAttachment()
@@ -119,124 +101,134 @@ namespace SEToolbox.Support
             AllocConsole();
             return AttachConsole(dwProcessId);
         }
-    }
-
-    #endregion
-
-    #region Redirector
-
-    public sealed class Redirector : TextWriter
-    {
-        private static StringBuilder _redirector = new();
-
-        public override Encoding Encoding => Encoding.UTF8;
-        public override void Close() => Flush();
-
-        public override void Flush()
-        {
-            try
-            {
-                var output = Output();
-                Console.Clear();
-                Write(output);
-            }
-            catch (Exception ex)
-            {
-                WriteLine($"An error occurred while flushing: {ex.Message}");
-                  
-            }
-        }
-
-        public void Write<T>(T value)
-        {
-            try
-            {
-                Console.Write($"{value}");
-            }
-            catch (Exception ex)
-            {
-                Console.Write($"An error occurred while writing: {ex.Message}");
-            }
-        }
-
-        public void WriteLine<T>(T value, Exception exception)
-        {
-            var frame = new StackFrame(1);
-            var output = $"{value}{Environment.NewLine}";
-            var color = default(ConsoleColor);
-            try
-            {   
-                if (exception != null)
-                {    
-                var severity = Severity.GetSeverity(frame);
-                color = severity(frame).Item2;
-                if(value != null && value is string && value.ToString().Contains(typeof(Exception).Name))
-                output += $"({frame.GetFileLineNumber()}, {frame.GetFileColumnNumber()}){Environment.NewLine}{new StackTrace(frame)}";
-                var consoleColor = Console.ForegroundColor;
-                if (color != default)
-                {
-                    Console.ForegroundColor = color;
-                    Console.WriteLine(output);
-                }
-                else
-                {
-                    Console.WriteLine(output);
-                }
-                Console.ResetColor();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred while writing a line: {ex.Message}");
-            }
-        }
-
-        public string Output() => $"{_redirector}";
 
         #endregion
 
-        #region Severity
+        #region Redirector
 
-        public static class Severity
+        public sealed class Redirector : TextWriter
         {
-            private static readonly Dictionary<string, Func<StackFrame,(TraceEventType, ConsoleColor) >> _severityDictionary =
-                new(StringComparer.OrdinalIgnoreCase)
-                {   
-                    { "Critical", f => (TraceEventType.Critical, ConsoleColor.DarkRed)},
-                    { "Error", f => (TraceEventType.Error, ConsoleColor.Red) },
-                    { "Warning", f => (TraceEventType.Warning, ConsoleColor.Yellow) },
-                    { "Info", f => (TraceEventType.Information, ConsoleColor.Green) },
-                    { "Debug", f => (TraceEventType.Verbose, ConsoleColor.Gray) }
-                };
-            
-            private static readonly Dictionary<string, (TraceEventType, ConsoleColor)> _severityCache =
+            private static readonly StreamWriter _redirector = new(Console.OpenStandardOutput(), Encoding.UTF8) { AutoFlush = true };
+
+            public override Encoding Encoding => Encoding.UTF8;
+            public override void Close() => Flush();
+
+            public override void Flush()
+            {
+                try
+                {
+                    var output = Output();
+                    if (!string.IsNullOrWhiteSpace(output))
+                    {
+                        Console.ForegroundColor = ConsoleColor.White;
+                        WriteLine(output);
+                        Console.ResetColor();
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    WriteLine($"An error occurred while flushing: {ex.Message}");
+                }
+            }
+
+            public override void Write(string value) => Write(value);
+            public void Write<T>(T value)
+            {
+                try
+                {
+                    Output($"{value}");
+                }
+                catch (Exception ex)
+                {
+                    Output($"An error occurred while writing: {ex.Message}");
+                }
+            }
+            public override void WriteLine(string value) => WriteLine(value);
+            public void WriteLine<T>(params T[] values)
+            {
+                var frame = new StackFrame(1);
+                var output =  string.Empty;
+                var valueContains = values.Any(v => v.ToString().Contains(typeof(Exception).Name) || v.GetType().IsSubclassOf(typeof(Exception)));
+                var exeption = valueContains ? values.FirstOrDefault() as Exception : null;
+                try
+                {
+                    var severity = Severity.GetSeverity(frame);
+                    var traceEventType = severity.Item1;
+                    var color = severity.Item2;
+                    if (values != null && valueContains)
+                        output += $"{traceEventType}: {exeption}{Environment.NewLine}{GetDebugTrace(exeption?.Message ?? string.Empty)}";
+                    var consoleColor = Console.ForegroundColor;
+                    if (color != default)
+                    {
+                        Console.ForegroundColor = color;
+                    }
+                    if (traceEventType != TraceEventType.Verbose)
+                    {
+                         Output(output, values);
+                    }
+                    else
+                    {
+                        Output(output);
+                    }
+                    Console.ResetColor();
+                }
+
+                catch (Exception ex)
+                {
+                   Output($"An error occurred while writing a line: {ex.Message}");
+                }
+            }
+            public string Output() => $"{_redirector}";
+            public object Output(params object[] values) => $"{values}";
+            public string Output<T>( params T[] values) => $"{values}";
+           
+
+            #endregion
+        }
+    }
+
+    #region Severity
+
+    public static class Severity
+    {
+        private static readonly Dictionary<string, (TraceEventType, ConsoleColor)> _severityDictionary =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                    { "Critical",(TraceEventType.Critical, ConsoleColor.DarkRed) },
+                    { "Error", (TraceEventType.Error, ConsoleColor.Red) },
+                    { "Warning", (TraceEventType.Warning, ConsoleColor.Yellow) },
+                    { "Info", (TraceEventType.Information, ConsoleColor.Green) },
+                    { "Debug",(TraceEventType.Verbose, ConsoleColor.Gray) }
+            };
+
+        private static readonly Dictionary<string, (TraceEventType, ConsoleColor)> _severityCache =
                 new(StringComparer.OrdinalIgnoreCase);
 
-            public static Func<StackFrame, (TraceEventType, ConsoleColor)> GetSeverity(StackFrame frame)
+        public static (TraceEventType, ConsoleColor) GetSeverity(StackFrame frame)
+        {
+            if (frame == null)
             {
-                if (frame == null)
-                {
-                    throw new ArgumentNullException(nameof(frame), "Frame cannot be null.");
-                }
-
-                var methodName = frame.GetMethod().Name;
-                string declaringTypeName = string.Empty;
-                if (_severityCache.TryGetValue(methodName, out _))
-                {
-                    declaringTypeName = frame.GetMethod().DeclaringType.Name;
-                }
-
-                if (_severityDictionary.TryGetValue(declaringTypeName, out Func<StackFrame,(TraceEventType, ConsoleColor)> result))
-
-                    _severityCache.Add(methodName, result(frame));
-                return result;
-
-                throw new InvalidOperationException($"Severity for {methodName} cannot be found.");
-
+                throw new ArgumentNullException(nameof(frame), "Frame cannot be null.");
             }
+
+            var methodName = frame.GetMethod().Name;
+            string declaringTypeName = string.Empty;
+            if (_severityDictionary.TryGetValue(methodName, out _))
+            {
+                declaringTypeName = frame.GetMethod().DeclaringType.Name;
+            }
+
+            if (_severityDictionary.TryGetValue(declaringTypeName, out var result))
+
+                _severityCache.Add(methodName, result);
+            return result;
+
+            throw new InvalidOperationException($"Severity for {methodName} cannot be found.");
+
         }
     }
 }
 
 
-    #endregion
+#endregion

@@ -21,7 +21,7 @@ namespace SEToolbox.Interop
             bool statusNormal = true;
             bool missingFiles = false;
             bool saveAfterScan = false;
-           
+
 
             // repair will use the WorldResource, thus it won't have access to the wrapper classes.
             // Any repair must be on the raw XML or raw serialized classes.
@@ -69,18 +69,17 @@ namespace SEToolbox.Interop
                         {
                             var entityId = Convert.ToInt64(entityIdNodes.Current.Value);
                             var node = shipNodes.Current.SelectSingleNode(string.Format($"CubeBlocks/*[./EntityId='{nsManager}']", entityId));
-                            if (node != null)
-                            {
-                                string x = node.ToValue<string>("Min/@x");
-                                string y = node.ToValue<string>("Min/@y");
-                                string z = node.ToValue<string>("Min/@z");
 
-                                entityIdNodes.Current.InsertBefore(string.Format($"<Vector3I><X>{x}</X><Y>{y}</Y><Z>{z}</Z></Vector3I>"));
-                                removeNodes.Add(entityIdNodes.Current.Clone());
-                                str.AppendLine(Res.ClsRepairReplacedBlockGroup);
-                                saveAfterScan = true;
-                                statusNormal = false;
-                            }
+                            string x = node?.ToValue<string>("Min/@x");
+                            string y = node?.ToValue<string>("Min/@y");
+                            string z = node?.ToValue<string>("Min/@z");
+
+                            entityIdNodes.Current.InsertBefore(string.Format($"<Vector3I><X>{x}</X><Y>{y}</Y><Z>{z}</Z></Vector3I>"));
+                            removeNodes.Add(entityIdNodes.Current.Clone());
+                            str.AppendLine(Res.ClsRepairReplacedBlockGroup);
+                            saveAfterScan = true;
+                            statusNormal = false;
+
                         }
 
                         foreach (var node in removeNodes)
@@ -189,7 +188,7 @@ namespace SEToolbox.Interop
 
                 if (repairWorld.Checkpoint.AllPlayersData != null)
                 {
-                    foreach (var player in repairWorld.Checkpoint.AllPlayersData.Dictionary)
+                    foreach (var player in repairWorld.Checkpoint.AllPlayersData?.Dictionary)
                     {
                         if (!SpaceEngineersApi.ValidateEntityType(IDType.IDENTITY, player.Value.IdentityId))
                         {
@@ -254,15 +253,14 @@ namespace SEToolbox.Interop
                         for (int i = 0; i < list.Count; i++)
                         {
                             character = list[i].GetHierarchyCharacters().FirstOrDefault();
-                            if (character != null)
+
+                            if (!SpaceEngineersResources.CharacterDefinitions.Any(c => c.Model == character?.CharacterModel || c.Name == character?.CharacterModel))
                             {
-                                if (!SpaceEngineersResources.CharacterDefinitions.Any(c => c.Model == character.CharacterModel || c.Name == character.CharacterModel))
-                                {
-                                    character.CharacterModel = Sandbox.Game.Entities.Character.MyCharacter.DefaultModel;
-                                    statusNormal = false;
-                                    str.AppendLine(Res.ClsRepairFixedCharacterModel);
-                                    saveAfterScan = true;
-                                }
+                                character.CharacterModel = Sandbox.Game.Entities.Character.MyCharacter.DefaultModel;
+                                statusNormal = false;
+                                str.AppendLine(Res.ClsRepairFixedCharacterModel);
+                                saveAfterScan = true;
+
                             }
                         }
 
@@ -279,16 +277,15 @@ namespace SEToolbox.Interop
                     }
 
                     character = entity as MyObjectBuilder_Character;
-                    if (character != null)
+
+                    if (!SpaceEngineersResources.CharacterDefinitions.Any(c => c.Model == character?.CharacterModel || c.Name == character?.CharacterModel))
                     {
-                        if (!SpaceEngineersResources.CharacterDefinitions.Any(c => c.Model == character.CharacterModel || c.Name == character.CharacterModel))
-                        {
-                            character.CharacterModel = Sandbox.Game.Entities.Character.MyCharacter.DefaultModel;
-                            statusNormal = false;
-                            str.AppendLine(Res.ClsRepairFixedCharacterModel);
-                            saveAfterScan = true;
-                        }
+                        character?.CharacterModel = Sandbox.Game.Entities.Character.MyCharacter.DefaultModel;
+                        statusNormal = false;
+                        str.AppendLine(Res.ClsRepairFixedCharacterModel);
+                        saveAfterScan = true;
                     }
+
                 }
 
                 if (world.Checkpoint.AllPlayersData != null)
@@ -318,7 +315,7 @@ namespace SEToolbox.Interop
                                 {
                                     PlayerId = item.PlayerId,
                                     DisplayName = item.DisplayName,
-                                    IsDead = false, //in VRage.Game.ModAPI.IMyCharacter.IsDead or VRage.Game.ModAPI.IMyIdentity.IsDead
+                                    IsDead = false, //??in VRage.Game.ModAPI.IMyCharacter.IsDead or VRage.Game.ModAPI.IMyIdentity.IsDead
                                     SteamID = item.SteamID,
                                     IdentityId = item.IdentityId
                                 };
@@ -350,7 +347,7 @@ namespace SEToolbox.Interop
         {
             public bool IsDead { get; set; }
         }
-        
+
         private static long MergeId(long currentId, IDType type, ref Dictionary<Int64, Int64> idReplacementTable)
         {
             if (currentId == 0)
@@ -493,7 +490,7 @@ namespace SEToolbox.Interop
             bool isValid = true;
 
             var root = xDoc.Root;
-            if (root == null || root.Name.LocalName != "MyObjectBuilder_Sector")
+            if (root == null || root.Name.LocalName != nameof(MyObjectBuilder_Sector))
             {
                 log.AppendLine("Sector XML file: Invalid root element.");
                 isValid = false;

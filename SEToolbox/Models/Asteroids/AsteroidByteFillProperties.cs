@@ -41,7 +41,6 @@ namespace SEToolbox.Models.Asteroids
             set => SetProperty(_voxelCollection[Index], value, nameof(SelectedRow));
         }
 
-
         public int Index
         {
             get => _index;

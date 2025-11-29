@@ -84,14 +84,12 @@ namespace SEToolbox.Services
         {
             if (disposing)
             {
-                if (_concreteOpenFileDialog != null)
-                {
-                    _concreteOpenFileDialog.Dispose();
-                    _concreteOpenFileDialog = null;
-                }
+                _concreteOpenFileDialog?.Dispose();
+                _concreteOpenFileDialog = null;
             }
         }
-
-        #endregion
     }
+
+    #endregion
 }
+

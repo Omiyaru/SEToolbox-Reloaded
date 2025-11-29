@@ -8,6 +8,7 @@ using System.Reflection;
 
 using System.Windows;
 using Microsoft.Win32;
+using RestSharp.Validation;
 
 namespace SEToolbox.Support
 {
@@ -98,7 +99,7 @@ namespace SEToolbox.Support
 
     public Dictionary<double?, WindowDimension> WindowDimensions => _windowDimensions;
 
-      public WindowDimension GetWindowDimension(double key)
+        public WindowDimension GetWindowDimension(double key)
         {
             
             if (!_windowDimensions.TryGetValue(key, out var dimension))
@@ -130,9 +131,9 @@ namespace SEToolbox.Support
         }
         
         private double? ValidateWindowDimension(double? value, WindowDimension dimension = default)
-        {
+        {   
             value ??= 0;
-
+            SConsole.WriteLine($"Validating Window Dimension: {value}{WriteProgressDots()}");
             if (dimension.Width.HasValue && dimension.Height.HasValue)
             {
                 var primaryScreenWidth = SystemParameters.PrimaryScreenWidth - dimension.Width.Value;
@@ -165,10 +166,7 @@ namespace SEToolbox.Support
             if (key != null)
             {
                 var properties = Settings.GetProperties(BindingFlags.Public | BindingFlags.Instance).ToDictionary(p => p.Name, p => p.GetValue(this));
-                foreach (var property in properties)
-                {
-                    UpdateValue(key, property.Key, property.Value);
-                }
+             
 
                 var windowDimensions = ReadValue<Dictionary<double?, WindowDimension>>(key, nameof(WindowDimension), null);
                 if (windowDimensions != null)
@@ -178,13 +176,17 @@ namespace SEToolbox.Support
                         ValidateWindowDimension(dimension.Key, dimension.Value);
                     }
                 }
+                   foreach (var property in properties)
+                {
+                    UpdateValue(key, property.Key, property.Value);
+                    SConsole.WriteLine($"Saved {property.Key}: {property.Value}");
+                }
             }
         }
 
 
         public void Load()
         {
-
             var key = Registry.CurrentUser.OpenSubKey(BaseKey, false);
             key ??= Registry.CurrentUser.CreateSubKey(BaseKey) ?? null;
             if (key != null)
@@ -195,7 +197,8 @@ namespace SEToolbox.Support
 
             var properties = Settings.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             foreach (var property in properties)
-            {
+            {   
+                
                 if (property == null)
                 {
                     continue;
@@ -206,22 +209,24 @@ namespace SEToolbox.Support
                 {
                     var typedValue = TypeDescriptor.GetConverter(property.PropertyType).ConvertFrom(value);
                     property.SetValue(this, typedValue);
-                    Log.Info($"SEToolbox: {property.Name} set to {typedValue}");
+                    SConsole.WriteLine($"SEToolbox: {property.Name}: {typedValue}");
                 }
                 else
                 {
                     property.SetValue(this, currentValue);
-                    Log.Info($"SEToolbox: {property.Name} unchanged: {currentValue}");
+                    SConsole.WriteLine($"SEToolbox: {property.Name} unchanged: {currentValue}");
                 }
                 if (property.Name == nameof(LanguageCode))
                 {
                     ReadValue(key, nameof(LanguageCode), CultureInfo.CurrentUICulture.IetfLanguageTag);
+                    SConsole.WriteLine();
                 }
                 if (property.Name == nameof(WindowDimension))
                 {
                     foreach (double? dimension in WindowDimensions.Keys)
                     {
                         SetWindowDimension(dimension ?? 0);
+                        SConsole.WriteLine($"SEToolbox: {property.Name} set to {dimension}");
                     }
                 }
              

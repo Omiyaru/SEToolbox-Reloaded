@@ -197,8 +197,8 @@ namespace SEToolbox.Models
         {
             get => _scriptPaths;
             set => SetProperty(ref _scriptPaths, value, nameof(ScriptPaths));
-         }
-        
+        }
+
         public string SelectedScriptPath
         {
             get => _selectedScriptPath;
@@ -298,7 +298,7 @@ namespace SEToolbox.Models
 
             var voxelFilesToRemove = new HashSet<string>();
             var voxelFilesToCopy = new List<(string, string)>();
-         
+
             foreach (IStructureBase entity in Structures ?? Enumerable.Empty<IStructureBase>())
             {
                 if (entity is StructureVoxelModel voxel && File.Exists(voxel?.SourceVoxelFilePath))
@@ -759,7 +759,6 @@ namespace SEToolbox.Models
                     foreach (var item in toolbarBlocks)
                     {
                         if (block.GetType().IsAssignableFrom(item.GetType()))
-
                             MergeId(block.EntityId, ref idReplacementTable);// reattach functionalBlock to correct entity.
                         break;
                     }
@@ -1034,7 +1033,8 @@ namespace SEToolbox.Models
         }
 
 
-        //todo move all test code to a separate test folder, files,classes. with references to their original locations
+        //todo move all test code to a separate test folder, files,classes. with references to their original locations 
+        // possibly implement simple method to call from new file in order to preserve original code
         public static void TestDisplayRotation(StructureCubeGridModel viewModel)
         {
             //var corners = viewModel.CubeGrid.CubeBlocks.Where(b => b.SubtypeName.Contains("ArmorCorner")).ToList();
@@ -1051,7 +1051,7 @@ namespace SEToolbox.Models
         public void TestConvert(StructureCubeGridModel viewModel)
         {
             // Trim Horse image.
-            //viewModel.CubeGrid.CubeBlocks.RemoveAll(b => b.SubtypeName.EndsWith("White"));
+            viewModel.CubeGrid.CubeBlocks.RemoveAll(b => b.SubtypeName.EndsWith("White"));
 
             //foreach (var block in viewModel.CubeGrid.CubeBlocks)
             //{
@@ -1184,6 +1184,7 @@ namespace SEToolbox.Models
         internal bool MergeShipParts(StructureCubeGridModel model1, StructureCubeGridModel model2)
         {
             // find closest major axis for both parts.
+
             Quaternion q1 = Quaternion.CreateFromRotationMatrix(Matrix.CreateFromDir(model1.PositionAndOrientation.Value.Forward.RoundToAxis(), model1.PositionAndOrientation.Value.Up.RoundToAxis()));
             Quaternion q2 = Quaternion.CreateFromRotationMatrix(Matrix.CreateFromDir(model2.PositionAndOrientation.Value.Forward.RoundToAxis(), model2.PositionAndOrientation.Value.Up.RoundToAxis()));
 

@@ -48,11 +48,13 @@ namespace SEToolbox.ViewModels
                 }
             }
         }
-        BaseModel baseModel = new();
+        private readonly BaseModel baseModel = new();
 
       
         public void SetProperty<T>(T field, T value, params object[] parameters) => baseModel.SetProperty(field, value, parameters);
         public void SetProperty<T>(ref T field, T value, params object[] parameters) => baseModel.SetProperty(ref field, value, parameters);
+        public void SetValue<T>( T field, T value, params object[] parameters) => baseModel.SetValue(field, value, parameters);
+        public void SetValue<T>(ref T field, T value, params object[] parameters) => baseModel.SetValue(ref field, value, parameters);
         #endregion
        
         #region INotifyPropertyChanged Members

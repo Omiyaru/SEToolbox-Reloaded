@@ -125,14 +125,10 @@ namespace SEToolbox.Models
                 }
 
                 string textureFile = null;
+                string icon = cubeDefinition?.Icons.FirstOrDefault();
 
-                if (cubeDefinition.Icons != null)
-                {
-                    string icon = cubeDefinition.Icons.FirstOrDefault();
-
-                    if (icon != null)
-                        textureFile = SpaceEngineersCore.GetDataPathOrDefault(icon, Path.Combine(contentPath, icon));
-                }
+                if (icon != null)
+                    textureFile = SpaceEngineersCore.GetDataPathOrDefault(icon, Path.Combine(contentPath, icon));
 
                 var buildTime = TimeSpan.Zero;
 
@@ -273,19 +269,18 @@ namespace SEToolbox.Models
                         writer.RenderTagStart("tr");
 
                         writer.RenderTagStart("td");
-                        if (asset.TextureFile != null)
+
+                        string texture = GetTextureToBase64(asset?.TextureFile, 32, 32);
+                        if (!string.IsNullOrEmpty(texture))
                         {
-                            string texture = GetTextureToBase64(asset.TextureFile, 32, 32);
-                            if (!string.IsNullOrEmpty(texture))
-                            {
-                                writer.AddAttribute("src", "data:image/png;base64," + texture);
-                                writer.AddAttribute("width", "32");
-                                writer.AddAttribute("height", "32");
-                                writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
-                                writer.RenderTagStart("img");
-                                writer.RenderTagEnd("tr");
-                            }
+                            writer.AddAttribute("src", "data:image/png;base64," + texture);
+                            writer.AddAttribute("width", "32");
+                            writer.AddAttribute("height", "32");
+                            writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
+                            writer.RenderTagStart("img");
+                            writer.RenderTagEnd("tr");
                         }
+
                         writer.RenderTagEnd("td"); // Td
 
                         writer.RenderElement("td", asset.FriendlyName);
@@ -318,19 +313,18 @@ namespace SEToolbox.Models
                     writer.RenderTagStart("tr");
 
                     writer.RenderTagStart("td");
-                    if (asset.TextureFile != null)
+
+                    string texture = GetTextureToBase64(asset?.TextureFile, 32, 32, true);
+                    if (!string.IsNullOrEmpty(texture))
                     {
-                        string texture = GetTextureToBase64(asset.TextureFile, 32, 32, true);
-                        if (!string.IsNullOrEmpty(texture))
-                        {
-                            writer.AddAttribute("src", "data:image/png;base64," + texture);
-                            writer.AddAttribute("width", "32");
-                            writer.AddAttribute("height", "32");
-                            writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
-                            writer.RenderTagStart("img");
-                            writer.RenderTagEnd("tr");
-                        }
+                        writer.AddAttribute("src", "data:image/png;base64," + texture);
+                        writer.AddAttribute("width", "32");
+                        writer.AddAttribute("height", "32");
+                        writer.AddAttribute("alt", Path.GetFileNameWithoutExtension(asset.TextureFile));
+                        writer.RenderTagStart("img");
+                        writer.RenderTagEnd("tr");
                     }
+
                     writer.RenderTagEnd("td"); // Td
 
                     writer.RenderElement("td", asset.Name);

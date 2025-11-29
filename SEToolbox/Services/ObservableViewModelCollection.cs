@@ -21,17 +21,18 @@ namespace SEToolbox.Services
 
             _source = source;
             _viewModelFactory = viewModelFactory;
-            //if (_source != null)
-                _source?.CollectionChanged += OnSourceCollectionChanged;
+            _source?.CollectionChanged += OnSourceCollectionChanged;
         }
 
         ~ObservableViewModelCollection()
         {
-                _source?.CollectionChanged -= OnSourceCollectionChanged;
+            _source?.CollectionChanged -= OnSourceCollectionChanged;
         }
 
-        protected virtual TViewModel CreateViewModel(TModel model) => _viewModelFactory(model);
-        
+        protected virtual TViewModel CreateViewModel(TModel model)
+        {
+            return _viewModelFactory(model);
+        }
 
         private void OnSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
@@ -46,35 +47,29 @@ namespace SEToolbox.Services
 
                 case NotifyCollectionChangedAction.Move:
                     var itemsToMove = this.Skip(oldIndex).Take(e.OldItems.Count).ToList();
-                    RemoveOld(oldIndex, e);
+                    RemoveOldIndex(oldIndex, e);
                     InsertNewIndex(newIndex, itemsToMove);
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
-                    RemoveOld(oldIndex, e);
+                     RemoveOldIndex(oldIndex, e);
                     break;
                 case NotifyCollectionChangedAction.Replace:
-                    RemoveOld(oldIndex, e);
-                    var viewModelsToReplace = e.NewItems.Cast<TModel>().Select(CreateViewModel);
-                    InsertNewIndex(newIndex, viewModelsToReplace);
+                     RemoveOldIndex(oldIndex, e);
+                     var viewModelsToReplace = e.NewItems.Cast<TModel>().Select(CreateViewModel);
+                     InsertNewIndex(newIndex, viewModelsToReplace);
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
-                    {
-                        Clear();
-                        if (e.NewItems.Count > 0)
-                        {
-                            var viewModels = e.NewItems.Cast<TModel>().Select(CreateViewModel);
-                            AddViewModel(viewModels);
-                        }
-                    }
+                    var viewModels = e.NewItems.Cast<TModel>().Select(CreateViewModel);
+                     Reset(viewModels, e);
                     break;
                 default:
                     break;
             }
         }
-        
-        private void RemoveOld(int oldIndex, NotifyCollectionChangedEventArgs e)
+
+        private void RemoveOldIndex(int oldIndex, NotifyCollectionChangedEventArgs e)
         {
             for (int i = 0; i < e.OldItems.Count; i++)
                 RemoveAt(oldIndex);
@@ -83,15 +78,20 @@ namespace SEToolbox.Services
         private void InsertNewIndex(int newIndex, IEnumerable<TViewModel> viewModels)
         {
             foreach (var viewModel in viewModels)
-                
                 Insert(newIndex++, viewModel);
-
         }
-        
+
         private void AddViewModel(IEnumerable<TViewModel> viewModels)
         {
             foreach (var viewModel in viewModels)
                     Add(viewModel);
+        }
+
+        private void Reset(IEnumerable<TViewModel> viewModels, NotifyCollectionChangedEventArgs e)
+        {
+            Clear();
+            if (e.NewItems.Count > 0)
+                AddViewModel(viewModels);
         }
     }
 }

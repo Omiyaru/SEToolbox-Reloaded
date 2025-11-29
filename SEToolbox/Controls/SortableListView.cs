@@ -2,12 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
- using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media.Animation;
 using SEToolbox.Support;
 using Binding = System.Windows.Data.Binding;
 using Primitives = System.Windows.Controls.Primitives;
@@ -18,7 +18,7 @@ namespace SEToolbox.Controls
     {
         private const int MaxSortableColumns = 1;
         #region Fields
-        private  List<SortColumn> _sortList = [];
+        private List<SortColumn> _sortList = [];
         #endregion
 
         #region Dependency Properties
@@ -30,7 +30,7 @@ namespace SEToolbox.Controls
         public DataTemplate ColumnHeaderArrowUpTemplate
         {
             get => (DataTemplate)GetValue(ColumnHeaderArrowUpTemplateProperty);
-			set => SetValue(ColumnHeaderArrowUpTemplateProperty, value);
+            set => SetValue(ColumnHeaderArrowUpTemplateProperty, value);
         }
         #endregion
 
@@ -42,9 +42,10 @@ namespace SEToolbox.Controls
         public DataTemplate ColumnHeaderArrowDownTemplate
         {
             get => (DataTemplate)GetValue(ColumnHeaderArrowDownTemplateProperty);
-			set => SetValue(ColumnHeaderArrowDownTemplateProperty, value);
+            set => SetValue(ColumnHeaderArrowDownTemplateProperty, value);
         }
-
+        #endregion
+        
         #endregion
 
         public static readonly DependencyProperty DefaultSortColumnProperty =
@@ -53,9 +54,15 @@ namespace SEToolbox.Controls
         public string DefaultSortColumn
         {
             get => (string)GetValue(DefaultSortColumnProperty);
-			set => SetValue(DefaultSortColumnProperty, value);
+            set => SetValue(DefaultSortColumnProperty, value);
         }
 
+        public static readonly RoutedEvent MouseDoubleClickItemEvent =
+            EventManager.RegisterRoutedEvent(nameof(MouseDoubleClickItem), RoutingStrategy.Direct, typeof(MouseButtonEventHandler), typeof(SortableListView));
+
+        public static event MouseButtonEventHandler MouseDoubleClickItem;
+
+        
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
@@ -64,22 +71,35 @@ namespace SEToolbox.Controls
             AddHandler(Primitives.ButtonBase.ClickEvent, new RoutedEventHandler(GridViewColumnHeaderClickedHandler));
             AddHandler(MouseDoubleClickEvent, new RoutedEventHandler(MouseDoubleClickedHandler));
         }
-        protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
+
+
+        private static void MouseDoubleClickedHandler(object sender, RoutedEventArgs e)
         {
-            base.OnItemsSourceChanged(oldValue, newValue);
-            if (ItemsSource != null)
+            var listView = ((ListView)sender).GetHitControl<ListViewItem>((MouseEventArgs)e);
+            if (listView != null)
             {
-                ICollectionView dataView = CollectionViewSource.GetDefaultView(ItemsSource);
-                if (dataView.SortDescriptions.Count == 0 && _sortList.Any())
-                {
-                    foreach (SortColumn sortColumn in _sortList)
-                    {
-                        dataView.SortDescriptions.Add(new SortDescription(sortColumn.SortPath, sortColumn.SortDirection));
-                    }
-                    dataView.Refresh();
-                }
+                MouseDoubleClickItem?.Invoke(sender, e as MouseButtonEventArgs);
             }
         }
+
+
+        #region  Methods
+        // protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
+        // {
+        //     base.OnItemsSourceChanged(oldValue, newValue);
+        //     if (ItemsSource != null)
+        //     {
+        //         ICollectionView dataView = CollectionViewSource.GetDefaultView(ItemsSource);
+        //         if (dataView.SortDescriptions.Count == 0 && _sortList.Any())
+        //         {
+        //             foreach (SortColumn sortColumn in _sortList)
+        //             {
+        //                 dataView.SortDescriptions.Add(new SortDescription(sortColumn.SortPath, sortColumn.SortDirection));
+        //             }
+        //             dataView.Refresh();
+        //         }
+        //     }
+        // }
 
         private static bool IsMatchingColumn(SortableGridViewColumn column, string sortColumn)
         {
@@ -94,9 +114,14 @@ namespace SEToolbox.Controls
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
+            SortByDefault();
+        }
 
-            if (DefaultSortColumn == null || View is not GridView gridView) 
-            return;
+        private void SortByDefault()
+        {
+
+            if (DefaultSortColumn == null || View is not GridView gridView)
+                return;
 
             GridViewColumn selectedColumn = FindColumnToSort(gridView.Columns);
 
@@ -123,28 +148,17 @@ namespace SEToolbox.Controls
 
         private void GridViewColumnHeaderClickedHandler(object sender, RoutedEventArgs e)
         {
-            // May be triggered by clicking on vertical scrollbar.
-            if (e.OriginalSource is not GridViewColumnHeader headerClicked ||
-                headerClicked.Role == GridViewColumnHeaderRole.Padding ||
-                headerClicked.Column is null)
-            {
-                return;
-            }
-
-            // Find the ListView that contains the clicked GridViewColumnHeader. This strongly ties this ListView to a GridView.
+            var headerClicked = sender as GridViewColumnHeader;
             var listView = headerClicked.FindVisualParent<ListView>();
             var headerPaths = GetHeaderPaths(headerClicked);
 
-            if (headerPaths.Count == 0)
+            if (e.OriginalSource is not GridViewColumnHeader || headerClicked.Role == GridViewColumnHeaderRole.Padding || headerClicked.Column is null || headerPaths.Count == 0)
             {
                 return;
             }
 
-            // Optimization: store last clicked column and its sort direction
-            var oldItem = _sortList.FirstOrDefault(i =>
-                i.SortPath == headerPaths[0] || ReferenceEquals(i.Column, headerClicked.Column));
+            var oldItem = _sortList.FirstOrDefault(i => i.SortPath == headerPaths[0] || ReferenceEquals(i.Column, headerClicked.Column));
 
-            // Determine sort direction
             ListSortDirection direction;
             if (oldItem == null)
             {
@@ -158,13 +172,10 @@ namespace SEToolbox.Controls
             }
             else
             {
-                // Third click: remove sort and clear header template
-                _sortList.RemoveAll(i =>
-                    i.SortPath == headerPaths[0] || ReferenceEquals(i.Column, headerClicked.Column));
+                _sortList.RemoveAll(i => i.SortPath == headerPaths[0] || ReferenceEquals(i.Column, headerClicked.Column));
 
                 if (headerClicked.Column != null)
                 {
-                    _sortList.RemoveAll(i => i.Column.Equals(headerClicked.Column));
                     headerClicked.Column.HeaderTemplate = null;
                 }
 
@@ -176,7 +187,7 @@ namespace SEToolbox.Controls
             UpdateSortList(headerClicked, direction, headerPaths);
             Sort(listView, _sortList);
         }
-        
+
         private static List<string> GetHeaderPaths(GridViewColumnHeader headerClicked)
         {
             if (headerClicked.Column is not SortableGridViewColumn sortableColumn)
@@ -207,16 +218,15 @@ namespace SEToolbox.Controls
 
         private void UpdateSortList(GridViewColumnHeader headerClicked, ListSortDirection direction, List<string> headerPaths)
         {
-
             _sortList.RemoveAll(sortColumn => sortColumn.Column == null || headerClicked.Column.Equals(sortColumn.Column));
 
             while (_sortList.Count > MaxSortableColumns)
             {
+                _sortList[_sortList.Count - 1].Column.HeaderTemplate = null;
                 _sortList.RemoveAt(_sortList.Count - 1);
             }
-            // Remove arrow from previously sorted headers
+
             _sortList.ForEach(sortColumn => sortColumn.Column.HeaderTemplate = null);
-            // Add new sort columns based on header paths
             foreach (string colPath in headerPaths)
             {
                 _sortList.Insert(0, new SortColumn(colPath, direction, headerClicked.Column));
@@ -225,42 +235,26 @@ namespace SEToolbox.Controls
             _sortList = [.. _sortList.GroupBy(sortColumn => sortColumn.Column).Select(g => g.First())];
         }
 
-        private void UpdateHeaderTemplate(GridViewColumnHeader headerClicked, ListSortDirection direction)
-        {
-            headerClicked.Column.HeaderTemplate = direction == ListSortDirection.Ascending && ColumnHeaderArrowUpTemplate != null
-                ? ColumnHeaderArrowUpTemplate: ColumnHeaderArrowDownTemplate;
-        }
-
         private static void Sort(ItemsControl listView, List<SortColumn> sortList)
         {
             if (listView.ItemsSource is not ICollectionView dataView)
+            {
                 return;
-            //ICollectionView dataView = listView.Items as ICollectionView;
-
-                dataView.SortDescriptions.Clear();
-
+            }
+            dataView.SortDescriptions.Clear();
             foreach (SortColumn sortColumn in sortList)
             {
                 dataView.SortDescriptions.Add(new SortDescription(sortColumn.SortPath, sortColumn.SortDirection));
             }
-
-            dataView.Refresh();
+            if (dataView.SortDescriptions.Count > 0)
+            {
+                dataView.Refresh();
+            }
         }
 
-        public static readonly RoutedEvent MouseDoubleClickItemEvent =
-            EventManager.RegisterRoutedEvent(nameof(MouseDoubleClickItem), RoutingStrategy.Direct, typeof(MouseButtonEventHandler), typeof(SortableListView));
-
-
-        // Events
-        public event MouseButtonEventHandler MouseDoubleClickItem;
-
-        private void MouseDoubleClickedHandler(object sender, RoutedEventArgs e)
+        private void UpdateHeaderTemplate(GridViewColumnHeader headerClicked, ListSortDirection direction)
         {
-            ListViewItem item = ((ListView)sender).GetHitControl<ListViewItem>((MouseEventArgs)e);
-            if (item != null)
-            {
-                MouseDoubleClickItem?.Invoke(sender, e as MouseButtonEventArgs);
-            }
+            headerClicked.Column.HeaderTemplate = direction == ListSortDirection.Ascending ? ColumnHeaderArrowUpTemplate : ColumnHeaderArrowDownTemplate;
         }
 
         public class SortColumn(string sortPath, ListSortDirection direction, GridViewColumn gridViewColumn)

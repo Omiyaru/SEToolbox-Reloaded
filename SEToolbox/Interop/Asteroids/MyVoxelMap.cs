@@ -412,14 +412,11 @@ namespace SEToolbox.Interop.Asteroids
             Vector3I vectors = Vector3I.Zero;
 
             for (int i = 0; i < 3; i++)
-
-                foreach (var vec in vRange)
                 {
-                    if (adjustedCacheSize[i] < 64)
+                    if (adjustedCacheSize[i] > 64)
                     {
-                        adjustedCacheSize[i] *= 2;
+                        adjustedCacheSize[i] /= 2;
                     };
-                    break;
                 }
 
             return adjustedCacheSize;
@@ -466,7 +463,6 @@ namespace SEToolbox.Interop.Asteroids
             if (cache.ComputeContentConstitution() != MyVoxelContentConstitution.Empty)
                 // Collect the non-empty cell coordinates
                 fullCells.Add(block << 3);
-
 
 
             cacheSize = new Vector3I(8);
@@ -617,7 +613,7 @@ namespace SEToolbox.Interop.Asteroids
             Vector3I block = Vector3I.Zero;
             Vector3I cacheSize = Vector3I.Min(new Vector3I(64), m_storage.Size);
             // read the asteroid in chunks of 64 to avoid the Arithmetic overflow issue.
-           var pRange = PRange.ProcessRange(block, cacheSize );
+            PRange.ProcessRange(block, cacheSize);
             
 
             for (int i = 0; i < 3; i++)
@@ -971,9 +967,6 @@ namespace SEToolbox.Interop.Asteroids
                 cache.Material(ref p, materials[++index]);
                
             }
-
-           
-
             m_storage.WriteRange(cache, MyStorageDataTypeFlags.Material, block, maxRange);
         }
 

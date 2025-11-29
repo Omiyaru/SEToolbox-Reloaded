@@ -55,7 +55,7 @@ namespace SEToolbox.Models
         public InventoryEditorModel(bool isValid)
         {
             IsValid = isValid;
-		}
+        }
 
         public InventoryModel GetInventoryModel(MyObjectBuilder_InventoryItem item, string name, string description)
         {
@@ -65,7 +65,7 @@ namespace SEToolbox.Models
             _selectedRow = new InventoryModel(_item, name, description);
             _isValid = true;
             _inventory.Items.Add(_item);
-              return new InventoryModel(item, name, description);
+            return new InventoryModel(item, name, description);
         }
 
         public InventoryEditorModel(MyObjectBuilder_Inventory inventory, float maxVolume, MyObjectBuilder_Character character = null)
@@ -80,18 +80,18 @@ namespace SEToolbox.Models
             _character = character;
             UpdateGeneralFromEntityBase();
 
-                if (inventory.Items.Any())
+            if (inventory.Items.Any())
+            {
+                MyObjectBuilder_InventoryItem firstItem = inventory.Items.FirstOrDefault();
+                if (firstItem != null)
                 {
-                    MyObjectBuilder_InventoryItem firstItem = inventory.Items.FirstOrDefault();
-                    if (firstItem != null)
-                    {
-                       _selectedRow = new InventoryModel(firstItem, "Item Name", "Item Description");
-                        _isValid = true;
-                    }
+                    _selectedRow = new InventoryModel(firstItem, "Item Name", "Item Description");
+                    _isValid = true;
+                }
 
-            // Cube.InventorySize.X * Cube.InventorySize.Y * Cube.InventorySize.Z * 1000 * Sandbox.InventorySizeMultiplier;
-            // or Cube.InventoryMaxVolume * 1000 * Sandbox.InventorySizeMultiplier;
-            //Character.Inventory = 0.4 * 1000 * Sandbox.InventorySizeMultiplier;
+                // Cube.InventorySize.X * Cube.InventorySize.Y * Cube.InventorySize.Z * 1000 * Sandbox.InventorySizeMultiplier;
+                // or Cube.InventoryMaxVolume * 1000 * Sandbox.InventorySizeMultiplier;
+                //Character.Inventory = 0.4 * 1000 * Sandbox.InventorySizeMultiplier;
             }
         }
 
@@ -159,13 +159,11 @@ namespace SEToolbox.Models
             TotalVolume = 0;
             TotalMass = 0;
 
-            if (_inventory != null)
+            foreach (MyObjectBuilder_InventoryItem item in _inventory?.Items)
             {
-                foreach (MyObjectBuilder_InventoryItem item in _inventory.Items)
-                {
-                    list.Add(CreateItem(item, contentPath));
-                }
+                list.Add(CreateItem(item, contentPath));
             }
+
 
             Items = list;
         }
@@ -228,7 +226,7 @@ namespace SEToolbox.Models
             var invItem = _inventory.Items[index];
 
             // Remove HandWeapon if item is HandWeapon.
-            if (_character != null && invItem.PhysicalContent.TypeId == MOBTypeIds.PhysicalGunObject)
+            if (invItem.PhysicalContent.TypeId == MOBTypeIds.PhysicalGunObject)
             {
                 if (((MyObjectBuilder_PhysicalGunObject)invItem.PhysicalContent).GunEntity?.EntityId == _character?.HandWeapon.EntityId)
                 {

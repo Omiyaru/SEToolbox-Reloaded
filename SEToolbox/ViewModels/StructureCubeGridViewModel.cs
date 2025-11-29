@@ -234,22 +234,20 @@ namespace SEToolbox.ViewModels
         {
             get => DataModel.Dampeners;
 
-            set 
+            set => SetValue(DataModel.Dampeners, value, () => 
             { 
-                DataModel.Dampeners = value ; 
                 MainViewModel.IsModified = true;  
-            } 
+            }); 
             
         }
 
         public bool Destructible
         {
             get => DataModel.Destructible;
-            set
+            set => SetValue(DataModel.Destructible, value, () =>
             {
-                DataModel.Destructible = value;
                 MainViewModel.IsModified = true;
-            }
+            });
         }
 
         public Point3D Min
@@ -533,13 +531,13 @@ namespace SEToolbox.ViewModels
                 {
                     changes = true;
 
-                    var idx = DataModel.CubeGrid.CubeBlocks.IndexOf(cubeVm.Cube);
+                    var index = DataModel.CubeGrid.CubeBlocks.IndexOf(cubeVm.Cube);
                     var cubeDefinition = SpaceEngineersApi.GetCubeDefinition(cubeVm.Cube.TypeId, GridSize, cubeVm.Cube.SubtypeName);
                     var newCube = cubeVm.CreateCube(cubeVm.Cube.TypeId, cubeVm.Cube.SubtypeName, cubeDefinition);
                     cubeVm.TextureFile = (cubeDefinition.Icons == null || cubeDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(cubeDefinition.Icons.First(), Path.Combine(contentPath, cubeDefinition.Icons.First()));
 
-                    DataModel.CubeGrid.CubeBlocks.RemoveAt(idx);
-                    DataModel.CubeGrid.CubeBlocks.Insert(idx, newCube);
+                    DataModel.CubeGrid.CubeBlocks.RemoveAt(index);
+                    DataModel.CubeGrid.CubeBlocks.Insert(index, newCube);
                 }
             }
 
@@ -581,13 +579,13 @@ namespace SEToolbox.ViewModels
                 {
                     changes = true;
 
-                    var idx = DataModel.CubeGrid.CubeBlocks.IndexOf(cubeVm.Cube);
+                    var index = DataModel.CubeGrid.CubeBlocks.IndexOf(cubeVm.Cube);
                     var cubeDefinition = SpaceEngineersApi.GetCubeDefinition(cubeVm.Cube.TypeId, GridSize, cubeVm.Cube.SubtypeName);
                     var newCube = cubeVm.CreateCube(cubeVm.Cube.TypeId, cubeVm.Cube.SubtypeName, cubeDefinition);
                     cubeVm.TextureFile = (cubeDefinition.Icons == null || cubeDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(cubeDefinition.Icons.First(), Path.Combine(contentPath, cubeDefinition.Icons.First()));
 
-                    DataModel.CubeGrid.CubeBlocks.RemoveAt(idx);
-                    DataModel.CubeGrid.CubeBlocks.Insert(idx, newCube);
+                    DataModel.CubeGrid.CubeBlocks.RemoveAt(index);
+                    DataModel.CubeGrid.CubeBlocks.Insert(index, newCube);
                 }
             }
 
@@ -1099,13 +1097,13 @@ namespace SEToolbox.ViewModels
                     MainViewModel.Progress++;
                     if (cube.TypeId != model.CubeItem.TypeId || cube.SubtypeId != model.CubeItem.SubtypeId)
                     {
-                        int idx = DataModel.CubeGrid.CubeBlocks.IndexOf(cube.Cube);
-                        DataModel.CubeGrid.CubeBlocks.RemoveAt(idx);
+                        int index = DataModel.CubeGrid.CubeBlocks.IndexOf(cube.Cube);
+                        DataModel.CubeGrid.CubeBlocks.RemoveAt(index);
 
                         Sandbox.Definitions.MyCubeBlockDefinition cubeDefinition = SpaceEngineersApi.GetCubeDefinition(model.CubeItem.TypeId, GridSize, model.CubeItem.SubtypeId);
                         MyObjectBuilder_CubeBlock newCube = cube.CreateCube(model.CubeItem.TypeId, model.CubeItem.SubtypeId, cubeDefinition);
                         cube.TextureFile = (cubeDefinition.Icons == null || cubeDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(cubeDefinition.Icons.First(), Path.Combine(contentPath, cubeDefinition.Icons.First()));
-                        DataModel.CubeGrid.CubeBlocks.Insert(idx, newCube);
+                        DataModel.CubeGrid.CubeBlocks.Insert(index, newCube);
 
                         change = true;
                     }

@@ -75,7 +75,6 @@ namespace SEToolbox.Services
             GC.SuppressFinalize(this);
         }
 
-
         ~SaveFileDialog()
         {
             Dispose(false);
@@ -85,14 +84,12 @@ namespace SEToolbox.Services
         {
             if (disposing)
             {
-                if (_concreteSaveFileDialog != null)
-                {
-                    _concreteSaveFileDialog.Dispose();
-                    _concreteSaveFileDialog = null;
-                }
+                _concreteSaveFileDialog?.Dispose();
+                _concreteSaveFileDialog = null;
             }
         }
-
-        #endregion
     }
+
+    #endregion
 }
+

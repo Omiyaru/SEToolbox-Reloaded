@@ -428,6 +428,7 @@ namespace SEToolbox.Support
                          from Y in Enumerable.Range(y, yCount)
                          from Z in Enumerable.Range(z, zCount)
                          select new { X, Y, Z, Value = cubic[X][Y][Z] };
+                         
             CubeType cubeType = CubeType.None;
             _ = Parallel.ForEach(cRange, item =>
              {

@@ -64,18 +64,18 @@ namespace SEToolbox.Models.Asteroids
         {
             for (int i = 0; i < rarePercents.Length && rare.Any(); i++)
             {
-                int idx = RandomUtil.GetInt(rare.Count);
+                int index = RandomUtil.GetInt(rare.Count);
                 int percent = RandomUtil.GetInt(rarePercents[i].min, rarePercents[i].max);
-                AssignMaterial(model, i + 1, rare[idx], percent);
-                rare.RemoveAt(idx);
+                AssignMaterial(model, i + 1, rare[index], percent);
+                rare.RemoveAt(index);
             }
 
             for (int i = 0; i < superRarePercents.Length && superRare.Any(); i++)
             {
-                int idx = RandomUtil.GetInt(superRare.Count);
+                int index = RandomUtil.GetInt(superRare.Count);
                 int percent = RandomUtil.GetInt(superRarePercents[i].min, superRarePercents[i].max);
-                AssignMaterial(model, i + rarePercents.Length + 1, superRare[idx], percent);
-                superRare.RemoveAt(idx);
+                AssignMaterial(model, i + rarePercents.Length + 1, superRare[index], percent);
+                superRare.RemoveAt(index);
             }
         }
 

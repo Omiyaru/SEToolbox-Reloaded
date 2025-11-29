@@ -112,7 +112,7 @@ namespace SEToolbox.ViewModels
         public string FileName
         {
             get => _dataModel.FileName;
-            set => SetProperty(_dataModel.FileName, value, () =>
+            set => SetValue(_dataModel.FileName, value, () =>
                    FileNameChanged());
         }
 
@@ -137,7 +137,7 @@ namespace SEToolbox.ViewModels
         public BindableSize3DIModel NewModelSize
         {
             get => _dataModel.NewModelSize;
-            set => SetProperty(_dataModel.NewModelSize, value, () =>
+            set => SetValue(_dataModel.NewModelSize, value, () =>
                    ProcessModelScale());
         }
 
@@ -174,7 +174,7 @@ namespace SEToolbox.ViewModels
         public ImportModelClassType ClassType
         {
             get => _dataModel.ClassType;
-            set => SetProperty(_dataModel.ClassType, value, () =>
+            set => SetValue(_dataModel.ClassType, value, () =>
                    ProcessModelScale());
 
         }
@@ -199,14 +199,14 @@ namespace SEToolbox.ViewModels
         public double MultipleScale
         {
             get => _dataModel.MultipleScale;
-            set => SetProperty(_dataModel.MultipleScale, value, () =>
+            set => SetValue(_dataModel.MultipleScale, value, () =>
                    ProcessModelScale());
         }
 
         public double MaxLengthScale
         {
             get => _dataModel.MaxLengthScale;
-            set => SetProperty(_dataModel.MaxLengthScale, value, () =>
+            set => SetValue(_dataModel.MaxLengthScale, value, () =>
                    ProcessModelScale());
         }
 
@@ -214,25 +214,22 @@ namespace SEToolbox.ViewModels
         {
             get => _dataModel.BuildDistance;
 
-            set
-            {
-                _dataModel.BuildDistance = value;
-                ProcessModelScale();
-            }
+            set => SetValue(_dataModel.BuildDistance, value, () =>
+                   ProcessModelScale());
+
         }
 
         public bool IsMultipleScale
         {
             get => _dataModel.IsMultipleScale;
-            set => SetProperty(_dataModel.IsMultipleScale, value, () =>
+            set => SetValue(_dataModel.IsMultipleScale, value, () =>
                    ProcessModelScale());
         }
 
         public bool IsMaxLengthScale
         {
             get => _dataModel.IsMaxLengthScale;
-            set => SetProperty(_dataModel.IsMaxLengthScale, value, () =>
-            
+            set => SetValue(_dataModel.IsMaxLengthScale, value, () =>
                    ProcessModelScale());
         }
 

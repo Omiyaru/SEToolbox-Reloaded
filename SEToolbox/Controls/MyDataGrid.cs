@@ -35,9 +35,7 @@ namespace SEToolbox.Controls
                     row?.IsSelected = !row.IsSelected;
                 }
             }
-
         }
     }
 }
-
 

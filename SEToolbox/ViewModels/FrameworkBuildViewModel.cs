@@ -37,7 +37,7 @@ namespace SEToolbox.ViewModels
 
         public ICommand CancelCommand
         {
-          get  => new DelegateCommand(CancelExecuted, CancelCanExecute);
+            get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         #endregion

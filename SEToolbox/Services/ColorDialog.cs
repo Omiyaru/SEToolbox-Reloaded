@@ -92,14 +92,12 @@ namespace SEToolbox.Services
         {
             if (disposing)
             {
-                if (_concreteColorDialog != null)
-                {
-                    _concreteColorDialog.Dispose();
-                    _concreteColorDialog = null;
-                }
+                _concreteColorDialog?.Dispose();
+                _concreteColorDialog = null;
             }
         }
-
-        #endregion
     }
+
+    #endregion
 }
+

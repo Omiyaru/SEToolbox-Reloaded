@@ -243,7 +243,6 @@ namespace SEToolbox.Services
 
             if (target is FrameworkElement view)
             {
-            
                 var dialogService = ServiceLocator.Resolve<IDialogService>();
                 if ((bool)e.OldValue)
                 {
@@ -253,7 +252,6 @@ namespace SEToolbox.Services
                 {
                     dialogService.Register(view);
                 }
-                
             }
         }
 
@@ -273,7 +271,7 @@ namespace SEToolbox.Services
         private bool? ShowDialog(object ownerViewModel, object viewModel, Type dialogType, Action action)
         {
             // Create dialog and set properties
-            Window dialog =(Window)Activator.CreateInstance(dialogType) ;
+            Window dialog = (Window)Activator.CreateInstance(dialogType) ;
             dialog.Owner = FindOwnerWindow(ownerViewModel);
             dialog.DataContext = viewModel;
 
@@ -285,7 +283,6 @@ namespace SEToolbox.Services
             dialog.Close();
 
             System.Windows.Forms.Application.DoEvents();
-
             return retValue;
         }
 
@@ -354,13 +351,13 @@ namespace SEToolbox.Services
             if (sender is Window owner)
             {
                 // Find Views acting within closed window
-                IEnumerable<FrameworkElement> windowViews =
+                var windowViews =
                     from view in _views
                     where Window.GetWindow(view) == owner
                     select view;
 
                 // Unregister Views in window
-                foreach (FrameworkElement view in windowViews.ToArray())
+                foreach (var view in windowViews.ToArray())
                 {
                     Unregister(view);
                 }

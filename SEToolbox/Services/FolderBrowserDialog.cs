@@ -77,11 +77,8 @@ namespace SEToolbox.Services
         {
             if (disposing)
             {
-                if (_concreteFolderBrowserDialog != null)
-                {
-                    _concreteFolderBrowserDialog.Dispose();
-                    _concreteFolderBrowserDialog = null;
-                }
+                _concreteFolderBrowserDialog?.Dispose();
+                _concreteFolderBrowserDialog = null;
             }
         }
         #endregion

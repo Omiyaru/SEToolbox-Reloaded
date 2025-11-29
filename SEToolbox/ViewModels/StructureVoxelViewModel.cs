@@ -254,7 +254,7 @@ namespace SEToolbox.ViewModels
             {
                 
                 int idx = random.Next(nonRare.Count) ;
-                var newMaterial = nonRare[idx];
+                var newMaterial = nonRare[index];
                AsteroidSeedFillProperties. SetMaterial(index, newMaterial, material.Radius, material.Veins);
             }
 
@@ -262,14 +262,14 @@ namespace SEToolbox.ViewModels
             {
                 material = m;
                 int idx = random.Next(rare.Count);
-                var newMaterial = rare[idx];
+                var newMaterial = rare[index];
                 AsteroidSeedFillProperties.SetMaterial(index, newMaterial, material.Radius, material.Veins);
             }
 
             foreach (var m in superRare)
             {
                 int idx = random.Next(superRare.Count);
-                var newMaterial = superRare[idx];
+                var newMaterial = superRare[index];
                 AsteroidSeedFillProperties.SetMaterial(index, newMaterial, material.Radius, material.Veins);
             };
 

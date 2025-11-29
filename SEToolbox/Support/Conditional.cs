@@ -62,18 +62,18 @@ namespace SEToolbox.Support
             }
 
             // If the condition is null, return true if all of the values are not null.
-            return values.All(v => v != null);
+            return values.All(v => v != null) ? true : null;
         }
 
         /// <summary>
         /// Returns true if the condition matches any of the values in the given condition-value pairs.
         /// </summary>
         /// <param name="conditionPairs">The condition-value pairs.</param>
-        /// <returns>true if the condition matches any of the values; otherwise, null.</returns>
+        /// <returns>true if the values all match the condition, otherwise false.</returns>
         public static object ConditionPairs(params object[] conditionPairs)
         {
             Dictionary<object, object> valuePairs = [];
-            if (conditionPairs.Length == 0 || conditionPairs.All(v => v == null) || valuePairs.Count == 0)
+            if (conditionPairs.Length == 0 || valuePairs.Count == 0)
                 return null;
 
             object condition = null, value = null;
@@ -87,7 +87,7 @@ namespace SEToolbox.Support
                     return value ?? true;
                 }
             }
-            return valuePairs.All(v => !v.Value.Equals(condition)) ? null : true;
+            return valuePairs.All(v => !v.Value.Equals(condition)) ? null: value ?? true;
         }
 
         public static object NullCoalesced(params object[] values) => ConditionCoalesced(null, values);
@@ -96,7 +96,7 @@ namespace SEToolbox.Support
         /// If the condition matches any of the values, return the value.
         /// Otherwise, return the swap or null if the swap is null.
         /// </summary>
-        public static object ConditionCoalesced(object condition, object value, object swap = null, params object[] values)
+        public static object ConditionCoalesced<T>(T condition, T value, T swap = default, params T[] values)
         {
             var coalesced = (bool)Condition(condition, value, swap) ? value : swap;
             var conditionMatchesValues = (bool)Condition(condition, values);
@@ -108,7 +108,7 @@ namespace SEToolbox.Support
 
             return conditionMatchesValues ? null : value ?? swap ?? condition ?? Condition(condition, values);
         }
-         public static T ConditionCoalesced<T>(object condition, T value, T swap = default, params T[] values) => ConditionCoalesced(condition, value, swap, values);
+
 
     }
 }

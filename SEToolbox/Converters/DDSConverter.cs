@@ -20,8 +20,11 @@ namespace SEToolbox.Converters
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is not string fileName)
+            if (value is not string fileName )
                 throw new NotSupportedException($"{GetType().FullName} cannot convert from {value.GetType().FullName}.");
+
+            if ( value == null || string.IsNullOrEmpty(fileName) )
+                return null;
 
             (int width, int height, bool noAlpha) = ParseSizeParameter(parameter as string);
             string cacheKey = GenerateCacheKey(fileName, width, height);
@@ -69,12 +72,12 @@ namespace SEToolbox.Converters
                 using Bitmap bitmap = (Bitmap)Image.FromStream(textureStream, true);
                 BitmapImage bitmapImage = new();
 
-                using MemoryStream ms = new();
-                bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                ms.Position = 0; // Reset stream position
+                using MemoryStream memStream = new();
+                bitmap.Save(memStream, System.Drawing.Imaging.ImageFormat.Png);
+                memStream.Position = 0; // Reset stream position
 
                 bitmapImage.BeginInit();
-                bitmapImage.StreamSource = ms;
+                bitmapImage.StreamSource = memStream;
                 bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
                 bitmapImage.EndInit();
 
@@ -82,7 +85,6 @@ namespace SEToolbox.Converters
                 {
                     return RescaleBitmap(bitmapImage, width, height);
                 }
-
                 return bitmapImage;
             }
             catch

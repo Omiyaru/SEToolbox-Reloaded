@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
+using ParallelTasks;
 using SEToolbox.Support;
 using VRage.Voxels;
 using VRageMath;
@@ -23,7 +24,6 @@ namespace SEToolbox.Interop.Asteroids
             voxelMap.Save(saveFile);
             voxelMap.Dispose();
         }
-
 
         public static void StripMaterial(string loadFile, string saveFile, string stripMaterial, string replaceFillMaterial)
         {
@@ -309,10 +309,12 @@ namespace SEToolbox.Interop.Asteroids
 
             var cache = new MyStorageData();
             cache.Resize(cacheSize);
+             // LOD1 is not detailed enough for content information on asteroids.
             Vector3I maxRange = block + cacheSize - 1;
             voxelMap.Storage.ReadRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, block, maxRange);
 
             Vector3I p = Vector3I.Zero;
+                    
             PRange.ProcessRange(p, cacheSize);
 
             byte volume = 0;
@@ -350,13 +352,12 @@ namespace SEToolbox.Interop.Asteroids
             {
                 progress = prog;
 
-
+                Debug.Write($"{progress:000},");
                 SConsole.Write($"{progress:000},");
             }
 
 
             GC.Collect();
-
         }
 
         #endregion
@@ -378,4 +379,3 @@ namespace SEToolbox.Interop.Asteroids
         }
     }
 }
-
