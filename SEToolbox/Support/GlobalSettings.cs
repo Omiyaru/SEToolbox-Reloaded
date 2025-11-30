@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-
+using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Win32;
 
@@ -159,7 +159,7 @@ namespace SEToolbox.Support
 
         #region Methods
 
-        public void Save()
+        public async Task Save()
         {
             var key = Registry.CurrentUser.OpenSubKey(BaseKey, true);
             key ??= Registry.CurrentUser.CreateSubKey(BaseKey) ?? null;

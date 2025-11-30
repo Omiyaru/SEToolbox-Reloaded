@@ -49,7 +49,7 @@ namespace SEToolboxUpdate.Properties
                 return resourceMan;
             }
         }
-
+        
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
@@ -60,7 +60,7 @@ namespace SEToolboxUpdate.Properties
             get => resourceCulture;
             set => resourceCulture = value;
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to {0} is designed to be used interally by SEToolbox during the Installation and Update process.
         ///
@@ -73,7 +73,7 @@ namespace SEToolboxUpdate.Properties
         {
             get => ResourceManager.GetString("AppParameterHelpMessage", resourceCulture);
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to SEToolboxUpdate Options.
         /// </summary>
@@ -100,7 +100,7 @@ namespace SEToolboxUpdate.Properties
             get => ResourceManager.GetString("CancelUACTitle", resourceCulture);
 
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to An error occurred whilst attempting to updating the base files.
         ///You may attempt to run SEToolbox but you risk corrupting any Space Engineers world when you save.
@@ -112,7 +112,7 @@ namespace SEToolboxUpdate.Properties
         {
             get => ResourceManager.GetString("UpdateErrorMessage", resourceCulture);
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Update error.
         /// </summary>
