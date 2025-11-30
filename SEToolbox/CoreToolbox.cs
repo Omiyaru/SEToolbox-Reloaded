@@ -30,6 +30,10 @@ namespace SEToolbox
         #region Fields
         private readonly SpaceEngineersCore core = new();
         private string gameBinDir = ToolboxUpdater.GetApplicationFilePath();
+        private static WindowExplorer eWindow = new();
+        private static readonly List<WindowDimension> _windowDimensions = [];
+        private static readonly ExplorerModel explorerModel = new();
+
         #endregion
 
         #region Methods
@@ -56,7 +60,8 @@ namespace SEToolbox
             string filePath = ToolboxUpdater.GetApplicationFilePath();
 
             if (Default.PromptUser || !ToolboxUpdater.ValidateSpaceEngineersInstall(filePath))
-            {
+            {   
+                SConsole.WriteLine("Detecting SE install.");
                 var files = Directory.EnumerateFiles(gameBinDir).Select(Path.GetFileName).ToList();
                 bool isValid = false;
                 var validApplication = validApplications.FirstOrDefault(files.Contains);
@@ -99,11 +104,10 @@ namespace SEToolbox
         {
             string delimiter = "/" ?? "-";
             bool ignoreUpdates = args.Any(arg => arg.Equals($"{delimiter}X", StringComparison.OrdinalIgnoreCase));
-            bool oldDlls = true; // argsContains($"{("/"||"-")}" + ("OLDDLL", StringComparison.CurrentCultureIgnoreCase));
-            bool altDlls = !oldDlls;
+           
 
             // Go looking for any changes in the Dependant Space Engineers assemblies and immediately attempt to update.
-            if (!ignoreUpdates && !altDlls && ToolboxUpdater.IsBaseAssembliesChanged() && !Debugger.IsAttached)
+            if (!ignoreUpdates && ToolboxUpdater.IsBaseAssembliesChanged() && !Debugger.IsAttached)
             {
             	SConsole.WriteLine("Running non-elevated update process.");
                 ToolboxUpdater.RunElevated(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "SEToolboxUpdate"), $"{delimiter}/B " + String.Join(" ", args), false, false);
@@ -214,10 +218,7 @@ namespace SEToolbox
             return true;
         }
         
-        private static WindowExplorer eWindow = new();
-
-        private static readonly ExplorerModel explorerModel = new();
-
+       
         public static void RestoreExplorerWindow(bool allowClose = true)
         {
             ExplorerViewModel eViewModel = new(explorerModel);
@@ -306,8 +307,7 @@ namespace SEToolbox
             }
             TempFileUtil.Dispose();
         }
-
-        private static readonly List<WindowDimension> _windowDimensions = [];
+ 
 
         private static void SaveWindowSettings(WindowExplorer eWindow)
         {
@@ -318,44 +318,8 @@ namespace SEToolbox
                 _windowDimensions.Add(item);
             }
 
-
-
             Default.Save();
         }
-		
-		//move this??
-        //Assembly ResolveAssembly(object sender, ResolveEventArgs args)
-        //{
-
-        //    // Retrieve the list of referenced assemblies in an array of AssemblyName.
-        //    string fileName = $"{args.Name.Substring(0, args.Name.IndexOf(",", StringComparison.Ordinal))}.dll";
-        //    Assembly ResolveAssembly(object sender, ResolveEventArgs args)
-        //    {
-
-        //        // Retrieve the list of referenced assemblies in an array of AssemblyName.
-        //        string fileName = $"{args.Name.Substring(0, args.Name.IndexOf(",", StringComparison.Ordinal))}.dll";
-
-        //        const string filter = @"^(?<assembly>(?:\w+(?:\.?\w+)+))\s*(?:,\s?Version=(?<version>\d+\.\d+\.\d+\.\d+))?(?:,\s?Culture=(?<culture>[\w-]+))?(?:,\s?PublicKeyToken=(?<token>\w+))?$";
-        //        Match match = Regex.Match(args.Name, filter);
-        //        if (match.Success)
-        //        {
-        //            fileName = match.Groups["assembly"].Value + ".dll";
-        //        }
-
-        //        if (ToolboxUpdater.CoreSpaceEngineersFiles.Any(f => string.Equals(f, fileName, StringComparison.OrdinalIgnoreCase)))
-        //        {
-        //            string assemblyPath = Path.Combine(_tempBinPath, fileName);
-
-        //            // Load the assembly from the specified path and then   Return the loaded assembly.
-        //            return Assembly.LoadFrom(assemblyPath);
-        //        }
-
-        //        return null;
-        //    }
-           
-        //}
  		#endregion
     }
 }
-
-

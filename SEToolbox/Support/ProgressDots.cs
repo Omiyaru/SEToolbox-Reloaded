@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SEToolbox.Support
 {
-    class ProgressDots
+    class Loader
     {
         public static async Task WriteProgressDots()
         {//for long running tasks

@@ -1,11 +1,13 @@
 using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.IO;
-using System.Text;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
 
 
 namespace SEToolbox.Support
@@ -22,7 +24,7 @@ namespace SEToolbox.Support
 
       #region Properties
         private static readonly int ATTACH_PARENT_PROCESS = Process.GetCurrentProcess().Id;
-        private static readonly Redirector redirector = new Redirector();
+        private static readonly Redirector redirector = new();
         private static readonly nint dwProcessId = Process.GetCurrentProcess().Id > 0 ? ATTACH_PARENT_PROCESS : 0;
 
         private static bool _isAttached = EnsureAttachment();
@@ -225,6 +227,40 @@ namespace SEToolbox.Support
             return result;
 
             throw new InvalidOperationException($"Severity for {methodName} cannot be found.");
+
+        }
+    }
+    namespace SEToolbox.Support
+    {
+        class Progress()
+        {
+            public static async Task WriteProgressDots()
+            {//for long running tasks
+                const int repeatCount = 3;
+                string progressDots = ".";
+                while (progressDots.Length < repeatCount && true)
+                {
+                    progressDots = string.Concat(Enumerable.Repeat(progressDots, repeatCount));
+                }
+
+
+                var progressDotsTask = Task.Run(async () =>
+                {
+                    while (true)
+                    {
+
+                        SConsole.Write($"running {MethodBase.GetCurrentMethod().Name}{progressDots}");
+                        await Task.Delay(500);
+                        progressDots += ".";
+                    }
+                });
+
+
+                await Task.WhenAny(progressDotsTask, Task.Delay(TimeSpan.FromSeconds(10)));
+                await progressDotsTask;
+                SConsole.WriteLine($"finished {MethodBase.GetCurrentMethod().Name}");
+                return;
+            }
 
         }
     }

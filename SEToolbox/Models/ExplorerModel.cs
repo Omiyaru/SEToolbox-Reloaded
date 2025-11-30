@@ -1417,7 +1417,7 @@ namespace SEToolbox.Models
             if (block == null) throw new ArgumentNullException(nameof(block));
             Type blockType = block.GetType();
 
-            var isRemoteBlock = Conditional.ConditionCoalesced(blockTypes?.FirstOrDefault(blockType.IsAssignableFrom), ((MyObjectBuilder_MechanicalConnectionBlock)block).TopBlockId, ((MyObjectBuilder_ShipConnector)block).ConnectedEntityId, ((MyObjectBuilder_AttachableTopBlockBase)block).ParentEntityId, null);
+           var isRemoteBlock = (long)Conditional.ConditionCoalesced(blockTypes?.FirstOrDefault(blockType.IsAssignableFrom), ((MyObjectBuilder_MechanicalConnectionBlock)block).TopBlockId, ((MyObjectBuilder_ShipConnector)block).ConnectedEntityId, ((MyObjectBuilder_AttachableTopBlockBase)block).ParentEntityId, null);
             var connectionBlockType = GridConnectionTypes.Mechanical | GridConnectionTypes.ConnectorLock;
 
             if (!gridEntityNode.CubeEntityNodes.TryGetValue(block.EntityId, out var cubeEntityNode) && cubeEntityNode != null)
@@ -1431,7 +1431,7 @@ namespace SEToolbox.Models
                             GridConnectionType = connectionBlockType,
                             EntityId = block.EntityId,
                             Entity = block,
-                            RemoteEntityId = isRemoteBlock ?? null
+                            RemoteEntityId = isRemoteBlock 
                         };
                         gridEntityNode.CubeEntityNodes[block.EntityId] = cubeEntityNode;
                         break;

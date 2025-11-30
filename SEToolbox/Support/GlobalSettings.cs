@@ -8,7 +8,6 @@ using System.Reflection;
 
 using System.Windows;
 using Microsoft.Win32;
-using RestSharp.Validation;
 
 namespace SEToolbox.Support
 {
@@ -133,7 +132,7 @@ namespace SEToolbox.Support
         private double? ValidateWindowDimension(double? value, WindowDimension dimension = default)
         {   
             value ??= 0;
-            SConsole.WriteLine($"Validating Window Dimension: {value}{WriteProgressDots()}");
+            SConsole.WriteLine($"Validating Window Dimension");
             if (dimension.Width.HasValue && dimension.Height.HasValue)
             {
                 var primaryScreenWidth = SystemParameters.PrimaryScreenWidth - dimension.Width.Value;
@@ -151,6 +150,8 @@ namespace SEToolbox.Support
 
             return value.HasValue && value >= 0 && value >= double.MinValue && value <= double.MaxValue ? value : null;
         }
+
+      
 
         private static readonly Type Settings = typeof(GlobalSettings);
 

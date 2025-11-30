@@ -584,7 +584,8 @@
                     </Style>
                 </ContentControl.Style>
             </ContentControl>
-        <ContentControl x:Name="MultipleSelection" Visibility="{Binding DataContext.IsMultipleSelections, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+        <ContentControl x:Name="MultipleSelectionControl" Visibility="{Binding DataContext.IsMultipleSelections, Converter={StaticResource BooleanToVisibilityConverter}}">
         <views:ControlMultiple />
     </ContentControl>
                 </Grid>

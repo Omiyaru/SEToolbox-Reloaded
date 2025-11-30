@@ -77,7 +77,7 @@ namespace SEToolbox.Support
                             exception = (T)Activator.CreateInstance(type, message, exceptionTypeEnum);
                         }
                     }
-                    SConsole.WriteLine(exception);
+                    SConsole.WriteLine(exception as string);
                     Debug.WriteLine(exception);
                 }
             }

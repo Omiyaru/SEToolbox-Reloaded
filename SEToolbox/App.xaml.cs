@@ -27,14 +27,14 @@ namespace SEToolbox
     public partial class App : Application
     {
         private CoreToolbox _toolboxApplication;
-        private static GlobalSettings settings = GlobalSettings.Default;
+        private static readonly GlobalSettings settings = GlobalSettings.Default;
         private void OnStartup(object sender, StartupEventArgs e)
         {
             bool appendLog = Enumerable.Contains(e.Args, "/appendlog");
 
             Log.Init("./log.txt", appendLog);
             SConsole.Init();
-            SConsole.WriteLine($"Starting. {WriteProgressDots()}");
+            SConsole.WriteLine($"Starting. {Loader.WriteProgressDots()}");
             
 
             //TException.InitializeListeners();
@@ -70,7 +70,7 @@ namespace SEToolbox
         private static void ClearBinCache()
         {
             // Clear app bin cache.
-            SConsole.WriteLine($"Clearing bin cache{WriteProgressDots()}");
+            SConsole.WriteLine($"Clearing bin cache{Loader.WriteProgressDots()}");
             string binCache = ToolboxUpdater.GetBinCachePath();
             if (Directory.Exists(binCache))
             {
@@ -91,7 +91,7 @@ namespace SEToolbox
             CultureInfo culture;
             try
             {
-                SConsole.WriteLine($"Configuring localization{WriteProgressDots()}");
+                SConsole.WriteLine($"Configuring localization{Loader.WriteProgressDots()}");
                 culture = !string.IsNullOrWhiteSpace(settings.LanguageCode)
                           ? CultureInfo.GetCultureInfoByIetfLanguageTag(settings.LanguageCode)
                           : CultureInfo.CurrentUICulture;
@@ -120,7 +120,7 @@ namespace SEToolbox
 
         private static void CheckForUpdates(string[] args)
         {
-            SConsole.WriteLine($"Checking for updates{WriteProgressDots()}");
+            SConsole.WriteLine($"Checking for updates{Loader.WriteProgressDots()}");
 
             string delimiter = "/" ?? "-";
             if (args.Length == 0 || (args.Length == 1 && args[0].Equals($"{delimiter}U", StringComparison.OrdinalIgnoreCase)))
@@ -156,7 +156,7 @@ namespace SEToolbox
 
         private static void ConfigureServices()
         {
-            SConsole.WriteLine($"Configuring Service Locator.{WriteProgressDots()}");
+            SConsole.WriteLine($"Configuring Service Locator.{Loader.WriteProgressDots()}");
             ServiceLocator.RegisterSingleton<IDialogService, DialogService>();
             ServiceLocator.Register<IOpenFileDialog, OpenFileDialogViewModel>();
             ServiceLocator.Register<ISaveFileDialog, SaveFileDialogViewModel>();
@@ -175,7 +175,7 @@ namespace SEToolbox
             _toolboxApplication = new CoreToolbox();
             string message = string.Empty;
 
-           SConsole.WriteLine($"SEToolbox: {$"Initializing {nameof(CoreToolbox)}{WriteProgressDots()}"}");
+           SConsole.WriteLine($"SEToolbox: {$"Initializing {nameof(CoreToolbox)}{Loader.WriteProgressDots()}"}");
             switch (_toolboxApplication)
             {
 

@@ -1,8 +1,9 @@
 using System;
-using System.CodeDom;
-using System.Collections;
+
+
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Media.Media3D;
 
 namespace SEToolbox.Support
 {
@@ -96,20 +97,20 @@ namespace SEToolbox.Support
         /// If the condition matches any of the values, return the value.
         /// Otherwise, return the swap or null if the swap is null.
         /// </summary>
-        public static object ConditionCoalesced<T>(T condition, T value, T swap = default, params T[] values)
+        public static object ConditionCoalesced<T>(object condition, T value, T swap = default, params T[] values)
         {
             var coalesced = (bool)Condition(condition, value, swap) ? value : swap;
             var conditionMatchesValues = (bool)Condition(condition, values);
             if (Null(condition, value, swap, values))
                 return null;
-
+           
             if (values.Length == 0)
                 return coalesced;
 
-            return conditionMatchesValues ? null : value ?? swap ?? condition ?? Condition(condition, values);
+            return conditionMatchesValues ? default : value ?? swap ?? condition ?? Condition(condition, values);
         }
-
-
+        public static object ConditionCoalesced(object condition, object value, object swap = null, params object[] values) =>
+            ConditionCoalesced<object>(condition, value, swap, values);
     }
 }
 
