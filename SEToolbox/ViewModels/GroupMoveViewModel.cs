@@ -80,9 +80,7 @@ namespace SEToolbox.ViewModels
         {
             get => _dataModel.GlobalOffsetPositionX;
             set => SetValue(_dataModel.GlobalOffsetPositionX, value, () =>
-            {
-                _dataModel.CalcOffsetDistances();
-            });
+                 _dataModel.CalcOffsetDistances());
         }
 
         public float GlobalOffsetPositionY
@@ -90,65 +88,49 @@ namespace SEToolbox.ViewModels
             get => _dataModel.GlobalOffsetPositionY;
 
             set => SetValue(_dataModel.GlobalOffsetPositionY, value, () =>
-            {
-                _dataModel.CalcOffsetDistances();
-            });
+                 _dataModel.CalcOffsetDistances());
         }
 
         public float GlobalOffsetPositionZ
         {
             get => _dataModel.GlobalOffsetPositionZ;
             set => SetValue(_dataModel.GlobalOffsetPositionZ, value, () =>
-            {
-                _dataModel.CalcOffsetDistances();
-            });
+                 _dataModel.CalcOffsetDistances());
         }
 
         public bool IsGlobalOffsetPosition
         {
             get => _dataModel.IsGlobalOffsetPosition;
             set => SetValue(_dataModel.IsGlobalOffsetPosition, value, () =>
-            {
-                _dataModel.CalcOffsetDistances();
-            });
+                  _dataModel.CalcOffsetDistances());
         }
 
         public float SinglePositionX
         {
             get => _dataModel.SinglePositionX;
             set => SetValue(_dataModel.SinglePositionX, value, () =>
-            {
-                _dataModel.CalcOffsetDistances();
-            });
+                  _dataModel.CalcOffsetDistances());
         }
 
         public float SinglePositionY
         {
             get => _dataModel.SinglePositionY;
             set => SetValue(_dataModel.SinglePositionY, value, () =>
-            {
-
-                _dataModel.CalcOffsetDistances();
-            });
+                    _dataModel.CalcOffsetDistances());
         }
 
         public float SinglePositionZ
         {
             get => _dataModel.SinglePositionZ;
             set => SetValue(_dataModel.SinglePositionZ, value, () =>
-            {
-                _dataModel.CalcOffsetDistances();
-            });
+                   _dataModel.CalcOffsetDistances());
         }
 
         public bool IsSinglePosition
         {
             get => _dataModel.IsSinglePosition;
-
             set => SetValue(_dataModel.IsSinglePosition, value, () =>
-            {
-                _dataModel.CalcOffsetDistances();
-            });
+                   _dataModel.CalcOffsetDistances());
         }
 
         public bool IsRelativePosition

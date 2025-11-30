@@ -23,7 +23,7 @@ namespace SEToolbox.Converters
             if (value is not string fileName )
                 throw new NotSupportedException($"{GetType().FullName} cannot convert from {value.GetType().FullName}.");
 
-            if ( value == null || string.IsNullOrEmpty(fileName) )
+            if (value == null || string.IsNullOrEmpty(fileName))
                 return null;
 
             (int width, int height, bool noAlpha) = ParseSizeParameter(parameter as string);
@@ -85,6 +85,7 @@ namespace SEToolbox.Converters
                 {
                     return RescaleBitmap(bitmapImage, width, height);
                 }
+                Cache.Add(fileName, bitmapImage);
                 return bitmapImage;
             }
             catch

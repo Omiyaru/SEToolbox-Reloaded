@@ -43,15 +43,12 @@ namespace SEToolbox.Services
         private static void OnCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             CommandReference commandReference = d as CommandReference;
+            ICommand oldCommand = e.OldValue as ICommand;
+            ICommand newCommand = e.NewValue as ICommand;
 
-            if (e.OldValue is ICommand oldCommand)
-            {
-                oldCommand.CanExecuteChanged -= commandReference.CanExecuteChanged;
-            }
-            if (e.NewValue is ICommand newCommand)
-            {
-                newCommand.CanExecuteChanged += commandReference.CanExecuteChanged;
-            }
+            oldCommand?.CanExecuteChanged -= commandReference.CanExecuteChanged;
+            newCommand?.CanExecuteChanged += commandReference.CanExecuteChanged;
+
         }
 
         #endregion

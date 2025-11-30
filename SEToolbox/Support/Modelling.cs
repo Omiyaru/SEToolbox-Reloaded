@@ -101,7 +101,7 @@ namespace SEToolbox.Support
             }
 
             Rect3D tbounds = model.Bounds;
-
+        if (transform != null)
             tbounds = transform.TransformBounds(tbounds);
 
 
@@ -290,7 +290,7 @@ namespace SEToolbox.Support
                 CalculateAddedCorners(cubic, incrementProgress);
             }
 
-            // Uncomment the following block to execute the calculations
+           
             if (traceType == ModelTraceVoxel.ThickSmoothedDown)
             {
                 CalculateSubtractedCorners(cubic, incrementProgress);
@@ -867,6 +867,9 @@ namespace SEToolbox.Support
                 {
                     cubic[x][y][z] = CubeType.Cube;
                 }
+                  newCube.EntityId = 0;
+                  newCube.BlockOrientation = GetCubeOrientation(cubic[x][y][z]);
+                  newCube.Min = new Vector3I(x, y, z);
             });
         }
 
@@ -959,10 +962,8 @@ namespace SEToolbox.Support
 
             foreach ((CubeType slopeType, (int dx, int dy, int dz) cubeCheck, (int dx, int dy, int dz) noneCheck) in slopeChecks)
             {
-                if (CheckAdjacentCubic(cubic, x, y, z, xCount, yCount, zCount,
-                    cubeCheck.dx, cubeCheck.dy, cubeCheck.dz, CubeType.Cube) &&
-                    CheckAdjacentCubic(cubic, x, y, z, xCount, yCount, zCount,
-                    noneCheck.dx, noneCheck.dy, noneCheck.dz, CubeType.None))
+                if (CheckAdjacentCubic(cubic, x, y, z, xCount, yCount, zCount, cubeCheck.dx, cubeCheck.dy, cubeCheck.dz, CubeType.Cube) &&
+                    CheckAdjacentCubic(cubic, x, y, z, xCount, yCount, zCount, noneCheck.dx, noneCheck.dy, noneCheck.dz, CubeType.None))
                 {
                     return slopeType;
                 }
@@ -972,7 +973,8 @@ namespace SEToolbox.Support
         }
 
         #endregion
-
+        
+        //experimental
         #region CalculateSubtractedInverseCorners
 
         public static void CalculateSubtractedInverseCorners(CubeType[][][] cubic, Action incrementProgress = null)

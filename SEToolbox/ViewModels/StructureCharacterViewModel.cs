@@ -87,37 +87,29 @@ namespace SEToolbox.ViewModels
         public System.Windows.Media.Brush Color
         {
             get => new System.Windows.Media.SolidColorBrush(DataModel.Color.FromHsvMaskToPaletteMediaColor());
-            set => SetProperty(DataModel.Color, ((System.Windows.Media.SolidColorBrush)value).Color.FromPaletteColorToHsvMask(), () =>
-            {
-                MainViewModel.IsModified = true;
-            });
+            set => SetValue(DataModel.Color, ((System.Windows.Media.SolidColorBrush)value).Color.FromPaletteColorToHsvMask(), () =>
+                   MainViewModel.IsModified = true); 
         }
 
         public bool Light
         {
             get => DataModel.Light;
-            set => SetProperty(DataModel.Light, value, () =>
-            {
-                MainViewModel.IsModified = true;
-            });
+            set => SetValue(DataModel.Light, value, () =>
+                   MainViewModel.IsModified = true); 
         }
 
         public bool JetPack
         {
             get => DataModel.JetPack;
-            set => SetProperty(DataModel.JetPack, value, () =>
-            {
-                MainViewModel.IsModified = true;
-            });
+            set => SetValue(DataModel.JetPack, value, () =>
+                   MainViewModel.IsModified = true); 
         }
 
         public bool Dampeners
         {
             get => DataModel.Dampeners;
-            set => SetProperty(DataModel.Dampeners, value, () =>
-            {
-                DataModel.Dampeners = value;
-            });  
+            set => SetValue(DataModel.Dampeners, value, () =>
+                   MainViewModel.IsModified = true);  
   
         }
 

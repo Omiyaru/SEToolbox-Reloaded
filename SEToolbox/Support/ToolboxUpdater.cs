@@ -172,11 +172,11 @@ namespace SEToolbox.Support
             const string executableName = "SpaceEngineers.exe";
             const string contentPath = @"..\Content";
 
-            if (string.IsNullOrWhiteSpace(installationPath)||
-                string.IsNullOrEmpty(installationPath) && 
+            if (string.IsNullOrWhiteSpace(installationPath) ||
+                string.IsNullOrEmpty(installationPath) &&
                 !Directory.Exists(installationPath) &&
                 !Directory.Exists(Path.Combine(installationPath, contentPath))
-            
+
                 && !File.Exists(Path.Combine(executableName)))
             {
                 return false;
@@ -220,13 +220,13 @@ namespace SEToolbox.Support
                                            .ToList();
 
             if (filesToCopy.Count == 0)
-            {  
+            {
                 return false;
             }
             foreach (var file in filesToCopy)
             {
-                  File.Copy(file.Source, file.Destination, true);
-            }              
+                File.Copy(file.Source, file.Destination, true);
+            }
             return true;
         }
 
@@ -250,15 +250,15 @@ namespace SEToolbox.Support
 
                 var readStreamA = stream1.Read(bufferA, 0, bufferA.Length);
                 var readStreamB = stream2.Read(bufferB, 0, bufferB.Length);
-            
+
                 if (readStreamA != readStreamB)
                     return true;
 
 
-                return !Enumerable.SequenceEqual(bufferA,bufferB);
+                return !Enumerable.SequenceEqual(bufferA, bufferB);
 
-    }
-    return false;
+            }
+            return false;
         }
 
         #endregion
@@ -289,9 +289,10 @@ namespace SEToolbox.Support
 
         #region RunElevated
 
-        internal static int? RunElevated(string fileName,string arguments, bool elevate, bool waitForExit)
+        internal static int? RunElevated(string fileName, string arguments, bool elevate, bool waitForExit)
         {
-            var processInfo = new ProcessStartInfo {
+            var processInfo = new ProcessStartInfo
+            {
                 FileName = fileName,
                 Arguments = arguments
             };
@@ -303,7 +304,7 @@ namespace SEToolbox.Support
             {
                 var process = Process.Start(processInfo);
 
-                if (!ReferenceEquals(null, elevate&& elevate) && waitForExit)
+                if (!ReferenceEquals(null, elevate) && waitForExit)
                 {
                     process.WaitForExit();
                     return process.ExitCode;

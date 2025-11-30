@@ -61,7 +61,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
+            set => SetValue(ref _closeResult, value, nameof(CloseResult));
         }
 
         /// <summary>
@@ -213,8 +213,8 @@ namespace SEToolbox.ViewModels
                     var gasContainer = entity.Item.PhysicalContent as MyObjectBuilder_GasContainerObject;
                     _ = (gasContainer?.GasLevel = 1f);
                     break;
-                case var t when t == MOBTypeIds.OxygenContainerObject:
-                    break;
+                //case var t when t == MOBTypeIds.OxygenContainerObject:
+                   // break;
                 default:
                     // As yet uncatered for items which may be new.
                     IsValidItemToImport = false;

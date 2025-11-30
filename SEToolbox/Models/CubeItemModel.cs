@@ -79,8 +79,8 @@ namespace SEToolbox.Models
 
         public long BuiltBy
         {
-            get => Cube.BuiltBy;
-            set => SetProperty(Cube.BuiltBy, value, nameof(BuiltBy));
+            get => _cube.BuiltBy;
+            set => SetProperty(ref _cube.BuiltBy, value, nameof(BuiltBy));
 
         }
 
@@ -215,10 +215,11 @@ namespace SEToolbox.Models
         {
             var resource = SpaceEngineersResources.CubeBlockDefinitions.FirstOrDefault(b => b.Id.TypeId == cube.TypeId && b.Id.SubtypeName == cube.SubtypeName);
 
-            if (resource == null)
+          if (resource == null) 
             {
                 return false;
             }
+           
 
             var newSubTypeName = resource.Id.SubtypeName switch
             {
@@ -244,21 +245,21 @@ namespace SEToolbox.Models
         {
             var cubeBlockDefinitions = SpaceEngineersResources.CubeBlockDefinitions;
             var typeId = cube.TypeId;
-            var subTypeId = cube.SubtypeName;
-            var newSubTypeId = subTypeId switch
+            var subTypeName = cube.SubtypeName;
+            var newSubTypeName = subTypeName switch
             {
-                { } SubTypeId when subTypeId.StartsWith("LargeHeavyBlockArmor") => SubTypeId.Replace("LargeHeavyBlockArmor", "LargeBlockArmor"),
-                { } SubTypeId when subTypeId.StartsWith("Large") && (subTypeId.EndsWith("HalfArmorBlock") || 
-                                   subTypeId.EndsWith("HalfSlopeArmorBlock")) => SubTypeId.Replace("LargeHeavyHalf", "LargeHalf"),
-                { } SubTypeId when subTypeId.StartsWith("SmallHeavyBlockArmor") => SubTypeId.Replace("SmallHeavyBlockArmor", "SmallBlockArmor"),
-                { } SubTypeId when !subTypeId.StartsWith("Large") && (subTypeId.EndsWith("HalfArmorBlock") || 
-                                   subTypeId.EndsWith("HalfSlopeArmorBlock")) => Regex.Replace(SubTypeId, "^(HeavyHalf)(.*)", "Half$2", RegexOptions.IgnoreCase),
+                { } SubTypeName when SubTypeName.StartsWith("LargeHeavyBlockArmor") => SubTypeName.Replace("LargeHeavyBlockArmor", "LargeBlockArmor"),
+                { } SubTypeName when SubTypeName.StartsWith("Large") && (SubTypeName.EndsWith("HalfArmorBlock") || 
+                                   SubTypeName.EndsWith("HalfSlopeArmorBlock")) => SubTypeName.Replace("LargeHeavyHalf", "LargeHalf"),
+                { } SubTypeName when SubTypeName.StartsWith("SmallHeavyBlockArmor") => SubTypeName.Replace("SmallHeavyBlockArmor", "SmallBlockArmor"),
+                { } SubTypeName when !SubTypeName.StartsWith("Large") && (SubTypeName.EndsWith("HalfArmorBlock") || 
+                                   SubTypeName.EndsWith("HalfSlopeArmorBlock")) => Regex.Replace(SubTypeName, "^(HeavyHalf)(.*)", "Half$2", RegexOptions.IgnoreCase),
                 _ => null
             };
 
-            if (newSubTypeId != null && cubeBlockDefinitions.Any(b => b.Id.TypeId == typeId && b.Id.SubtypeName == newSubTypeId))
+            if (newSubTypeName != null && cubeBlockDefinitions.Any(b => b.Id.TypeId == typeId && b.Id.SubtypeName == newSubTypeName))
             {
-                cube.SubtypeName = newSubTypeId;
+                cube.SubtypeName = newSubTypeName;
                 return true;
             }
 

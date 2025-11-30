@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Input;
+using SEToolbox.Models;
 
 namespace SEToolbox.Services
 {
@@ -11,6 +12,7 @@ namespace SEToolbox.Services
 
     public class DelegateCommand(Action executeMethod, Func<bool> canExecuteMethod, bool isAutomaticRequeryDisabled) : ICommand
     {
+        BaseModel baseModel = new BaseModel();
         #region Constructors
 
         /// <summary>
@@ -57,9 +59,9 @@ namespace SEToolbox.Services
         ///     Execution of the command
         /// </summary>
         public void Execute()
-        { 
+        {
             _executeMethod?.Invoke();
-    }
+        }
 
         /// <summary>
         ///     Property to enable or disable CommandManager's automatic requery on this command
@@ -67,24 +69,22 @@ namespace SEToolbox.Services
         public bool IsAutomaticRequeryDisabled
         {
             get => _isAutomaticRequeryDisabled;
-            set
+            set => baseModel.SetValue(ref _isAutomaticRequeryDisabled, value, () =>
             {
-                if (_isAutomaticRequeryDisabled != value)
+                var handlers = _canExecuteChangedHandlers;
+                if (value)
                 {
-                    if (value)
-                    {
-                        CommandManagerHelper.RemoveHandlersFromRequerySuggested(_canExecuteChangedHandlers);
-                    }
-                    else
-                    {
-                        CommandManagerHelper.AddHandlersToRequerySuggested(_canExecuteChangedHandlers);
-                    }
-                    _isAutomaticRequeryDisabled = value;
+                    CommandManagerHelper.RemoveHandlersFromRequerySuggested(handlers);
                 }
-            }
+                else
+                {
+                    CommandManagerHelper.AddHandlersToRequerySuggested(handlers);
+                }
+               
+            }, _isAutomaticRequeryDisabled = value);
         }
 
-        
+
 
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace SEToolbox.Services
         {
             _executeMethod?.Invoke(parameter);
         }
-    
+
 
         /// <summary>
         ///     Raises the CanExecuteChaged event
@@ -397,8 +397,8 @@ namespace SEToolbox.Services
                 {
                     WeakReference reference = handlers[i];
 
-                     if(reference.Target is EventHandler existingHandler &&
-                       ReferenceEquals(existingHandler, handler))
+                    if (reference.Target is EventHandler existingHandler &&
+                      ReferenceEquals(existingHandler, handler))
                     {
                         // Clean up old handlers that have been collected
                         // in addition to the handler that is to be removed.

@@ -17,8 +17,10 @@ namespace SEToolbox.Support
         /// <returns></returns>
         internal static Dictionary<Color, Color> GetOptimizerPalatte()
         {
-            var palette = new Dictionary<Color, Color>
+            return new Dictionary<Color, Color>()
             {
+                
+            
                 {Color.FromArgb(255, 0, 0, 0), Color.Black},
                 {Color.FromArgb(255, 20, 20, 20), Color.Black},
                 {Color.FromArgb(255, 40, 40, 40), Color.Black},
@@ -82,9 +84,8 @@ namespace SEToolbox.Support
 
                 // Make 'Transparent' last, to give preference to 'White' above, otherwise white can be mistakenly made transparent.
                 {Color.Transparent, Color.Transparent},
-            };
 
-            return palette;
+            };
         }
 
         /// <summary>
@@ -93,7 +94,7 @@ namespace SEToolbox.Support
         /// <returns></returns>
         public static Dictionary<Color, string> GetPalatteNames()
         {
-            Dictionary<Color, string> palette = new()
+          return new Dictionary<Color, string>()
             {
                 {Color.Black, "Black"},
                 {Color.Gray, "Gray"},
@@ -103,8 +104,6 @@ namespace SEToolbox.Support
                 {Color.Blue, "Blue"},
                 {Color.Yellow, "Yellow"},
             };
-
-            return palette;
         }
 
         #endregion

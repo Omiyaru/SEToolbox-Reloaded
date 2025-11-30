@@ -57,7 +57,7 @@ namespace SEToolboxUpdate
 
             // Install.
 
-
+            string install = args.FirstOrDefault(a => installMap.Keys.Any(k => k.Equals(a, StringComparison.OrdinalIgnoreCase))) ?? string.Empty;
             bool argumments = args.Any(a => a.Equals(delimiter + install, StringComparison.OrdinalIgnoreCase));
 
             if (installMap.TryGetValue(install, out var action) && argumments)
@@ -105,11 +105,8 @@ namespace SEToolboxUpdate
                     MessageBox.Show(Res.UpdateRequiredUACMessage, Res.UpdateRequiredTitle, MessageBoxButton.OK, MessageBoxImage.Information);
                     
                     int? ret = ToolboxUpdater.RunElevated(updaterExePath,$"{join} {installMap.Keys.FirstOrDefault()}", elevate: true, waitForExit: true);
-
-                     if (ret is { } r)
-                        SConsole.WriteLine($"Elevated updater process closed with exit code {r}.");
-                    else
-                        SConsole.WriteLine("Failed to start updater process.");
+            
+                    SConsole.WriteLine($"Elevated updater process closed with exit code {(ret.HasValue ? ret.Value : "Failed to start updater process.")}");
 
                     // Don't run toolbox from the elevated process, do it here.
                     if (ret.HasValue)
@@ -238,10 +235,12 @@ namespace SEToolboxUpdate
             {
                 try
                 {
+                    SConsole.WriteLine($"Updating {files.Length} files from {path} to {baseFilePath}");
                     foreach (string fileName in files)
                     {
                         string sourceFile = Path.Combine(path, fileName);
                         File.Copy(sourceFile, Path.Combine(baseFilePath, fileName), overwrite: true);
+
                     }
                 }
                 catch (Exception ex)

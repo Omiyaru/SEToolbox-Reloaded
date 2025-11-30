@@ -3,9 +3,6 @@
   <!--
     Microsoft ResX Schema
 
-  <!--
-    Microsoft ResX Schema
-
     Version 2.0
 
     The primary goals of this format is to allow a simple XML format
@@ -177,27 +174,6 @@
   <data name="ClassType_Voxel" xml:space="preserve">
     <value>Asteroid</value>
   </data>
-  <data name="asteroid" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Asteroid.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="delete2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\delete2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="string_format" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\string_format.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="export" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\export1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="SpaceEngineers16" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\SpaceEngineers16x16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="speedometer" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\spedometer 16x16.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="wrench" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\wrench.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="DialogAsteroidFiles" xml:space="preserve">
     <value>Asteroid files</value>
   </data>
@@ -245,7 +221,7 @@ To use the SEToolbox, you must have the Space Engineers game installed on your c
   </data>
   <data name="CtlVoxelDetail" xml:space="preserve">
     <value>Filename:	{0}
-	  Bounding Size:	{1} x {2} x {3} blocks
+	Bounding Size:	{1} x {2} x {3} blocks
 		  	   Size:	{4} m x {5} m x {6} m
 	   		 Center:	{7}, {8}, {9}
 	     	 Volume:	{10:#,##0.00} m³
@@ -257,18 +233,18 @@ To use the SEToolbox, you must have the Space Engineers game installed on your c
 			{16}</value>
   </data>
   <data name="CtlCubeDetail" xml:space="preserve">
-    <value>Name:	{0}
-		   Type:	{1}
-		Piloted:	{2}
-		 Damage:	{3}
-		  Speed:	{4:#,##0.000} m/s
-	   Distance:	{5:#,##0.0} m
-		  Scale:	{6} x {7} x {8} blocks
-		   Size:	{9} m x {10} m x {11} m
-		   Mass:	{12:#,##0.00} kg
-	     Blocks:	{13:#,##0}
-	   Position:	{14}, {15}, {16}
-			PCU:	{17:#,##0}
+    <value>Name:  {0}
+           Type:	{1}
+        Piloted:	{2}
+        Damage:	  {3}
+          Speed:	{4:#,##0.000} m/s
+      Distance:	  {5:#,##0.0} m
+          Scale:	{6} x {7} x {8} blocks
+          Size:	  {9} m x {10} m x {11} m
+          Mass:	  {12:#,##0.00} kg
+        Blocks:	  {13:#,##0}
+      Position:	  {14}, {15}, {16}
+            PCU:	{17:#,##0}
 Total time to produce:	{18:dd} days, {18:hh} hours, {18:mm\:ss\.ff}
 	
 	Construction Requirements:
@@ -2786,7 +2762,7 @@ Please update it before running SEToolbox {2} again.</value>
     <value>Changes have been made</value>
   </data>
   <data name="ErrorLoadFileError" xml:space="preserve">
-    <value>Failed to load file: {0} 
+    <value>Failed to load file: {0}
 Reason: {1}</value>
   </data>
   <data name="ErrorLoadSaveGameFileError" xml:space="preserve">

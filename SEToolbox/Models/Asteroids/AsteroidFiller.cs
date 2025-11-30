@@ -72,12 +72,13 @@ namespace SEToolbox.Models.Asteroids
             var randomModel = filler.CreateRandom(VoxelCollection.Count + 1, dataModel.BaseMaterial, MaterialsCollection, VoxelFileList) as AsteroidByteFillProperties;
             if (SelectedRow != null)
             {
-                VoxelCollection[VoxelCollection.IndexOf(SelectedRow)] = randomModel;
+                int index = VoxelCollection.IndexOf(SelectedRow);
+                VoxelCollection[index] = randomModel;
             }
             else
             {
                 VoxelCollection.Add(randomModel);
-            }
+            }      
         }
 
         public void FillAsteroid(MyVoxelMapBase asteroid, IMyVoxelFillProperties fillProperties)

@@ -1,71 +1,55 @@
+using System;
+using System.IO;
+using System.Reflection;
+using System.Windows.Data;
+using System.Windows.Media.Imaging;
+
 namespace SEToolbox.Converters
 {
-    using System;
-    using System.IO;
-    using System.Reflection;
-    using System.Windows.Data;
-    using System.Windows.Media.Imaging;
     public class ResourceToImageConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            var imageParameter = value as string ?? parameter as string;
+            string imageParameter = value as string ?? parameter as string;
+            var stringNullOrEmpty = string.IsNullOrEmpty(imageParameter) as bool?;
 
-            if (string.IsNullOrEmpty(imageParameter))
+            if (stringNullOrEmpty == true)
+            {
                 return null;
-
-            System.Drawing.Bitmap bitmap = null;
-
-            // Application Resource - File Build Action is marked as None, but stored in ImageResources.resx
-            // parameter= myresourceimagename
-            try
-            {
-                bitmap = Properties.ImageResources.ResourceManager.GetObject(imageParameter) as System.Drawing.Bitmap;
             }
-            catch { }
 
+            var assembly = Assembly.GetExecutingAssembly();
+            var stream = assembly.GetManifestResourceStream(imageParameter);
             var bitmapImage = new BitmapImage();
-
-            if (bitmap != null)
+           
+            if (stream == null)
             {
-                using (var ms = new MemoryStream())
+                 var bitmap = System.Drawing.Image.FromStream(stream) ?? Properties.Resources.ResourceManager.GetObject(imageParameter) as System.Drawing.Bitmap;
+                     
+                try
                 {
-                    bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                    bitmapImage.BeginInit();
-                    bitmapImage.StreamSource = ms;
-                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmapImage.EndInit();
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        bitmap?.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+                        bitmapImage.BeginInit();
+                        bitmapImage.StreamSource = memoryStream;
+                        bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmapImage.EndInit();
+                        return bitmapImage;
+                    }
                 }
-
-                return bitmapImage;
+                catch
+                {
+                    return null;
+                }
             }
-
-            // Embedded Resource - File Build Action is marked as Embedded Resource
-            // parameter= MyWpfApplication.EmbeddedResource.myotherimage.png
-            var asm = Assembly.GetExecutingAssembly();
-            var stream = asm.GetManifestResourceStream(imageParameter);
-
-            if (stream != null)
-            {
+            if (stream != null || Uri.TryCreate(imageParameter, UriKind.RelativeOrAbsolute, out Uri imageUriSource))
+                {
                 bitmapImage.BeginInit();
                 bitmapImage.StreamSource = stream;
                 bitmapImage.EndInit();
-
                 return bitmapImage;
             }
-
-            // This is the standard way of using Image.SourceDependancyProperty.  You shouldn't need to use a converter to to this.
-            // Resource - File Build Action is marked as Resource
-            // parameter= pack://application:,,,/MyWpfApplication;component/Images/myfunkyimage.png
-
-            if (Uri.TryCreate(imageParameter, UriKind.RelativeOrAbsolute, out Uri imageUriSource))
-            {
-                bitmapImage.BeginInit();
-                bitmapImage.UriSource = imageUriSource;
-                bitmapImage.EndInit();
-                return bitmapImage;
-            }
-
             return null;
         }
 

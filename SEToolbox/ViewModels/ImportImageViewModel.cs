@@ -97,7 +97,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
+            set => SetValue(ref _closeResult, value, nameof(CloseResult));
         }
 
         public string FileName
@@ -105,9 +105,8 @@ namespace SEToolbox.ViewModels
             get => _dataModel.FileName;
 
             set => SetValue(_dataModel.FileName, value, () => 
-            {
-                FileNameChanged();
-            });
+                   FileNameChanged());  
+
         }
 
         public bool IsValidImage

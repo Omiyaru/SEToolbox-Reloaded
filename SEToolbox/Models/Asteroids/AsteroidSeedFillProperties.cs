@@ -288,7 +288,7 @@ namespace SEToolbox.Models.Asteroids
             MaterialsData[index] = ($"{material}", material, radius, veins);
         }
 
-        internal void RandomizeMaterials()
+        internal void Randomize()
         {
             if (MaterialsList == null || MaterialsList.Count == 0)
                 throw new InvalidOperationException(" Materials list is empty or not initialized.");
@@ -302,6 +302,7 @@ namespace SEToolbox.Models.Asteroids
             var radius = RandomUtil.GetInt((int)(MaterialsData.Select(x => x.Value.Radius).Min() * 0.85),
                                      (int)(MaterialsData.Select(x => x.Value.Radius).Max() * 1.5 * 0.85));
 
+          
             MainMaterial = MaterialsList[indices[0]];
             var materialIndices = indices.Skip(1).Take(veins).ToArray();
             foreach (var index in materialIndices)

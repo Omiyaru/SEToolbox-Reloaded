@@ -298,11 +298,21 @@ namespace SEToolbox.Models
 
             var voxelFilesToRemove = new HashSet<string>();
             var voxelFilesToCopy = new List<(string, string)>();
-
+            
             foreach (IStructureBase entity in Structures ?? Enumerable.Empty<IStructureBase>())
-            {
+            {var entType = typeof(StructureVoxelModel) == entity.GetType() ? entity.GetType() : typeof(StructurePlanetModel);
+            var voxelFilePath = entType.GetProperty("VoxelFilePath") ?? entType.GetProperty("SourceVoxelFilePath");;
+                switch (entity)
+                {
+                    case IStructureBase when entity is StructureVoxelModel && entType == typeof(StructureVoxelModel):
+                    case IStructureBase when entity is StructurePlanetModel && entType == typeof(StructurePlanetModel):
+                    if (voxelFilePath != null && File.Exists((string)voxelFilePath.GetValue(entity)))
+                        voxelFilesToRemove.Add((string)voxelFilePath.GetValue(entity));
+                        break;   
+                }
                 if (entity is StructureVoxelModel voxel && File.Exists(voxel?.SourceVoxelFilePath))
                 {
+
                     // If the voxel file already exists, add it to the remove list.
                     if (File.Exists(voxel.VoxelFilePath))
                     {

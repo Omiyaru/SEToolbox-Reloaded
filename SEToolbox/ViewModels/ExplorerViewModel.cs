@@ -147,8 +147,11 @@ namespace SEToolbox.ViewModels
         public ICommand CopyObjectGpsCommand => new DelegateCommand(CopyObjectGpsExecuted, CopyObjectGpsCanExecute);
         public ICommand SelectJoinedGridsCommand => new DelegateCommand<GridConnectionTypes>(SelectJoinedGridsExecuted, SelectJoinedGridsCanExecute);
         public ICommand GroupMoveCommand => new DelegateCommand(GroupMoveExecuted, GroupMoveCanExecute);
+
         public ICommand GroupMoveToNewPositionCommand => new DelegateCommand(GroupMoveToNewPositionExecuted, GroupMoveToNewPositionCanExecute);
+
         public ICommand RejoinShipCommand => new DelegateCommand(RejoinShipExecuted, RejoinShipCanExecute);
+
         public ICommand JoinShipPartsCommand => new DelegateCommand(JoinShipPartsExecuted, JoinShipPartsCanExecute);
         public ICommand VoxelMergeCommand => new DelegateCommand(VoxelMergeExecuted, VoxelMergeCanExecute);
         public ICommand RepairShipsCommand => new DelegateCommand(RepairShipsExecuted, RepairShipsCanExecute);
@@ -167,7 +170,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
+            set => SetValue(ref _closeResult, value, nameof(CloseResult));
         }
 
         public ObservableCollection<IFactionBase> Factions

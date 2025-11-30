@@ -20,7 +20,7 @@ namespace SEToolbox.Converters
                 }
             }
 
-            return String.Format((string)parameter, copy);
+            return string.Format((string)parameter, copy);
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

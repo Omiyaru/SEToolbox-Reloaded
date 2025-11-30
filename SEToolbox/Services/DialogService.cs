@@ -36,7 +36,7 @@ namespace SEToolbox.Services
         /// </summary>
         public ReadOnlyCollection<FrameworkElement> Views
         {
-            get   => new([.. _views]);
+            get => new([.. _views]);
         }
 
         /// <summary>

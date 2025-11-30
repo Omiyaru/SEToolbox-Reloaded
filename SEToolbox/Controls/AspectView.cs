@@ -337,7 +337,8 @@ namespace SEToolbox.Controls
 
         private IEnumerable<Aspect> GenerateAspects(object target)
         {
-            if (target == null) yield break;
+            if (target == null)
+                yield break;
 
             var props = GetBrowsableProps(target, IncludeNonBrowsable)
                 .OrderBy(p => p.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? int.MaxValue)
@@ -389,10 +390,10 @@ namespace SEToolbox.Controls
 
         private static (string displayName, string description, bool readOnly) ReadMeta(PropertyInfo p)
         {
-            var dn = p.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName;
-            var desc = p.GetCustomAttribute<DescriptionAttribute>()?.Description;
-            var ro = p.GetCustomAttribute<ReadOnlyAttribute>()?.IsReadOnly ?? false;
-            return (dn, desc, ro);
+            var displayName= p.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName;
+            var description = p.GetCustomAttribute<DescriptionAttribute>()?.Description;
+            var isReadOnly = p.GetCustomAttribute<ReadOnlyAttribute>()?.IsReadOnly ?? false;
+            return (displayName, description, isReadOnly);
         }
 
         #endregion

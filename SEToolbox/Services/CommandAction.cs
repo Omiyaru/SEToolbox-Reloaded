@@ -87,34 +87,18 @@ namespace SEToolbox.Services
         [DebuggerStepThrough]
         protected override void Invoke(object o)
         {
-            if (Command != null)
+            if (Command is RoutedCommand routedCommand)
             {
-                if (Command is RoutedCommand comRouted)
-                {
-                    if (EventArgs)
-                    {
-                        comRouted.Execute(o, CommandTarget);
-                    }
-                    else
-                    {
-                        // Is RoutedCommand
-                        comRouted.Execute(CommandParameter, CommandTarget);
-                    }
-                }
-                else
-                {
-                    if (EventArgs)
-                    {
-                        Command.Execute(o);
-                    }
-                    else
-                    {
-                        // Is NOT RoutedCommand
-                        Command.Execute(CommandParameter);
-                    }
-                }
+                routedCommand.Execute(EventArgs ? o : CommandParameter, CommandTarget);
             }
+            else
+            {
+                Command.Execute(EventArgs ? o : CommandParameter);
+             
+            }
+
         }
+        
 
         #endregion
 
@@ -130,6 +114,7 @@ namespace SEToolbox.Services
             {
                 HookupCommandCanExecuteChangedEventHandler(comNew);
             }
+
         }
 
         private void HookupCommandCanExecuteChangedEventHandler(ICommand command)
@@ -147,23 +132,12 @@ namespace SEToolbox.Services
 
         private void UpdateCanExecute()
         {
-            if (Command != null)
-            {
-                if (Command is RoutedCommand comRouted)
-                {
-                    // Is RoutedCommand
-                    IsEnabled = comRouted.CanExecute(CommandParameter, CommandTarget);
-                }
-                else
-                {
-                    // Is NOT RoutedCommand
-                    IsEnabled = Command.CanExecute(CommandParameter);
-                }
+                bool canExecute = Command is RoutedCommand routedCommand
+                    ? routedCommand.CanExecute(CommandParameter, CommandTarget)
+                    : Command.CanExecute(CommandParameter);
+
                 if (Target != null && SyncOwnerIsEnabled)
-                {
-                    Target.IsEnabled = IsEnabled;
-                }
-            }
+                    Target.IsEnabled = canExecute;
         }
 
         #endregion

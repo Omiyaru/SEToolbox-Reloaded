@@ -110,7 +110,7 @@ namespace SEToolbox.Models
 
         public override string ToString()
         {
-            return $"{_vector}";
+            return _vector.ToString();
         }
 
         public BindableVector3DModel Negate()

@@ -42,8 +42,7 @@ namespace SEToolbox.Models
             if (propertyNames.Length > 0 && !string.IsNullOrEmpty(propertyName))
             {
                 OnPropertyChanged(propertyName);
-            }
-           
+            } 
         }
 
         public void SetProperty<T>(T field, T value, params object[] parameters) => SetProperty(ref field, value, parameters);

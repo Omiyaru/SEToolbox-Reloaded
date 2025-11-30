@@ -1,12 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -32,10 +30,10 @@ namespace SEToolbox
         {
             bool appendLog = Enumerable.Contains(e.Args, "/appendlog");
 
-            Log.Init("./log.txt", appendLog);
+            // Log.Init("./log.txt", appendLog);
             SConsole.Init();
             SConsole.WriteLine($"Starting. {Loader.WriteProgressDots()}");
-            
+
 
             //TException.InitializeListeners();
             //BindingErrorTraceListener.SetTrace();
@@ -43,17 +41,17 @@ namespace SEToolbox
             PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Error;
             SConsole.WriteLine("Binding Error Trace Set");
 
-           
+
             PresentationTraceSources.DataBindingSource.Listeners.Add(new ConsoleTraceListener());
-     
-                HandleReset();
-                ClearBinCache();
-                ConfigureLocalization();
-                InitializeSplashScreen();
-                CheckForUpdates(e.Args);
-                ConfigureServices();
-                DisableTextBoxSynchronization();
-                InitializeToolboxApplication(e.Args);
+
+            HandleReset();
+            ClearBinCache();
+            ConfigureLocalization();
+            InitializeSplashScreen();
+            CheckForUpdates(e.Args);
+            ConfigureServices();
+            DisableTextBoxSynchronization();
+            InitializeToolboxApplication(e.Args);
         }
 
         private static void HandleReset()
@@ -85,7 +83,6 @@ namespace SEToolbox
             }
         }
 
-
         private static void ConfigureLocalization()
         {
             CultureInfo culture;
@@ -104,7 +101,6 @@ namespace SEToolbox
 
             LocalizeDictionary.Instance.SetCurrentThreadCulture = false;
             LocalizeDictionary.Instance.Culture = culture ?? throw new NullReferenceException("Culture cannot be null");
-             
 
             Thread.CurrentThread.CurrentUICulture = culture;
 
@@ -123,39 +119,31 @@ namespace SEToolbox
             SConsole.WriteLine($"Checking for updates{Loader.WriteProgressDots()}");
 
             string delimiter = "/" ?? "-";
-            if (args.Length == 0 || (args.Length == 1 && args[0].Equals($"{delimiter}U", StringComparison.OrdinalIgnoreCase)))
+            ApplicationRelease update = CodeRepositoryReleases.CheckForUpdates(GlobalSettings.GetAppVersion());
+            if (args.Length == 0 || (args.Length == 1 && args[0].Equals($"{delimiter}U", StringComparison.OrdinalIgnoreCase)) && update != null)
             {
-                ApplicationRelease update = CodeRepositoryReleases.CheckForUpdates(GlobalSettings.GetAppVersion());
-                if (update != null)
+                var dialogResult = MessageBox.Show(
+                            string.IsNullOrEmpty(update.Notes)
+                          ? string.Format(Res.DialogNewVersionMessage, update.Version)
+                          : string.Format(Res.DialogNewVersionNotesMessage, update.Version, update.Notes),
+                            Res.DialogNewVersionTitle, MessageBoxButton.YesNo, MessageBoxImage.Information);
+
+                SConsole.WriteLine($"Found update: {update.Version}");
+                if (dialogResult == MessageBoxResult.Yes)
                 {
-                    SConsole.WriteLine($"Found update: {update.Version}");
-
-                    var dialogResult = MessageBox.Show(
-                                string.IsNullOrEmpty(update.Notes)
-                              ? string.Format(Res.DialogNewVersionMessage, update.Version)
-                              : string.Format(Res.DialogNewVersionNotesMessage, update.Version, update.Notes),
-                                Res.DialogNewVersionTitle, MessageBoxButton.YesNo, MessageBoxImage.Information);
-
-                    if (dialogResult == MessageBoxResult.Yes)
-                    {
-                        SConsole.WriteLine($"Opening release URL: {update.Link}");
-                        Process.Start(update.Link);// Opens release URL in browser
-                        settings.Save();
-                        Current.Shutdown();
-                       
-                    }
-
-
-                    if (dialogResult == MessageBoxResult.No)
-                    {
-                        SConsole.WriteLine($"Ignoring update: {update.Version}");
-                        settings.IgnoreUpdateVersion = update.Version.ToString();
-                    }
+                    SConsole.WriteLine($"Opening release URL: {update.Link}");
+                    Process.Start(update.Link);
+                    settings.IgnoreUpdateVersion = null;
+                    Current.Shutdown();
+                }
+                else if (dialogResult == MessageBoxResult.No)
+                {
+                    SConsole.WriteLine($"Ignoring update: {update.Version}");
+                    settings.IgnoreUpdateVersion = update.Version.ToString();
                 }
             }
-
-
         }
+
 
         private static void ConfigureServices()
         {
@@ -171,19 +159,19 @@ namespace SEToolbox
         {
             FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty = false;
         }
-        
 
         private void InitializeToolboxApplication(string[] args)
         {
             _toolboxApplication = new CoreToolbox();
             string message = string.Empty;
 
-           SConsole.WriteLine($"SEToolbox: {$"Initializing {nameof(CoreToolbox)}{Loader.WriteProgressDots()}"}");
+            SConsole.WriteLine($"Initializing {nameof(CoreToolbox)}{Loader.WriteProgressDots()}");
             switch (_toolboxApplication)
             {
 
                 case CoreToolbox when _toolboxApplication.Init(args):
                     _toolboxApplication.Load(args);
+                    SConsole.WriteLine($"{nameof(CoreToolbox)} started successfully.");
                     return;
                 case CoreToolbox when _toolboxApplication == null && message.Contains("Could not start"):// args.Length == 0
                 case CoreToolbox when !_toolboxApplication.Init(args) && message.Contains("Could not initialize"):
@@ -193,12 +181,11 @@ namespace SEToolbox
                     Current.Shutdown();
                     break;
             }
-           
-            SConsole.WriteLine($"SEToolbox: {nameof(CoreToolbox)} started successfully.");
         }
 
         private void OnExit(object sender, ExitEventArgs e)
         {
+            SConsole.WriteLine("Shutting down.");
             CoreToolbox.ExitApplication();
         }
 

@@ -22,6 +22,8 @@ namespace SEToolbox.Support
         /// </summary>
         public bool PromptUser;
 
+        private bool _isLoaded;
+
         private const string BaseKey = @"SOFTWARE\MidSpace\SEToolbox";
        
         #endregion
@@ -188,6 +190,8 @@ namespace SEToolbox.Support
 
         public void Load()
         {
+            _isLoaded = true;
+
             var key = Registry.CurrentUser.OpenSubKey(BaseKey, false);
             key ??= Registry.CurrentUser.CreateSubKey(BaseKey) ?? null;
             if (key != null)
@@ -210,24 +214,24 @@ namespace SEToolbox.Support
                 {
                     var typedValue = TypeDescriptor.GetConverter(property.PropertyType).ConvertFrom(value);
                     property.SetValue(this, typedValue);
-                    SConsole.WriteLine($"SEToolbox: {property.Name}: {typedValue}");
+                    SConsole.WriteLine($"{property.Name}: {typedValue}");
                 }
                 else
                 {
                     property.SetValue(this, currentValue);
-                    SConsole.WriteLine($"SEToolbox: {property.Name} unchanged: {currentValue}");
+                    SConsole.WriteLine($"{property.Name} unchanged: {currentValue}");
                 }
                 if (property.Name == nameof(LanguageCode))
                 {
                     ReadValue(key, nameof(LanguageCode), CultureInfo.CurrentUICulture.IetfLanguageTag);
-                    SConsole.WriteLine();
+                    SConsole.WriteLine($" {property.Name}: {LanguageCode}");
                 }
                 if (property.Name == nameof(WindowDimension))
                 {
                     foreach (double? dimension in WindowDimensions.Keys)
                     {
                         SetWindowDimension(dimension ?? 0);
-                        SConsole.WriteLine($"SEToolbox: {property.Name} set to {dimension}");
+                        SConsole.WriteLine($"{property.Name}: {dimension}");
                     }
                 }
              
@@ -240,6 +244,7 @@ namespace SEToolbox.Support
         /// </summary>
         public void Reset()
         {
+            SConsole.WriteLine("Resetting GlobalSettings");
             var properties = typeof(GlobalSettings).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
             foreach (var property in properties)
             {
@@ -324,7 +329,7 @@ namespace SEToolbox.Support
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error while reading range for {typeof(T)}: {ex.Message}");
+                SConsole.WriteLine($"Error while reading range for {typeof(T)}: {ex.Message}");
             }
             try
             {

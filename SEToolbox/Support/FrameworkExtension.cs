@@ -48,7 +48,7 @@ namespace SEToolbox.Support
                 else if (prop.GetValue(root) is FrameworkElement child)
                 {
                     yield return child;
-                    
+
                     foreach (FrameworkElement descendent in Descendents(child, depth - 1))
                     {
                         yield return descendent;
@@ -56,7 +56,7 @@ namespace SEToolbox.Support
                 }
             }
         }
-    
+
         /// <summary>
         /// Find all elements that are children of the specified element, including Templated controls.
         /// </summary>
@@ -93,7 +93,7 @@ namespace SEToolbox.Support
                 }
             }
         }
-        
+
         /// <summary>
         /// Finds a parent of a given item on the visual tree.
         /// </summary>
@@ -110,7 +110,7 @@ namespace SEToolbox.Support
             return parentObject is null ? null : parentObject is T pO ? pO : FindVisualParent<T>(parentObject);
         }
 
-         public static T FindVisualChild<T>(this DependencyObject parent) where T : DependencyObject
+        public static T FindVisualChild<T>(this DependencyObject parent) where T : DependencyObject
         {
             T child = default;
             int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
@@ -156,7 +156,7 @@ namespace SEToolbox.Support
                     {
                         return elementAtPosition;
                     }
-                elementAtPosition = VisualTreeHelper.GetParent(elementAtPosition) as UIElement;
+                    elementAtPosition = VisualTreeHelper.GetParent(elementAtPosition) as UIElement;
                 }
             }
             return null;
@@ -222,17 +222,15 @@ namespace SEToolbox.Support
         /// <param name="parentControl"></param>
         /// <param name="e"></param>
         /// <returns></returns>
-        public static T GetHitControl<T>(this UIElement parentControl, MouseEventArgs e)
-          where T : FrameworkElement
+        public static T GetHitControl<T>(this UIElement parentControl, MouseEventArgs e) where T : FrameworkElement
         {
-            Point hit = e == null ? Mouse.GetPosition(parentControl) : e.GetPosition(parentControl);
+            Point hit = e?.GetPosition(parentControl) ?? Mouse.GetPosition(parentControl);
             var element = parentControl.InputHitTest(hit) as FrameworkElement;
 
-            while (element != null && element is not T)
+            while (element != null && !(element is T))
             {
-                element = VisualTreeHelper.GetParent(element) as FrameworkElement;
-                if (element == parentControl)
-                    break;
+                var parent = VisualTreeHelper.GetParent(element);
+                element = parent is T ? (T)parent : parent as FrameworkElement;
             }
             return element as T;
         }
@@ -240,7 +238,7 @@ namespace SEToolbox.Support
         #endregion
         #region Update
 
-     /// <summary>
+        /// <summary>
         /// Adds an element with the provided key and value to the System.Collections.Generic.IDictionary&gt;TKey,TValue&lt;.
         /// If the provide key already exists, then the existing key is updated with the newly supplied value.
         /// </summary>

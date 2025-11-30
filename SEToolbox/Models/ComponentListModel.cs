@@ -373,7 +373,7 @@ namespace SEToolbox.Models
             if (field.FieldType == typeof(SerializableVector3))
             {
                 SerializableVector3 vector = (SerializableVector3)item;
-                return string.Format($"{vector.X}, {vector.Y}, {vector.Z}");
+                return $"{vector.X}, {vector.Y}, {vector.Z}";
             }
 
             if (field.FieldType == typeof(SerializableBounds))

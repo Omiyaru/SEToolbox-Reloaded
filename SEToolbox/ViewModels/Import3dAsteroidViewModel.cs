@@ -95,7 +95,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
+            set => SetValue(ref _closeResult, value, nameof(CloseResult));
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace SEToolbox.ViewModels
         public bool IsValidModel
         {
             get => _dataModel.IsValidModel;
-            set => SetProperty(_dataModel.IsValidModel, value, nameof(IsWrongModel));
+            set => SetValue(_dataModel.IsValidModel, value, nameof(IsWrongModel));
         }
 
         public bool IsValidEntity

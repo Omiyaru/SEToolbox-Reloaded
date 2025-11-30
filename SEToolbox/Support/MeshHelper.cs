@@ -14,11 +14,11 @@ namespace SEToolbox.Support
     {
         public static Model3DGroup Load(string path, Dispatcher dispatcher = null, bool freeze = false, bool ignoreErrors = false)
         {
-            if (string.IsNullOrEmpty(path))
+
+            if (string.IsNullOrEmpty(path)) 
             {
                 return null;
             }
-
             Material defaultMaterial = Materials.Blue;
 
             dispatcher ??= Dispatcher.CurrentDispatcher;
@@ -214,8 +214,8 @@ namespace SEToolbox.Support
              // Round test
   
             //if (roundTest < 0.0f )
-            if (Math.Round(roundTest, 12) < 0.0f)
-                if (Math.Round(dTest, 12) < 0.0f)
+            if (Math.Round(roundTest, 12) < 0.0f && Math.Round(dTest, 12) < 0.0f)
+          
                 {
                     // No intersection on edges P1-P2,P3-P2,P1-P3.
                     return false;

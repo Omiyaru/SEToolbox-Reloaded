@@ -234,10 +234,8 @@ namespace SEToolbox.ViewModels
         {
             get => DataModel.Dampeners;
 
-            set => SetValue(DataModel.Dampeners, value, () => 
-            { 
-                MainViewModel.IsModified = true;  
-            }); 
+            set => SetValue(DataModel.Dampeners, value, () =>
+                   MainViewModel.IsModified = true); 
             
         }
 
@@ -245,9 +243,7 @@ namespace SEToolbox.ViewModels
         {
             get => DataModel.Destructible;
             set => SetValue(DataModel.Destructible, value, () =>
-            {
-                MainViewModel.IsModified = true;
-            });
+                   MainViewModel.IsModified = true); 
         }
 
         public Point3D Min
@@ -268,7 +264,10 @@ namespace SEToolbox.ViewModels
             set => DataModel.Scale = value;
         }
 
-        public BindableSize3DModel Size => new(DataModel.Size);
+        public BindableSize3DModel Size
+        {
+            get =>  new(DataModel.Size);
+        }
 
         public BindableVector3DModel Center
         {

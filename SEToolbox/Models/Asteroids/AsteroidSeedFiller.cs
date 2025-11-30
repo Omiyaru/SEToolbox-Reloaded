@@ -65,7 +65,6 @@ namespace SEToolbox.Models.Asteroids
 
             AssignMaterials(index, randomModel, rare, chunks, chunkSize, ref multiplier, isLarge, isSuperRare: false);
 
-           
             multiplier = 1.0;
             chunks = isLarge ? 50 : 10;//large/small 
             chunkSize = isLarge ? 2 : 0; //large/small
@@ -90,15 +89,13 @@ namespace SEToolbox.Models.Asteroids
             randomModel.MaterialsList = [];
             int slotIndex = isSuperRare ? 5 : 1; // superRare starts filling from slot 5+
 
-            _ = isSuperRare ?
-                (isLarge ? 7 : 5) :
-                 isLarge ? 4 : 3;
+            _ = isSuperRare || isLarge ? 7 | 5 : 4 | 3;
 
             var materialsToRemove = new List<MaterialSelectionModel>();
             foreach (var mat in materials)
             { 
                 isSecretRandom = RandomUtil.EnableSecretRandom;
-                int idEXx = RandomUtil.GetInt(materials.Count);
+                int idx = RandomUtil.GetInt(materials.Count);
                 
                 var material = materials[index];
                 int veins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));

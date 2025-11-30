@@ -74,7 +74,8 @@ namespace SEToolbox.Models.Asteroids
         public int SecondPercent
         {
             get => _secondPercent;
-            set => SetProperty(ref _secondPercent, value, nameof(SecondPercent), () => UpdateTotal());
+            set => SetProperty(ref _secondPercent, value, nameof(SecondPercent), () => 
+                   UpdateTotal());
         }
 
         public MaterialSelectionModel ThirdMaterial
@@ -86,7 +87,8 @@ namespace SEToolbox.Models.Asteroids
         public int ThirdPercent
         {
             get => _thirdPercent;
-            set => SetProperty(ref _thirdPercent, value, nameof(ThirdPercent), () => UpdateTotal());
+            set => SetProperty(ref _thirdPercent, value, nameof(ThirdPercent), () =>
+                   UpdateTotal());
         }
 
         public MaterialSelectionModel FourthMaterial
@@ -98,7 +100,8 @@ namespace SEToolbox.Models.Asteroids
         public int FourthPercent
         {
             get => _fourthPercent;
-            set => SetProperty(ref _fourthPercent, value, nameof(FourthPercent), () => UpdateTotal());
+            set => SetProperty(ref _fourthPercent, value, nameof(FourthPercent), () => 
+                   UpdateTotal());
         }
 
         public MaterialSelectionModel FifthMaterial
@@ -110,7 +113,8 @@ namespace SEToolbox.Models.Asteroids
         public int FifthPercent
         {
             get => _fifthPercent;
-            set => SetProperty(ref _fifthPercent, value, nameof(FifthPercent), () => UpdateTotal());
+            set => SetProperty(ref _fifthPercent, value, nameof(FifthPercent), () => 
+                   UpdateTotal());
         }
 
         public MaterialSelectionModel SixthMaterial
@@ -122,7 +126,8 @@ namespace SEToolbox.Models.Asteroids
         public int SixthPercent
         {
             get => _sixthPercent;
-            set => SetProperty(ref _sixthPercent, value, nameof(SixthPercent), () => UpdateTotal());
+            set => SetProperty(ref _sixthPercent, value, nameof(SixthPercent), () =>
+                   UpdateTotal());
         }
 
         public MaterialSelectionModel SeventhMaterial

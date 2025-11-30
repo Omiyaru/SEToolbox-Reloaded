@@ -22,10 +22,9 @@ namespace SEToolbox.Services
         void AssociatedObject_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             e.Handled = true;
-            MouseWheelEventArgs e2 = new(e.MouseDevice, e.Timestamp, e.Delta)
-            {
-                RoutedEvent = UIElement.MouseWheelEvent
-            };
+            RoutedEvent routedEvent = UIElement.MouseWheelEvent;
+            MouseWheelEventArgs e2 = new(e.MouseDevice, e.Timestamp, e.Delta);
+            e2.RoutedEvent = routedEvent;
             AssociatedObject.RaiseEvent(e2);
         }
     }

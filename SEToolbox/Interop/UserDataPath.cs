@@ -69,7 +69,7 @@ namespace SEToolbox.Interop
             }
         }
 
-         internal static readonly Dictionary<string, string> PathMap = new()
+        internal static readonly Dictionary<string, string> PathMap = new()
         {
             {SEConsts.Folders.ModsFolder, nameof(ModsPath)},
             {SEConsts.Folders.BlueprintsFolder, nameof(BlueprintsPath)},
@@ -87,10 +87,7 @@ namespace SEToolbox.Interop
 
             return path;
         }
-       
 
-
-        
         #endregion
     }
 }

@@ -69,7 +69,7 @@ namespace SEToolbox.Services
         {
             if (_instanceReference.Target is TInstance instance)
             {
-                _handlerAction.Invoke((TInstance)_instanceReference.Target, sender, e);
+                _handlerAction?.Invoke((TInstance)_instanceReference.Target, sender, e);
             }
             else
             {

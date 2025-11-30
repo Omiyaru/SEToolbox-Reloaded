@@ -62,7 +62,7 @@ namespace SEToolbox.ViewModels
         public ObservableCollection<InventoryModel> Selections
         {
             get => _selections;
-            set => SetProperty(ref _selections, value, nameof(Selections));
+            set => SetValue(ref _selections, value, nameof(Selections));
         }
 
         public ObservableCollection<InventoryModel> Items

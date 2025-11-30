@@ -85,13 +85,13 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
+            set => SetValue(ref _closeResult, value, nameof(CloseResult));
         }
 
         public AsteroidByteFillProperties SelectedRow
         {
             get => _selectedRow;
-            set => SetProperty(ref _selectedRow, value, nameof(SelectedRow));
+            set => SetValue(ref _selectedRow, value, nameof(SelectedRow));
         }
 
         public ObservableCollection<AsteroidByteFillProperties> VoxelCollection
@@ -127,8 +127,6 @@ namespace SEToolbox.ViewModels
                 }
             });
         }
-
-
 
         public ObservableCollection<GenerateVoxelDetailModel> VoxelFileList
         {

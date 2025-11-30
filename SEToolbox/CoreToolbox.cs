@@ -14,7 +14,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 
 using static Sandbox.Game.World.MyWorldGenerator;
 using static SEToolbox.Support.GlobalSettings;
@@ -81,6 +80,7 @@ namespace SEToolbox
                 if (faWindow?.ShowDialog() == true)
                 {
                     filePath = faModel.GameApplicationPath;
+                    SConsole.WriteLine($"Detected SE install: {filePath}");
                 }
                 else
                 {
@@ -151,7 +151,11 @@ namespace SEToolbox
             // This is usually because a user has not updated a manual install of a Dedicated Server, or their Steam did not update properly.
             if (Default.SEVersion < GetAppVersion(true))
             {
-                MessageBox.Show(string.Format(Res.DialogOldSEVersionMessage, Consts.GetSEVersion(), Default.SEBinPath, GetAppVersion()), Res.DialogOldSEVersionTitle, MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                MessageBox.Show(string.Format(Res.DialogOldSEVersionMessage, 
+                                              Consts.GetSEVersion(), Default.SEBinPath, 
+                                              GetAppVersion()), Res.DialogOldSEVersionTitle, 
+                                              MessageBoxButton.OK, MessageBoxImage.Exclamation
+                                              );
                 Application.Current.Shutdown();
                 return Task.FromResult(false);
             }
@@ -218,7 +222,6 @@ namespace SEToolbox
             return true;
         }
         
-       
         public static void RestoreExplorerWindow(bool allowClose = true)
         {
             ExplorerViewModel eViewModel = new(explorerModel);
@@ -230,7 +233,9 @@ namespace SEToolbox
                 {
                     eViewModel.CloseRequested += (sender, e) =>
                     {
+                        SConsole.WriteLine("Saving window settings.");
                         SaveWindowSettings(eWindow);
+                        SConsole.WriteLine("Shutting down.");
                         Application.Current.Shutdown();
                     };
                 }
@@ -239,11 +244,12 @@ namespace SEToolbox
 
         public static void InitializeWindow(WindowExplorer eWindow)
         {
+            SConsole.WriteLine($"Initializing main window{Loader.WriteProgressDots()}");
             if (eWindow != null)
             {
                 eWindow.Loaded += (sender, e) =>
                 {
-                    SConsole.WriteLine("Main window loaded.");
+                    SConsole.WriteLine($"Main window loading complete.");
                     Splasher.CloseSplash();
                     var windowDimensions = Default.WindowDimensions?.Values?.FirstOrDefault();
                     var workingAreaRect = Screen.PrimaryScreen.WorkingArea;
@@ -268,7 +274,7 @@ namespace SEToolbox
                         }
                     }
 
-                    if (!isInsideDesktop && hasWindowDimensions)
+                    if (isInsideDesktop && hasWindowDimensions)
                     {
                         eWindow.Dispatcher.Invoke(() =>
                         {
@@ -294,7 +300,7 @@ namespace SEToolbox
             	Default.TimesStartedLastGameUpdate = Default.TimesStartedLastGameUpdate.GetValueOrDefault() + 1;
             	Default.Save();
                 SConsole.WriteLine("Showing main window.");
-            _ = (eWindow?.ShowDialog());
+            _ = eWindow?.ShowDialog();
 
             return true;
         }
@@ -307,17 +313,13 @@ namespace SEToolbox
             }
             TempFileUtil.Dispose();
         }
- 
 
         private static void SaveWindowSettings(WindowExplorer eWindow)
         {
             Default.WindowState = eWindow.WindowState;
             eWindow.WindowState = WindowState.Normal; // Reset the State before getting the window size.
-            foreach (var item in _windowDimensions)
-            {
-                _windowDimensions.Add(item);
-            }
-
+            _windowDimensions.AddRange(from item in _windowDimensions
+                                       select item);
             Default.Save();
         }
  		#endregion

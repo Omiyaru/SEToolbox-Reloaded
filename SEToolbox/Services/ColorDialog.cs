@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
-
 using SEToolbox.Interfaces;
 
 namespace SEToolbox.Services
@@ -33,16 +32,15 @@ namespace SEToolbox.Services
                 ShowHelp = colorDialog.ShowHelp,
                 SolidColorOnly = colorDialog.SolidColorOnly,
             };
-
-            if (colorDialog.DrawingColor.HasValue)
-                _concreteColorDialog.Color = colorDialog.DrawingColor.Value;
-            else if (colorDialog.MediaColor.HasValue)
-                _concreteColorDialog.Color = System.Drawing.Color.FromArgb(colorDialog.MediaColor.Value.A, colorDialog.MediaColor.Value.R, colorDialog.MediaColor.Value.G, colorDialog.MediaColor.Value.B);
-            else if (colorDialog.BrushColor != null)
+            
+            _concreteColorDialog.Color = _colorDialog switch
             {
-                var c = colorDialog.BrushColor.Color;
-                _concreteColorDialog.Color = System.Drawing.Color.FromArgb(c.A, c.R, c.G, c.B);
-            }
+                IColorDialog c when  c.DrawingColor.HasValue => c.DrawingColor.Value,
+                IColorDialog c when  c.MediaColor.HasValue => System.Drawing.Color.FromArgb(c.MediaColor.Value.A, c.MediaColor.Value.R, c.MediaColor.Value.G, c.MediaColor.Value.B),
+                IColorDialog c when  c.BrushColor != null => System.Drawing.Color.FromArgb(c.BrushColor.Color.A, c.BrushColor.Color.R, c.BrushColor.Color.G, c.BrushColor.Color.B),
+                _ => throw new InvalidOperationException($"Unknown color source {_concreteColorDialog.Color}"),
+            };
+
         }
 
         /// <summary>
