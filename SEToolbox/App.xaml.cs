@@ -28,7 +28,7 @@ namespace SEToolbox
     {
         private CoreToolbox _toolboxApplication;
         private static readonly GlobalSettings settings = GlobalSettings.Default;
-        private void OnStartup(object sender, StartupEventArgs e)
+        private async Task OnStartup(object sender, StartupEventArgs e)
         {
             bool appendLog = Enumerable.Contains(e.Args, "/appendlog");
 
@@ -50,7 +50,7 @@ namespace SEToolbox
                 ClearBinCache();
                 ConfigureLocalization();
                 InitializeSplashScreen();
-                CheckForUpdates(e.Args);
+                await CheckForUpdates(e.Args);
                 ConfigureServices();
                 DisableTextBoxSynchronization();
                 InitializeToolboxApplication(e.Args);
@@ -118,7 +118,7 @@ namespace SEToolbox
             Splasher.ShowSplash();
         }
 
-        private static void CheckForUpdates(string[] args)
+        private static async Task CheckForUpdates(string[] args)
         {
             SConsole.WriteLine($"Checking for updates{Loader.WriteProgressDots()}");
 
@@ -140,10 +140,11 @@ namespace SEToolbox
                     {
                         SConsole.WriteLine($"Opening release URL: {update.Link}");
                         Process.Start(update.Link);// Opens release URL in browser
-                        settings.Save();
+                     await settings.Save();
                         Current.Shutdown();
-                        return;
+                        return; 
                     }
+
 
                     if (dialogResult == MessageBoxResult.No)
                     {
@@ -180,7 +181,6 @@ namespace SEToolbox
             {
 
                 case CoreToolbox when _toolboxApplication.Init(args):
-                 
                     _toolboxApplication.Load(args);
                     return;
                 case CoreToolbox when _toolboxApplication == null && message.Contains("Could not start"):// args.Length == 0
