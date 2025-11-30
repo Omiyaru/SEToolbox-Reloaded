@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Principal;
 
-using static SEToolbox.Support.Conditional;
 namespace SEToolbox.Support
 {
     public static class ToolboxUpdater
@@ -49,7 +48,6 @@ namespace SEToolbox.Support
             "VRage.Scripting.dll",              // x64     1.197.x requirement.
             "VRage.Steam.dll",                  // x64     1.188.x requirement.
             "Steamworks.NET.dll",               // x64     1.188.x requirement.
-           // "System.Data.SQLite.dll",           // AnyCPU  1.171.x requirement
             "System.Buffers.dll",
             "System.ComponentModel.Annotations.dll",
             "System.Collections.Immutable.dll", // AnyCPU  1.194.x requirement
@@ -61,7 +59,6 @@ namespace SEToolbox.Support
             "SixLabors.Core.dll",
             "SixLabors.ImageSharp.dll"
             ];
-
 
         /// <summary>
         /// Required dependancies which must be copied for SEToolbox to work.
@@ -156,7 +153,7 @@ namespace SEToolbox.Support
                 {
                     return (string)key.GetValue("InstallPath");
                 }
-        
+
             }
             return null;
         }
@@ -176,9 +173,9 @@ namespace SEToolbox.Support
             const string contentPath = @"..\Content";
 
             if (string.IsNullOrWhiteSpace(installationPath)||
-                 string.IsNullOrEmpty(installationPath)
-                && !Directory.Exists(installationPath)
-                && !Directory.Exists(Path.Combine(installationPath, contentPath))
+                string.IsNullOrEmpty(installationPath) && 
+                !Directory.Exists(installationPath) &&
+                !Directory.Exists(Path.Combine(installationPath, contentPath))
             
                 && !File.Exists(Path.Combine(executableName)))
             {
@@ -218,18 +215,18 @@ namespace SEToolbox.Support
             var existingFiles = new HashSet<string>(Directory.EnumerateFiles(baseFilePath, "*.dll", SearchOption.TopDirectoryOnly)
                                                              .Select(f => Path.GetFileName(f)));
 
-            var filesToCopy = requiredFiles
-                            .Where(f => !existingFiles.Contains(f))
-                            .Select(f => new { Source = Path.Combine(appFilePath, f), Destination = Path.Combine(baseFilePath, f) })
-                            .ToList();
+            var filesToCopy = requiredFiles.Where(f => !existingFiles.Contains(f))
+                                           .Select(f => new { Source = Path.Combine(appFilePath, f), Destination = Path.Combine(baseFilePath, f) })
+                                           .ToList();
 
             if (filesToCopy.Count == 0)
+            {  
                 return false;
+            }
             foreach (var file in filesToCopy)
             {
                   File.Copy(file.Source, file.Destination, true);
-            }
-                
+            }              
             return true;
         }
 
@@ -241,10 +238,6 @@ namespace SEToolbox.Support
         {
             return DoFilesDiffer(Path.Combine(directoryA, fileName), Path.Combine(directoryB, fileName));
         }
-
-        /// <summary> 
-        /// Compares two files, returning true if they differ.
-        /// </summary>
 
         public static bool DoFilesDiffer(string fileAPath, string fileBPath)
         {
@@ -262,7 +255,7 @@ namespace SEToolbox.Support
                     return true;
 
 
-                return !bufferA.SequenceEqual(bufferB);
+                return !Enumerable.SequenceEqual(bufferA,bufferB);
 
             }
             return false;
@@ -282,17 +275,14 @@ namespace SEToolbox.Support
             }
 
             var identity = WindowsIdentity.GetCurrent();
-            if (identity != null)
-            {
-                WindowsPrincipal principal = new(identity);
-                _isRunningElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
-                {
-                    return _isRunningElevated.Value;
-                }
-            }
 
-            return false;
+            if (identity == null)
+                return false;
 
+            var pricipal = new WindowsPrincipal(identity);
+            _isRunningElevated = pricipal.IsInRole(WindowsBuiltInRole.Administrator);
+
+            return _isRunningElevated.Value;
         }
 
         #endregion
@@ -313,7 +303,7 @@ namespace SEToolbox.Support
             {
                 var process = Process.Start(processInfo);
 
-                if (Conditional.Equals(null, elevate, process, waitForExit))
+                if (!ReferenceEquals(null, elevate&& elevate) && waitForExit)
                 {
                     process.WaitForExit();
                     return process.ExitCode;
@@ -327,6 +317,7 @@ namespace SEToolbox.Support
                 return null;
             }
         }
+
         #endregion
 
         #region GetBinCachePath

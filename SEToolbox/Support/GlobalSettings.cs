@@ -159,7 +159,7 @@ namespace SEToolbox.Support
 
         #region Methods
 
-        public async Task Save()
+        public void Save()
         {
             var key = Registry.CurrentUser.OpenSubKey(BaseKey, true);
             key ??= Registry.CurrentUser.CreateSubKey(BaseKey) ?? null;
