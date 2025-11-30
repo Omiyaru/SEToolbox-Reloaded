@@ -20,7 +20,7 @@ namespace SEToolbox.Properties
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources
@@ -4127,7 +4127,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to https://github.com/midspace/SEToolbox.
+        ///   Looks up a localized string similar to https://github.com/mmusu3/SEToolbox.
         /// </summary>
         public static string GlobalHomepageUrl
         {
@@ -4183,7 +4183,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to https://github.com/midspace/SEToolbox/issues.
+        ///   Looks up a localized string similar to https://github.com/mmusu3/SEToolbox/issues.
         /// </summary>
         public static string GlobalSupportUrl
         {
@@ -4199,7 +4199,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to https://github.com/midspace/SEToolbox/releases/latest.
+        ///   Looks up a localized string similar to https://github.com/mmusu3/SEToolbox/releases/latest.
         /// </summary>
         public static string GlobalUpdatesUrl
         {

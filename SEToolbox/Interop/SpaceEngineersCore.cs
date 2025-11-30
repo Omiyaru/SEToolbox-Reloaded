@@ -1,39 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using Sandbox;
-using Sandbox.Engine.Networking;
-using Sandbox.Engine.Utils;
-using Sandbox.Game;
-using Sandbox.Game.Entities.Planet;
-using Sandbox.Game.GameSystems;
-using SEToolbox.Models;
-using SEToolbox.Support;
-using SpaceEngineers.Game;
-using Steamworks;
-using VRage;
-using VRage.Collections;
-using VRage.Game;
-using VRage.GameServices;
-using VRage.Plugins;
-using VRage.Steam;
-using VRage.Utils;
-using VRageRender;
-using MFS = VRage.FileSystem.MyFileSystem;
-using FormatterServices = System.Runtime.Serialization.FormatterServices;
-using SEResources = SEToolbox.Interop.SpaceEngineersResources;
-using SGW_MySession = Sandbox.Game.World.MySession;
-using ReflUtil = SEToolbox.Support.ReflectionUtil;
-using MOBSerializerKeen = VRage.ObjectBuilders.Private.MyObjectBuilderSerializerKeen;
-
-
 namespace SEToolbox.Interop
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Runtime.CompilerServices;
+    using System.Threading;
+    using Sandbox;
+    using Sandbox.Engine.Networking;
+    using Sandbox.Engine.Utils;
+    using Sandbox.Game;
+    using Sandbox.Game.Entities.Planet;
+    using Sandbox.Game.GameSystems;
+    using SEToolbox.Models;
+    using SEToolbox.Support;
+    using SpaceEngineers.Game;
+    using VRage;
+    using VRage.Collections;
+    using VRage.FileSystem;
+    using VRage.Game;
+    using VRage.GameServices;
+    using VRage.Plugins;
+    using VRage.Steam;
+    using VRage.Utils;
+    using VRageRender;
+
     /// <summary>
     /// Core interop for loading up Space Engineers content.
     /// </summary>
@@ -143,24 +136,19 @@ namespace SEToolbox.Interop
                 //MFS.Init(contentPath, userDataPath,userModsPath, null, null);
                 //MFS.Init(contentPath, userDataPath, userModsPath, shadersBasePath, modsCachePath);
             }
-        }
 
-        // This will start the Steam Service, and Steam will think SE is running.
-        //  since we don't want to be doing this all the while SEToolbox is running,
-        // offloads after we are done fetching the mods.
-        private void InitializeSteamService()
-        {
-            if (_steamService != null)
-            {
-                _steamService = MySteamGameService.Create(Sandbox.Engine.Platform.Game.IsDedicated, AppIdGame);
 
-                MyServiceManager.Instance.AddService(_steamService);
+            // This will start the Steam Service, and Steam will think SE is running.
+            // TODO: we don't want to be doing this all the while SEToolbox is running,
+            // perhaps a once off during load to fetch of mods then disconnect/Dispose.
+            _steamService = MySteamGameService.Create(Sandbox.Engine.Platform.Game.IsDedicated, AppId);// CreateSteamService();
+            MyServiceManager.Instance.AddService(_steamService);
 
                 SConsole.WriteLine("Initializing VRage platform.");
                 MyVRage.Init(new ToolboxPlatform());
                 MyVRage.Platform.Init();
             }
-        }
+        
 
         private void FetchSteamMods()
         {
@@ -210,9 +198,9 @@ namespace SEToolbox.Interop
 
         private void LoadSandboxGame()
         {
-            SConsole.WriteLine("Loading config.");
+           
             var myConfig = new MyConfig("SpaceEngineers.cfg");
-
+            SConsole.WriteLine($"Loading config: {myConfig.Path}" );
 
             if (myConfig != null)
             {
@@ -294,7 +282,7 @@ namespace SEToolbox.Interop
         static void EnableProtobufCloning(bool setValue = true)
         {
             ReflUtil.SetFieldValue<MOBSerializerKeen>("ENABLE_PROTOBUFFERS_CLONING", false);
-            FieldInfo _protobufCloningField = ReflUtil.GetField<MOBSerializerKeen>("ENABLE_PROTOBUFFERS_CLONING", BindingFlags.NonPublic | BindingFlags.Static, false);
+            FieldInfo _protobufCloningField = ReflUtil.GetField<MOBSerializerKeen>( "ENABLE_PROTOBUFFERS_CLONING", BindingFlags.NonPublic | BindingFlags.Static, false);
             var _protobufCloningOriginalValue = (bool?)null;
             if (_protobufCloningField != null)
             {
@@ -324,11 +312,92 @@ namespace SEToolbox.Interop
             }
         }
 
+        // Re-implement most of MySteamService constructor (with adjustments) to
+        // bypass the call to Environment.Exit
+        static IMyGameService CreateSteamService()
+        {
+            //return MySteamGameService.Create(Sandbox.Engine.Platform.Game.IsDedicated, AppId);
+
+            var appIdStr = AppId.ToString();
+            Environment.SetEnvironmentVariable("SteamAppId", appIdStr);
+            Environment.SetEnvironmentVariable("SteamGameId", appIdStr);
+
+            // isDedicated: true skips the initialization that is done here instead.
+            var service = MySteamGameService.Create(isDedicated: true, AppId);
+            var serviceType = service.GetType();
+
+            var steamAppId = (AppId_t)AppId;
+
+            //if (SteamAPI.RestartAppIfNecessary(steamAppId))
+            //    Log.Error("SteamAPI.RestartAppIfNecessary returned true.");
+
+            bool isActive = SteamAPI.Init();
+            serviceType.GetProperty(nameof(MySteamGameService.IsActive)).SetValue(service, isActive);
+
+            if (!isActive)
+                Log.Error("Failed to initialize Steam service.");
+
+            IMyInventoryService serviceInstance;
+
+            const ulong OFFLINE_STEAM_ID = 1234567891011uL;
+
+            if (isActive)
+            {
+                var steamUserId = SteamUser.GetSteamID();
+                var userName = "\ue030" + SteamFriends.GetPersonaName();
+                var hasLicenseResult = SteamUser.UserHasLicenseForApp(steamUserId, steamAppId);
+                var ownsGame = hasLicenseResult == EUserHasLicenseForAppResult.k_EUserHasLicenseResultHasLicense;
+                var userUniverse = (MyGameServiceUniverse)SteamUtils.GetConnectedUniverse();
+                var branchName = SteamApps.GetCurrentBetaName(out var pchName, 512) ? pchName : "default";
+
+                var propertyInfos = serviceType.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic);
+                var fieldInfos = serviceType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+
+                foreach (var propertyInfo in propertyInfos)
+                {
+                    var value = propertyInfo.GetValue(service);
+                    propertyInfo.SetValue(service, value);
+                }
+
+                foreach (var fieldInfo in fieldInfos)
+                {
+                    var value = fieldInfo.GetValue(service);
+                    fieldInfo.SetValue(service, value);
+                }
+
+                SteamUserStats.RequestCurrentStats();
+                serviceType.GetMethod(nameof(MySteamGameService.RegisterCallbacks), BindingFlags.Instance | BindingFlags.NonPublic).Invoke(service, []);
+
+                var remoteStorage = Activator.CreateInstance(Type.GetType(nameof(MySteamRemoteStorage), VRage.Steam));
+
+                serviceType.GetField(nameof(m_remoteStorage), BindingFlags.Instance | BindingFlags.NonPublic).SetValue(service, remoteStorage);
+
+                serviceInstance = (IMyInventoryService)Activator.CreateInstance(Type.GetType(nameof(MySteamInventoryService), VRage.Steam.MySteamInventory, VRage.Steam), [service]);
+            }
+            else
+            {
+                service.UserId = OFFLINE_STEAM_ID;
+                serviceInstance = new MyNullInventoryService();
+            }
+
+            MyServiceManager.Instance.AddService(serviceInstance);
+
+            if (!isActive)
+            {
+                var errMsg = """
+                    Failed to initialize Steam API. Please ensure Steam is running and re-launch SEToolbox.
+                    You can try to continue anyway but modded worlds may not work correctly.
+                    """;
+                MessageBox.Show(errMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            return service;
+
+        }
         static void InitMultithreading()
         {
             //MySandboxGame.InitMultithreading();
             ParallelTasks.Parallel.Scheduler = new ParallelTasks.PrioritizedScheduler(Math.Max(Environment.ProcessorCount / 2, 1), amd: true, setup: null);
-
         }
 
         static void InitSandboxGame()

@@ -125,12 +125,26 @@
   </data>
   <data name="ClassType_LargeStation" xml:space="preserve">
     <value>Große Station</value>
+  <data name="ClassType_LargeStation" xml:space="preserve">
+    <value>Große Station</value>
   </data>
   <data name="DialogImageFiles" xml:space="preserve">
     <value>Bilddatei</value>
   </data>
   <data name="DialogImportImageTitle" xml:space="preserve">
     <value>Bild zum importieren auswählen</value>
+  </data>
+  <data name="ImportModelClassType_LargeShip" xml:space="preserve">
+    <value>großes Schiff</value>
+  </data>
+  <data name="ImportModelClassType_SmallShip" xml:space="preserve">
+    <value>kleines Schiff</value>
+  </data>
+  <data name="ClassType_FloatingObject" xml:space="preserve">
+    <value>Schwebendes Objekt</value>
+  </data>
+  <data name="DialogAllSupportedFiles" xml:space="preserve">
+    <value>Alle unterstützen Dateien</value>
   </data>
   <data name="ImportModelClassType_LargeShip" xml:space="preserve">
     <value>großes Schiff</value>
@@ -169,9 +183,23 @@
   <data name="Boolean_True" xml:space="preserve">
     <value>Ja</value>
   </data>
+  <data name="ExceptionState_NoApplication" xml:space="preserve">
+    <value>Space Engineers Installation nicht gefunden. Du musst Space Engineers auf deinem Computer installert haben um SEToolbox zu verwenden.</value>
+  </data>
+  <data name="ExceptionState_NoDirectory" xml:space="preserve">
+    <value>Das Space Engineers Verzeichnis ("{0}") wurde nicht gefunden. Du musst Space Engineers auf deinem Computer installert haben um SEToolbox zu verwenden.</value>
+  </data>
+  <data name="Boolean_False" xml:space="preserve">
+    <value>Nein</value>
+  </data>
+  <data name="Boolean_True" xml:space="preserve">
+    <value>Ja</value>
+  </data>
   <data name="DialogNewVersionTitle" xml:space="preserve">
     <value>Neue Version verfügbar</value>
   </data>
+  <data name="DialogHtmlFiles" xml:space="preserve">
+    <value>Html Dateien</value>
   <data name="DialogHtmlFiles" xml:space="preserve">
     <value>Html Dateien</value>
   </data>
@@ -183,19 +211,29 @@
   </data>
   <data name="BtBrowseAppTip" xml:space="preserve">
     <value>Anwendung suchen</value>
+  <data name="BtBrowseAppTip" xml:space="preserve">
+    <value>Anwendung suchen</value>
   </data>
+  <data name="WnLocateAppBtnCancel" xml:space="preserve">
+    <value>Abbrechen</value>
   <data name="WnLocateAppBtnCancel" xml:space="preserve">
     <value>Abbrechen</value>
   </data>
   <data name="WnLocateAppBtnContinue" xml:space="preserve">
     <value>Weiter</value>
+  <data name="WnLocateAppBtnContinue" xml:space="preserve">
+    <value>Weiter</value>
   </data>
+  <data name="SaveWorldType_Local" xml:space="preserve">
+    <value>Lokaler Benutzer</value>
   <data name="SaveWorldType_Local" xml:space="preserve">
     <value>Lokaler Benutzer</value>
   </data>
   <data name="SaveWorldType_Custom" xml:space="preserve">
     <value>Benutzerdefiniert</value>
   </data>
+  <data name="DialogOldSEVersionTitle" xml:space="preserve">
+    <value>Nicht kompatibel mit alter Version von Space Engineers.</value>
   <data name="DialogOldSEVersionTitle" xml:space="preserve">
     <value>Nicht kompatibel mit alter Version von Space Engineers.</value>
   </data>
@@ -237,7 +275,11 @@
   </data>
   <data name="AsteroidFillType_None" xml:space="preserve">
     <value>Keine Änderung</value>
+  <data name="AsteroidFillType_None" xml:space="preserve">
+    <value>Keine Änderung</value>
   </data>
+  <data name="InventoryBagDetail" xml:space="preserve">
+    <value>Art: {0} Entfernung: {1:#,##0.0} m</value>
   <data name="InventoryBagDetail" xml:space="preserve">
     <value>Art: {0} Entfernung: {1:#,##0.0} m</value>
   </data>
@@ -333,6 +375,24 @@
   </data>
   <data name="WnExplorerMnuWorld" xml:space="preserve">
     <value>_Welt</value>
+  </data>
+  <data name="CtlUnsavedStateTitle" xml:space="preserve">
+    <value>Nicht gesichert</value>
+  </data>
+  <data name="WnAboutBtnClose" xml:space="preserve">
+    <value>Schließen</value>
+  </data>
+  <data name="WnAboutTxtCreatedBy" xml:space="preserve">
+    <value>Erstellt von:</value>
+  </data>
+  <data name="WnLoadBtnOpen" xml:space="preserve">
+    <value>_Öffnen</value>
+  </data>
+  <data name="WnLoadBtnRepair" xml:space="preserve">
+    <value>_Reparieren</value>
+  </data>
+  <data name="WnLoadColSaved" xml:space="preserve">
+    <value>Gespeichert</value>
   </data>
   <data name="CtlUnsavedStateTitle" xml:space="preserve">
     <value>Nicht gesichert</value>

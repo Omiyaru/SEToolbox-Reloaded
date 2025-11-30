@@ -24,8 +24,8 @@
     </i:Interaction.Triggers>
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <converters:EnumToResourceConverter x:Key="EnumToResourceConverter"/>
-        <converters:BusyMouseConverter x:Key="BusyMouseConverter"/>
+        <converters:EnumToResouceConverter x:Key="EnumToResouceConverter"/>
+        <converters:BusyMouseConverter x:Key="BusyMouseConverter" />
         <converters:ResourceToImageConverter x:Key="ResourceToImageConverter"/>
         <converters:DistanceConverter x:Key="DistanceConverter"/>
         <converters:I18NFormatterConverter x:Key="I18NFormatter"/>
@@ -116,26 +116,26 @@
                 </MenuItem>
                 <MenuItem Header="{lex:Loc WnExplorerMnuExport}" Command="{Binding IsActiveCommand}" Style="{StaticResource ToolBarTopMenuitem}">
                     <MenuItem.Icon>
-                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=export}"/>
+                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=export}" />
                     </MenuItem.Icon>
                     <MenuItem Header="{lex:Loc WnExplorerMnuExportSandboxWithOwner}" Command="{Binding ExportSandboxObjectCommand}" ToolTip="{lex:Loc WnExplorerMnuExportSandboxWithOwnerTooltip}">
                         <MenuItem.Icon>
-                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=export}"/>
+                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=export}" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="{lex:Loc WnExplorerMnuExportSandboxWithoutOwner}" Command="{Binding ExportBasicSandboxObjectCommand}" ToolTip="{lex:Loc WnExplorerMnuExportSandboxWithoutOwnerTooltip}">
                         <MenuItem.Icon>
-                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=export}"/>
+                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=export}" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="{lex:Loc WnExplorerMnuExportPrefab}" Command="{Binding ExportPrefabObjectCommand}" ToolTip="{lex:Loc WnExplorerMnuExportPrefabTooltip}">
                         <MenuItem.Icon>
-                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=export}"/>
+                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=export}" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="{lex:Loc WnExplorerMnuExportSpawnGroup}" Command="{Binding ExportSpawnGroupObjectCommand}" ToolTip="{lex:Loc WnExplorerMnuExportSpawnGroupTooltip}">
                         <MenuItem.Icon>
-                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=export}"/>
+                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=export}" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="{lex:Loc WnExplorerMnuExportBlueprint}" Command="{Binding ExportBlueprintCommand}" ToolTip="{lex:Loc WnExplorerMnuExportBlueprintTooltip}">

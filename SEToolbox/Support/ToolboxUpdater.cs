@@ -257,8 +257,8 @@ namespace SEToolbox.Support
 
                 return !Enumerable.SequenceEqual(bufferA,bufferB);
 
-            }
-            return false;
+    }
+    return false;
         }
 
         #endregion

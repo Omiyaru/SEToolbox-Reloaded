@@ -38,19 +38,18 @@ namespace SEToolboxUpdate
 
         static void Main(string[] args)
         {
-  var logFileName = ToolboxUpdater.IsRunningElevated()
+            var logFileName = ToolboxUpdater.IsRunningElevated()
                 ? "./updater-elevated-log.txt"
                 : "./updater-log.txt";
 
             Log.Init(logFileName, appendFile: false);
-            Log.Info("Updater started.");
-            Log.Debug("Loading settings");
+            SConsole.WriteLine("Update process started.");
 
+            SConsole.WriteLine("Loading settings");
             GlobalSettings.Default.Load();
 
-            Log.Info("Setting UI culture");
-            string install = installMap.Keys.FirstOrDefault(k => args.Any(a => a.Equals(k))) ?? string.Empty;
-            object a = args.Any(a => a.Equals(delimiter + install, StringComparison.OrdinalIgnoreCase));
+            SConsole.WriteLine("Setting UI culture");
+            SConsole.WriteLine($"Current language code is: {GlobalSettings.Default.LanguageCode}");
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfoByIetfLanguageTag(GlobalSettings.Default.LanguageCode);
 
             if (File.Exists(logFilePath))
@@ -65,6 +64,7 @@ namespace SEToolboxUpdate
             {
                 action();
             }
+            SConsole.WriteLine("Process was started by user, closing.");
 
             string appFile = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
             MessageBox.Show(string.Format(Res.AppParameterHelpMessage, appFile), Res.AppParameterHelpTitle, MessageBoxButton.OK, MessageBoxImage.None, MessageBoxResult.OK);
@@ -104,10 +104,12 @@ namespace SEToolboxUpdate
 				    SConsole.WriteLine("Toolbox Updater: Initializing first run");
                     MessageBox.Show(Res.UpdateRequiredUACMessage, Res.UpdateRequiredTitle, MessageBoxButton.OK, MessageBoxImage.Information);
                     
-                    
-
                     int? ret = ToolboxUpdater.RunElevated(updaterExePath,$"{join} {installMap.Keys.FirstOrDefault()}", elevate: true, waitForExit: true);
-				
+
+                     if (ret is { } r)
+                        SConsole.WriteLine($"Elevated updater process closed with exit code {r}.");
+                    else
+                        SConsole.WriteLine("Failed to start updater process.");
 
                     // Don't run toolbox from the elevated process, do it here.
                     if (ret.HasValue)
@@ -127,6 +129,7 @@ namespace SEToolboxUpdate
 
                 if (!wasUpdated && ex != null)
                 {
+                    SConsole.WriteLine("Game file update failed.");
                     SConsole.WriteLine(errorMsg + $"\n{File.ReadAllText(logFilePath)}");
                     File.WriteAllText(logFilePath, errorMsg);
                 }
@@ -166,6 +169,7 @@ namespace SEToolboxUpdate
                     ToolboxUpdaterRunElevated(installMap.Keys.FirstOrDefault(), false, false);
                     break;
                 case UacDeniedErrorCode:
+                    SConsole.WriteLine("UAC was denied.");
                     SConsole.WriteLine(Res.CancelUACMessage);
                     Environment.Exit(errorCode);
                     break;
@@ -173,7 +177,7 @@ namespace SEToolboxUpdate
                     SConsole.WriteLine(Res.UpdateErrorMessage);
                     if (MessageBox.Show(Res.UpdateErrorTitle, Res.UpdateErrorMessage, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                     {
-					    SConsole.WriteLine($"Starting process : ignoring updates.");
+					    SConsole.WriteLine($"Starting Toolbox process: ignoring updates.");
 
                         // X = Ignore updates.
                         ToolboxUpdater.RunElevated(toolboxExePath, installMap.Keys.FirstOrDefault(k => k.Equals(arg)), elevate: false, waitForExit: false);

@@ -52,6 +52,9 @@ namespace SEToolbox.Interop
 
         public static MyWorkshop.ResultData DownloadWorldModsBlocking(List<ModItem> mods, MyWorkshop.CancelToken cancelToken)
         {
+            if (!MyGameService.IsActive)
+                return default;
+
             MyWorkshop.ResultData ret = default;
 
             Task task = Task.Factory.StartNew(() => 

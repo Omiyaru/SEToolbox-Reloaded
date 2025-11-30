@@ -13,10 +13,11 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
-        <converters:ResourceToImageConverter x:Key="ResourceToImageConverter" />
-        <converters:I18NFormatterConverter x:Key="I18NFormatter" />
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <converters:DDSConverter x:Key="DDSConverter" />
+        <converters:ResourceToImageConverter x:Key="ResourceToImageConverter"/>
+        <converters:StringFormatConverter x:Key="StringFormatConverter"/>
+        <converters:I18NFormatterConverter x:Key="I18NFormatter"  />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:DDSConverter x:Key="DDSConverter"/>
         <Style TargetType="ListViewItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         </Style>
@@ -123,10 +124,7 @@
                 </MenuItem>
                 <MenuItem Header="{lex:Loc CtlVoxelMnuRotate}" Style="{StaticResource ToolBarTopMenuitem}">
                     <MenuItem.Icon>
-                        <Image
-                            Width="16"
-                            Height="16"
-                            Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=replace2}" />
+                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=replace2}" />
                     </MenuItem.Icon>
                     <MenuItem Command="{Binding RotateAsteroidPitchPositiveCommand}" Header="{lex:Loc CtlVoxelMnuRotatePitchPositive}" />
                     <MenuItem Command="{Binding RotateAsteroidPitchNegativeCommand}" Header="{lex:Loc CtlVoxelMnuRotatePitchNegative}" />
@@ -135,48 +133,20 @@
                     <MenuItem Command="{Binding RotateAsteroidRollPositiveCommand}" Header="{lex:Loc CtlVoxelMnuRotateRollPositive}" />
                     <MenuItem Command="{Binding RotateAsteroidRollNegativeCommand}" Header="{lex:Loc CtlVoxelMnuRotateRollNegative}" />
                 </MenuItem>
-                <MenuItem
-                    HorizontalAlignment="Right"
-                    Command="{Binding CopyDetailCommand}"
-                    Style="{StaticResource ToolBarTopMenuitem}"
-                    ToolTip="{lex:Loc CtlVoxelMnuCopyDetail}">
+                <MenuItem HorizontalAlignment="Right" Style="{StaticResource ToolBarTopMenuitem}" ToolTip="{lex:Loc CtlVoxelMnuCopyDetail}" Command="{Binding CopyDetailCommand}">
                     <MenuItem.Icon>
-                        <Image
-                            Width="16"
-                            Height="16"
-                            Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=copy}" />
+                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=copy}" />
                     </MenuItem.Icon>
                 </MenuItem>
             </Menu>
-            <Label
-                Grid.Row="2"
-                Grid.Column="0"
-                Content="{lex:Loc CtlVoxelPosition}" />
-            <views:ControlPosition Grid.Row="2" Grid.Column="1" />
-            <Separator
-                Grid.Row="3"
-                Grid.Column="0"
-                Grid.ColumnSpan="2" />
+            <Label Grid.Row="2" Grid.Column="0" Content="{lex:Loc CtlVoxelPosition}"/>
+            <views:ControlPosition Grid.Row="2" Grid.Column="1"/>
+            <Separator Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"/>
 
-            <TextBlock
-                Grid.Row="4"
-                Grid.Column="0"
-                Margin="4,0,4,0"
-                Text="{lex:Loc CtlVoxelName}" />
-            <TextBlock
-                Grid.Row="4"
-                Grid.Column="1"
-                VerticalAlignment="Center"
-                Text="{Binding Name}" />
-            <TextBlock
-                Grid.Row="5"
-                Grid.Column="0"
-                Margin="4,0,4,0"
-                Text="{lex:Loc CtlVoxelBoundingSize}" />
-            <TextBlock
-                Grid.Row="5"
-                Grid.Column="1"
-                VerticalAlignment="Center">
+            <TextBlock Grid.Row="4" Grid.Column="0" Margin="4, 0, 4, 0" Text="{lex:Loc CtlVoxelName}"/>
+            <TextBlock Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}"/>
+            <TextBlock Grid.Row="5" Grid.Column="0" Margin="4, 0, 4, 0" Text="{lex:Loc CtlVoxelBoundingSize}"/>
+            <TextBlock Grid.Row="5" Grid.Column="1" VerticalAlignment="Center">
                 <TextBlock.Text>
                     <MultiBinding Converter="{StaticResource I18NFormatter}" ConverterParameter="CtlVoxelBoundingSizeValue">
                         <Binding Path="Size.Width" />
@@ -185,15 +155,8 @@
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>
-            <TextBlock
-                Grid.Row="6"
-                Grid.Column="0"
-                Margin="4,0,4,0"
-                Text="{lex:Loc CtlVoxelSize}" />
-            <TextBlock
-                Grid.Row="6"
-                Grid.Column="1"
-                VerticalAlignment="Center">
+            <TextBlock Grid.Row="6" Grid.Column="0" Margin="4, 0, 4, 0" Text="{lex:Loc CtlVoxelSize}"/>
+            <TextBlock Grid.Row="6" Grid.Column="1" VerticalAlignment="Center">
                 <TextBlock.Text>
                     <MultiBinding Converter="{StaticResource I18NFormatter}" ConverterParameter="CtlVoxelSizeValue">
                         <Binding Path="ContentSize.Width" />
@@ -202,15 +165,8 @@
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>
-            <TextBlock
-                Grid.Row="7"
-                Grid.Column="0"
-                Margin="4,0,4,0"
-                Text="{lex:Loc CtlVoxelCenter}" />
-            <TextBlock
-                Grid.Row="7"
-                Grid.Column="1"
-                VerticalAlignment="Center">
+            <TextBlock Grid.Row="7" Grid.Column="0" Margin="4, 0, 4, 0" Text="{lex:Loc CtlVoxelCenter}"/>
+            <TextBlock Grid.Row="7" Grid.Column="1" VerticalAlignment="Center">
                 <TextBlock.Text>
                     <MultiBinding StringFormat="{}{0}N2, {1}N2, {2}N2">
                         <Binding Path="Center.X" />
@@ -219,59 +175,25 @@
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>
-            <TextBlock
-                Grid.Row="8"
-                Grid.Column="0"
-                Margin="4,0,4,0"
-                Text="{lex:Loc CtlVoxelVolume}" />
-            <TextBlock
-                Grid.Row="8"
-                Grid.Column="1"
-                VerticalAlignment="Center">
+            <TextBlock Grid.Row="8" Grid.Column="0" Margin="4, 0, 4, 0" Text="{lex:Loc CtlVoxelVolume}"/>
+            <TextBlock Grid.Row="8" Grid.Column="1" VerticalAlignment="Center">
                 <Run Text="{Binding Volume, StringFormat='#,###0.00', Mode=OneWay}" />
                 <Run Text="{lex:Loc GlobalSIVolumeCubicMetre}" />
             </TextBlock>
-            <TextBlock
-                Grid.Row="9"
-                Grid.Column="0"
-                Margin="4,0,4,0"
-                Text="{lex:Loc CtlVoxelVoxCells}" />
-            <TextBlock
-                Grid.Row="9"
-                Grid.Column="1"
-                VerticalAlignment="Center"
-                Text="{Binding VoxCells, StringFormat='{}{0:#,##0}'}" />
-            <TextBlock
-                Grid.Row="10"
-                Grid.Column="0"
-                Margin="4,0,4,0"
-                Text="{lex:Loc CtlVoxelDistance}" />
-            <TextBlock
-                Grid.Row="10"
-                Grid.Column="1"
-                VerticalAlignment="Center">
+            <TextBlock Grid.Row="9" Grid.Column="0" Margin="4, 0, 4, 0" Text="{lex:Loc CtlVoxelVoxCells}"/>
+            <TextBlock Grid.Row="9" Grid.Column="1" VerticalAlignment="Center" Text="{Binding VoxCells, StringFormat='{}{0:#,##0}'}" />
+            <TextBlock Grid.Row="10" Grid.Column="0" Margin="4, 0, 4, 0" Text="{lex:Loc CtlVoxelDistance}"/>
+            <TextBlock Grid.Row="10" Grid.Column="1" VerticalAlignment="Center">
                 <Run Text="{Binding PlayerDistance, StringFormat='#,###0.0', Mode=OneWay}" />
                 <Run Text="{lex:Loc GlobalSIDistanceMetre}" />
             </TextBlock>
 
-            <controls:SortableListView
-                Grid.Row="11"
-                Grid.Column="0"
-                Grid.ColumnSpan="2"
-                ColumnHeaderArrowDownTemplate="{StaticResource HeaderTemplateArrowDown}"
-                ColumnHeaderArrowUpTemplate="{StaticResource HeaderTemplateArrowUp}"
-                ItemsSource="{Binding MaterialAssets, Mode=OneWay}"
-                SelectedValue="{Binding SelectedMaterialAsset}">
+            <controls:SortableListView Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding MaterialAssets, Mode=OneWay}" SelectedValue="{Binding SelectedMaterialAsset}"
+                ColumnHeaderArrowUpTemplate="{StaticResource HeaderTemplateArrowUp}" ColumnHeaderArrowDownTemplate="{StaticResource HeaderTemplateArrowDown}">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn
-                            Width="95"
-                            DisplayMemberBinding="{Binding MaterialName}"
-                            Header="{lex:Loc CtlVoxelColMaterial}" />
-                        <controls:SortableGridViewColumn
-                            Width="100"
-                            Header="{lex:Loc CtlVoxelColVolume}"
-                            SortBinding="{Binding Volume}">
+                        <GridViewColumn Header="{lex:Loc SEToolbox:Resources:CtlVoxelColMaterial}" DisplayMemberBinding="{Binding MaterialName}" Width="95"/>
+                        <controls:SortableGridViewColumn Header="{lex:Loc SEToolbox:Resources:CtlVoxelColVolume}" Width="100" SortBinding="{Binding Volume}">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock TextAlignment="Right">
@@ -303,7 +225,7 @@
                                     Height="16"
                                     x:Shared="False"
                                     SnapsToDevicePixels="True"
-                                    Source="{Binding Path=TextureFile, Converter={StaticResource DDSConverter}, ConverterParameter='16,16,noalpha'}" />
+                                    Source="{Binding Path=TextureFile, Converter={StaticResource DDSConverter}, ConverterParameter='16, 16, noalpha'}" />
                             </MenuItem.Resources>
                             <MenuItem.ItemContainerStyle>
                                 <Style TargetType="MenuItem">

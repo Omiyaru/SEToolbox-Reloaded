@@ -194,6 +194,15 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Update="Properties\ImageResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ImageResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Compile Update="Properties\ImageResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ImageResources.resx</DependentUpon>
+    </Compile>
     <Compile Update="Interop\SubtypeId.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -211,9 +220,6 @@
       <Link>VRage.Native.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="steam_appid.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -246,6 +252,6 @@
   <Target Name="CopyUpdater" AfterTargets="AfterBuild">
     <Copy SourceFiles="$(ProjectDir)..\SEToolboxUpdate\bin\$(Platform)\$(Configuration)\SEToolboxUpdate.exe" DestinationFolder="$(TargetDir)" />
     <Copy SourceFiles="$(ProjectDir)..\SEToolboxUpdate\bin\$(Platform)\$(Configuration)\de\SEToolboxUpdate.resources.dll" DestinationFolder="$(TargetDir)de" />
-    <!--<Copy SourceFiles="$(ProjectDir)..\SEToolboxUpdate\bin\$(Platform)\$(Configuration)\zh-cn\SEToolboxUpdate.resources.dll" DestinationFolder="$(TargetDir)zh-cn" />-->
+    <Copy SourceFiles="$(ProjectDir)..\SEToolboxUpdate\bin\$(Platform)\$(Configuration)\zh-CN\SEToolboxUpdate.resources.dll" DestinationFolder="$(TargetDir)zh-CN" />
   </Target>
 </Project>
