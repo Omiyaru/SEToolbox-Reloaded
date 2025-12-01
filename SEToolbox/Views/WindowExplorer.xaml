@@ -24,7 +24,7 @@
     </i:Interaction.Triggers>
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <converters:EnumToResouceConverter x:Key="EnumToResouceConverter"/>
+        <converters:EnumToResouceConverter x:Key="EnumToResourceConverter"/>
         <converters:BusyMouseConverter x:Key="BusyMouseConverter" />
         <converters:ResourceToImageConverter x:Key="ResourceToImageConverter"/>
         <converters:DistanceConverter x:Key="DistanceConverter"/>

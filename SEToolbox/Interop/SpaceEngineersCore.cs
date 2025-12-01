@@ -166,7 +166,7 @@ namespace SEToolbox.Interop
 
             catch (Exception ex)
             {
-                SConsole.WriteLine($"Error initializing Steam service: {ex.Message} fallling back to Steam API.");
+                SConsole.WriteLine($"Error initializing Steam service: {ex.Message} fallling back to local implementation.");
                 CreateSteamService();
 
             };
@@ -314,7 +314,7 @@ namespace SEToolbox.Interop
                 }
                 else
                 {
-                    _protobufCloningField?.SetValue(null, originalBoolValue.Value ? _protobufCloningOriginalValue.Value : false);
+                    _protobufCloningField?.SetValue(null, originalBoolValue.Value && _protobufCloningOriginalValue.Value);
                 }
             }
         }
