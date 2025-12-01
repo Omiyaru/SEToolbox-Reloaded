@@ -152,16 +152,24 @@ namespace SEToolbox.Interop
         // offloads after we are done fetching the mods.
         private void InitializeSteamService()
         {
-            if (_steamService != null)
+            try
             {
-                _steamService = MySteamGameService.Create(Sandbox.Engine.Platform.Game.IsDedicated, AppIdGame);
 
+                _steamService = MySteamGameService.Create(Sandbox.Engine.Platform.Game.IsDedicated, AppIdGame | AppIdDedicatedServer);
+                
                 MyServiceManager.Instance.AddService(_steamService);
 
                 SConsole.WriteLine("Initializing VRage platform.");
                 MyVRage.Init(new ToolboxPlatform());
                 MyVRage.Platform.Init();
             }
+
+            catch (Exception ex)
+            {
+                SConsole.WriteLine($"Error initializing Steam service: {ex.Message} fallling back to Steam API.");
+                CreateSteamService();
+
+            };
         }
 
         private void FetchSteamMods()
@@ -300,25 +308,13 @@ namespace SEToolbox.Interop
             if (_protobufCloningField != null)
             {
                 var originalBoolValue = (bool?)_protobufCloningField.GetValue(null);
-                if (originalBoolValue.HasValue)
+                if (setValue)
                 {
-                    if (setValue)
-                    {
-                        _protobufCloningField.SetValue(null, true);
-                    }
-                    else
-                    {
-                        _protobufCloningField.SetValue(null, originalBoolValue.Value);
-                    }
-                }
-                else if (setValue)
-                {
-                    // Save the original value to reset it later
-                    _protobufCloningField.SetValue(null, true);
+                    _protobufCloningField?.SetValue(null, true);
                 }
                 else
                 {
-                    _protobufCloningField.SetValue(null, _protobufCloningOriginalValue.Value);
+                    _protobufCloningField?.SetValue(null, originalBoolValue.Value ? _protobufCloningOriginalValue.Value : false);
                 }
             }
         }
@@ -329,26 +325,28 @@ namespace SEToolbox.Interop
         {
             //return MySteamGameService.Create(Sandbox.Engine.Platform.Game.IsDedicated, AppId);
 
-            var appIdStr = AppIdGame.ToString();
+            var appIdStr = AppIdGame.ToString() ?? AppIdDedicatedServer.ToString();
             Environment.SetEnvironmentVariable("SteamAppId", appIdStr);
             Environment.SetEnvironmentVariable("SteamGameId", appIdStr);
 
-            var service = MySteamGameService.Create(isDedicated: true, AppIdGame);
+            // isDedicated: true skips the initialization that is done here instead.
+            var service = MySteamGameService.Create(isDedicated: true, AppIdGame | AppIdDedicatedServer);
             var serviceType = service.GetType();
 
             var steamAppId = (AppId_t)AppIdGame;
 
             //if (SteamAPI.RestartAppIfNecessary(steamAppId))
-                //SConsole.WriteLine("SteamAPI.RestartAppIfNecessary returned true.");
+            //SConsole.WriteLine("SteamAPI.RestartAppIfNecessary returned true.");
             bool isActive = SteamAPI.Init();
             serviceType.GetProperty("IsActive").SetValue(service, isActive);
 
             if (!isActive)
-                Log.Error("Failed to initialize Steam service.");
+                SConsole.WriteLine("Failed to initialize Steam service.");
 
             IMyInventoryService serviceInstance;
 
             const ulong OFFLINE_STEAM_ID = 1234567891011uL;
+
 
             if (isActive)
             {
@@ -357,7 +355,7 @@ namespace SEToolbox.Interop
                 serviceType.GetProperty(nameof(IMyGameService.UserName)).SetValue(service, SteamFriends.GetPersonaName());
                 var properties = serviceType.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic);
                 var fields = serviceType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
-             
+
                 var unifiedDictionary = properties.ToDictionary(p => p.Name, p => p.GetValue(service)).Union(fields.ToDictionary(p => p.Name, p => p.GetValue(service)));
                 foreach (var entry in unifiedDictionary)
                 {
@@ -387,7 +385,9 @@ namespace SEToolbox.Interop
                 MessageBox.Show(errMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             return service;
+
         }
+
         static void InitMultithreading()
         {
             //MySandboxGame.InitMultithreading();
