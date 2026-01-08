@@ -62,6 +62,7 @@ namespace SEToolbox.Models
         public bool IsBusy
         {
             get => _isBusy;
+
             set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
                 if (_isBusy)
@@ -149,6 +150,7 @@ namespace SEToolbox.Models
             }
         }
 
+
         private static IEnumerable<WorldResource> FindSaveFiles(string lastLoadedPath, string userName, SaveWorldType saveType, UserDataPath dataPath)
         {
             List<WorldResource> list = [];
@@ -211,7 +213,7 @@ namespace SEToolbox.Models
                             };
 
                             saveResource.LoadWorldInfo();
-                            if (saveResource.IsValid && 
+                            if (saveResource != null && saveResource.IsValid && 
                                (saveResource.SaveName.Equals(findSession, System.StringComparison.CurrentCultureIgnoreCase) || 
                                 saveResource.SessionName.Equals(findSession, System.StringComparison.CurrentCultureIgnoreCase)))
                             {

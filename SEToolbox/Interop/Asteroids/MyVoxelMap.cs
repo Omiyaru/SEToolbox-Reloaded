@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+
 using VRage.FileSystem;
 using VRage.Game.Voxels;
 using VRage.Library.Compression;
@@ -111,7 +112,7 @@ namespace SEToolbox.Interop.Asteroids
             Vector3I cacheSize = Vector3I.Min(new Vector3I(64), m_storage.Size * 2);
             // read the asteroid in chunks to avoid the Arithmetic overflow issue.
             Vector3I block = Vector3I.Zero;
-            PRange.ProcessRange(block, m_storage.Size);
+            PRange.ProcessRange(block, m_storage.Size / 64);
 
             MyStorageData cache = new();
             cache.Resize(cacheSize);
@@ -131,9 +132,7 @@ namespace SEToolbox.Interop.Asteroids
             map.Load(fileName);
 
             if (!map.IsValid)
-            {
                 return list;
-            }
 
             list = map.RefreshAssets();
             map.Dispose();
@@ -149,21 +148,18 @@ namespace SEToolbox.Interop.Asteroids
         public static bool IsVoxelMapFile(string fileName)
         {
             string extension = Path.GetExtension(fileName);
-            if (extension != null && extension.Equals(FileExtension.V1, StringComparison.InvariantCultureIgnoreCase))
+            if  (extension !=null && extension.Equals(FileExtension.V1, StringComparison.InvariantCultureIgnoreCase))
             {
                 using FileStream stream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 try
                 {
-                    int[] msgLengths = new int[4];
-                    for (int i = 0; i < msgLengths.Length; i++)
-                    {
-                        msgLengths[i] = stream.ReadByte();
-                    }
-
-                    int byte1 = stream.ReadByte();
-                    int byte2 = stream.ReadByte();
-
-                    return byte1 == 0x1f && byte2 == 0x8b;
+                    int msgLength1 = stream.ReadByte();
+                    int msgLength2 = stream.ReadByte();
+                    int msgLength3 = stream.ReadByte();
+                    int msgLength4 = stream.ReadByte();
+                    int b1 = stream.ReadByte();
+                    int b2 = stream.ReadByte();
+                    return b1 == 0x1f && b2 == 0x8b;
                 }
                 catch
                 {
@@ -210,7 +206,7 @@ namespace SEToolbox.Interop.Asteroids
                 _boundingContent = new BoundingBoxI();
                 VoxCells = 0;
                 IsValid = false;
-                Log.WriteLine(Res.ExceptionState_CorruptAsteroidFile, fileName, ex);
+                Log.Warning(string.Format(Res.ExceptionState_CorruptAsteroidFile, fileName), ex);
             }
         }
 
@@ -280,13 +276,13 @@ namespace SEToolbox.Interop.Asteroids
         /// <param name="fileName">the file extension indicates the version of file been saved.</param>
         public new void Save(string fileName)
         {
-            Debug.Write("Saving binary.");
+            SConsole.Write("Saving binary.");
 
             m_storage.Save(out byte[] array);
 
             File.WriteAllBytes(fileName, array);
 
-            Debug.Write("Done.");
+            SConsole.Write("Done.");
         }
 
         #endregion
@@ -301,17 +297,18 @@ namespace SEToolbox.Interop.Asteroids
             // Low memory, fast compress.
             using FileStream originalByteStream = new(sourceFileName, FileMode.Open);
             if (File.Exists(destinationFileName))
-            {
                 File.Delete(destinationFileName);
-            }
 
             using FileStream compressedByteStream = new(destinationFileName, FileMode.CreateNew);
             compressedByteStream.Write(BitConverter.GetBytes(originalByteStream.Length), 0, 4);
 
             // GZipStream requires using. Do not optimize the stream.
-            using GZipStream compressionStream = new(compressedByteStream, CompressionMode.Compress, true);
-            originalByteStream.CopyTo(compressionStream);
-            Debug.WriteLine($"Compressed from {originalByteStream.Length:#,###0} bytes to {compressedByteStream.Length:#,###0} bytes.");
+            using (GZipStream compressionStream = new(compressedByteStream, CompressionMode.Compress, true))
+            {
+                originalByteStream.CopyTo(compressionStream);
+            }
+
+            SConsole.WriteLine($"Compressed from {originalByteStream.Length:#,###0} bytes to {compressedByteStream.Length:#,###0} bytes.");
         }
         #endregion
 
@@ -330,15 +327,13 @@ namespace SEToolbox.Interop.Asteroids
             reader.ReadInt32();
 
             if (File.Exists(destinationFileName))
-            {
                 File.Delete(destinationFileName);
-            }
 
             using FileStream outStream = new(destinationFileName, FileMode.CreateNew);
             // GZipStream requires using. Do not optimize the stream.
             using GZipStream zip = new(compressedByteStream, CompressionMode.Decompress);
             zip.CopyTo(outStream);
-            Debug.WriteLine($"Decompressed from {compressedByteStream.Length:#,###0} bytes to {outStream.Length:#,###0} bytes.");
+            SConsole.WriteLine($"Decompressed from {compressedByteStream.Length:#,###0} bytes to {outStream.Length:#,###0} bytes.");
         }
 
         /// <summary>
@@ -354,9 +349,9 @@ namespace SEToolbox.Interop.Asteroids
 
             // GZipStream requires using. Do not optimize the stream.
             using GZipStream zip = new(compressedByteStream, CompressionMode.Decompress);
-            byte[] byteArray = new byte[numberBytes];
-            zip.Read(byteArray, 0, numberBytes);
-            return byteArray;
+            byte[] arr = new byte[numberBytes];
+            zip.Read(arr, 0, numberBytes);
+            return arr;
         }
 
         #endregion
@@ -417,13 +412,12 @@ namespace SEToolbox.Interop.Asteroids
             Vector3I vectors = Vector3I.Zero;
 
             for (int i = 0; i < 3; i++)
-            {
-                if (adjustedCacheSize[i] > 64)
                 {
-                    adjustedCacheSize[i] /= 2;
+                    if (adjustedCacheSize[i] > 64)
+                    {
+                        adjustedCacheSize[i] /= 2;
+                    };
                 }
-                ;
-            }
 
             return adjustedCacheSize;
         }
@@ -443,8 +437,10 @@ namespace SEToolbox.Interop.Asteroids
             Vector3I block = Vector3I.Zero;
             //var cacheSize = new Vector3I(64 >> 3);
             Vector3I cacheSize = new(8);
-            var adjustedCacheSize = GetAdjustedCacheSize(cacheSize);
+           var adjustedCacheSize = GetAdjustedCacheSize(cacheSize);
             PRange.ProcessRange(block, m_storage.Size);
+
+
             var cache = new MyStorageData();
             cache.Resize(adjustedCacheSize);
             m_storage.ReadRange(cache, MyStorageDataTypeFlags.Content, 3, block, block + cacheSize - 1);
@@ -454,17 +450,20 @@ namespace SEToolbox.Interop.Asteroids
             // Unless volume is read, the call to ComputeContentConstitution() causes the fullCells list to not clear properly.
             byte volume = cache.Content(ref p);
 
-            if (volume > 0 && cache.ComputeContentConstitution() == MyVoxelContentConstitution.Empty)
+            if (volume > 0)
             {
-                fullCells.Clear();
-                return;
+                // If the cell is empty, clear the fullCells list without modifying the original list
+                if (cache.ComputeContentConstitution() == MyVoxelContentConstitution.Empty)
+                {
+                    fullCells.Clear();
+                    return;
+                }
             }
-
+        
             if (cache.ComputeContentConstitution() != MyVoxelContentConstitution.Empty)
-            {
                 // Collect the non-empty cell coordinates
                 fullCells.Add(block << 3);
-            }
+
 
             cacheSize = new Vector3I(8);
 
@@ -500,9 +499,7 @@ namespace SEToolbox.Interop.Asteroids
 
             // Optionally seek adjacent cells and set their material too.
             if (radius == 0)
-            {
                 return;
-            }
 
             for (int i = 0; i < fullCells.Count; i++)
             {
@@ -518,7 +515,7 @@ namespace SEToolbox.Interop.Asteroids
                     {
                         // If the cell is empty, skip it and continue with the next one.
                         fullCells.Clear();
-                        continue;
+                                continue;
                     }
 
                     cache.BlockFillMaterial(Vector3I.Zero, cache.Size3D, materialIndex);
@@ -528,8 +525,8 @@ namespace SEToolbox.Interop.Asteroids
 
             // Might need to clear the list, as the Structs sit in memory otherwise and kill the List.
             // Could be caused by calling ComputeContentConstitution() on the cache without doing anything else on it.
-            //fullCells.Clear();
-            //fullCells = null;
+            fullCells.Clear();
+           // fullCells = null;
         }
 
 
@@ -590,7 +587,7 @@ namespace SEToolbox.Interop.Asteroids
             Vector3I cacheSize = Vector3I.Min(new Vector3I(64), m_storage.Size);
 
             // read the asteroid in chunks of 64 to avoid the Arithmetic overflow issue.
-            PRange.ProcessRange(block, cacheSize);
+            PRange.ProcessRange(block, cacheSize / 64);
             MyStorageData cache = new();
             cache.Resize(cacheSize);
             Vector3I maxRange = block + cacheSize - 1;
@@ -617,9 +614,9 @@ namespace SEToolbox.Interop.Asteroids
             Vector3I cacheSize = Vector3I.Min(new Vector3I(64), m_storage.Size);
             // read the asteroid in chunks of 64 to avoid the Arithmetic overflow issue.
             PRange.ProcessRange(block, cacheSize);
+            
 
             for (int i = 0; i < 3; i++)
-            {
                 if (block[i] == 0 || block[i] + cacheSize[i] == m_storage.Size[i] - 1)
                 {
                     MyStorageData cache = new();
@@ -634,21 +631,21 @@ namespace SEToolbox.Interop.Asteroids
                     PRange.ProcessRange(p, cacheSize);
 
                     Vector3I min = p + block;
-                    var isSize = min.X == 0 || min.X == m_storage.Size.X - 1 ||
-                                 min.Y == 0 || min.Y == m_storage.Size.Y - 1 ||
-                                 min.Z == 0 || min.Z == m_storage.Size.Z - 1;
-                    if (isSize && cache.Material(ref p) != materialIndex)
+                    if (min.X == 0 || min.Y == 0 || min.Z == 0 ||
+                        min.X == m_storage.Size.X - 1 || min.Y == m_storage.Size.Y - 1 || min.Z == m_storage.Size.Z - 1)
                     {
-                        cache.Material(ref p, materialIndex);
-                        changed = true;
+                        if (cache.Material(ref p) != materialIndex)
+                        {
+                            cache.Material(ref p, materialIndex);
+                            changed = true;
+                        }
                     }
+
                     if (changed)
-                    {
                         m_storage.WriteRange(cache, MyStorageDataTypeFlags.Material, block, maxRange);
-                    }
                 }
             }
-        }
+        
 
         #endregion
 
@@ -679,53 +676,50 @@ namespace SEToolbox.Interop.Asteroids
             Vector3I cell = new(x, y, z);
 
             PRange.ProcessRange(cell, cacheSize / 64);
-
+       
             var dataCell = cell;
             if (cache.Content(ref dataCell) != 0)
             {
                 cellsToProcess.Add(dataCell);
             }
 
-            var nextCells = new Vector3I[6]
-            {
-                new(0, 0, 1), new(0, 0, -1), new(0, 1, 0),
-                new(0, -1, 0), new(1, 0, 0), new(-1, 0, 0)
-            };
-
-            var hashSet = new HashSet<Vector3I>(cellsToProcess);
-
             foreach (var cellToProcess in cellsToProcess)
             {
                 dataCell = cellToProcess;
+                var nextCells = new[]
+                {
+                    dataCell + new Vector3I(0, 0, 1),
+                    dataCell + new Vector3I(0, 0, -1),
+                    dataCell + new Vector3I(0, 1, 0),
+                    dataCell + new Vector3I(0, -1, 0),
+                    dataCell + new Vector3I(1, 0, 0),
+                    dataCell + new Vector3I(-1, 0, 0)
+                };
 
                 foreach (var nc in nextCells)
                 {
-                    var nextCell = dataCell + nc;
-                    if (hashSet.Contains(nextCell) && cache.Content(ref nextCell) != 0)
+                    var nextCell = nc;
+                    if (cache.Content(ref nextCell) != 0)
                     {
                         curThickness = 0;
                         SetMaterialOnFace(dataCell, materialIndex, ref cache, ref writebuffer, writebufferSize, m_storage, targtThickness, ref curThickness);
-                        hashSet.Remove(dataCell);
                         break;
                     }
                 }
             }
         }
 
+
         public static void SetMaterialOnFace(Vector3I dataCell, byte materialIndex, ref MyStorageData cache, ref MyStorageData writebuffer, Vector3I writebufferSize, IMyStorage m_storage, byte targtThickness, ref byte curThickness)
         {
-
             Vector3I bufferPosition = new(dataCell.X << 3, dataCell.Y << 3, dataCell.Z << 3);
             Vector3I maxRange = bufferPosition + writebufferSize - 1;
             writebuffer.ClearMaterials(0);
             m_storage.ReadRange(writebuffer, MyStorageDataTypeFlags.Material, 0, bufferPosition, maxRange);
             writebuffer.BlockFillMaterial(Vector3I.Zero, writebufferSize - 1, materialIndex);
             m_storage.WriteRange(writebuffer, MyStorageDataTypeFlags.Material, bufferPosition, maxRange);
-
             if ((targtThickness > 0 && ++curThickness >= targtThickness) || cache.Content(ref dataCell) == 255)
-            {
                 return;
-            }
         }
 
         #endregion
@@ -737,9 +731,7 @@ namespace SEToolbox.Interop.Asteroids
             byte materialIndex = SpaceEngineersResources.GetMaterialIndex(materialName);
             byte replaceMaterialIndex = materialIndex;
             if (!string.IsNullOrEmpty(replaceFillMaterial))
-            {
                 replaceMaterialIndex = SpaceEngineersResources.GetMaterialIndex(replaceFillMaterial);
-            }
 
             Vector3I cacheSize = Vector3I.Min(new Vector3I(64), m_storage.Size);
             var block = Vector3I.Zero;
@@ -759,15 +751,12 @@ namespace SEToolbox.Interop.Asteroids
             {
                 cache.Content(ref p, 0);
                 if (replaceMaterialIndex != materialIndex)
-                {
                     cache.Material(ref p, replaceMaterialIndex);
-                }
                 changed = true;
             }
+
             if (changed)
-            {
                 m_storage.WriteRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, block, maxRange);
-            }
         }
 
         public void RemoveMaterial(int? xMin, int? xMax, int? yMin, int? yMax, int? zMin, int? zMax)
@@ -805,9 +794,7 @@ namespace SEToolbox.Interop.Asteroids
             }
 
             if (changed)
-            {
                 m_storage.WriteRange(cache, MyStorageDataTypeFlags.Material, block, maxRange);
-            }
         }
 
         #endregion
@@ -836,6 +823,7 @@ namespace SEToolbox.Interop.Asteroids
 
             Vector3I min = Vector3I.MaxValue;
             Vector3I max = Vector3I.MinValue;
+
             Vector3I cacheSize = Vector3I.Min(new Vector3I(64), m_storage.Size);
             Dictionary<byte, long> assetCount = [];
 
@@ -844,14 +832,16 @@ namespace SEToolbox.Interop.Asteroids
 
             // read the asteroid in chunks of 64 to avoid the Arithmetic overflow issue.
             Vector3I block = Vector3I.Zero;
-            PRange.ProcessRange(block, cacheSize);
+            PRange.ProcessRange(block, m_storage.Size);
             // LOD1 is not detailed enough for content information on asteroids.
             Vector3I maxRange = block + cacheSize - 1;
             m_storage.ReadRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, block, maxRange);
 
             Vector3I p = Vector3I.Zero;
             PRange.ProcessRange(p, cacheSize);
+
             byte content = cache.Content(ref p);
+
             if (content > 0)
             {
                 min = Vector3I.Min(min, p + block);
@@ -859,19 +849,19 @@ namespace SEToolbox.Interop.Asteroids
 
                 byte material = cache.Material(ref p);
 
-                switch (assetCount.TryGetValue(material, out long c))
-                {
-                    case true: assetCount[material] = c + content;
-                        break;
-                    case false: assetCount.Add(material, content);
-                        break;
-                }
+                if (assetCount.TryGetValue(material, out long c))
+                    assetCount[material] = c + content;
+                else
+                    assetCount.Add(material, content);
                 sum += content;
             }
 
             _assetCount = assetCount;
 
-            _boundingContent = min == Vector3I.MaxValue && max == Vector3I.MinValue ? new BoundingBoxI() : new BoundingBoxI(min, max - 1);
+            if (min == Vector3I.MaxValue && max == Vector3I.MinValue)
+                _boundingContent = new BoundingBoxI();
+            else
+                _boundingContent = new BoundingBoxI(min, max - 1);
 
             VoxCells = sum;
         }
@@ -886,9 +876,7 @@ namespace SEToolbox.Interop.Asteroids
         public static void UpdateContentBounds(MyVoxelMapBase voxelMap)
         {
             if (voxelMap == null || voxelMap.Storage == null)
-            {
                 return;
-            }
 
             Vector3I min = new(int.MaxValue);
             Vector3I max = new(int.MinValue);
@@ -919,9 +907,7 @@ namespace SEToolbox.Interop.Asteroids
         public IList<byte> CalcVoxelMaterialList()
         {
             if (!IsValid)
-            {
                 return null;
-            }
 
             const int chunkSize = 64;
 
@@ -945,6 +931,7 @@ namespace SEToolbox.Interop.Asteroids
             for (int i = 0; i < cache.SizeLinear; i++)
             {
                 byte content = cache.Content(i);
+
                 if (content > 0)
                 {
                     voxelMaterialList.Add(cache.Material(i));
@@ -957,16 +944,14 @@ namespace SEToolbox.Interop.Asteroids
         public void SetVoxelMaterialList(IList<byte> materials)
         {
             if (!IsValid)
-            {
                 return;
-            }
 
             Vector3I block = Vector3I.Zero;
             Vector3I cacheSize = Vector3I.Min(new Vector3I(64), m_storage.Size);
             int index = 0;
 
             // read the asteroid in chunks of 64 to avoid the Arithmetic overflow issue.
-            PRange.ProcessRange(block, cacheSize);
+            PRange.ProcessRange(block, m_storage.Size);
             MyStorageData cache = new();
             cache.Resize(cacheSize);
             // LOD1 is not detailed enough for content information on asteroids.
@@ -980,6 +965,7 @@ namespace SEToolbox.Interop.Asteroids
             if (content > 0)
             {
                 cache.Material(ref p, materials[++index]);
+               
             }
             m_storage.WriteRange(cache, MyStorageDataTypeFlags.Material, block, maxRange);
         }
@@ -1005,8 +991,20 @@ namespace SEToolbox.Interop.Asteroids
             foreach (var kvp in _assetCount)
             {
                 string name;
-                name = kvp.Key >= materialDefinitions.Count ? materialDefinitions[defaultMaterial].Id.SubtypeName : materialDefinitions[kvp.Key].Id.SubtypeName;
-                assetNameCount[name] = assetNameCount.ContainsKey(name) ? assetNameCount[name] : kvp.Value;
+
+                if (kvp.Key >= materialDefinitions.Count)
+                    name = materialDefinitions[defaultMaterial].Id.SubtypeName;
+                else
+                    name = materialDefinitions[kvp.Key].Id.SubtypeName;
+
+                if (assetNameCount.ContainsKey(name))
+                {
+                    assetNameCount[name] += kvp.Value;
+                }
+                else
+                {
+                    assetNameCount.Add(name, kvp.Value);
+                }
             }
 
             return assetNameCount;
@@ -1045,15 +1043,20 @@ namespace SEToolbox.Interop.Asteroids
         // can't be bothered using Reflection.
         public void UpdateVoxelShape(OperationType type, MyShape shape, byte material)
         {
-            Action action = type switch
+            switch (type)
             {
-                OperationType.Fill => () => MyVoxelGenerator.FillInShape(this, shape, material),
-                OperationType.Paint => () => MyVoxelGenerator.PaintInShape(this, shape, material),
-                OperationType.Cut => () => MyVoxelGenerator.CutOutShape(this, shape),
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
-            };
-
-            action();
+                case OperationType.Fill:
+                    // Warning: FillInShape calls MySandboxGame.Invoke()
+                    MyVoxelGenerator.FillInShape(this, shape, material);
+                    break;
+                case OperationType.Paint:
+                    MyVoxelGenerator.PaintInShape(this, shape, material);
+                    break;
+                case OperationType.Cut:
+                     //MySession.Settings.EnableVoxelDestruction has to be enabled for Shapes to be deleted.
+                    MyVoxelGenerator.CutOutShape(this, shape);
+                    break;
+            }
         }
     }
 }

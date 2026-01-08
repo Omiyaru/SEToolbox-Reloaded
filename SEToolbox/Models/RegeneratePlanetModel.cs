@@ -32,7 +32,9 @@ namespace SEToolbox.Models
         {
             get => _diameter;
             set => SetProperty(ref _diameter, value, nameof(Diameter), () => 
-            InvalidKeenRange = _diameter < 19000 || _diameter > 120000);
+            {
+            InvalidKeenRange = _diameter < 19000 || _diameter > 120000;
+            });
         }
 
         public bool InvalidKeenRange

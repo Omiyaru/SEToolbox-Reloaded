@@ -63,10 +63,10 @@ namespace SEToolbox.ViewModels
             get => _isBusy;
             set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
-                if (_isBusy)
-                {
-                    Application.DoEvents();
-                }
+                    if (_isBusy)
+                    {
+                        Application.DoEvents();
+                    }
             });
         }
 
@@ -127,9 +127,7 @@ namespace SEToolbox.ViewModels
             {
                 // dialog confirm overwrite....
                 if (_dialogService.ShowMessageBox(this, Res.ErrorInvalidBlueprintExists, Res.ErrorInvalidBlueprintExistsTitle, System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) != System.Windows.MessageBoxResult.Yes)
-                {
                     return;
-                }
             }
             CloseResult = true;
         }

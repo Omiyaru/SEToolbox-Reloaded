@@ -34,6 +34,7 @@ namespace SEToolbox.Models
 
             };
 
+
             foreach (var kvp in data)
             {
                 if (byte.TryParse(kvp.Key, out byte id) &&
@@ -61,10 +62,7 @@ namespace SEToolbox.Models
             public MaterialPalette()
             {
                 for (byte i = 0; i < 255; i++)
-                {
-                    colors[i] = Color.FromRgb((byte)(i % 64 * 4), (byte)(i / 4 % 64 * 4), (byte)(255 - (i % 255)));
-                }
-
+                    colors[i] = Color.FromRgb((byte)(i % 64 * 4), (byte)((i / 4) % 64 * 4), (byte)(255 - (i % 255)));
                 colors[0] = Colors.Transparent;
             }
 
@@ -72,6 +70,7 @@ namespace SEToolbox.Models
             {
                 return colors.ContainsKey(id) ? colors[id] : Colors.Gray;
             }
+
 
             /// <summary>
             /// Returns a color with alpha component set
@@ -82,7 +81,6 @@ namespace SEToolbox.Models
                 color.A = alpha;
                 return color;
             }
-
             public static readonly Dictionary<string, string> MaterialColors = new()
             {
             { "Stone", "#747474ff" },

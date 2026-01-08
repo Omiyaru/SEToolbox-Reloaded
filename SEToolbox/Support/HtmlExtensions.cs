@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Text;
+using System.Web.UI.WebControls;
+using SharpDX.DXGI;
+
 
 namespace SEToolbox.Support
 {
@@ -15,12 +19,13 @@ namespace SEToolbox.Support
 
         internal static void BeginDocument(this StringWriter writer, string title, string inlineStyleSheet)
         {
-            writer.AddAttribute("meta http-equiv", "Content-Type", "content", "text/html;charset=UTF-8");
+            writer.RenderElement("meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\"");
             writer.RenderTagStart("html");
-            writer.RenderTagStart("meta");
             writer.RenderElement("style", inlineStyleSheet);
             writer.RenderTagStart("head");
-            writer.RenderElement("title", title);
+            writer.RenderTagStart("title");
+            writer.WriteLine(title);
+            writer.RenderTagEnd("title");
             writer.RenderTagEnd("head");
             writer.RenderTagStart("body");
         }
@@ -44,11 +49,11 @@ namespace SEToolbox.Support
         {
             writer.Write($"<{tagName}>{text}</{tagName}>");
         }
-
         internal static void RenderElement<T>(this StringWriter writer, object text, T value, string tagName = null)
         {
             writer.Write($"<{tagName}>{text}{value}</{tagName}>");
         }
+
         internal static void RenderElement(this StringWriter writer, string tagName = null)
         {
             writer.Write($"<{tagName}/>");
@@ -85,29 +90,20 @@ namespace SEToolbox.Support
                 }
             }
             if (format != null)
-            {
                 writer.Write(string.Format(format, arg));
-            }
-
             writer.RenderTagEnd(tagName);
         }
 
         internal static void AddAttribute(this StringWriter writer, string attributeName, string attributeValue)
         {
             writer.Write($"{attributeName}=\"{attributeValue}\"");
-        }   
-        internal static void AddAttribute(this StringWriter writer, string attributeName, string attributeValue, string attributeName2, string attributeValue2)
-        {
-            writer.Write($"{attributeName}=\"{attributeValue}\" {attributeName2}=\"{attributeValue2}\"");
         }
 
         private static string HtmlEncode(string text)
         {
             int index = text.IndexOfAny(_htmlChars);
             if (index < 0)
-            {
                 return text;
-            }
 
             var result = new StringBuilder(text.Length + 6);
             int textLength = text.Length;
@@ -221,7 +217,7 @@ namespace SEToolbox.Support
             }
 
             // Render table
-            if (headings?.Length > 0)
+            if (headings != null && headings.Length > 0)
             {
                 writer.BeginTable(border, cellpadding, cellspacing, headings);
 

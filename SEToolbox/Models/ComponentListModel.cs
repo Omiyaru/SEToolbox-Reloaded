@@ -128,9 +128,7 @@ namespace SEToolbox.Models
                 string icon = cubeDefinition?.Icons.FirstOrDefault();
 
                 if (icon != null)
-                {
                     textureFile = SpaceEngineersCore.GetDataPathOrDefault(icon, Path.Combine(contentPath, icon));
-                }
 
                 var buildTime = TimeSpan.Zero;
 
@@ -139,9 +137,7 @@ namespace SEToolbox.Models
                     double buildTimeSeconds = (double)cubeDefinition.MaxIntegrity / cubeDefinition.IntegrityPointsPerSec;
 
                     if (buildTimeSeconds <= TimeSpan.MaxValue.TotalSeconds)
-                    {
                         buildTime = TimeSpan.FromSeconds(buildTimeSeconds);
-                    }
                 }
 
                 CubeAssets.Add(new ComponentItemModel
@@ -150,7 +146,7 @@ namespace SEToolbox.Models
                     Definition = cubeDefinition,
                     TypeId = cubeDefinition.Id.TypeId,
                     TypeIdString = $"{cubeDefinition.Id.TypeId}",
-                    SubtypeName = cubeDefinition.Id.SubtypeName,
+                    SubtypeId = cubeDefinition.Id.SubtypeName,
                     TextureFile = textureFile,
                     Time = buildTime,
                     Accessible = cubeDefinition.Public,
@@ -165,56 +161,51 @@ namespace SEToolbox.Models
 
             foreach (var componentDefinition in SpaceEngineersResources.ComponentDefinitions)
             {
-                var bluePrint = SpaceEngineersApi.GetBlueprint(componentDefinition.Id.TypeId, componentDefinition.Id.SubtypeName);
+                var bp = SpaceEngineersApi.GetBlueprint(componentDefinition.Id.TypeId, componentDefinition.Id.SubtypeName);
                 float amount = 0;
-                if (bluePrint?.Results?.Length > 0)
-                {
-                    amount = (float)bluePrint.Results[0].Amount;
-                }
+                if (bp?.Results?.Length > 0)
+                    amount = (float)bp.Results[0].Amount;
 
                 ComponentAssets.Add(new ComponentItemModel
                 {
                     Name = componentDefinition.DisplayNameText,
                     TypeId = componentDefinition.Id.TypeId,
                     TypeIdString = $"{componentDefinition.Id.TypeId}",
-                    SubtypeName = componentDefinition.Id.SubtypeName,
+                    SubtypeId = componentDefinition.Id.SubtypeName,
                     Mass = componentDefinition.Mass,
                     TextureFile = (componentDefinition.Icons == null || componentDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(componentDefinition.Icons.First(), Path.Combine(contentPath, componentDefinition.Icons.First())),
                     Volume = componentDefinition.Volume * SpaceEngineersConsts.VolumeMultiplier,
                     Accessible = componentDefinition.Public,
-                    Time = bluePrint != null ? TimeSpan.FromSeconds(bluePrint.BaseProductionTimeInSeconds / amount) : null,
+                    Time = bp != null ? TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds / amount) : null,
                     IsMod = !componentDefinition.Context.IsBaseGame,
                 });
             }
 
-            foreach (var physItemDef in SpaceEngineersResources.PhysicalItemDefinitions)
+            foreach (var physicalItemDefinition in SpaceEngineersResources.PhysicalItemDefinitions)
             {
-                var bluePrint = SpaceEngineersApi.GetBlueprint(physItemDef.Id.TypeId, physItemDef.Id.SubtypeName);
+                var bp = SpaceEngineersApi.GetBlueprint(physicalItemDefinition.Id.TypeId, physicalItemDefinition.Id.SubtypeName);
                 float amount = 0;
-                if (bluePrint?.Results?.Length > 0)
-                {
-                    amount = (float)bluePrint.Results[0].Amount;
-                }
+                if (bp?.Results?.Length > 0)
+                    amount = (float)bp.Results[0].Amount;
+
 
                 float timeMassMultiplier = 1f;
-                if (physItemDef.Id.TypeId == typeof(MyObjectBuilder_Ore)
-                    || physItemDef.Id.TypeId == typeof(MyObjectBuilder_Ingot))
-                {
-                    timeMassMultiplier = physItemDef.Mass;
-                }
+                if (physicalItemDefinition.Id.TypeId == typeof(MyObjectBuilder_Ore)
+                    || physicalItemDefinition.Id.TypeId == typeof(MyObjectBuilder_Ingot))
+                    timeMassMultiplier = physicalItemDefinition.Mass;
 
                 ItemAssets.Add(new ComponentItemModel
                 {
-                    Name = physItemDef.DisplayNameText,
-                    TypeId = physItemDef.Id.TypeId,
-                    TypeIdString = $"{physItemDef.Id.TypeId}",
-                    SubtypeName = physItemDef.Id.SubtypeName,
-                    Mass = physItemDef.Mass,
-                    Volume = physItemDef.Volume * SpaceEngineersConsts.VolumeMultiplier,
-                    TextureFile = physItemDef.Icons == null ? null : SpaceEngineersCore.GetDataPathOrDefault(physItemDef.Icons.First(), Path.Combine(contentPath, physItemDef.Icons.First())),
-                    Accessible = physItemDef.Public,
-                    Time = bluePrint != null ? TimeSpan.FromSeconds(bluePrint.BaseProductionTimeInSeconds / amount / timeMassMultiplier) : null,
-                    IsMod = !physItemDef.Context.IsBaseGame,
+                    Name = physicalItemDefinition.DisplayNameText,
+                    TypeId = physicalItemDefinition.Id.TypeId,
+                    TypeIdString = $"{physicalItemDefinition.Id.TypeId}",
+                    SubtypeId = physicalItemDefinition.Id.SubtypeName,
+                    Mass = physicalItemDefinition.Mass,
+                    Volume = physicalItemDefinition.Volume * SpaceEngineersConsts.VolumeMultiplier,
+                    TextureFile = physicalItemDefinition.Icons == null ? null : SpaceEngineersCore.GetDataPathOrDefault(physicalItemDefinition.Icons.First(), Path.Combine(contentPath, physicalItemDefinition.Icons.First())),
+                    Accessible = physicalItemDefinition.Public,
+                    Time = bp != null ? TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds / amount / timeMassMultiplier) : null,
+                    IsMod = !physicalItemDefinition.Context.IsBaseGame,
                 });
             }
 
@@ -294,7 +285,7 @@ namespace SEToolbox.Models
 
                         writer.RenderElement("td", asset.FriendlyName);
                         writer.RenderElement("td", asset.TypeId);
-                        writer.RenderElement("td", asset.SubtypeName);
+                        writer.RenderElement("td", asset.SubtypeId);
                         writer.RenderElement("td", asset.CubeSize);
                         writer.RenderElement("td", asset.PCU);
                         writer.RenderElement("td", new EnumToResourceConverter().Convert(asset.Accessible, typeof(string), null, CultureInfo.CurrentUICulture));

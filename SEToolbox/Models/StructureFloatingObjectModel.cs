@@ -32,7 +32,10 @@ namespace SEToolbox.Models
         [XmlIgnore]
         public MyObjectBuilder_FloatingObject FloatingObject
         {
-            get => EntityBase as MyObjectBuilder_FloatingObject;
+            get
+            {
+                return EntityBase as MyObjectBuilder_FloatingObject;
+            }
         }
 
         [XmlIgnore]
@@ -76,20 +79,22 @@ namespace SEToolbox.Models
         {
             ClassType = ClassType.FloatingObject;
 
-            MyPhysicalItemDefinition physItemDef = (MyPhysicalItemDefinition)MyDefinitionManager.Static.GetDefinition(FloatingObject.Item.PhysicalContent.TypeId, FloatingObject.Item.PhysicalContent.SubtypeName);
-            string friendlyName = physItemDef != null ? SpaceEngineersApi.GetResourceName(physItemDef.DisplayNameText) : FloatingObject.Item.PhysicalContent.SubtypeName;
-            var oreOrIngot = FloatingObject.Item.PhysicalContent is MyObjectBuilder_Ore || FloatingObject.Item.PhysicalContent is MyObjectBuilder_Ingot;
-            string desc = oreOrIngot ? string.Format($"{Mass:#,##0.00} {Res.GlobalSIMassKilogram}") : string.Format($"x {FloatingObject.Item.Amount}");
-
-            DisplayName = friendlyName;
-          
-            Units = (decimal)FloatingObject.Item.Amount;
-            Volume = physItemDef != null ? physItemDef.Volume * SpaceEngineersConsts.VolumeMultiplier * (double)FloatingObject.Item.Amount : 0;
-            Mass = physItemDef != null ? physItemDef.Mass * (double)FloatingObject.Item.Amount : 0;
-            Description = desc;
+            MyPhysicalItemDefinition pd = (MyPhysicalItemDefinition)MyDefinitionManager.Static.GetDefinition(FloatingObject.Item.PhysicalContent.TypeId, FloatingObject.Item.PhysicalContent.SubtypeName);
+            string friendlyName = pd != null ? SpaceEngineersApi.GetResourceName(pd.DisplayNameText) : FloatingObject.Item.PhysicalContent.SubtypeName;
+            string desc = string.Empty ?? null;
+           if (FloatingObject.Item.PhysicalContent is MyObjectBuilder_Ore || FloatingObject.Item.PhysicalContent is MyObjectBuilder_Ingot)
+            {
+                desc = desc != null ? $"{Mass:#,##0.00} {Res.GlobalSIMassKilogram}" : null;
+            }
+                DisplayName = friendlyName;
+                Description = string.Format($"x {FloatingObject.Item.Amount}");
+                Units = (decimal)FloatingObject.Item.Amount;
+                Volume = pd == null ? 0 : pd.Volume * SpaceEngineersConsts.VolumeMultiplier * (double)FloatingObject.Item.Amount;
+                Mass = pd == null ? 0 : pd.Mass * (double)FloatingObject.Item.Amount;
+                Description = desc;
+            }
         }
-    }
 
-    #endregion
-}
+        #endregion
+    }
 

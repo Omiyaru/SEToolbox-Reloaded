@@ -20,6 +20,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\SEToolbox.snk</AssemblyOriginatorKeyFile>
     <Platforms>AnyCPU</Platforms>
+    <UserSecretsId>9b382f3b-cff7-42df-9626-a2a8a68c038a</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

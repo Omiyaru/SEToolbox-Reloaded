@@ -56,7 +56,7 @@ namespace SEToolbox.ViewModels
         public void SetValue<T>( T field, T value, params object[] parameters) => baseModel.SetValue(field, value, parameters);
         public void SetValue<T>(ref T field, T value, params object[] parameters) => baseModel.SetValue(ref field, value, parameters);
         #endregion
-     
+       
         #region INotifyPropertyChanged Members
 
         /// <summary>

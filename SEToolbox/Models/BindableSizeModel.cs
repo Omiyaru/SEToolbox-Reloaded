@@ -42,7 +42,7 @@ namespace SEToolbox.Models
         public Size Size
         {
             get => _size;
-            set => SetProperty(ref _size, value, nameof(Size), nameof(Width), nameof(Height));
+            set => SetProperty(ref _size, value, nameof(Size));
         }
 
         #endregion

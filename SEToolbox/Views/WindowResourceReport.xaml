@@ -21,23 +21,23 @@
         <Binding Path="IsBusy" Converter="{StaticResource BusyMouseConverter}"/>
     </Window.Cursor>
     <Grid IsEnabled="{Binding IsActive, FallbackValue=False}">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid Margin="8">
-                <WebBrowser commands:BrowserBehavior.Html="{Binding ReportHtml, FallbackValue=''}" />
-            </Grid>
-                <Grid Grid.Row="1" Margin="8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" MinWidth="120" Command="{Binding GenerateCommand}" Content="{lex:Loc WnResourceReportBtnGenerate}" IsDefault="True" Name="uxInitialElement"/>
-                    <Button Grid.Column="1" Margin="8,0,0,0" MinWidth="80" Command="{Binding ExportCommand}" HorizontalAlignment="Left" Style="{StaticResource DropDownMenuButton}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid Margin="8">
+                        <WebBrowser commands:BrowserBehavior.Html="{Binding ReportHtml, FallbackValue=''}" />
+                    </Grid>
+                    <Grid Grid.Row="1" Margin="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" MinWidth="120" Command="{Binding GenerateCommand}" Content="{lex:Loc WnResourceReportBtnGenerate}" IsDefault="True" Name="uxInitialElement"/>
+                       <Button Grid.Column="1" Margin="8,0,0,0" MinWidth="80" Command="{Binding ExportCommand}" HorizontalAlignment="Left" Style="{StaticResource DropDownMenuButton}">
                         <i:Interaction.Behaviors>
                             <commands:ButtonDropDownMenuBehavior />
                         </i:Interaction.Behaviors>

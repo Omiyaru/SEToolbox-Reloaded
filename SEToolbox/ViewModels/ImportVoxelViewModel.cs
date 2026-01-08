@@ -84,7 +84,7 @@ namespace SEToolbox.ViewModels
         public string SourceFile
         {
             get => _dataModel.SourceFile;
-            set => SetValue(_dataModel.SourceFile, value, () =>
+            set => SetValue(_dataModel.SourceFile, value,() =>
                    SourceFileChanged());
         }
 
@@ -118,7 +118,7 @@ namespace SEToolbox.ViewModels
         public bool IsBusy
         {
             get => _isBusy;
-            set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
+            set => SetProperty(ref _isBusy, value, nameof(IsBusy),() =>
             {
                 if (_isBusy)
                 {
@@ -195,9 +195,9 @@ namespace SEToolbox.ViewModels
 
         public bool CreateCanExecute()
         {
-            return (IsValidVoxelFile && IsFileVoxel) ||
-                   (IsStockVoxel && StockVoxel != null) ||
-                   (IsSphere && SphereRadius > 0);
+            return (IsValidVoxelFile && IsFileVoxel)
+                || (IsStockVoxel && StockVoxel != null)
+                || (IsSphere && SphereRadius > 0);
         }
 
         public void CreateExecuted()
@@ -242,35 +242,32 @@ namespace SEToolbox.ViewModels
 
         private void ProcessSourceFile(string fileName)
         {
-            ((Action<bool>)((b) =>
-            {
+            IsBusy = true;
 
-                if (File.Exists(fileName))
-                {
-                    IsValidVoxelFile = MyVoxelMapBase.IsVoxelMapFile(fileName);
-                    IsFileVoxel = true;
-                }
-                else
-                {
-                    IsValidVoxelFile = false;
-                    IsFileVoxel = false;
-                }
-                IsBusy = false;
-            }))(IsBusy = true);
-            
+            if (File.Exists(fileName))
+            {
+                IsValidVoxelFile =  MyVoxelMapBase.IsVoxelMapFile(fileName);
+                IsFileVoxel = true;
+            }
+            else
+            {
+                IsValidVoxelFile = false;
+                IsFileVoxel = false;
+            }
+
+            IsBusy = false;
         }
-        
 
         public MyObjectBuilder_EntityBase BuildEntity()
         {
             VRageMath.Vector3D asteroidCenter = new();
             Vector3I asteroidSize = new();
 
-            string originalFile = string.Empty ?? null;
+            string originalFile = null;
             if (IsStockVoxel)
             {
                 string stockfile = StockVoxel.SourceFileName;
-               
+
                 if (StockMaterial == null || StockMaterial.Value == null)
                 {
                     SourceFile = stockfile;
@@ -306,59 +303,62 @@ namespace SEToolbox.ViewModels
                 if (StockMaterial != null && StockMaterial.Value != null)
                 {
                     asteroid.ForceBaseMaterial(SpaceEngineersResources.GetDefaultMaterialName(), StockMaterial.Value);
-                    SourceFile = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
+                    SourceFile = TempFileUtil.NewFileName( MyVoxelMapBase.FileExtension.V2);
                     asteroid.Save(SourceFile);
                 }
             }
             else if (IsSphere)
             {
-                byte materialIndex = StockMaterial.MaterialIndex != null ? StockMaterial.MaterialIndex.Value : SpaceEngineersResources.GetDefaultMaterialIndex();
+                byte materialIndex;
+                if (StockMaterial?.MaterialIndex != null)
+                    materialIndex = StockMaterial.MaterialIndex.Value;
+                else
+                    materialIndex = SpaceEngineersResources.GetDefaultMaterialIndex();
 
                 string materialName = SpaceEngineersResources.GetMaterialName(materialIndex);
 
-                originalFile = string.Format($"sphere_{materialName.ToLowerInvariant()}_{SphereRadius}_{SphereShellRadius}{MyVoxelMapBase.FileExtension.V2}");
+                originalFile = string.Format($"sphere_{materialName.ToLowerInvariant()}_{SphereRadius}_{SphereShellRadius}{MyVoxelMapBase.FileExtension.V2}" );
 
-                using MyVoxelMapBase asteroid = MyVoxelBuilder.BuildAsteroidSphere(SphereRadius > 32, SphereRadius, materialIndex, materialIndex, SphereShellRadius != 0, SphereShellRadius);
-
-                // todo progress bar
+                using  MyVoxelMapBase asteroid = MyVoxelBuilder.BuildAsteroidSphere(SphereRadius > 32, SphereRadius, materialIndex, materialIndex, SphereShellRadius != 0, SphereShellRadius);
+                // TODO: progress bar.
                 asteroidCenter = asteroid.BoundingContent.Center;
                 asteroidSize = asteroid.BoundingContent.Size + 1; // Content size
-                SourceFile = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
+                SourceFile = TempFileUtil.NewFileName( MyVoxelMapBase.FileExtension.V2);
                 asteroid.Save(SourceFile);
-            }   
-                // automatically number all files, and check for duplicate fileNames.
-                FileName = MainViewModel.CreateUniqueVoxelStorageName(originalFile);
-
-                // Figure out where the Character is facing, and plant the new constrcut right in front.
-                // Calculate the hypotenuse, as it will be the safest distance to place in front.
-                double distance = Math.Sqrt(Math.Pow(asteroidSize.X, 2) + Math.Pow(asteroidSize.Y, 2) + Math.Pow(asteroidSize.Z, 2)) / 2;
-
-                Vector3D vector = new BindableVector3DModel(_dataModel.CharacterPosition.Forward).Vector3D;
-                vector.Normalize();
-                vector = Vector3D.Multiply(vector, distance);
-                Position = new BindablePoint3DModel(Point3D.Add(new BindablePoint3DModel(_dataModel.CharacterPosition.Position).Point3D, vector));
-                //Forward = new BindableVector3DModel(_dataModel.CharacterPosition.Forward);
-                //Up = new BindableVector3DModel(_dataModel.CharacterPosition.Up);
-                Forward = new BindableVector3DModel(Vector3.Forward);  // Asteroids currently don't have any orientation.
-                Up = new BindableVector3DModel(Vector3.Up);
-
-                MyObjectBuilder_VoxelMap entity = new()
-                {
-                    EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ASTEROID),
-                    PersistentFlags = MyPersistentEntityFlags2.CastShadows | MyPersistentEntityFlags2.InScene,
-                    StorageName = Path.GetFileNameWithoutExtension(FileName),
-                    PositionAndOrientation = new MyPositionAndOrientation
-                    {
-                        Position = Position.ToVector3D() - asteroidCenter,
-                        Forward = Forward.ToVector3(),
-                        Up = Up.ToVector3()
-                    }
-                };
-
-                return entity;
             }
+
+            // automatically number all files, and check for duplicate fileNames.
+            FileName = MainViewModel.CreateUniqueVoxelStorageName(originalFile);
+
+            // Figure out where the Character is facing, and plant the new constrcut right in front.
+            // Calculate the hypotenuse, as it will be the safest distance to place in front.
+            double distance = Math.Sqrt(Math.Pow(asteroidSize.X, 2) + Math.Pow(asteroidSize.Y, 2) + Math.Pow(asteroidSize.Z, 2)) / 2;
+
+            Vector3D vector = new BindableVector3DModel(_dataModel.CharacterPosition.Forward).Vector3D;
+            vector.Normalize();
+            vector = Vector3D.Multiply(vector, distance);
+            Position = new BindablePoint3DModel(Point3D.Add(new BindablePoint3DModel(_dataModel.CharacterPosition.Position).Point3D, vector));
+            //Forward = new BindableVector3DModel(_dataModel.CharacterPosition.Forward);
+            //Up = new BindableVector3DModel(_dataModel.CharacterPosition.Up);
+            Forward = new BindableVector3DModel(Vector3.Forward);  // Asteroids currently don't have any orientation.
+            Up = new BindableVector3DModel(Vector3.Up);
+
+            MyObjectBuilder_VoxelMap entity = new()
+            {
+                EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ASTEROID),
+                PersistentFlags = MyPersistentEntityFlags2.CastShadows | MyPersistentEntityFlags2.InScene,
+                StorageName = Path.GetFileNameWithoutExtension(FileName),
+                PositionAndOrientation = new MyPositionAndOrientation
+                {
+                    Position = Position.ToVector3D() - asteroidCenter,
+                    Forward = Forward.ToVector3(),
+                    Up = Up.ToVector3()
+                }
+            };
+
+            return entity;
         }
 
         #endregion
-
+    }
 }

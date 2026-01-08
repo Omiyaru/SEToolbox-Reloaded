@@ -25,7 +25,7 @@ namespace SEToolbox.Support
                 }
 
                 // Log already exists, means its okay to start using it.
-               // Log.WriteLine("Log source exists, proceeding.");
+               // SConsole.WriteLine("Log source exists, proceeding.");
 
                 return true;
             }
@@ -54,19 +54,18 @@ namespace SEToolbox.Support
                 }
 
                 // Log has been remove, or already removed.
-                Debug.WriteLine("Log source removed or absent.");
+                SConsole.WriteLine("Log source removed or absent.");
 
                 return true;
             }
             catch
             {
                 // Could not access log to remove it.
-                Debug.WriteLine("Failed to access the log source for removal.");
+                SConsole.WriteLine("Failed to access the log source for removal.");
 
                 return false;
             }
         }
-         public static void LogWarning(string message) => EventLog.WriteEntry(EventSourceName, message, EventLogEntryType.Warning);
 
         #endregion
 
@@ -83,7 +82,7 @@ namespace SEToolbox.Support
                 return false;
             }
         }
-       
+
         #endregion
     }
 }

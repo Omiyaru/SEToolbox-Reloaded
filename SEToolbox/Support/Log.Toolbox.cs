@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
 using Res = SEToolbox.Properties.Resources;
-using System.Linq;
 
 namespace SEToolbox.Support;
 
@@ -16,57 +14,44 @@ partial class Log
     {
         var diagReport = new StringBuilder();
         diagReport.AppendLine(Res.ClsErrorUnhandled);
+
         var appFile = Path.GetFullPath(Assembly.GetEntryAssembly().Location);
         var appFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-        Dictionary<string, string> environmentVariables = Environment.GetEnvironmentVariables() as Dictionary<string, string>;
-        Dictionary<string, string> environmentInfo = new()
-         {
-            { Res.ClsErrorApplication, ObfuscatePathNames(appFile) },
-            { Res.ClsErrorCommandLine, ObfuscatePathNames(Environment.CommandLine) },
-            { Res.ClsErrorCurrentDirectory, ObfuscatePathNames(Environment.CurrentDirectory) },
-            { Res.ClsErrorSEBinPath, GlobalSettings.Default.SEBinPath },
-            { Res.ClsErrorSEBinVersion, GlobalSettings.Default.SEVersion.ToString()},
-            { Res.ClsErrorProcessorCount, Environment.ProcessorCount.ToString() },
-            { Res.ClsErrorOSVersion, Environment.OSVersion.ToString() },
-            { Res.ClsErrorVersion, Environment.Version.ToString() },
-            { Res.ClsErrorIs64BitOperatingSystem, Environment.Is64BitOperatingSystem.ToString() },
-            { Res.ClsErrorIntPtrSize, IntPtr.Size.ToString() },
-            { Res.ClsErrorIsAdmin, ToolboxUpdater.IsRunningElevated().ToString() },
-            { Res.ClsErrorCurrentUICulture, CultureInfo.CurrentUICulture.IetfLanguageTag },
-            { Res.ClsErrorCurrentCulture, CultureInfo.CurrentCulture.IetfLanguageTag },
-            { Res.ClsErrorTimesStartedTotal, GlobalSettings.TimesStartedInfo.Total.ToString() },
-            { Res.ClsErrorTimesStartedLastReset, GlobalSettings.TimesStartedInfo.LastReset.ToString() },
-            { Res.ClsErrorTimesStartedLastGameUpdate, GlobalSettings.TimesStartedInfo.LastGameUpdate.ToString() }
-        };
 
-        foreach (var entry in environmentVariables)
-        {
-            diagReport.Append($"{entry.Key}: {entry.Value}{Environment.NewLine}");
-        }
+        diagReport.Append(Res.ClsErrorApplication).Append(' ').Append(ObfuscatePathNames(appFile)).AppendLine();
+        diagReport.Append(Res.ClsErrorCommandLine).Append(' ').Append(ObfuscatePathNames(Environment.CommandLine)).AppendLine();
+        diagReport.Append(Res.ClsErrorCurrentDirectory).Append(' ').Append(ObfuscatePathNames(Environment.CurrentDirectory)).AppendLine();
+        diagReport.Append(Res.ClsErrorSEBinPath).Append(' ').Append(GlobalSettings.Default.SEBinPath).AppendLine();
+        diagReport.Append(Res.ClsErrorSEBinVersion).Append(' ').Append(GlobalSettings.Default.SEVersion).AppendLine();
+        diagReport.Append(Res.ClsErrorProcessorCount).Append(' ').Append(Environment.ProcessorCount).AppendLine();
+        diagReport.Append(Res.ClsErrorOSVersion).Append(' ').Append(Environment.OSVersion).AppendLine();
+        diagReport.Append(Res.ClsErrorVersion).Append(' ').Append(Environment.Version).AppendLine();
+        diagReport.Append(Res.ClsErrorIs64BitOperatingSystem).Append(' ').Append(Environment.Is64BitOperatingSystem).AppendLine();
+        diagReport.Append(Res.ClsErrorIntPtrSize).Append(' ').Append(IntPtr.Size).AppendLine();
+        diagReport.Append(Res.ClsErrorIsAdmin).Append(' ').Append(ToolboxUpdater.IsRunningElevated()).AppendLine();
+        diagReport.Append(Res.ClsErrorCurrentUICulture).Append(' ').Append(CultureInfo.CurrentUICulture.IetfLanguageTag).AppendLine();
+        diagReport.Append(Res.ClsErrorCurrentCulture).Append(' ').Append(CultureInfo.CurrentCulture.IetfLanguageTag).AppendLine();
+        diagReport.Append(Res.ClsErrorTimesStartedTotal).Append(' ').Append(GlobalSettings.Default.TimesStartedTotal).AppendLine();
+        diagReport.Append(Res.ClsErrorTimesStartedLastReset).Append(' ').Append(GlobalSettings.Default.TimesStartedLastReset).AppendLine();
+        diagReport.Append(Res.ClsErrorTimesStartedLastGameUpdate).Append(' ').Append(GlobalSettings.Default.TimesStartedLastGameUpdate).AppendLine();
         diagReport.AppendLine();
-
-        var sb = new StringBuilder();
-
-        foreach (var entry in environmentInfo)
-        {
-            sb.AppendFormat($"{entry.Key}: {entry.Value}{Environment.NewLine}");
-        }
-        diagReport.Append(sb.ToString());
         diagReport.Append(Res.ClsErrorFiles).AppendLine();
 
         if (appFilePath != null)
         {
             var files = Directory.GetFiles(appFilePath);
-            foreach (var (fileName, fileInfo, fileVer) in from file in files
-                                                          let fileName = Path.GetFileName(file)
-                                                          let fileInfo = new FileInfo(file)
-                                                          let fileVer = FileVersionInfo.GetVersionInfo(file)
-                                                          select (fileName, fileInfo, fileVer))
+
+            foreach (var file in files)
             {
-                diagReport.AppendLine($"{fileInfo.LastWriteTime:O}\t{fileInfo.Length:#,###0}\t{fileVer.FileVersion}\t{fileName}\r{Environment.NewLine}");
+                var fileName = Path.GetFileName(file);
+                var fileInfo = new FileInfo(file);
+                var fileVer = FileVersionInfo.GetVersionInfo(file);
+
+                diagReport.AppendFormat($"{fileInfo.LastWriteTime:O}\t{fileInfo.Length:#,###0}\t{fileVer.FileVersion}\t{fileName}\r\n");
             }
         }
-        WriteLine(diagReport.ToString(), TraceEventType.Critical, exception);
+
+        WriteLine(diagReport.ToString(),TraceEventType.Critical, exception);
     }
 
     static string ObfuscatePathNames(string path)

@@ -37,16 +37,16 @@ namespace SEToolbox.ViewModels
             _dialogService = dialogService;
             _dataModel = dataModel;
 
-            InventoryEditorViewModel viewModelCreator(InventoryEditorModel model) => new(this, model);
-            ObservableCollection<InventoryEditorViewModel> collectionCreator() => new ObservableViewModelCollection<InventoryEditorViewModel, InventoryEditorModel>(dataModel.Inventory, viewModelCreator);
-            _inventory = new Lazy<ObservableCollection<InventoryEditorViewModel>>(collectionCreator);
+            InventoryEditorViewModel ViewModelCreator(InventoryEditorModel model) => new(this, model);
+            ObservableCollection<InventoryEditorViewModel> CollectionCreator() => new ObservableViewModelCollection<InventoryEditorViewModel, InventoryEditorModel>(dataModel.Inventory, ViewModelCreator);
+            _inventory = new Lazy<ObservableCollection<InventoryEditorViewModel>>(CollectionCreator);
 
             _dataModel.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
             {
                 if (e.PropertyName == "Inventory")
                 {
-                    collectionCreator();
-                    _inventory = new Lazy<ObservableCollection<InventoryEditorViewModel>>(collectionCreator);
+                    CollectionCreator();
+                    _inventory = new Lazy<ObservableCollection<InventoryEditorViewModel>>(CollectionCreator);
                 }
                 // Will bubble property change events from the Model to the ViewModel.
                 OnPropertyChanged(e.PropertyName);
@@ -68,8 +68,9 @@ namespace SEToolbox.ViewModels
 
         private void ApplyExecuted(object parameter)
         {
+            if (_dataModel != null)
             // Save changes to the data model
-            _dataModel?.FriendlyName = FriendlyName;
+            _dataModel.FriendlyName = FriendlyName;
             _dataModel.Owner = Owner;
             _dataModel.BuiltBy = BuiltBy;
             _dataModel.ColorHue = ColorHue;
@@ -91,11 +92,8 @@ namespace SEToolbox.ViewModels
         private void CancelExecuted(object parameter)
         {
             if (_dataModel != null)
-            {
-                // Revert changes
-                FriendlyName = _dataModel.FriendlyName;
-            }
-
+            // Revert changes
+            FriendlyName = _dataModel.FriendlyName;
             Owner = _dataModel.Owner;
             BuiltBy = _dataModel.BuiltBy;
             ColorHue = _dataModel.ColorHue;
@@ -104,7 +102,7 @@ namespace SEToolbox.ViewModels
             Position = _dataModel.Position;
 
             // Notify the user
-            _dialogService.ShowMessageBox(this, "Changes have been reverted.", "Cancel Changes",// TODO make this a resource
+            _dialogService.ShowMessageBox(this, "Changes have been reverted.", "Cancel Changes",
                 System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
         }
 
@@ -142,10 +140,10 @@ namespace SEToolbox.ViewModels
             set => _dataModel.TypeId = value;
         }
 
-        public string SubtypeName
+        public string SubtypeId
         {
-            get => _dataModel.SubtypeName;
-            set => _dataModel.SubtypeName = value;
+            get => _dataModel.SubtypeId;
+            set => _dataModel.SubtypeId = value;
         }
 
         public string TextureFile
@@ -272,9 +270,9 @@ namespace SEToolbox.ViewModels
             return CubeItemModel.ConvertFromHeavyToLightArmor(_dataModel.Cube);
         }
 
-        public MyObjectBuilder_CubeBlock CreateCube(MyObjectBuilderType typeId, string subtypeName, MyCubeBlockDefinition definition)
+        public MyObjectBuilder_CubeBlock CreateCube(MyObjectBuilderType typeId, string subTypeId, MyCubeBlockDefinition definition)
         {
-            return _dataModel.CreateCube(typeId, subtypeName, definition);
+            return _dataModel.CreateCube(typeId, subTypeId, definition);
         }
 
         public bool ChangeOwner(long newOwnerId)

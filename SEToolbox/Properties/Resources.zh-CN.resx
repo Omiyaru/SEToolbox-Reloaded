@@ -331,7 +331,7 @@ PCU: {17:#,##0}
     <value>太空工程师 工具箱 - {0} ({1})</value>
     <comment>SE Toolbox - {0} ({1})</comment>
   </data>
-  <data name="BtnBrowseAppTip" xml:space="preserve">
+  <data name="BtBrowseAppTip" xml:space="preserve">
     <value>浏览</value>
   </data>
   <data name="WnLocateAppBtnCancel" xml:space="preserve">
@@ -1884,7 +1884,7 @@ PCU: {17:#,##0}
   <data name="WnVoxelMergeLabelAction" xml:space="preserve">
     <value>动作:</value>
   </data>
-  <data name="WnVoxelMergeLabelFileNameOutput" xml:space="preserve">
+  <data name="WnVoxelMergeLabelFilenameOutput" xml:space="preserve">
     <value>新文件名:</value>
   </data>
   <data name="WnVoxelMergeLabelWarningNoOverlap" xml:space="preserve">
@@ -2487,8 +2487,8 @@ PCU: {17:#,##0}
   <data name="DialogLightwaveFiles" xml:space="preserve">
     <value>Lightwave文件</value>
   </data>
-  <data name="DialogOffFiles" xml:space="preserve">
-    <value>Off文件</value>
+  <data name="DialogOFFFiles" xml:space="preserve">
+    <value>OFF文件</value>
   </data>
   <data name="DialogStereoLithographyFiles" xml:space="preserve">
     <value>StereoLithography文件</value>

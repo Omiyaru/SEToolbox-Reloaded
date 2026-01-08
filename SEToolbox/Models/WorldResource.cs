@@ -1,12 +1,9 @@
 ﻿using Microsoft.VisualBasic.FileIO;
-
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Game.Entities;
+using Sandbox.Engine.Networking;
 using Sandbox.Game.GUI;
-
 using SEToolbox.Interop;
 using SEToolbox.Support;
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,10 +11,8 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-
 using VRage.FileSystem;
 using VRage.Game;
-
 using Res = SEToolbox.Properties.Resources;
 
 namespace SEToolbox.Models
@@ -89,25 +84,38 @@ namespace SEToolbox.Models
         {
             get => _checkpoint;
             set => SetProperty(ref _checkpoint, value, () =>
-            {
-                if (_checkpoint == null)
-                {
-                    _version = new Version();
-                    _sessionName = Res.ErrorInvalidSaveLabel;
-                    _lastSaveTime = DateTime.MinValue;
-                    _isValid = false;
-                }
-                else
-                {
-                    _version = Version.TryParse(_checkpoint.AppVersion.ToString(CultureInfo.InvariantCulture), out var v) ? v : new Version();
-                    _sessionName = _checkpoint.SessionName ?? Res.ErrorInvalidSaveLabel;
-                    _lastSaveTime = _checkpoint.LastSaveTime;
-                    _isValid = true;
-                    WorkshopId = _checkpoint?.WorkshopId;
-                }
-            }, nameof(Checkpoint), nameof(SessionName), nameof(LastSaveTime), nameof(IsValid));
+                   {
+                        IsValid = _checkpoint != null;
+                        if (_checkpoint == null)
+                        {
+                            _version = new Version();
+                            _sessionName = Res.ErrorInvalidSaveLabel;
+                            _lastSaveTime = DateTime.MinValue;
+                        }
+                        else
+                        {
+                            try
+                            {
+                                var str = _checkpoint.AppVersion.ToString(CultureInfo.InvariantCulture);
+                                str = str.Substring(0, str.Length - 6) + "." + str.Substring(str.Length - 6, 3) + "." + str.Substring(str.Length - 3);
+                                _version = new Version(str);
+                            }
+                            catch
+                            {
+                                _version = new Version();
+                            }
+
+                            _sessionName = _checkpoint?.SessionName;
+                            _lastSaveTime = _checkpoint.LastSaveTime;
+                        }
+                        WorkshopId = _checkpoint?.WorkshopId;
+                    }, nameof(Checkpoint), nameof(SessionName), nameof(LastSaveTime), nameof(IsValid), () =>
+                     _isValid = _checkpoint != null); 
+                    
         }
 
+        
+        
         public string SessionName
         {
             get => _sessionName;
@@ -118,6 +126,7 @@ namespace SEToolbox.Models
         {
             get => _lastSaveTime;
             set => SetProperty(ref _lastSaveTime, value, nameof(LastSaveTime));
+
         }
 
         public Version Version
@@ -132,6 +141,7 @@ namespace SEToolbox.Models
         {
             get => _workshopId;
             set => SetProperty(ref _workshopId, value, nameof(WorkshopId));
+  
         }
 
         public bool IsValid
@@ -140,7 +150,7 @@ namespace SEToolbox.Models
             set => SetProperty(ref _isValid, value, nameof(IsValid));
         }
 
-        public string ThumbnailImageFileName => Path.Combine(_savePath, SpaceEngineersConsts.ThumbnailImageFileName);
+        public string ThumbnailImageFileName => Path.Combine(SavePath, SpaceEngineersConsts.ThumbnailImageFileName);
 
         public override string ToString()
         {
@@ -171,25 +181,21 @@ namespace SEToolbox.Models
         {
             string fileName = Path.Combine(SavePath, SpaceEngineersConsts.SandBoxCheckpointFileName);
 
-            bool result = SpaceEngineersApi.TryReadSpaceEngineersFile(fileName, out MyObjectBuilder_Checkpoint checkpoint, out _compressedCheckpointFormat, out errorInformation, snapshot);
+            bool retVal = SpaceEngineersApi.TryReadSpaceEngineersFile(fileName, out MyObjectBuilder_Checkpoint checkpoint, out _compressedCheckpointFormat, out errorInformation, snapshot);
             Checkpoint = checkpoint;
-            return result;
+            return retVal;
         }
 
         public void LoadDefinitionsAndMods()
         {
-            if (Conditional.Null(_resources, Checkpoint, Checkpoint.Mods))
-            {
+            if (_resources == null || Checkpoint == null || Checkpoint.Mods == null)
                 return;
-            }
 
             List<MyObjectBuilder_Checkpoint.ModItem> mods = [.. Checkpoint.Mods];
             var result = SpaceEngineersWorkshop.DownloadWorldModsBlocking(mods, cancelToken: null);
 
             if (result.Result == 0)
-            {
                 mods.Clear();
-            }
 
             _resources.LoadDefinitionsAndMods(DataPath.ModsPath, mods);
         }
@@ -206,13 +212,16 @@ namespace SEToolbox.Models
         public void SaveCheckPoint(bool backupFile)
         {
             string checkpointFileName = Path.Combine(SavePath, SpaceEngineersConsts.SandBoxCheckpointFileName);
-            string checkpointBackupFileName = checkpointFileName + ".bak";
+
             if (backupFile)
-            { 
+            {
+                string checkpointBackupFileName = checkpointFileName + ".bak";
+
                 if (File.Exists(checkpointBackupFileName))
                 {
                     FileSystem.DeleteFile(checkpointBackupFileName, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
                 }
+
                 File.Move(checkpointFileName, checkpointBackupFileName);
             }
 
@@ -235,21 +244,23 @@ namespace SEToolbox.Models
             if (backupFile)
             {
                 // xml sector file.  (it may or may not be compressed)
-                string sectorBackupFileName = $"{sectorFileName}{SpaceEngineersConsts.ProtobuffersExtension ?? null}.bak";
-                
-                if (File.Exists(sectorBackupFileName))
-                {
-                    FileSystem.DeleteFile(sectorBackupFileName, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
-                }
+                string sectorBackupFileName = sectorFileName + ".bak";
 
-                File.Move(sectorFileName, sectorBackupFileName);
+                if (File.Exists(sectorBackupFileName))
+                    FileSystem.DeleteFile(sectorBackupFileName, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                    File.Move(sectorFileName, sectorBackupFileName);
+
+                // binary sector file. (it may or may not be compressed)
+                sectorBackupFileName = sectorFileName + SpaceEngineersConsts.ProtobuffersExtension + ".bak";
+
+                if (File.Exists(sectorBackupFileName))
+                    FileSystem.DeleteFile(sectorBackupFileName, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
 
                 // The protoBuf (.sbsPB, .sbsB1) may not exist in older save games.
                 if (File.Exists(sectorFileName + SpaceEngineersConsts.ProtobuffersExtension))
-                {
                     File.Move(sectorFileName + SpaceEngineersConsts.ProtobuffersExtension, sectorBackupFileName);
-                }
             }
+
             if (_compressedSectorFormat)
             {
                 string tempFileName = TempFileUtil.NewFileName();
@@ -267,45 +278,44 @@ namespace SEToolbox.Models
         {
             string fileName = Path.Combine(SavePath, SpaceEngineersConsts.SandBoxCheckpointFileName);
             XmlDocument xDoc;
-            string tempFileName = TempFileUtil.NewFileName();
-            var file = fileName ?? tempFileName;
-
-            xDoc = new XmlDocument();
-
-            var fileInfo = new FileInfo(file);
             try
             {
                 if (ZipTools.IsGzipedFile(fileName))
                 {
                     // New file format is compressed.
+                    // These steps could probably be combined, but would have to use a MemoryStream, which has memory limits before it causes performance issues when chunking memory.
                     // Using a temporary file in this situation has less performance issues as it's moved straight to disk.
-
-                    xDoc.Load(fileInfo.FullName);
+                    string tempFileName = TempFileUtil.NewFileName();
                     ZipTools.GZipUncompress(fileName, tempFileName);
-                    if (fileInfo.FullName == fileName)
-                    {
-                        _compressedCheckpointFormat = false;
-                    }
-                    else if (fileInfo.FullName == tempFileName)
-                    {
-                        _compressedCheckpointFormat = true;
-                    }
+                    xDoc = new XmlDocument();
+                    xDoc.Load(tempFileName);
+                    _compressedCheckpointFormat = true;
+                }
+                else
+                {
+                    // Old file format is raw XML.
+                    xDoc = new XmlDocument();
+                    xDoc.Load(fileName);
+                    _compressedCheckpointFormat = false;
                 }
             }
             catch (Exception ex) when (ex is ArgumentNullException || ex is NullReferenceException || ex is UnauthorizedAccessException)
             {
-                Log.WriteLine($"Error loading WorldResource.LoadSectorXml: {ex.Message}");
+                SConsole.WriteLine($"Error loading WorldResource.LoadSectorXml: {ex.Message}");
                 return null;
             }
+
             return xDoc;
         }
 
         public void SaveSectorXml(bool backupFile, XmlDocument xDoc)
         {
             string sectorFileName = Path.Combine(SavePath, SpaceEngineersConsts.SandBoxSectorFileName);
-            string sectorBackupFileName = sectorFileName + ".bak";
+
             if (backupFile)
             {
+                string sectorBackupFileName = sectorFileName + ".bak";
+
                 if (File.Exists(sectorBackupFileName))
                 {
                     FileSystem.DeleteFile(sectorBackupFileName, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
@@ -345,11 +355,15 @@ namespace SEToolbox.Models
                 SessionName = Res.ErrorInvalidSaveLabel;
                 return;
             }
+
             try
             {
                 XDocument doc;
-                using Stream stream = MyFileSystem.OpenRead(fileName).UnwrapGZip();
-                doc = XDocument.Load(stream);
+                using (Stream stream = MyFileSystem.OpenRead(fileName).UnwrapGZip())
+                {
+                    doc = XDocument.Load(stream);
+                }
+
                 XElement root = doc.Root;
                 if (root == null)
                 {
@@ -363,27 +377,31 @@ namespace SEToolbox.Models
                 XElement workshopId = root.Element("WorkshopId");
                 XElement appVersion = root.Element("AppVersion");
 
-                SessionName = MyStatControlText.SubstituteTexts(session?.Value);
-                LastSaveTime = DateTime.TryParse(lastSaveTime?.Value, out DateTime tempDateTime) ? tempDateTime : DateTime.MinValue;
-                if (ulong.TryParse(workshopId?.Value, out ulong tmp))
-                {
-                    WorkshopId = tmp;
-                }
+                if (session != null) 
+                SessionName = MyStatControlText.SubstituteTexts(session.Value);
+                if ( lastSaveTime != null && DateTime.TryParse(lastSaveTime?.Value, out DateTime tempDateTime))
+                    LastSaveTime = tempDateTime;
+                else
+                    LastSaveTime = DateTime.MinValue;
 
-                if (appVersion == null || appVersion.Value == "0")
-                {
+                if (workshopId != null && ulong.TryParse(workshopId.Value, out ulong tmp))
+                    WorkshopId = tmp;
+
+                if (appVersion == null || appVersion?.Value == "0")
                     Version = new Version();
-                }
-                if (Version.TryParse(appVersion.Value, out Version version))
-                {
-                        Version = version;
-                        //string subString = appVersion.Value.Substring(0, appVersion.Value.Length - 6) + "." + appVersion.Value.Substring(appVersion.Value.Length - 6, 3) + "." + appVersion.Value.Substring(appVersion.Value.Length - 3);
-                        //Version = new Version(subString);
-                }
                 else
                 {
-                    Version = new Version();
+                    try
+                    {
+                        string str = appVersion.Value.Substring(0, appVersion.Value.Length - 6) + "." + appVersion.Value.Substring(appVersion.Value.Length - 6, 3) + "." + appVersion.Value.Substring(appVersion.Value.Length - 3);
+                        Version = new Version(str);
+                    }
+                    catch
+                    {
+                        Version = new Version();
+                    }
                 }
+
                 IsValid = true;
             }
             catch
@@ -396,27 +414,28 @@ namespace SEToolbox.Models
         #endregion
 
         #region Miscellaneous
-        public List<MyObjectBuilder_Cockpit> GetCockpits() => [.. SectorData.SectorObjects.OfType<MyObjectBuilder_CubeGrid>().OfType<MyObjectBuilder_Cockpit>()];
-        public List<MyObjectBuilder_Character> GetPilots() => [.. GetCockpits().Where(c => c.GetHierarchyCharacters().Count > 0) as IEnumerable<MyObjectBuilder_Character>];
 
-        public List<MyObjectBuilder_Character> GetCharacters() => [.. SectorData.SectorObjects.OfType<MyObjectBuilder_Character>()];
-        
         public MyObjectBuilder_Character FindPlayerCharacter()
         {
-            SectorData ??= null;
-            Checkpoint ??= null;
+            if (SectorData == null || Checkpoint == null)
+                return null;
 
-            foreach (var character in GetCharacters().Where(c => c.EntityId == Checkpoint.ControlledObject))
+            foreach (var entityBase in SectorData.SectorObjects)
             {
-              
-                return character;
-            }
+                if (entityBase is MyObjectBuilder_Character character && character.EntityId == Checkpoint.ControlledObject)
+                {
+                    return character;
+                }
 
-            foreach (var pilot in GetPilots().Where(c => c.EntityId == Checkpoint.ControlledObject))
-
-
-            {
-                return pilot;
+                if (entityBase is MyObjectBuilder_CubeGrid cubeGrid)
+                {
+                    foreach (var cube in cubeGrid.CubeBlocks.Where(e => e.EntityId == Checkpoint.ControlledObject && e is MyObjectBuilder_Cockpit))
+                    {
+                        List<MyObjectBuilder_Character> pilots = cube.GetHierarchyCharacters();
+                        if (pilots.Count > 0)
+                            return pilots[0];
+                    }
+                }
             }
 
             return null;
@@ -424,15 +443,26 @@ namespace SEToolbox.Models
 
         public MyObjectBuilder_Character FindAstronautCharacter()
         {
-            return GetCharacters()?.FirstOrDefault() ?? null;
+            return SectorData?.SectorObjects.OfType<MyObjectBuilder_Character>().FirstOrDefault();
         }
 
         public MyObjectBuilder_Cockpit FindPilotCharacter()
         {
-
-            foreach (var cockpit in GetCockpits())
+            if (SectorData != null)
             {
-                return cockpit;
+                foreach (var entityBase in SectorData.SectorObjects)
+                {
+                    if (entityBase is MyObjectBuilder_CubeGrid grid)
+                    {
+                        foreach (var cube in grid.CubeBlocks.Where(e => e is MyObjectBuilder_Cockpit))
+                        {
+                            List<MyObjectBuilder_Character> pilots = cube.GetHierarchyCharacters();
+                            if (pilots.Count > 0)
+                                return (MyObjectBuilder_Cockpit)cube;
+                        }
+
+                    }
+                }
             }
 
             return null;

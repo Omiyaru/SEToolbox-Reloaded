@@ -113,11 +113,15 @@ namespace SEToolbox.ViewModels
 
         public void BrowseApplicationExecuted()
         {
-            var startPath = GameApplicationPath;
-
-            startPath = string.IsNullOrEmpty(startPath) ? 
-
-                                Path.GetDirectoryName(GameApplicationPath) : ToolboxUpdater.GetSteamFilePath() ?? Path.Combine(startPath, @"SteamApps\common");
+            string startPath = GameApplicationPath;
+            if (string.IsNullOrEmpty(startPath))
+            {
+                startPath = ToolboxUpdater.GetSteamFilePath();
+                if (!string.IsNullOrEmpty(startPath))
+                {
+                    startPath = Path.Combine(startPath, @"steamapps\common");
+                }
+            }
 
             IsValidApplication = false;
             IsWrongApplication = false;
@@ -174,9 +178,7 @@ namespace SEToolbox.ViewModels
             if (PropertyChanged != null)
             {
                 foreach (var propertyName in propertyNames)
-                {
                     PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-                }
             }
         }
 

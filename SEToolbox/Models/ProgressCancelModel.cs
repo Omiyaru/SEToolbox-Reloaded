@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Windows.Forms;
-
+using System.Timers;
 
 namespace SEToolbox.Models
 {
@@ -62,15 +61,13 @@ namespace SEToolbox.Models
         public double Progress
         {
             get => _progress;
+
             set => SetProperty(ref _progress, value, nameof(Progress), () =>
             {
-                if (_progressTimer.IsRunning == false || _progressTimer.ElapsedMilliseconds > 200 && _progress == value)
-                {
-                    Application.DoEvents();
-                }
-
+                if (_progressTimer.IsRunning == false || _progressTimer.ElapsedMilliseconds > 100 && _progress == value)
+                    System.Windows.Forms.Application.DoEvents();
                 _progressTimer.Restart();
-            }, nameof(Progress));
+            });
         }
 
 
@@ -96,16 +93,14 @@ namespace SEToolbox.Models
             Progress = initial;
             _elapsedTimer = new Stopwatch();
 
-            _updateTimer = new Timer();
-            _updateTimer.Tick += delegate
+            _updateTimer = new Timer(1000);
+            _updateTimer.Elapsed += delegate
             {
                 TimeSpan elapsed = _elapsedTimer.Elapsed;
                 TimeSpan estimate = elapsed;
 
                 if (Progress > 0)
-                {
-                    estimate = new TimeSpan((long)(elapsed.Ticks / (Progress / _maximumProgress)));
-                }
+                    estimate = new TimeSpan((long)(elapsed.Ticks / (Progress / MaximumProgress)));
 
                 EstimatedTimeLeft = estimate - elapsed;
             };
@@ -141,10 +136,10 @@ namespace SEToolbox.Models
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing && _updateTimer != null)
+            if (disposing)
             {
-                _updateTimer.Stop();
-                _updateTimer.Dispose();
+                _updateTimer?.Stop();
+                _updateTimer?.Dispose();
             }
             _progressTimer?.Stop();
         }

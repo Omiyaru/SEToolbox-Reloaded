@@ -61,6 +61,7 @@
                     <CheckBox Grid.Row="3" Grid.Column="1" Content="{lex:Loc WnSettingsChkCustomResource}" VerticalAlignment="Center" VerticalContentAlignment="Center" IsChecked="{Binding UseCustomResource}" ToolTip="{lex:Loc WnSettingsChkCustomResourceTooltip}"/>
                 </Grid>
             </Grid>
+
             <Grid Grid.Row="2" Margin="0,8,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                     <Button Width="90" Command="{Binding OkayCommand}" Content="{lex:Loc WnSettingsOkay}" IsDefault="True" Margin="0,0,8,0" />

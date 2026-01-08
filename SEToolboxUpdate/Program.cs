@@ -28,37 +28,33 @@ namespace SEToolboxUpdate
 
         private static readonly Dictionary<string, Action> installMap = new(StringComparer.OrdinalIgnoreCase)
         {
-            //{$"{delimiter}{"I" ?? "install"}",     },
-            //{$"{delimiter}{"U" ?? "updatecheck"}" ,},
+            {$"{delimiter}{"I" ?? "install"}", InstallConfigurationSettings },
+            {$"{delimiter}{"U" ?? "updatecheck"}" , UninstallConfigurationSettings },
             {$"{delimiter}{"A" ?? "attempt"}", () => UpdateBaseLibrariesFromSpaceEngineers(args) },
-            {$"{delimiter}{"X" ?? "ignoreupdates"}", () => ToolboxUpdaterRunElevated(installMap.Keys.FirstOrDefault(k => k.Equals($"{delimiter}{args.FirstOrDefault()== "X"}")), false, false) },
-            {$"{delimiter}{"B" ?? "updatebase"}", () => ToolboxUpdaterRunElevated(installMap.Keys.FirstOrDefault(k => k.Equals($"{delimiter}{args.FirstOrDefault()=="B"}")), false, false) },
-            {$"{delimiter}{"L" ?? "appendlog"}", () => ToolboxUpdaterRunElevated(installMap.Keys.FirstOrDefault(k => k.Equals($"{delimiter}{args.FirstOrDefault() == "L"}")), true, false) },
+            {$"{delimiter}{"X" ?? "ignoreupdates"}", () => ToolboxUpdaterRunElevated( installMap.Keys.FirstOrDefault(k => k.Equals($"{delimiter}{args.FirstOrDefault()}")), false, false) },
+            {$"{delimiter}{"B" ?? "updatebase"}", () => ToolboxUpdaterRunElevated(installMap.Keys.FirstOrDefault(k => k.Equals($"{delimiter}{args.FirstOrDefault()}")), false, false) },
         };
         private static readonly string[] args =  [.. installMap.Keys];
 
         static void Main(string[] args)
         {
-           
-            SConsole.WriteLine("Starting update process...");
             var logFileName = ToolboxUpdater.IsRunningElevated()
                 ? "./updater-elevated-log.txt"
                 : "./updater-log.txt";
 
             Log.Init(logFileName, appendFile: false);
-            Log.WriteLine("Update process started.");
+            SConsole.WriteLine("Update process started.");
 
-            Log.WriteLine("Loading settings");
+            SConsole.WriteLine("Loading settings");
             GlobalSettings.Default.Load();
 
-            Log.WriteLine("Setting UI culture");
-            Log.WriteLine($"Current language code is: {GlobalSettings.Default.LanguageCode}");
+            SConsole.WriteLine("Setting UI culture");
+            SConsole.WriteLine($"Current language code is: {GlobalSettings.Default.LanguageCode}");
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfoByIetfLanguageTag(GlobalSettings.Default.LanguageCode);
 
             if (File.Exists(logFilePath))
-            {  
                 File.Delete(logFilePath);
-            }
+
             // Install.
 
             string install = args.FirstOrDefault(a => installMap.Keys.Any(k => k.Equals(a, StringComparison.OrdinalIgnoreCase))) ?? string.Empty;
@@ -68,10 +64,22 @@ namespace SEToolboxUpdate
             {
                 action();
             }
-            Log.WriteLine("Process was started by user, closing.");
+            SConsole.WriteLine("Process was started by user, closing.");
 
             string appFile = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
             MessageBox.Show(string.Format(Res.AppParameterHelpMessage, appFile), Res.AppParameterHelpTitle, MessageBoxButton.OK, MessageBoxImage.None, MessageBoxResult.OK);
+        }
+
+        private static void InstallConfigurationSettings()
+        {
+            DiagnosticsLogging.CreateLog();
+            CleanBinCache();
+        }
+
+        private static void UninstallConfigurationSettings()
+        {
+            DiagnosticsLogging.RemoveLog();
+            CleanBinCache();
         }
         
         private static readonly string updaterExePath = Assembly.GetExecutingAssembly().Location;
@@ -81,7 +89,7 @@ namespace SEToolboxUpdate
         
         private static void UpdateBaseLibrariesFromSpaceEngineers(string[] args)
         {
-              Log.WriteLine("Updating game files.");
+              SConsole.WriteLine("Updating game files.");
               
             bool attemptedAlready = args.Any(a => a.Equals(installMap.Keys.FirstOrDefault()));
             string appDirectory = Path.GetDirectoryName(updaterExePath);
@@ -89,38 +97,28 @@ namespace SEToolboxUpdate
 
             if (!ToolboxUpdater.IsRunningElevated())
             {
-				Log.WriteLine("Toolbox Updater is not running as an elevated process");
+				SConsole.WriteLine("Toolbox Updater is not running as an elevated process");
                 // Does not have elevated permission to run.
                 if (!attemptedAlready)
                 {
-				    Log.WriteLine("Toolbox Updater: Initializing first run");
+				    SConsole.WriteLine("Toolbox Updater: Initializing first run");
                     MessageBox.Show(Res.UpdateRequiredUACMessage, Res.UpdateRequiredTitle, MessageBoxButton.OK, MessageBoxImage.Information);
                     
-                    int? ret = ToolboxUpdater.RunElevated(updaterExePath, $"{join} {installMap.Keys.FirstOrDefault()}", elevate: true, waitForExit: true);
+                    int? ret = ToolboxUpdater.RunElevated(updaterExePath,$"{join} {installMap.Keys.FirstOrDefault()}", elevate: true, waitForExit: true);
             
-                    Log.WriteLine($"Elevated updater process closed with exit code {(ret.HasValue ? ret.Value : "Failed to start updater process.")}");
+                    SConsole.WriteLine($"Elevated updater process closed with exit code {(ret.HasValue ? ret.Value : "Failed to start updater process.")}");
 
                     // Don't run toolbox from the elevated process, do it here.
-                    if (ret.HasValue )
-                    {
+                    if (ret.HasValue)
                         LaunchToolbox(ret.Value);
-                    }
                     else
-                    {
                         LaunchToolbox(UacDenied);
-                    }
                 }
             }
             else
             {
-                Log.WriteLine("Running elevated.");
-
                 if (!attemptedAlready)
-                {
-                    Log.WriteLine("Toolbox Updater: Initializing first run");
-                }
-
-                MessageBox.Show(Res.UpdateRequiredMessage, Res.UpdateRequiredTitle, MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(Res.UpdateRequiredMessage, Res.UpdateRequiredTitle, MessageBoxButton.OK, MessageBoxImage.Information);
 				string errorMsg = "Failed to copy one or more game files. Error:" ?? string.Empty;
                 // Is running elevated permission, update the files.
                 bool wasUpdated = UpdateBaseFiles(appDirectory, out Exception ex).GetAwaiter().GetResult();
@@ -128,34 +126,29 @@ namespace SEToolboxUpdate
 
                 if (!wasUpdated && ex != null)
                 {
-                    Log.WriteLine("Game file update failed.");
-                    Log.WriteLine(errorMsg + $"\n{File.ReadAllText(logFilePath)}");
+                    SConsole.WriteLine("Game file update failed.");
+                    SConsole.WriteLine(errorMsg + $"\n{File.ReadAllText(logFilePath)}");
                     File.WriteAllText(logFilePath, errorMsg);
                 }
 
                 int errorCode = wasUpdated ? NoError : UpdateBinariesFailed;
                 if (!attemptedAlready)
-                {
                     LaunchToolbox(errorCode);
-                }
                 else // Don't run toolbox from the elevated process, return to the original updater process.
-                {
-                    Log.WriteLine($"Shutting down Updater Process {errorCode}: {ex?.Message}");
-                }
-
-                Environment.Exit(errorCode);
+					SConsole.WriteLine($"Sutting down Updater Process {errorCode}: {ex?.Message}");
+                    Environment.Exit(errorCode);
             }
         }
         
         private static void ToolboxUpdaterRunElevated(string arg, bool? elevate = false, bool? waitForExit = false)
         {
             if (elevate != null && waitForExit != null)
-            {
-                arg = installMap.Keys.FirstOrDefault(k => k.Equals($" {delimiter}{arg}", StringComparison.OrdinalIgnoreCase)) ?? string.Empty;
-            }
+      
+        
+                arg = installMap.Keys.FirstOrDefault(k => k.Equals($"{delimiter}{arg}", StringComparison.OrdinalIgnoreCase)) ?? string.Empty;
 
                 string join = string.Join(" ", args);
-                ToolboxUpdater.RunElevated(toolboxExePath,$"{delimiter}appendlog" +  arg + join, elevate: false, waitForExit: false);
+                ToolboxUpdater.RunElevated(toolboxExePath, arg + join, elevate: false, waitForExit: false);
             }
         
 
@@ -170,35 +163,32 @@ namespace SEToolboxUpdate
             switch (errorCode)
             {
                 case NoError:
-                    ToolboxUpdaterRunElevated(installMap.Keys.FirstOrDefault(k => k.Equals(arg)), elevate: false, waitForExit: false);
+                    ToolboxUpdaterRunElevated(installMap.Keys.FirstOrDefault(), false, false);
                     break;
                 case UacDeniedErrorCode:
-                    Log.WriteLine("UAC was denied.");
-                    Log.WriteLine(Res.CancelUACMessage);
+                    SConsole.WriteLine("UAC was denied.");
+                    SConsole.WriteLine(Res.CancelUACMessage);
                     Environment.Exit(errorCode);
                     break;
                 case UpdateBinariesFailedErrorCode:
-                    Log.WriteLine(Res.UpdateErrorMessage);
+                    SConsole.WriteLine(Res.UpdateErrorMessage);
                     if (MessageBox.Show(Res.UpdateErrorTitle, Res.UpdateErrorMessage, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                     {
-					    Log.WriteLine($"Starting Toolbox process: ignoring updates.");
+					    SConsole.WriteLine($"Starting Toolbox process: ignoring updates.");
 
-                        // X = Ignore updates.i
-                        if (arg != null && arg.Equals("X", StringComparison.OrdinalIgnoreCase))
-                        {
-                            ToolboxUpdaterRunElevated(installMap.Keys.FirstOrDefault(k => k.Equals(arg)), elevate: false, waitForExit: false);
-                        }
+                        // X = Ignore updates.
+                        ToolboxUpdater.RunElevated(toolboxExePath, installMap.Keys.FirstOrDefault(k => k.Equals(arg)), elevate: false, waitForExit: false);
                     }
                     Environment.Exit(errorCode);
                     break;
                 default:
-                Log.WriteLine($"Closing with exit code {errorCode}.");
                     Environment.Exit(errorCode);
                     break;
             }
-            Log.WriteLine($"Shutting down Toolbox Updater Process: {errorCode}");
+            SConsole.WriteLine($"Shutting down Toolbox Updater Process: {errorCode}");
         }
     
+
         /// <summary>
         /// Updates the base library files from the Space Engineers application path.
         /// </summary>
@@ -206,16 +196,15 @@ namespace SEToolboxUpdate
         /// <returns>True if it succeeded, False if there was an issue that blocked it.</returns>
         private static Task<bool> UpdateBaseFiles(string appFilePath, out Exception exception)
         {
-		  Log.WriteLine("Updating game files.");
+		  SConsole.WriteLine("Updating game files.");
 
             exception = null;
 
             Process[] liveProcesses = Process.GetProcessesByName("SEToolbox");
             
  				if (liveProcesses.Length > 0)
-            {
-                Log.WriteLine("Waiting for one or more Toolbox processes to exit.");
-            }
+
+                SConsole.WriteLine("Waiting for one or more Toolbox processes to exit.");
 
             // Wait until SEToolbox is shut down.
             Task allCompletedTask = Task.WhenAll(liveProcesses.Select(item => Task.Run(() => item.WaitForExit())));
@@ -223,7 +212,7 @@ namespace SEToolboxUpdate
             {
                 string errorMsg = $"Timed out waiting for SEToolbox to close. Process array length is {liveProcesses.Length}.";
                 File.WriteAllText(logFilePath, errorMsg);
-                Log.WriteLine(errorMsg);
+                SConsole.WriteLine(errorMsg);
                 return Task.FromResult(false);
             }
 
@@ -246,7 +235,7 @@ namespace SEToolboxUpdate
             {
                 try
                 {
-                    Log.WriteLine($"Updating {files.Length} files from {path} to {baseFilePath}");
+                    SConsole.WriteLine($"Updating {files.Length} files from {path} to {baseFilePath}");
                     foreach (string fileName in files)
                     {
                         string sourceFile = Path.Combine(path, fileName);
@@ -259,10 +248,12 @@ namespace SEToolboxUpdate
                     string errorMsg = $"Update failed for {files.FirstOrDefault()} in {path}.";
                     File.AppendAllText(logFilePath, errorMsg + ex.Message + Environment.NewLine);
 
-                    Log.WriteLine(errorMsg);
+                    SConsole.WriteLine(errorMsg);
                 }
             });
+
         }
+
 
         /// <summary>
         /// Clear app bin cache.
@@ -277,9 +268,7 @@ namespace SEToolboxUpdate
                 {
                     Directory.Delete(binCache, true);
                 }
-                catch   
-                {
-                }
+                catch { }
             }
         }
     }

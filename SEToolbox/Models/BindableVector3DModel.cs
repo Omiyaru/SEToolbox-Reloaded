@@ -64,7 +64,7 @@ namespace SEToolbox.Models
         {
             get => _vector.Y;
             set => SetProperty(_vector.Y, value, nameof(Y));
-        }
+        } 
 
         public double Z
         {
@@ -84,8 +84,8 @@ namespace SEToolbox.Models
 
         public VRageMath.Vector3 ToVector3()
         {
-            return new(ToFloat(X),
-                       ToFloat(Y),
+            return new(ToFloat(X), 
+                       ToFloat(Y), 
                        ToFloat(Z));
         }
 
@@ -97,13 +97,14 @@ namespace SEToolbox.Models
         private float ToFloat(double value)
         {
             float result = (float)value;
-            result = result switch
+            if (float.IsPositiveInfinity(result))
             {
-                _ when float.IsPositiveInfinity(result) => float.MaxValue,
-                _ when float.IsNegativeInfinity(result) => float.MinValue,
-                _ => result
-            };
-
+                result = float.MaxValue;
+            }
+            else if (float.IsNegativeInfinity(result))
+            {
+                result = float.MinValue;
+            }
             return result;
         }
 
@@ -114,9 +115,9 @@ namespace SEToolbox.Models
 
         public BindableVector3DModel Negate()
         {
-            Vector3D vec = _vector;
-            vec.Negate();
-            return new BindableVector3DModel(vec);
+            Vector3D v = _vector;
+            v.Negate();
+            return new BindableVector3DModel(v);
         }
 
         public BindableVector3DModel RoundToAxis()
@@ -127,11 +128,11 @@ namespace SEToolbox.Models
                       (Math.Abs(_vector.X) > Math.Abs(_vector.Z) ? 0 : 2) :
                       (Math.Abs(_vector.Y) > Math.Abs(_vector.Z) ? 1 : 2);
 
-            Vector3D vec = new(axis == 0 ? Math.Sign(_vector.X) : 0,
-                               axis == 1 ? Math.Sign(_vector.Y) : 0,
-                               axis == 2 ? Math.Sign(_vector.Z) : 0);
+            Vector3D v = new(axis == 0 ? Math.Sign(_vector.X) : 0,
+                             axis == 1 ? Math.Sign(_vector.Y) : 0,
+                             axis == 2 ? Math.Sign(_vector.Z) : 0);
 
-            return new BindableVector3DModel(vec);
+            return new BindableVector3DModel(v);
         }
 
         #endregion

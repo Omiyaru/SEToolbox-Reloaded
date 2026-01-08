@@ -66,23 +66,26 @@ namespace SEToolbox.Services
             AssociatedObject.Drop += new DragEventHandler(AssociatedObject_Drop);
         }
 
-        #region Event Handlers
+        #region events
 
+/*************  ✨ Windsurf Command 🌟  *************/
         void AssociatedObject_Drop(object sender, DragEventArgs e)
         {
-            if (_dataType is not null && e.Data.GetDataPresent(_dataType))
+         
+            object data = e.Data.GetData(_dataType);
+             IDragable source = data as IDragable;
+            IDropable target = AssociatedObject.DataContext as IDropable;
+            if (data == null||_dataType == null||source == null||target == null)
+                return;
+            int dropIndex = -1;
+            ItemsControl dropContainer = sender as ItemsControl;
+            UIElement droppedOverItem = dropContainer.GetUIElement(e.GetPosition(dropContainer));
+            if (droppedOverItem != null)
             {
-                var dropContainer = sender as ItemsControl;
-                var droppedOverItem = dropContainer.GetUIElement(e.GetPosition(dropContainer));
-                var dropIndex = dropContainer.ItemContainerGenerator.IndexFromContainer(droppedOverItem) + (droppedOverItem.IsPositionAboveElement(e.GetPosition(droppedOverItem)) ? dropContainer.Items.Count - 1 : -1);
-                var data = e.Data.GetData(_dataType) as IEnumerable;
-                foreach (var item in data)
-                {
-                    (item as IDragable)?.Remove(item);
-                }
-                var target = AssociatedObject.DataContext as IDropable;
-                target.Drop(data, dropIndex);
+                dropIndex = dropContainer.ItemContainerGenerator.IndexFromContainer(droppedOverItem) + (droppedOverItem.IsPositionAboveElement(e.GetPosition(droppedOverItem)) ? -1 : 0);
             }
+            source.Remove(data);
+            target.Drop(data, dropIndex);
             _insertAdornerManager?.Clear();
             e.Handled = true;
         }
@@ -90,6 +93,7 @@ namespace SEToolbox.Services
         void AssociatedObject_DragLeave(object sender, DragEventArgs e)
         {
             _insertAdornerManager?.Clear();
+
             e.Handled = true;
         }
 
@@ -104,20 +108,24 @@ namespace SEToolbox.Services
                     e.Handled = true;
                     return;
                 }
-                SetDragDropEffects(e);
-
-                if (ShowDropIndicator)
-                {
-                    ItemsControl dropContainer = sender as ItemsControl;
-                    UIElement droppedOverItem = dropContainer.GetUIElement(e.GetPosition(dropContainer));
-                    bool isAboveElement = droppedOverItem.IsPositionAboveElement(e.GetPosition(droppedOverItem));
-                    _insertAdornerManager?.UpdateDropIndicator(droppedOverItem, isAboveElement);
-
-                       droppedOverItem = (UIElement)dropContainer.ItemContainerGenerator.ContainerFromIndex(dropContainer.Items.Count - 1);
-                        _insertAdornerManager.UpdateDropIndicator(droppedOverItem, false);
-
+                    SetDragDropEffects(e);
+                    
+                    if (ShowDropIndicator)
+                    {
+                        ItemsControl dropContainer = sender as ItemsControl;
+                        UIElement droppedOverItem = dropContainer.GetUIElement(e.GetPosition(dropContainer));
+                        if (droppedOverItem != null)
+                        {
+                            bool isAboveElement = droppedOverItem.IsPositionAboveElement(e.GetPosition(droppedOverItem));
+                            _insertAdornerManager?.UpdateDropIndicator(droppedOverItem, isAboveElement);
+                        }
+                        else
+                        {
+                            droppedOverItem = (UIElement)dropContainer.ItemContainerGenerator.ContainerFromIndex(dropContainer.Items.Count - 1);
+                            _insertAdornerManager.UpdateDropIndicator(droppedOverItem, false);
+                        }
+                    }
                 }
-            }
 
             e.Handled = true;
         }
@@ -125,10 +133,12 @@ namespace SEToolbox.Services
         void AssociatedObject_DragEnter(object sender, DragEventArgs e)
         {
 
-            IDropable dataContext = AssociatedObject.DataContext as IDropable;
-            _dataType ??= DropType != null ? typeof(List<>).MakeGenericType([DropType]) : dataContext.DataType?.MakeGenericType([dataContext.DataType]);
-			// initialize adorner manager with the adorner layer of the itemsControl.
-            _insertAdornerManager ??= new ListBoxAdornerManager(AdornerLayer.GetAdornerLayer(sender as ItemsControl));
+            var dataContext = AssociatedObject.DataContext as IDropable;
+                _dataType ??= _dataType = DropType != null
+                    ? typeof(List<>).MakeGenericType(new[] { DropType })
+                    : dataContext.DataType?.MakeGenericType(new[] { dataContext.DataType });
+
+            _insertAdornerManager = new ListBoxAdornerManager(AdornerLayer.GetAdornerLayer(sender as ItemsControl));
 
             e.Handled = true;
         }

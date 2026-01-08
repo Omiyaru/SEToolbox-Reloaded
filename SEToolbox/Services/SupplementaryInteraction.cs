@@ -29,10 +29,7 @@ namespace SEToolbox.Services
         private static void OnPropertyBehaviorsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var behaviors = Interaction.GetBehaviors(d);
-            foreach (var behavior in e.NewValue as Behaviors) 
-            {
-                behaviors.Add(behavior);
-            }
+            foreach (var behavior in e.NewValue as Behaviors) behaviors.Add(behavior);
         }
 
         public static Triggers GetTriggers(DependencyObject obj)
@@ -51,9 +48,7 @@ namespace SEToolbox.Services
         {
             var triggers = Interaction.GetTriggers(d);
             foreach (var trigger in e.NewValue as Triggers) 
-            {
-                triggers.Add(trigger);
-            }
+            	triggers.Add(trigger);
         }
     }
 }

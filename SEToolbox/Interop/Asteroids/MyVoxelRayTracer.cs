@@ -56,8 +56,8 @@ namespace SEToolbox.Interop.Asteroids
             int yCount = yMax - yMin;
             int zCount = zMax - zMin;
 
-            Debug.WriteLine($"Approximate Size: {(double)(Math.Ceiling(tbounds.X + tbounds.SizeX) - Math.Floor(tbounds.X))}x{(double)(Math.Ceiling(tbounds.Y + tbounds.SizeY) - Math.Floor(tbounds.Y))}x{(double)(Math.Ceiling(tbounds.Z + tbounds.SizeZ) - Math.Floor(tbounds.Z))}");
-            Debug.WriteLine($"Bounds Size: {xCount}x{yCount}x{zCount}");
+            SConsole.WriteLine($"Approximate Size: {(double)(Math.Ceiling(tbounds.X + tbounds.SizeX) - Math.Floor(tbounds.X))}x{(double)(Math.Ceiling(tbounds.Y + tbounds.SizeY) - Math.Floor(tbounds.Y))}x{(double)(Math.Ceiling(tbounds.Z + tbounds.SizeZ) - Math.Floor(tbounds.Z))}");
+            SConsole.WriteLine($"Bounds Size: {xCount}x{yCount}x{zCount}");
 
             byte[,,] finalCubic = new byte[xCount, yCount, zCount];
             byte[,,] finalMats = new byte[xCount, yCount, zCount];
@@ -88,79 +88,122 @@ namespace SEToolbox.Interop.Asteroids
             // Basic ray trace of every individual triangle.
 
             // Start from the last mesh, which represents the bottom of the UI stack, and overlay each other mesh on top of it.
-            for (int mIndex = model.Meshes.Length - 1; mIndex >= 0; mIndex--)
+            for (int modelIdx = model.Meshes.Length - 1; modelIdx >= 0; modelIdx--)
             {
-                Debug.WriteLine($"Model {mIndex}");
+                SConsole.WriteLine($"Model {modelIdx}");
 
                 byte[,,] modelCubic = new byte[xCount, yCount, zCount];
                 byte[,,] modelMats = new byte[xCount, yCount, zCount];
 
-                var mesh = model.Meshes[mIndex];
+                var mesh = model.Meshes[modelIdx];
                 var geometries = mesh.Geometeries;
 
-                byte material = materials[mIndex];
-                byte faceMat = faceMaterials[mIndex];
-                float i =-0.5f, j = 0.5f;
-                Dictionary<TraceDirection,Vector3[]> rayOffsetsList = new() 
-                {
-                    { TraceDirection.X, new Vector3[] { new(0, 0, 0), new(0, i, i), new(0, j, i), new(0, i, j), new(0, j, j) }},
-                    { TraceDirection.Y, new Vector3[] { new(0, 0, 0), new(i, 0, i), new(j, 0, i), new(i, 0, j), new(j, 0, j) }},
-                    { TraceDirection.Z, new Vector3[] { new(0, 0, 0), new(i, i, 0), new(j, i, 0), new(i, j, 0), new(j, j, 0) }}
-                };  
+                byte material = materials[modelIdx];
+                byte faceMat = faceMaterials[modelIdx];
 
-             var axisList = new List<int>();
-              
-             var tasks = axisList.Select((axis, index) => Task.Run(() => {
-              var rayOffsets = rayOffsetsList[rayOffsetsList.Keys.ElementAt(index)];
-                    
-{   
-                if ((traceDirection & rayOffsetsList.Keys.ElementAt(index)) == rayOffsetsList.Keys.ElementAt(index))
+                if ((traceDirection & TraceDirection.X) == TraceDirection.X)
                 {
-                    Debug.WriteLine($"{rayOffsetsList.Keys.ElementAt(index)} Rays ");
-                    axisList.Add(index); 
+                    SConsole.WriteLine("X Rays");
+                    traceDirectionCount++;
+
+                    Vector3[] rayOffsets = [
+                                new(0, 0, 0),
+                                new(0, -0.5f, -0.5f),
+                                new(0, 0.5f, -0.5f),
+                                new(0, -0.5f, 0.5f),
+                                new(0, 0.5f, 0.5f)
+                        ];
+
+                    bool result = TraceRays(geometries, rotateMatrix, traceType, rayOffsets, axis: 0, min, max,
+                        modelCubic, modelMats, traceDirectionCount, material, faceMat, incrementProgress, cancellationToken);
+
+                    if (!result)
+                    {
+                        complete?.Invoke();
+                        return null;
+                    }
                 }
-                traceDirectionCount += axisList.Count;
 
-                
+                if ((traceDirection & TraceDirection.Y) == TraceDirection.Y)
+                {
+                    SConsole.WriteLine("Y Rays");
+                    traceDirectionCount++;
 
-                 var result = TraceRays(geometries, rotateMatrix, traceType, rayOffsetsList[rayOffsetsList.Keys.ElementAt(index)], axis, min, max, modelCubic, modelMats, traceDirectionCount, material, faceMat, incrementProgress, cancellationToken);
-                 if (!result)
-                 {
+                    Vector3[] rayOffsets = [
+                        new( 0, 0, 0),
+                        new(-0.5f, 0, -0.5f),
+                        new( 0.5f, 0, -0.5f),
+                        new(-0.5f, 0,  0.5f),
+                        new( 0.5f, 0,  0.5f)
+                    ];
+
+                    bool result = TraceRays(geometries, rotateMatrix, traceType, rayOffsets, axis: 1, min, max,
+                        modelCubic, modelMats, traceDirectionCount, material, faceMat, incrementProgress, cancellationToken);
+
+                    if (!result)
+                    {
+                        complete?.Invoke();
+                        return null;
+                    }
+                }
+
+                if ((traceDirection & TraceDirection.Z) == TraceDirection.Z)
+                {
+                    SConsole.WriteLine("Z Rays");
+                    traceDirectionCount++;
+
+                    Vector3[] rayOffsets = [
+                        new( 0, 0, 0),
+                        new(-0.5f, -0.5f, 0),
+                        new( 0.5f, -0.5f, 0),
+                        new(-0.5f,  0.5f, 0),
+                        new( 0.5f,  0.5f, 0)
+                    ];
+
+                    bool result = TraceRays(geometries, rotateMatrix, traceType, rayOffsets, axis: 2, min, max,
+                        modelCubic, modelMats, traceDirectionCount, material, faceMat, incrementProgress, cancellationToken);
+
+                    if (!result)
+                    {
+                        complete?.Invoke();
+                        return null;
+                    }
+                }
+
+                if (cancellationToken.IsCancellationRequested)
+                {
                     complete?.Invoke();
-                 }
-
-                     return result;
-             }
-             }));
-
-           if (tasks.Any(t => t.Result == false) || cancellationToken.IsCancellationRequested)
-            {
-                complete?.Invoke();
-                return null;
-            }
-   
-                int x = 0, y = 0, z = 0;
-                int[] ints = [x, y, z];
-                int[] count = [xCount, yCount, zCount];
-                PRange.ProcessRange(ints, count);
-
-                byte content = modelCubic[x, y, z];
-                byte mat = modelMats[x, y, z];
-
-                if (mat == 0xff && content != 0)
-                {
-                    finalCubic[x, y, z] = (byte)Math.Max(finalCubic[x, y, z] - content, 0);
-                }
-                else if (content != 0)
-                {
-                    finalCubic[x, y, z] = Math.Max(finalCubic[x, y, z], content);
-                    finalMats[x, y, z] = mat;
-                }
-                else if (finalCubic[x, y, z] == 0 && finalMats[x, y, z] == 0 && mat != 0xff)
-                {
-                    finalMats[x, y, z] = mat;
+                    return null;
                 }
 
+             var range = from X in Enumerable.Range(0, xCount)
+                         from Y in Enumerable.Range(0, yCount)
+                         from Z in Enumerable.Range(0, zCount)
+                         select new { X, Y, Z };
+                Parallel.ForEach(range, item =>
+                {
+                    int x = item.X;
+                    int y = item.Y;
+                    int z = item.Z;
+
+                    byte content = modelCubic[x, y, z];
+                    byte mat = modelMats[x, y, z];
+
+              
+                    if (mat == 0xff && content != 0)
+                    {
+                        finalCubic[x, y, z] = (byte)Math.Max(finalCubic[x, y, z] - content, 0);
+                    }
+                    else if (content != 0)
+                    {
+                        finalCubic[x, y, z] = Math.Max(finalCubic[x, y, z], content);
+                        finalMats[x, y, z] = mat;
+                    }
+                    else if (finalCubic[x, y, z] == 0 && finalMats[x, y, z] == 0 && mat != 0xff)
+                    {
+                        finalMats[x, y, z] = mat;
+                    }
+                });
             }
 
             // End models
@@ -201,6 +244,7 @@ namespace SEToolbox.Interop.Asteroids
             }
 
             var voxelMap = MyVoxelBuilder.BuildAsteroid(true, size, defaultMaterial.Value, faceMaterial, CellAction);
+
 
             complete?.Invoke();
 
@@ -247,7 +291,9 @@ namespace SEToolbox.Interop.Asteroids
 
             (List<RayHit>, byte, byte) IntersectRays(int loopIndex, ParallelLoopState loopState, (List<RayHit> RayHits, byte Mat, byte FaceMat) args)
             {
-                int x = 0, y = 0, z = 0;
+                int x = 0;
+                int y = 0;
+                int z = 0;
 
                 switch (axis)
                 {
@@ -270,18 +316,22 @@ namespace SEToolbox.Interop.Asteroids
                 TestRays(geometries, rotateMatrix, traceType, rayOffsets, rayHits, min, max, new Vector3I(x, y, z), axis, incrementProgress, cancellationToken);
 
                 if (rayHits.Count > 1)
-                {   
-                    Action action = axis switch 
+                {
+                    switch (axis)
                     {
-                        0 => () => AccumVolume<XAxisSelector>(rayHits, traceType, rayOffsets.Length, min, max, x, y, z, modelCubic, modelMats, traceDirectionCount, args.Mat, args.FaceMat) ,
-                        1 => () => AccumVolume<YAxisSelector>(rayHits, traceType, rayOffsets.Length, min, max, x, y, z, modelCubic, modelMats, traceDirectionCount, args.Mat, args.FaceMat),
-                        2 => () => AccumVolume<ZAxisSelector>(rayHits, traceType, rayOffsets.Length, min, max, x, y, z, modelCubic, modelMats, traceDirectionCount, args.Mat, args.FaceMat),
-                        _ => () => { },
-                    
-                    };
-
-                    action();
-                           
+                        case 0:
+                            AccumVolume<XAxisSelector>(rayHits, traceType, rayOffsets.Length, min, max, x, y, z,
+                                modelCubic, modelMats, traceDirectionCount, args.Mat, args.FaceMat);
+                            break;
+                        case 1:
+                            AccumVolume<YAxisSelector>(rayHits, traceType, rayOffsets.Length, min, max, x, y, z,
+                                modelCubic, modelMats, traceDirectionCount, args.Mat, args.FaceMat);
+                            break;
+                        case 2:
+                            AccumVolume<ZAxisSelector>(rayHits, traceType, rayOffsets.Length, min, max, x, y, z,
+                                modelCubic, modelMats, traceDirectionCount, args.Mat, args.FaceMat);
+                            break;
+                    }
                 }
 
                 rayHits.Clear();
@@ -312,14 +362,13 @@ namespace SEToolbox.Interop.Asteroids
 
                 Vector3 ro = rayOffsets[i];
 
-                VRageMath.Vector3D offset = new(ro.X > 0 ? -edgeOffset : edgeOffset,
-                                                ro.Y > 0 ? -edgeOffset : edgeOffset,
-                                                ro.Z > 0 ? -edgeOffset : edgeOffset);
+                VRageMath.Vector3D offset = new(
+                    ro.X > 0 ? -edgeOffset : edgeOffset,
+                    ro.Y > 0 ? -edgeOffset : edgeOffset,
+                    ro.Z > 0 ? -edgeOffset : edgeOffset);
 
                 if (traceType == TraceType.Even)
-                {
                     offset += 0.5f;
-                }
 
                 maskedOffsets[i] = offset * axisMask;
             }
@@ -345,36 +394,47 @@ namespace SEToolbox.Interop.Asteroids
 
                     for (int i = 0; i < rayOffsets.Length; i++)
                     {
-                        Vector3 rayOffset = rayOffsets[i];
+                        Vector3 ro = rayOffsets[i];
                         VRageMath.Vector3D o = maskedOffsets[i];
-                        VRageMath.Vector3D start = coordMin + rayOffset + o;
+                        VRageMath.Vector3D start = coordMin + ro + o;
 
-                        if (axis != 0 && rayPoints[0].X < start.X && rayPoints[1].X < start.X && rayPoints[2].X < start.X || (rayPoints[0].X > start.X && rayPoints[1].X > start.X && rayPoints[2].X > start.X) || 
-                            axis != 1 && rayPoints[0].Y < start.Y && rayPoints[1].Y < start.Y && rayPoints[2].Y < start.Y || (rayPoints[0].Y > start.Y && rayPoints[1].Y > start.Y && rayPoints[2].Y > start.Y) ||
-                            axis != 2 && rayPoints[0].Z < start.Z && rayPoints[1].Z < start.Z && rayPoints[2].Z < start.Z || (rayPoints[0].Z > start.Z && rayPoints[1].Z > start.Z && rayPoints[2].Z > start.Z))
+                        if (axis != 0)
                         {
+                            if ((rayPoints[0].X < start.X && rayPoints[1].X < start.X && rayPoints[2].X < start.X) ||
+                                (rayPoints[0].X > start.X && rayPoints[1].X > start.X && rayPoints[2].X > start.X))
                                 continue;
                         }
 
-                        VRageMath.Vector3D end = coordMax + rayOffset + o;
-                        if (MeshHelper.RayIntersectTriangleRound(rayPoints, start.ToPoint3D(), end.ToPoint3D(), out Point3D intersect, out int normal))
+                        if (axis != 1)
                         {
-                            rayHits.Add(new RayHit(intersect, normal, i));
+                            if ((rayPoints[0].Y < start.Y && rayPoints[1].Y < start.Y && rayPoints[2].Y < start.Y) ||
+                                (rayPoints[0].Y > start.Y && rayPoints[1].Y > start.Y && rayPoints[2].Y > start.Y))
+                                continue;
                         }
+
+                        if (axis != 2)
+                        {
+                            if ((rayPoints[0].Z < start.Z && rayPoints[1].Z < start.Z && rayPoints[2].Z < start.Z) ||
+                                (rayPoints[0].Z > start.Z && rayPoints[1].Z > start.Z && rayPoints[2].Z > start.Z))
+                                continue;
+                        }
+
+                        VRageMath.Vector3D end = (coordMax + ro) + o;
+
+
+
+                        if (MeshHelper.RayIntersectTriangleRound(rayPoints, start.ToPoint3D(), end.ToPoint3D(), out Point3D intersect, out int normal))
+                            rayHits.Add(new RayHit(intersect, normal, i));
                     }
                 }
 
                 if (cancellationToken.IsCancellationRequested)
-                {
                     return;
-                }
 
                 if (incrementProgress != null)
                 {
                     lock (Locker)
-                    {
                         incrementProgress.Invoke();
-                    }
                 }
             }
         }
@@ -428,38 +488,55 @@ namespace SEToolbox.Interop.Asteroids
             int traceDirectionCount, byte material, byte faceMaterial)
             where TSelector : struct, IAxisValueSelector
         {
-            (double Point, MeshFace Face, int TestRayIndex)[] orderedHits = [.. rayHits.Select(t => (Point: default(TSelector)
-                                                                                       .GetValue(t.Point), t.Face, t.TestRayIndex))
-                                                                                       .Distinct().OrderBy(k => k.Point)];
+            (double Point, MeshFace Face, int TestRayIndex)[] orderedHits = [.. rayHits.Select(t => (Point: default(TSelector).GetValue(t.Point), t.Face, t.TestRayIndex))
+                                     .Distinct().OrderBy(k => k.Point)];
 
             TSelector selector = default;
 
-            int startCoord = 0, endCoord = 0;
+            int startCoord, endCoord;
 
             float startOffset = 0.5f;
             float endOffset = 0.5f;
             float volumeOffset = 0.5f;
-                switch (traceType)
-                {
-                    case TraceType.Odd when startOffset == 0.5f && endOffset == 0.5f && volumeOffset == 0.5f:
-                    case TraceType.Even when startOffset == 0.0f && endOffset == 1.0f && volumeOffset == 1.0f:   
-                        startCoord = (int)Math.Round(orderedHits[0].Point);
-                        endCoord = (int)Math.Round(orderedHits[orderedHits.Length - 1].Point);
-                        break;
-                }
-            
+
+            if (traceType == TraceType.Odd)
+            {
+                startCoord = (int)Math.Round(orderedHits[0].Point);
+                endCoord = (int)Math.Round(orderedHits[orderedHits.Length - 1].Point);
+
+                startOffset = 0.5f;
+                endOffset = 0.5f;
+                volumeOffset = 0.5f;
+            }
+            else// if (traceType == TraceType.Even)
+            {
+                startCoord = (int)Math.Floor(orderedHits[0].Point);
+                endCoord = (int)Math.Floor(orderedHits[orderedHits.Length - 1].Point);
+
+                startOffset = 0.0f;
+                endOffset = 1.0f;
+                volumeOffset = 1.0f;
+            }
 
             int xRel = x - min.X;
             int yRel = y - min.Y;
             int zRel = z - min.Z;
 
-            
+            int axisMin = 0, axisMax = 0;
 
-        var (axisMin, axisMax) = selector.Axis switch
+            axisMin = selector.Axis switch
             {
-                0 => (min.X, max.X),
-                1 => (min.Y, max.Y),
-                2 => (min.Z, max.Z),
+                0 => min.X,
+                1 => min.Y,
+                2 => min.Z,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            axisMax = selector.Axis switch
+            {
+                0 => max.X,
+                1 => max.Y,
+                2 => max.Z,
                 _ => throw new ArgumentOutOfRangeException()
             };
 
@@ -471,21 +548,20 @@ namespace SEToolbox.Interop.Asteroids
                 double volume = 0;
 
                 for (int i = 0; i < surfaceCounts.Length; i++)
-                {
                     volume += (surfaceCounts[i] > 0 ? 1 : 0) * hitWeight;
-                }
+
                 foreach ((double Point, MeshFace Face, int TestRayIndex) hit in orderedHits)
                 {
                     double p = hit.Point;
 
                     if (p < c - startOffset || p >= c + endOffset) // Check if the point in this cell
-                    {
                         continue;
-                    }
+
                     double v = Math.Max(0, c + volumeOffset - p) * hitWeight;
 
-                    if (hit.Face == MeshFace.Farside && surfaceCounts[hit.TestRayIndex]++ == 0)
+                    if (hit.Face == MeshFace.Farside)
                     {
+                        if (surfaceCounts[hit.TestRayIndex]++ == 0)
                             volume += v;
                     }
                     else if (hit.Face == MeshFace.Nearside)
@@ -493,47 +569,52 @@ namespace SEToolbox.Interop.Asteroids
                         int sc = surfaceCounts[hit.TestRayIndex] - 1;
 
                         if (sc == 0)
-                        {
                             volume -= v;
-                        }
+
                         surfaceCounts[hit.TestRayIndex] = Math.Max(0, sc);
                     }
+                }
 
+                selector.UpdateRelCoord(ref xRel, ref yRel, ref zRel, c, axisMin);
+
+                if (traceDirectionCount > 1)
+                {
+                    // Average with the pre-existing volume.
+                    double preVolumme = modelCubic[xRel, yRel, zRel] / 255.0;
+                    volume = (preVolumme * ((traceDirectionCount - 1) / (double)traceDirectionCount)) + (volume / (double)traceDirectionCount);
+                }
+
+                modelCubic[xRel, yRel, zRel] = (byte)Math.Round(volume * 255);
+                modelMats[xRel, yRel, zRel] = material;
+            }
+
+            if (faceMaterial == 0xff)
+                return;
+
+            for (int i = 1; i < 6; i++)
+            {
+                int c = startCoord - i;
+
+                if (c > axisMin)
+                {
                     selector.UpdateRelCoord(ref xRel, ref yRel, ref zRel, c, axisMin);
 
-                    if (traceDirectionCount > 1)
-                    {
-                        // Average with the pre-existing volume.
-                        double preVolumme = modelCubic[xRel, yRel, zRel] / 255.0;
-                        volume = (preVolumme * ((traceDirectionCount - 1) / (double)traceDirectionCount)) + (volume / (double)traceDirectionCount);
-                    }
-
-                    modelCubic[xRel, yRel, zRel] = (byte)Math.Round(volume * 255);
-                    modelMats[xRel, yRel, zRel] = material;
+                    if (modelCubic[xRel, yRel, zRel] == 0)
+                        modelMats[xRel, yRel, zRel] = faceMaterial;
                 }
 
-                if (faceMaterial == 0xff)
-                {
-                    return;
-                }
-                for (int i = 1; i < 6; i++)
-                {
-                    int start = Math.Max(axisMin, startCoord - i);
-                    int end = Math.Min(axisMax, endCoord + i);
+                c = endCoord + i;
 
-                    for (int co = start; co < end; c++)
-                    {
-                        selector.UpdateRelCoord(ref xRel, ref yRel, ref zRel, co, axisMin);
+                if (c < axisMax)
+                {
+                    selector.UpdateRelCoord(ref xRel, ref yRel, ref zRel, c, axisMin);
 
-                        if (modelCubic[xRel, yRel, zRel] == 0)
-                        {
-                            modelMats[xRel, yRel, zRel] = faceMaterial;
-                        }
-                    }
+                    if (modelCubic[xRel, yRel, zRel] == 0)
+                        modelMats[xRel, yRel, zRel] = faceMaterial;
                 }
             }
         }
-        
+
         public class Model
         {
             public Rect3D Bounds;
@@ -544,8 +625,8 @@ namespace SEToolbox.Interop.Asteroids
 
             public Model(Model3DGroup model, Size3D scale, Matrix3D rotateMatrix, byte material)
             {
-                if (scale.X > 0 && scale.Y > 0 && scale.Z > 0 && 
-                    scale.X != 1.0 && scale.Y != 1.0 && scale.Z != 1.0)
+                if (scale.X > 0 && scale.Y > 0 && scale.Z > 0
+                    && scale.X != 1.0 && scale.Y != 1.0 && scale.Z != 1.0)
                 {
                     model.TransformScale(scale.X, scale.Y, scale.Z);
                 }
@@ -556,9 +637,7 @@ namespace SEToolbox.Interop.Asteroids
                 model.Transform = new TranslateTransform3D(-bounds.X, -bounds.Y, -bounds.Z);
 
                 if (!rotateMatrix.IsIdentity)
-                {
                     bounds = new MatrixTransform3D(rotateMatrix).TransformBounds(bounds);
-                }
 
                 Bounds = bounds;
 
@@ -571,9 +650,7 @@ namespace SEToolbox.Interop.Asteroids
                     GeometryModel3D gm = (GeometryModel3D)c;
 
                     if (gm.Geometry is MeshGeometry3D g)
-                    {
                         geometries.Add(new MeshGeometery(g));
-                    }
                 }
 
                 // TODO: If this is only ever used with one mesh then remove the MeshGeometry concept
@@ -608,13 +685,11 @@ namespace SEToolbox.Interop.Asteroids
             {
                 Point = point;
                 Face = MeshFace.Undefined;
-                Face =normal switch
-                {
-                    1 => MeshFace.Nearside,
-                    -1 => MeshFace.Farside,
-                    _ => MeshFace.Undefined
-                };        
-               
+
+                if (normal == 1)
+                    Face = MeshFace.Nearside;
+                else if (normal == -1)
+                    Face = MeshFace.Farside;
 
                 TestRayIndex = testRayIndex;
             }

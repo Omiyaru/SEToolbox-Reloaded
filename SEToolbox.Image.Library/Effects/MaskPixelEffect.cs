@@ -32,24 +32,18 @@ namespace SEToolbox.ImageLibrary.Effects
                 destinationPixel->Alpha = 255;
             }
             else
-            {   
-            
-                var maxColor = pixel->Red;
-                maxColor = maxColor switch
-                {
-                    byte when maxColor < pixel->Green => pixel->Green,
-                    byte when maxColor < pixel->Blue => pixel->Blue,
-                    _ => maxColor
-                };
+            {
+                int maxColor = pixel->Red;
+                if (maxColor < pixel->Green)
+                    maxColor = pixel->Green;
+                if (maxColor < pixel->Blue)
+                    maxColor = pixel->Blue;
 
-                var minColor = pixel->Red;
-               minColor = minColor switch 
-               {
-                   byte when minColor > pixel->Green => pixel->Green,
-                   byte when minColor > pixel->Blue => pixel->Blue,
-                   _ => minColor    
-               };
-
+                int minColor = pixel->Red;
+                if (minColor > pixel->Green)
+                    minColor = pixel->Green;
+                if (minColor > pixel->Blue)
+                    minColor = pixel->Blue;
 
                 var luminance = (byte)((minColor + maxColor) / 2.00f);
 

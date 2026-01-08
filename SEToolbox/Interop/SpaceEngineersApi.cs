@@ -40,8 +40,8 @@ namespace SEToolbox.Interop
                                                         out string errorInformation, bool snapshot = false,
                                                         bool specificExtension = false) where T : MyObjectBuilder_Base
         {
-            string protoBufFile = null;
-            if (specificExtension && (Path.GetExtension(fileName) ?? string.Empty).EndsWith(SpaceEngineersConsts.ProtobuffersExtension, StringComparison.OrdinalIgnoreCase))
+            string protoBufFile = null; 
+              if (specificExtension && (Path.GetExtension(fileName) ?? string.Empty).EndsWith(SpaceEngineersConsts.ProtobuffersExtension, StringComparison.OrdinalIgnoreCase))
             {
                 protoBufFile = Path.GetExtension(fileName) == SpaceEngineersConsts.ProtobuffersExtension ? fileName : fileName + SpaceEngineersConsts.ProtobuffersExtension;
             }
@@ -57,9 +57,9 @@ namespace SEToolbox.Interop
                 }
                 using (FileStream fileStream = new(tempFileName, FileMode.Open, FileAccess.Read))
                 {
-                    int byte1 = fileStream.ReadByte();
-                    int byte2 = fileStream.ReadByte();
-                    isCompressed = byte1 == 0x1f && byte2 == 0x8b;
+                    int b1 = fileStream.ReadByte();
+                    int b2 = fileStream.ReadByte();
+                    isCompressed = b1 == 0x1f && b2 == 0x8b;
                 }
 
                 bool retCode;
@@ -75,10 +75,11 @@ namespace SEToolbox.Interop
                     errorInformation = string.Format(Res.ErrorLoadFileError, fileName, ex.AllMessages());
                     return false;
                 }
-                _ = retCode && outObject != null;
-                         
-             
-          
+                if (retCode && outObject != null)
+                {
+                    errorInformation = null;
+                    return true;
+                }
                 return TryReadSpaceEngineersFileXml(fileName, out outObject, out isCompressed, out errorInformation, snapshot);
             }
 
@@ -100,20 +101,19 @@ namespace SEToolbox.Interop
                     tempFileName = TempFileUtil.NewFileName();
                     File.Copy(fileName, tempFileName, overwrite: true);
                 }
-
+                
                 var fileInfo = new FileInfo(tempFileName);
                 using var stream = fileInfo.OpenRead();
                 var serializer = new XmlSerializer(typeof(T));
+             
+             byte[] buffer1 = new byte[stream.Length];
+             byte[] buffer2 = new byte[stream.Length];
 
-                byte[] buffer1 = new byte[stream.Length];
-                byte[] buffer2 = new byte[stream.Length];
+             stream.Read(buffer1, 0, buffer1.Length);
+             Array.Copy(buffer1, buffer2, buffer1.Length);
 
-                stream.Read(buffer1, 0, (int)stream.Length);
-                
-                Array.Copy(buffer1, buffer2, buffer1.Length);
-
-                isCompressed = buffer1.SequenceEqual(buffer2);
-                if (snapshot)
+             isCompressed = buffer1.SequenceEqual(buffer2);
+                if(snapshot)
                 {
                     File.Delete(tempFileName);
                 }
@@ -127,15 +127,16 @@ namespace SEToolbox.Interop
 
         public static T Deserialize<T>(string xml) where T : MyObjectBuilder_Base
         {
-            using var stream = new MemoryStream();
+            T outObject;
+            using (var stream = new MemoryStream())
+            {
+                StreamWriter sw = new(stream);
+                sw.Write(xml);
+                sw.Flush();
+                stream.Position = 0;
 
-            StreamWriter sw = new(stream);
-            sw.Write(xml);
-            sw.Flush();
-            stream.Position = 0;
-
-            MOBSerializerKeen.DeserializeXML(stream, out T outObject);
-
+                MOBSerializerKeen.DeserializeXML(stream, out outObject);
+            }
             return outObject;
         }
 
@@ -181,26 +182,26 @@ namespace SEToolbox.Interop
             objectBuilder = null;
             errorInformation = null;
 
-            using Stream fileStream = MyFileSystem.OpenRead(fileName);
+            using var fileStream = MyFileSystem.OpenRead(fileName);
             using Stream readStream = fileStream.UnwrapGZip();
-
-            if (fileStream != null && readStream != null)
-            {
-                try
+            
+                if (fileStream != null && readStream != null)
                 {
-                    XmlSerializer serializer = MyXmlSerializerManager.GetSerializer(typeof(T));
-                    XmlReaderSettings settings = new() { CheckCharacters = true };
-                    MyXmlTextReader xmlReader = new(readStream, settings);
+                    try
+                    {
+                        XmlSerializer serializer = MyXmlSerializerManager.GetSerializer(typeof(T));
+                        XmlReaderSettings settings = new() { CheckCharacters = true };
+                        MyXmlTextReader xmlReader = new(readStream, settings);
 
-                    objectBuilder = (T)serializer.Deserialize(xmlReader);
-                    result = true;
-                }
-                catch (Exception ex)
-                {
-                    objectBuilder = null;
-                    errorInformation = string.Format(Res.ErrorLoadFileError, fileName, ex.AllMessages());
-                }
-            }
+                                objectBuilder = (T)serializer.Deserialize(xmlReader);
+                                result = true;
+                            }
+                            catch (Exception ex)
+                            {
+                                objectBuilder = null;
+                                errorInformation = string.Format(Res.ErrorLoadFileError, fileName, ex.AllMessages());
+                            }
+                        }
 
             return result;
         }
@@ -248,56 +249,60 @@ namespace SEToolbox.Interop
         public static float FetchCubeBlockMass(MyObjectBuilderType typeId, MyCubeSize cubeSize, string subtypeName)
         {
             float mass = 0;
-            var cubeBlockDefinition = GetCubeDefinition(typeId, cubeSize, subtypeName);
-            mass = cubeBlockDefinition?.Mass ?? mass;
-            return mass;
 
+            var cubeBlockDefinition = GetCubeDefinition(typeId, cubeSize, subtypeName);
+
+            if (cubeBlockDefinition != null)
+            {
+                return cubeBlockDefinition.Mass;
+            }
+
+            return mass;
         }
 
         public static void AccumulateCubeBlueprintRequirements(string subType, MyObjectBuilderType typeId, decimal amount, Dictionary<string, BlueprintRequirement> requirements, out TimeSpan timeTaken)
         {
             var time = new TimeSpan();
-            var bluePrint = GetBlueprint(typeId, subType);
+            var bp = GetBlueprint(typeId, subType);
 
-            if (bluePrint?.Results.Length > 0)
+            if (bp?.Results.Length > 0)
             {
-                foreach (MyBlueprintDefinitionBase.Item item in bluePrint.Prerequisites)
+                foreach (MyBlueprintDefinitionBase.Item item in bp.Prerequisites)
                 {
                     if (requirements.ContainsKey(item.Id.SubtypeName))
                     {
                         // append existing
-                        requirements[item.Id.SubtypeName].Amount = (amount / (decimal)bluePrint.Results[0].Amount * (decimal)item.Amount) + requirements[item.Id.SubtypeName].Amount;
+                        requirements[item.Id.SubtypeName].Amount = (amount / (decimal)bp.Results[0].Amount * (decimal)item.Amount) + requirements[item.Id.SubtypeName].Amount;
                     }
                     else
                     {
                         // add new
                         requirements.Add(item.Id.SubtypeName, new BlueprintRequirement
                         {
-                            Amount = amount / (decimal)bluePrint.Results[0].Amount * (decimal)item.Amount,
+                            Amount = amount / (decimal)bp.Results[0].Amount * (decimal)item.Amount,
                             TypeId = item.Id.TypeId.ToString(),
-                            SubtypeName = item.Id.SubtypeName,
+                            SubtypeId = item.Id.SubtypeName,
                             Id = item.Id
                         });
                     }
 
                     double timeMassMultiplier = 1;
                     if (typeId == typeof(MyObjectBuilder_Ore) || typeId == typeof(MyObjectBuilder_Ingot))
-                    {
-                        timeMassMultiplier = (double)bluePrint.Results[0].Amount;
-                    }
+                        timeMassMultiplier = (double)bp.Results[0].Amount;
 
-                    var timeSpan = TimeSpan.FromSeconds(bluePrint.BaseProductionTimeInSeconds * (double)amount / timeMassMultiplier);
-                    time += timeSpan;
+                    var ts = TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds * (double)amount / timeMassMultiplier);
+                    time += ts;
                 }
             }
 
             timeTaken = time;
         }
 
-        public static MyBlueprintDefinitionBase GetBlueprint(MyObjectBuilderType typeId, string subtypeName)
+        
+        public static MyBlueprintDefinitionBase GetBlueprint(MyObjectBuilderType resultTypeId, string resultSubTypeId)
         {
             // Get 'Last' item. Matches SE logic, which uses an array structure, and overrides previous found items of the same result.
-            return SEResources.BlueprintDefinitions.LastOrDefault(bp => bp?.Results.Length == 1 && bp.Results.Any(result => result.Id.TypeId == typeId && result.Id.SubtypeName == subtypeName));
+            return SEResources.BlueprintDefinitions.LastOrDefault(b => b?.Results.Length == 1 && b.Results.Any(r => r.Id.TypeId == resultTypeId && r.Id.SubtypeName == resultSubTypeId));
         }
 
         #endregion
@@ -307,15 +312,13 @@ namespace SEToolbox.Interop
         public static MyCubeBlockDefinition GetCubeDefinition(MyObjectBuilderType typeId, MyCubeSize cubeSize, string subtypeName)
         {
             if (!string.IsNullOrEmpty(subtypeName))
-            {
                 return null;
-            }
-
-            return !string.IsNullOrEmpty(subtypeName) ? null : 
-                                                        MyDefinitionManager.Static.GetCubeBlockDefinition(new MyDefinitionId(typeId, subtypeName)) ??
-                                                                SEResources.CubeBlockDefinitions?.FirstOrDefault(d => d.CubeSize == cubeSize && d.Id.TypeId == typeId) ??
-                                                                SEResources.CubeBlockDefinitions.FirstOrDefault(d => d.Id.SubtypeName == subtypeName) ??
-                                                                SEResources.CubeBlockDefinitions.FirstOrDefault(d => d.Variants.Any(v => subtypeName == d.Id.SubtypeName + v.Color));
+            return MyDefinitionManager.Static.GetCubeBlockDefinition(new MyDefinitionId(typeId, subtypeName)) ??
+                           SEResources.CubeBlockDefinitions?.FirstOrDefault(d => d.CubeSize == cubeSize && d.Id.TypeId == typeId) ??
+                           SEResources.CubeBlockDefinitions.FirstOrDefault(d => d.Id.SubtypeName == subtypeName) ??
+                           SEResources.CubeBlockDefinitions.FirstOrDefault(d => d.Variants.Any(v => subtypeName == d.Id.SubtypeName + v.Color));
+                   
+                                                                               
         }
 
         #endregion
@@ -331,11 +334,15 @@ namespace SEToolbox.Interop
             {
                 // Adjust min and max to account for block size
                 Vector3I blockSize = GetCubeBlockSize(block, entity.GridSizeEnum);
-                Vector3I blockMin = block.Min;
+                SerializableVector3I blockMin = block.Min;
                 Vector3I blockMax = block.Min + blockSize - 1;
-                min = Vector3D.Min(min, blockMin);
-                max = Vector3D.Max(max, blockMax);
 
+                min.X = Math.Min(min.X, blockMin.X);
+                min.Y = Math.Min(min.Y, blockMin.Y);
+                min.Z = Math.Min(min.Z, blockMin.Z);
+                max.X = Math.Max(max.X, blockMax.X);
+                max.Y = Math.Max(max.Y, blockMax.Y);
+                max.Z = Math.Max(max.Z, blockMax.Z);
             }
 
             // Scale box to GridSize
@@ -356,14 +363,10 @@ namespace SEToolbox.Interop
                 // Transform the min and max points of the bounding box
                 Vector3D transformedMin = Vector3D.Transform(min, transformationMatrix) + position;
                 Vector3D transformedMax = Vector3D.Transform(max, transformationMatrix) + position;
-
-                //bb.TransformSlow(transformationMatrix) 
-                //bb.TransformFast(transformationMatrix);
-                bb = new BoundingBoxD(transformedMin, transformedMax);
                 // Create a new bounding box with the transformed points
-                //bb.Translate(entity.PositionAndOrientation.Value.Position);
+                bb = new BoundingBoxD(transformedMin, transformedMax);
             }
-                
+
             return bb;
         }
 
@@ -434,7 +437,9 @@ namespace SEToolbox.Interop
 
         public static string GetResourceName(string value)
         {
-            value ??= null;
+            if (value == null)
+                return null;
+
             MyStringId stringId = MyStringId.GetOrCompute(value);
             return MyTexts.GetString(stringId);
         }

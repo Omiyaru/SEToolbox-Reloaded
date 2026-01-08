@@ -34,19 +34,19 @@ namespace SEToolbox.Models
         public string Name
         {
             get => _name;
-            set => SetProperty(ref _name, value, () =>
-                   FriendlyName = SpaceEngineersApi.GetResourceName(Name),
-                   nameof(Name));
+            set => SetProperty(ref _name, value, () => 
+                   FriendlyName == SpaceEngineersApi.GetResourceName(Name),
+                    nameof(Name));
         }
 
         public MyObjectBuilderType TypeId { get; set; }
-
-        public string SubtypeName { get; set; }
+        
+        public string SubtypeId { get; set; }
 
         public decimal Amount
         {
             get => _amount;
-            set => SetProperty(ref _amount, value, nameof(Amount), () =>
+            set => SetProperty(ref _amount, value, nameof(Amount), () => 
                    UpdateMassVolume());
         }
 
@@ -59,8 +59,8 @@ namespace SEToolbox.Models
         public double MassMultiplier
         {
             get => _massMultiplier;
-            set => SetProperty(ref _massMultiplier, value, nameof(MassMultiplier), () =>
-                   UpdateMassVolume());
+            set  => SetProperty(ref _massMultiplier, value, nameof(MassMultiplier), () =>
+                    UpdateMassVolume());
         }
 
         public double Volume
@@ -72,22 +72,22 @@ namespace SEToolbox.Models
         public double VolumeMultiplier
         {
             get => _volumeMultiplier;
-            set => SetProperty(ref _volumeMultiplier, value, nameof(VolumeMultiplier), () =>
+            set => SetProperty(ref _volumeMultiplier, value, nameof(VolumeMultiplier), () => 
                    UpdateMassVolume());
         }
 
         public string TextureFile { get; set; }
-
+        
         public MyCubeSize? CubeSize { get; set; }
-
+        
         public bool Exists { get; set; }
-
+        
         public string FriendlyName { get; set; }
-
+        
         public bool IsUnique { get; set; }
-
+        
         public bool IsDecimal { get; set; }
-
+        
         public bool IsInteger { get; set; }
 
         public override string ToString()
@@ -124,35 +124,34 @@ namespace SEToolbox.Models
 
         public string this[string columnName]
         {
-            get => (columnName == nameof(Amount)) switch
+            get
             {
-                true when IsUnique && (Amount != 1) => "The Amount must be greater than 0",
-                true when IsInteger && (Amount % 1 != 0) => "The Amount must not contain decimal places",
-                _ => string.Empty
-            };
-        }
+                if (columnName == nameof(Amount))
+                {
+                    if (IsUnique && Amount != 1) return "The Amount must be 1 for Unique items";
+                    if (IsInteger && (Amount % 1 != 0)) return "The Amount must not contain decimal places";
+                }
 
+                return string.Empty;
+            }
+        }
 
         //  TODO: need to bubble volume change up to InventoryEditor for updating TotalVolume, and up to MainViewModel.IsModified = true;
 
         #endregion
 
 
-        public InventoryModel(MyObjectBuilder_InventoryItem item, string name, string subtypeName)
+        public InventoryModel(MyObjectBuilder_InventoryItem item, string name, string subtypeId)
         {
             if (string.IsNullOrEmpty(name))
-            {
                 throw new ArgumentNullException(nameof(name));
-            }
 
-            if (string.IsNullOrEmpty(subtypeName))
-            {
-                throw new ArgumentNullException(nameof(SubtypeName));
-            }
+            if (string.IsNullOrEmpty(subtypeId))
+                throw new ArgumentNullException(nameof(subtypeId));
 
             _item = item ?? throw new ArgumentNullException(nameof(item));
             _name = name;
-            SubtypeName = subtypeName;
+            SubtypeId = subtypeId;
             FriendlyName = SpaceEngineersApi.GetResourceName(Name.ToString());
             TextureFile = string.Empty;
             VolumeChanged = () => { };

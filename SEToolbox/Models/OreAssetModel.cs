@@ -21,7 +21,7 @@ namespace SEToolbox.Models
 
         private string _textureFile;
 
-        //public static object MaterialColors { get; internal set; }
+        public static object MaterialColors { get; internal set; }
 
         #region Properties
 
@@ -29,8 +29,8 @@ namespace SEToolbox.Models
         {
             get => _name;
             set => SetProperty(ref _name, value, () => 
-                   FriendlyName = SpaceEngineersApi.GetResourceName(Name), 
-                   nameof(Name));
+            FriendlyName = SpaceEngineersApi.GetResourceName(Name), 
+            nameof(Name));
             
         }
 

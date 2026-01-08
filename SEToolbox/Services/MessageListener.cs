@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using SEToolbox.Support;
+
+using System.Diagnostics;
 using System.Windows;
 
 namespace SEToolbox.Services
@@ -19,6 +21,7 @@ namespace SEToolbox.Services
         /// </summary>
         private MessageListener()
         {
+
         }
 
         /// <summary>
@@ -53,10 +56,7 @@ namespace SEToolbox.Services
         ///
         /// </summary>
         public static readonly DependencyProperty MessageProperty =
-            DependencyProperty.Register("Message", 
-                                        typeof(string), 
-                                        typeof(MessageListener), 
-                                        new UIPropertyMetadata(null));
+            DependencyProperty.Register("Message", typeof(string), typeof(MessageListener), new UIPropertyMetadata(null));
 
     }
 }

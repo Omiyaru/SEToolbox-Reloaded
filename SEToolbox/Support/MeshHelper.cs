@@ -14,7 +14,8 @@ namespace SEToolbox.Support
     {
         public static Model3DGroup Load(string path, Dispatcher dispatcher = null, bool freeze = false, bool ignoreErrors = false)
         {
-            if (string.IsNullOrEmpty(path))
+
+            if (string.IsNullOrEmpty(path)) 
             {
                 return null;
             }
@@ -36,9 +37,14 @@ namespace SEToolbox.Support
                 { ".stl",  (d, m, f, i) => new StLReader(d).Read(path)  }
 
             };
-            model = readers.TryGetValue(ext, out Func<Dispatcher, Material, bool, bool, Model3DGroup> readerFunc)
-                ? readerFunc.Invoke(dispatcher, defaultMaterial, freeze, ignoreErrors)
-                : throw new InvalidOperationException("File format not supported.");
+            if (readers.TryGetValue(ext, out Func<Dispatcher, Material, bool, bool, Model3DGroup> readerFunc))
+            {
+                model = readerFunc.Invoke(dispatcher, defaultMaterial, freeze, ignoreErrors);
+            }
+            else
+            {
+                throw new InvalidOperationException("File format not supported.");
+            }
 
             return model;
         }
@@ -50,11 +56,12 @@ namespace SEToolbox.Support
 
         public static void TransformScale(this Model3DGroup model, double scaleX, double scaleY, double scaleZ)
         {
-            foreach (var g in from GeometryModel3D gm in model.Children.Cast<GeometryModel3D>()
-                              let g = (MeshGeometry3D)gm.Geometry
-                              select g)
+            foreach (MeshGeometry3D g in from GeometryModel3D gm in model.Children
+                                         let g = gm.Geometry as MeshGeometry3D
+                                         where g != null
+                                         select g)
             {
-                for (var i = 0; i < g.Positions.Count; i++)
+                for (int i = 0; i < g.Positions.Count; i++)
                 {
                     g.Positions[i] = new Point3D(g.Positions[i].X * scaleX, g.Positions[i].Y * scaleY, g.Positions[i].Z * scaleZ);
                 }
@@ -105,11 +112,13 @@ namespace SEToolbox.Support
             // Find point on the line that intersects with the plane.
             bool complexCalc = false;
             Point3D intersectPos = default;
-            intersectPos = complexCalc && intersectPos != null
-                ? roundPointA + Vector3D.DotProduct(normal, rayPoints[0] - roundPointA) / Vector3D.DotProduct(normal, roundPointB - roundPointA) * (roundPointB - roundPointA)
-                : roundPointA + (roundPointB - roundPointA) * (-dist1 / (dist2 - dist1));
+           if (complexCalc && intersectPos != null)
 
+               intersectPos = roundPointA + Vector3D.DotProduct(normal, rayPoints[0] - roundPointA) / Vector3D.DotProduct(normal, roundPointB - roundPointA) * (roundPointB - roundPointA);
+          else
+             intersectPos = roundPointA + (roundPointB - roundPointA) * (-dist1 / (dist2 - dist1));
 
+                 
             Dictionary<Vector3D, Point3D> tests = new()
             {
               {rayPoints[1] - rayPoints[0], rayPoints[0]},
@@ -124,18 +133,16 @@ namespace SEToolbox.Support
             {
                 var vTest = Vector3D.CrossProduct(normal, test.Key);
                 var dTest = Vector3D.DotProduct(vTest, intersectPos - test.Value);
-
-                if (dTest < 0.0)
-                {
-                    return false;
-                }
+                    
+                if (dTest < 0.0f )
+                        return false;
             }
 
-            // Determine if the Normal is facing towards or away from Ray.
-            norm = Math.Sign(Vector3D.DotProduct(roundPointB - roundPointA, normal));
-            intersection = intersectPos;
+                // Determine if the Normal is facing towards or away from Ray.
+                norm = Math.Sign(Vector3D.DotProduct(roundPointB - roundPointA, normal));
+                intersection = intersectPos;
 
-            return true;
+                return true;
         }
 
 
@@ -145,9 +152,7 @@ namespace SEToolbox.Support
             {
                 if (RayIntersectTriangleRound(rayPoints, rays[i], rays[i + 1], out intersection, out norm) || // Ray
                     RayIntersectTriangleRound(rayPoints, rays[i + 1], rays[i], out intersection, out norm)) // Reverse Ray
-                {
                     return true;
-                }
             }
 
             intersection = default;
@@ -189,7 +194,7 @@ namespace SEToolbox.Support
             Point3D intersectPos = roundPointA + (roundPointB - roundPointA) * Math.Round(-dist1 / Math.Round(dist2 - dist1, rounding), rounding);
 
             // Find if the interesection point lies inside the triangle by testing it against all edges
-            Dictionary<Vector3D, Point3D> tests = new()
+        Dictionary<Vector3D, Point3D> tests = new()
             {
               {rayPoints[1] - rayPoints[0], rayPoints[0]},
               {rayPoints[0] - rayPoints[1], rayPoints[1]},
@@ -199,17 +204,18 @@ namespace SEToolbox.Support
              // {rayPoints[0] - rayPoints[1], rayPoints[2]},
              // {rayPoints[0] - rayPoints[2], rayPoints[1]},
             };
-
+            
             foreach (var test in tests)
             {
-                var vTest = Vector3D.CrossProduct(normal, test.Key);
-                //var vRoundTest = CrossProductRound(normal, Round(test.Key, rounding));
-                var roundTest = DotProductRound(vTest, Round(intersectPos - test.Value, rounding)); // Round test
-                var dTest = Vector3D.DotProduct(vTest, intersectPos - test.Value);
-                // Round test
-
-                //if (roundTest < 0.0f )
-                if (Math.Round(roundTest, 12) < 0.0f && Math.Round(dTest, 12) < 0.0f)
+            var vTest = Vector3D.CrossProduct(normal, test.Key);
+            //var vRoundTest = CrossProductRound(normal, Round(test.Key, rounding));
+            var roundTest = DotProductRound(vTest, Round(intersectPos - test.Value, rounding)); // Round test
+            var dTest = Vector3D.DotProduct(vTest, intersectPos - test.Value);
+             // Round test
+  
+            //if (roundTest < 0.0f )
+            if (Math.Round(roundTest, 12) < 0.0f && Math.Round(dTest, 12) < 0.0f)
+          
                 {
                     // No intersection on edges P1-P2,P3-P2,P1-P3.
                     return false;
@@ -278,9 +284,7 @@ namespace SEToolbox.Support
 
         internal static double DotProductRound(Vector3D vector1, Vector3D vector2)
         {
-            return Math.Round(Math.Round(Math.Round(vector1.X * vector2.X, 14) + 
-                                         Math.Round(vector1.Y * vector2.Y, 14), 14) + 
-                                         Math.Round(vector1.Z * vector2.Z, 14), 13);
+            return Math.Round(Math.Round(Math.Round(vector1.X * vector2.X, 14) + Math.Round(vector1.Y * vector2.Y, 14), 14) + Math.Round(vector1.Z * vector2.Z, 14), 13);
         }
 
         /// <summary>

@@ -24,9 +24,10 @@ namespace SEToolbox.Models
                    Validate());
         }
         
+
         public string CustomVoxelPath
         {
-            get => _customVoxelPath;
+            get => _customVoxelPath ?? string.Empty;
             set => SetProperty(ref _customVoxelPath, value, nameof(CustomVoxelPath), () => 
             	   Validate());
         }
@@ -38,12 +39,14 @@ namespace SEToolbox.Models
             	   Validate());
         }
         
+
         public bool? UseCustomResource
         {
             get => _useCustomResource;
             set => SetProperty(ref _useCustomResource, value, nameof(UseCustomResource), () => 
             	   Validate());
         }
+
 
         public bool IsValid
         {

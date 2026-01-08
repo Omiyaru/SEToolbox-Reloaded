@@ -15,7 +15,8 @@ namespace SEToolbox.Services
     /// </summary>
     /// <typeparam name="TViewModel"></typeparam>
     /// <typeparam name="TModel"></typeparam>
-    public class ViewModelCollection<TViewModel, TModel> : IList<TViewModel>, INotifyCollectionChanged
+    public class ViewModelCollection<TViewModel, TModel>
+      : IList<TViewModel>, INotifyCollectionChanged
        where TViewModel : IModelWrapper
     {
         #region Private Members
@@ -66,67 +67,54 @@ namespace SEToolbox.Services
         /// <param name="e"></param>
         void Model_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            var getModel = new Func<object, TModel>(vm => (TModel)((IModelWrapper)vm).GetModel());
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    int newIndex = e.NewStartingIndex;
-                    var viewModelsToAdd = e.NewItems.Cast<TModel>().Select(_createViewModel);
-                    InsertNewIndex(newIndex, viewModelsToAdd);
+                    //create a VM object to wrap each new model object
+                    foreach (object item in e.NewItems)
+                    {
+                        TViewModel vmItem = _createViewModel((TModel)item);
+
+                        //the operation could have been either Insert or Add
+                        if (e.NewStartingIndex != _list.Count)
+                        {
+                            _list.Insert(_model.IndexOf((TModel)item), vmItem);
+                        }
+                        else
+                        {
+                            _list.Add(vmItem);
+                        }
+
+                        //notify the change
+                        OnCollectionChanged(e.Action, vmItem, e.NewStartingIndex);
+                    }
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    var oldIndex = e.OldStartingIndex;
-                    var itemsToRemove = e.OldItems.Cast<object>().Select(getModel).ToList();
-                    RemoveOldIndex(oldIndex, itemsToRemove);
+                    //remove instances of VM objects that wrap a removed model object
+                    foreach (object item in e.OldItems)
+                    {
+                        //find VM objects that wrap the relevant model object and remove them
+                        IEnumerable<TViewModel> query;
+                        while ((query = from vm in _list where vm.GetModel() == item select vm).Count() > 0)
+                        {
+                            TViewModel vmItem = query.First();
+                            int index = _list.IndexOf(vmItem);
+                            _list.Remove(vmItem);
+                            //notify the change
+                            OnCollectionChanged(e.Action, vmItem, index);
+                        }
+                    }
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    Reset(e.NewItems?.Cast<object>().Select(getModel) ?? []);
+                    _list.Clear();
+                    //notify the change
+                    OnCollectionChanged(e.Action, null, e.NewStartingIndex);
                     break;
                 default:
                     break;
-            } 
-   }
-        private void InsertNewIndex(int newIndex, IEnumerable<TViewModel> viewModelsToAdd)
-        {
-            foreach (var viewModel in viewModelsToAdd)
-            {
-                if (newIndex < _list.Count)
-                {
-                    _list.Insert(newIndex, viewModel);
-                }
-                else
-                {
-                    _list.Add(viewModel);
-                }
-                OnCollectionChanged(NotifyCollectionChangedAction.Add, viewModel, newIndex);
             }
         }
 
-        private void RemoveOldIndex(int oldIndex, IEnumerable<TModel> itemsToRemove)
-        {
-            foreach (var item in itemsToRemove)
-            {
-                int index = _list.FindIndex(vm => vm.GetModel() == (object)item);
-                if (index != -1)
-                {
-                    _list.RemoveAt(index);
-                    OnCollectionChanged(NotifyCollectionChangedAction.Remove, _list[index], oldIndex);
-                }
-            }
-        }
-
-        private void Reset(IEnumerable<TModel> items)
-        {
-            _list.Clear();
-            foreach (var item in items)
-            {
-                _list.Add(_createViewModel(item));
-            }
-           
-        }
-     
-
-        
         #region IList<T> Implementation
 
         public int IndexOf(TViewModel item)
@@ -212,7 +200,7 @@ namespace SEToolbox.Services
                  * and it may be required to call one of the other, more complex ctors
                  * for the change to take effect on all UI elements */
                 var e = new NotifyCollectionChangedEventArgs(action, item, index);
-                handler?.Invoke(this, e);
+                handler(this, e);
             }
         }
 

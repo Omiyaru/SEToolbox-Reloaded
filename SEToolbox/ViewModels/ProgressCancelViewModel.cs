@@ -39,12 +39,12 @@ namespace SEToolbox.ViewModels
 
         public ICommand ClosingCommand
         {
-            get => new DelegateCommand<CancelEventArgs>(ClosingExecuted, ClosingCanExecute);
+           get => new DelegateCommand<CancelEventArgs>(ClosingExecuted, ClosingCanExecute);
         }
 
         public ICommand CancelCommand
         {
-            get => new DelegateCommand(CancelExecuted, CancelCanExecute);
+           get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         #endregion
@@ -65,7 +65,7 @@ namespace SEToolbox.ViewModels
             get => _dataModel.Title;
             set => _dataModel.Title = value;
         }
-
+        
         public string SubTitle
         {
             get => _dataModel.SubTitle;
@@ -100,18 +100,22 @@ namespace SEToolbox.ViewModels
 
         #region Command Methods
 
-        public bool ClosingCanExecute(CancelEventArgs e)
+        public static bool ClosingCanExecute(CancelEventArgs e)
         {
             return true;
         }
 
         public void ClosingExecuted(CancelEventArgs e)
         {
-            Action action = CloseResult is null ?() => { CloseRequested?.Invoke(this, EventArgs.Empty); }: () => { CloseResult = false; };
+            if (CloseResult == null)
+            {
+                CloseRequested?.Invoke(this, EventArgs.Empty);
 
-            action();
+                CloseResult =  false;
+            }
+
+            _dataModel.ClearProgress();
         }
-
 
         public bool CancelCanExecute()
         {

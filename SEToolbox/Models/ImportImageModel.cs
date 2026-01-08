@@ -38,13 +38,15 @@ namespace SEToolbox.Models
 
         public string FileName
         {
-            get => _fileName;
+            get => _fileName; 
+
             set => SetProperty(ref _fileName, value, nameof(FileName));
         }
 
         public bool IsValidImage
         {
-            get => _isValidImage;
+            get => _isValidImage; 
+
             set => SetProperty(ref _isValidImage, value, nameof(IsValidImage));
         }
 
@@ -56,68 +58,79 @@ namespace SEToolbox.Models
 
         public BindableSizeModel NewImageSize
         {
-            get => _newImageSize;
+            get => _newImageSize; 
+
             set => SetProperty(ref _newImageSize, value, nameof(NewImageSize));
         }
 
         public BindablePoint3DModel Position
         {
-            get => _position;
+            get => _position; 
+
             set => SetProperty(ref _position, value, nameof(Position));
         }
 
         public BindableVector3DModel Forward
         {
-            get => _forward;
+            get => _forward; 
+
             set => SetProperty(ref _forward, value, nameof(Forward));
         }
 
         public BindableVector3DModel Up
         {
-            get => _up;
+            get => _up; 
+
             set => SetProperty(ref _up, value, nameof(Up));
         }
 
         public ImportImageClassType ClassType
         {
-            get => _classType;
+            get => _classType; 
+
             set => SetProperty(ref _classType, value, nameof(ClassType));
         }
 
         public ImportArmorType ArmorType
         {
-            get => _armorType;
+            get => _armorType; 
+
             set => SetProperty(ref _armorType, value, nameof(ArmorType));
         }
 
         public MyPositionAndOrientation CharacterPosition
         {
             get => _characterPosition;
+
+                //if (value != characterPosition) // Unable to check for equivilence, without long statement. And, mostly uncessary.
             set => SetProperty(ref _characterPosition, value, nameof(CharacterPosition));
-             //if (value != characterPosition) // Unable to check for equivilence, without long statement. And, mostly uncessary.
         }
 
         public int AlphaLevel
         {
-            get => _alphaLevel;
+            get => _alphaLevel; 
+
             set => SetProperty(ref _alphaLevel, value, nameof(AlphaLevel));
         }
 
         public System.Windows.Media.Color KeyColor
         {
-            get => _keyColor;
+            get => _keyColor; 
+
             set => SetProperty(ref _keyColor, value, nameof(KeyColor));
         }
 
         public bool IsAlphaLevel
         {
-            get => _isAlphaLevel;
+            get => _isAlphaLevel; 
+
             set => SetProperty(ref _isAlphaLevel, value, nameof(IsAlphaLevel));
         }
 
         public bool IsKeyColor
         {
-            get => _isKeyColor;
+            get => _isKeyColor; 
+
             set => SetProperty(ref _isKeyColor, value, nameof(IsKeyColor));
         }
 

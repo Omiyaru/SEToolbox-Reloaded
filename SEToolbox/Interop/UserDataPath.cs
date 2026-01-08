@@ -16,7 +16,7 @@ namespace SEToolbox.Interop
         public string BlueprintsPath { get; set; } = blueprintsPathPart != null ? Path.Combine(basePath, blueprintsPathPart) : null;
         //public string BackupsPath { get; set; } = Path.Combine(basePath, backupsPathPart);
         public string ShaderPath { get; set; } = shaderPathPart != null ? Path.Combine(basePath, shaderPathPart) : null;
-        //or is it Shaders2
+        //or is it shaders2
         public string ModsCache { get; set; } = modsCachePathPart != null ? Path.Combine(basePath, modsCachePathPart) : null;
     
         #endregion
@@ -40,7 +40,7 @@ namespace SEToolbox.Interop
                                SEConsts.Folders.SavesFolder,
                                SEConsts.Folders.ModsFolder,
                                SEConsts.Folders.BlueprintsFolder
-);
+                               );
             }
 
             return dataPath;
@@ -53,15 +53,20 @@ namespace SEToolbox.Interop
         private static string GetPathBase(string path, string baseName)
         {
             string currentPath = path;
-            string currentName = Path.GetFileName(currentPath);
-             string parentPath = Path.GetDirectoryName(currentPath);
-          
-            while (currentName is not null && currentName.Equals(baseName, StringComparison.CurrentCultureIgnoreCase))
+            while (true)
             {
-                return currentPath;
+                string currentName = Path.GetFileName(currentPath);
+                if (currentName.Equals(baseName, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    return currentPath;
+                }
+                string parentPath = Path.GetDirectoryName(currentPath);
+                if (parentPath == null || parentPath == currentPath)
+                {
+                    return null;
+                }
+                currentPath = parentPath;
             }
-  
-            return parentPath;
         }
 
         internal static readonly Dictionary<string, string> PathMap = new()
@@ -71,6 +76,17 @@ namespace SEToolbox.Interop
             {SEConsts.Folders.ModsCacheFolder, nameof(ModsCache)},
             {SEConsts.Folders.ShadersFolder, nameof(ShaderPath)},
         };
+        
+        public string GetDataPathOrDefault(string key, string defaultValue)
+        {
+            
+            string path = PathMap.TryGetValue(key, out var value) ? value : null;
+
+            if (string.IsNullOrWhiteSpace(path))
+                return defaultValue;
+
+            return path;
+        }
 
         #endregion
     }

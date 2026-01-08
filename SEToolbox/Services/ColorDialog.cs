@@ -32,12 +32,12 @@ namespace SEToolbox.Services
                 ShowHelp = colorDialog.ShowHelp,
                 SolidColorOnly = colorDialog.SolidColorOnly,
             };
-
+            
             _concreteColorDialog.Color = _colorDialog switch
             {
-                IColorDialog c when c.DrawingColor.HasValue => c.DrawingColor.Value,
-                IColorDialog c when c.MediaColor.HasValue => System.Drawing.Color.FromArgb(c.MediaColor.Value.A, c.MediaColor.Value.R, c.MediaColor.Value.G, c.MediaColor.Value.B),
-                IColorDialog c when c.BrushColor != null => System.Drawing.Color.FromArgb(c.BrushColor.Color.A, c.BrushColor.Color.R, c.BrushColor.Color.G, c.BrushColor.Color.B),
+                IColorDialog c when  c.DrawingColor.HasValue => c.DrawingColor.Value,
+                IColorDialog c when  c.MediaColor.HasValue => System.Drawing.Color.FromArgb(c.MediaColor.Value.A, c.MediaColor.Value.R, c.MediaColor.Value.G, c.MediaColor.Value.B),
+                IColorDialog c when  c.BrushColor != null => System.Drawing.Color.FromArgb(c.BrushColor.Color.A, c.BrushColor.Color.R, c.BrushColor.Color.G, c.BrushColor.Color.B),
                 _ => throw new InvalidOperationException($"Unknown color source {_concreteColorDialog.Color}"),
             };
 
@@ -88,16 +88,14 @@ namespace SEToolbox.Services
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing == false)
+            if (disposing)
             {
-                return;
+                _concreteColorDialog?.Dispose();
+                _concreteColorDialog = null;
             }
-
-            _concreteColorDialog?.Dispose();
-            _concreteColorDialog = null;
         }
-
-        #endregion
     }
+
+    #endregion
 }
 

@@ -8,7 +8,7 @@ namespace SEToolbox.Interop
 
         public SerializableDefinitionId Id { get; set; }
 
-        public string SubtypeName { get; set; }
+        public string SubtypeId { get; set; }
 
         public string TypeId { get; set; }
     }

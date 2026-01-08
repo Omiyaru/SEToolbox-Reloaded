@@ -68,7 +68,9 @@ namespace SEToolbox.Models
         {
             get => _sourceFile;
             set => SetProperty(ref _sourceFile, value, nameof(SourceFile), () =>
-                   StockMaterial ??= MaterialsCollection[0]);
+            {
+                StockMaterial ??= MaterialsCollection[0];
+            });
         }
 
         public bool IsValidVoxelFile
@@ -98,8 +100,8 @@ namespace SEToolbox.Models
         public MyPositionAndOrientation CharacterPosition
         {
             get => _characterPosition;
-            set => SetValue(ref _characterPosition, value, nameof(CharacterPosition));
-
+            set => SetProperty(ref _characterPosition, value, nameof(CharacterPosition));
+            //if (value != characterPosition) // Unable to check for equivilence, without long statement. And, mostly uncessary.
 
         }
 
@@ -176,9 +178,7 @@ namespace SEToolbox.Models
                 string fileName = SpaceEngineersCore.GetDataPathOrDefault(voxelMap.StorageFile, Path.Combine(contentPath, voxelMap.StorageFile));
 
                 if (!File.Exists(fileName))
-                {
                     continue;
-                }
 
                 GenerateVoxelDetailModel voxel = new()
                 {
@@ -205,6 +205,7 @@ namespace SEToolbox.Models
                 FileSize = new FileInfo(file).Length,
                 Size = MyVoxelMapBase.LoadVoxelSize(file)
             }));
+
 
             VoxelFileList = [.. VoxelFileList.OrderBy(s => s.Name)];
         }

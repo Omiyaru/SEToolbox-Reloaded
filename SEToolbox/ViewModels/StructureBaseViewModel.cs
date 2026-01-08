@@ -39,7 +39,7 @@ namespace SEToolbox.ViewModels
         public long EntityId
         {
             get => DataModel.EntityId;
-            set => SetProperty(DataModel.EntityId, value, nameof(EntityId));
+            set => SetProperty( DataModel.EntityId, value, nameof(EntityId));
         }
 
         public MyPositionAndOrientation? PositionAndOrientation
@@ -57,8 +57,10 @@ namespace SEToolbox.ViewModels
         public string DisplayName
         {
             get => DataModel.DisplayName;
-            set => SetValue(DataModel.DisplayName, value, () =>
-                    MainViewModel.IsModified = true);
+            set => SetProperty(DataModel.DisplayName, value, () =>
+            {
+                MainViewModel.IsModified = true;
+            });
         }
 
         public string Description
@@ -94,8 +96,9 @@ namespace SEToolbox.ViewModels
         public double PositionX
         {
             get => DataModel.PositionX;
-            set => SetValue(DataModel.PositionX, value, () =>
+            set => SetProperty(DataModel.PositionX, value, () =>
             {
+
                 MainViewModel.IsModified = true;
                 MainViewModel.CalcDistances();
             });
@@ -104,7 +107,7 @@ namespace SEToolbox.ViewModels
         public double PositionY
         {
             get => DataModel.PositionY;
-            set => SetValue(DataModel.PositionY, value, () =>
+            set => SetProperty(DataModel.PositionY, value, () =>
             {
                 MainViewModel.IsModified = true;
                 MainViewModel.CalcDistances();
@@ -114,7 +117,7 @@ namespace SEToolbox.ViewModels
         public double PositionZ
         {
             get => DataModel.PositionZ;
-            set => SetValue(DataModel.PositionZ, value, () =>
+            set => SetProperty(DataModel.PositionZ, value, () =>
             {
                 MainViewModel.IsModified = true;
                 MainViewModel.CalcDistances();

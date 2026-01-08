@@ -34,8 +34,7 @@ namespace SEToolbox.Services
         /// <returns></returns>
         private static object ExitFrames(object frame)
         {
-            var dispatcherFrame = frame as DispatcherFrame;
-            dispatcherFrame.Continue = false;
+            ((DispatcherFrame)frame).Continue = false;
 
             return null;
         }

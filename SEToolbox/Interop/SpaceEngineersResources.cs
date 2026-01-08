@@ -7,6 +7,7 @@ using VRage.ObjectBuilders;
 using static VRage.Game.MyObjectBuilder_Checkpoint;
 using MOBSerializerKeen = VRage.ObjectBuilders.Private.MyObjectBuilderSerializerKeen;
 using SEConsts = SEToolbox.Interop.SpaceEngineersConsts;
+
 namespace SEToolbox.Interop
 {
     /// <summary>
@@ -50,7 +51,6 @@ namespace SEToolbox.Interop
                 MaterialIndex = [];
             }
         }
-        // merged and moved GetDataPathOrDefault 
       
         private static readonly object MatIndexLock = new();
 
@@ -118,12 +118,12 @@ namespace SEToolbox.Interop
             {
                 return MyDefinitionManager.Static.GetVoxelMaterialDefinition(materialIndex).Id.SubtypeName;
             }
-            if (defaultMaterialIndex <= MyDefinitionManager.Static.GetVoxelMaterialDefinitions().Count)
-            {
+            //if (defaultMaterialIndex <= MyDefinitionManager.Static.GetVoxelMaterialDefinitions().Count)
+            //{
                 return MyDefinitionManager.Static.GetVoxelMaterialDefinition(defaultMaterialIndex).Id.SubtypeName;
             }
-            return null;
-        }
+           // return null;
+        //}
         //return _definitions.VoxelMaterials[materialIndex].Id.SubtypeName;
         //return _definitions.VoxelMaterials[defaultMaterialIndex].Id.SubtypeName;
 
@@ -150,10 +150,12 @@ namespace SEToolbox.Interop
             return (T)MOBSerializerKeen.CreateNewObject(typeof(T));
         }
 
-        public static T CreateNewObject<T>(MyObjectBuilderType typeId, string subtypeName)
+        public static T CreateNewObject<T>(MyObjectBuilderType typeId, string subtypeId)
            where T : MyObjectBuilder_Base
         {
-            return (T)MOBSerializerKeen.CreateNewObject(typeId, subtypeName);
+            return (T)MOBSerializerKeen.CreateNewObject(typeId, subtypeId);
         }
+
     }
 }
+

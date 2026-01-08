@@ -11,6 +11,9 @@ using System;
 
 namespace SEToolbox.Properties
 {
+
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -78,12 +81,21 @@ namespace SEToolbox.Properties
             get => ResourceManager.GetString("AsteroidFillType_None", resourceCulture);
         }
 
+
         /// <summary>
         ///   Looks up a localized string similar to Fill Types.
         /// </summary>
         public static string AsteroidFillTypes
         {
             get => ResourceManager.GetString("AsteroidFillTypes", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap battery
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("battery", resourceCulture);
         }
 
         /// <summary>
@@ -105,9 +117,9 @@ namespace SEToolbox.Properties
         /// <summary>
         ///   Looks up a localized string similar to Browse for Application.
         /// </summary>
-        public static string BtnBrowseAppTip
+        public static string BtBrowseAppTip
         {
-            get => ResourceManager.GetString("BtnBrowseAppTip", resourceCulture);
+            get => ResourceManager.GetString("BtBrowseAppTip", resourceCulture);
         }
 
         /// <summary>
@@ -196,14 +208,6 @@ namespace SEToolbox.Properties
         public static string ClsCharacterPlayer
         {
             get => ResourceManager.GetString("ClsCharacterPlayer", resourceCulture);
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Up.
-        /// </summary>
-        public static string ClsCockpitOrientationUp
-        {
-            get => ResourceManager.GetString("ClsCockpitOrientationUp", resourceCulture);
         }
 
         /// <summary>
@@ -399,7 +403,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to There have been {0:#,##0} changes made to the selected grids.
+        ///   Looks up a localized string similar to There have been {0:#,##0} changes made to the selected grids..
         /// </summary>
         public static string ClsExplorerGridChangesMade
         {
@@ -447,7 +451,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Could not load &apos;{0}&apos;, because the file is either corrupt or invalid.
+        ///   Looks up a localized string similar to Could not load &apos;{0}&apos;, because the file is either corrupt or invalid..
         /// </summary>
         public static string ClsImportInvalid
         {
@@ -463,7 +467,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ! Checkpoint file is missing or broken.
+        ///   Looks up a localized string similar to ! Checkpoint file is missing or broken..
         /// </summary>
         public static string ClsRepairCheckpointBroken
         {
@@ -471,7 +475,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ! Fixed astronaut&apos;s CharacterModel.
+        ///   Looks up a localized string similar to ! Fixed astronaut&apos;s CharacterModel..
         /// </summary>
         public static string ClsRepairFixedCharacterModel
         {
@@ -479,7 +483,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ! Fixed player identity.
+        ///   Looks up a localized string similar to ! Fixed player identity..
         /// </summary>
         public static string ClsRepairFixedPlayerIdentity
         {
@@ -487,7 +491,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to * Found and Set new active Player.
+        ///   Looks up a localized string similar to * Found and Set new active Player..
         /// </summary>
         public static string ClsRepairFoundSetPlayer
         {
@@ -495,7 +499,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Detected no issues.
+        ///   Looks up a localized string similar to Detected no issues..
         /// </summary>
         public static string ClsRepairNoIssues
         {
@@ -503,7 +507,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ! No active Player in Save content.
+        ///   Looks up a localized string similar to ! No active Player in Save content..
         /// </summary>
         public static string ClsRepairNoPlayerFound
         {
@@ -511,7 +515,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to * Replaced BlockGroup item.
+        ///   Looks up a localized string similar to * Replaced BlockGroup item..
         /// </summary>
         public static string ClsRepairReplacedBlockGroup
         {
@@ -519,7 +523,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ! Replaced astronaut&apos;s missing {0}.
+        ///   Looks up a localized string similar to ! Replaced astronaut&apos;s missing {0}..
         /// </summary>
         public static string ClsRepairReplacedCharacterSubType
         {
@@ -527,7 +531,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to * Saved changes.
+        ///   Looks up a localized string similar to * Saved changes..
         /// </summary>
         public static string ClsRepairSavedChanges
         {
@@ -535,7 +539,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ! Sector file is missing or broken.
+        ///   Looks up a localized string similar to ! Sector file is missing or broken..
         /// </summary>
         public static string ClsRepairSectorBroken
         {
@@ -551,7 +555,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ! Unable to repair.
+        ///   Looks up a localized string similar to ! Unable to repair..
         /// </summary>
         public static string ClsRepairUnableToRepair
         {
@@ -823,7 +827,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Counts of all current items in game Assets. These indicate actual time spent to construct, part construct or refine.
+        ///   Looks up a localized string similar to Counts of all current items in game Assets. These indicate actual time spent to construct, part construct or refine..
         /// </summary>
         public static string ClsReportTextInGameAssets
         {
@@ -831,7 +835,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Everything is measured in its regressed state. Ie., how much ore was used/needed to build this item.
+        ///   Looks up a localized string similar to Everything is measured in its regressed state. Ie., how much ore was used/needed to build this item..
         /// </summary>
         public static string ClsReportTextInGameResources
         {
@@ -847,7 +851,16 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The Space Engineers save file content has been changed, and you should reload from here to get a fresh copy.
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap colors
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("colors", resourceCulture);
+        }
+
+
+        /// <summary>
+        ///   Looks up a localized string similar to The Space Engineers save file content has been changed, and you should reload from here to get a fresh copy..
         /// </summary>
         public static string CtlBaseStateTip
         {
@@ -1460,9 +1473,7 @@ namespace SEToolbox.Properties
         ///	Components	Count	Mass	Volume	Time to Produce
         ///	{20}
         ///	
-        ///	Ingots	Amount	Mass	Volume	Time to Produce	
-        ///	{21}
-        /// 
+        ///	Ingots	Amount	Mass	Volume	Tim [rest of string was truncated]&quot;;.
         /// </summary>
         public static string CtlCubeDetail
         {
@@ -1510,7 +1521,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Convert any Round armor edge blocks to Corner armor edge blocks.
+        ///   Looks up a localized string similar to Convert any Round armor edge blocks to Corner armor edge blocks..
         /// </summary>
         public static string CtlCubeMnuConvertArmorCornerTooltip
         {
@@ -1526,7 +1537,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Convert any Light armor blocks to Heavy Armor blocks.
+        ///   Looks up a localized string similar to Convert any Light armor blocks to Heavy Armor blocks..
         /// </summary>
         public static string CtlCubeMnuConvertArmorHeavyTooltip
         {
@@ -1542,7 +1553,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Convert any Heavy armor block to Light armor blocks.
+        ///   Looks up a localized string similar to Convert any Heavy armor block to Light armor blocks..
         /// </summary>
         public static string CtlCubeMnuConvertArmorLightTooltip
         {
@@ -1558,7 +1569,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Convert any Corner armor edge blocks to Round armor edge blocks.
+        ///   Looks up a localized string similar to Convert any Corner armor edge blocks to Round armor edge blocks..
         /// </summary>
         public static string CtlCubeMnuConvertArmorRoundTooltip
         {
@@ -1582,7 +1593,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Any constructed components are unconstructed.
+        ///   Looks up a localized string similar to Any constructed components are unconstructed..
         /// </summary>
         public static string CtlCubeMnuConvertFramework0Tooltip
         {
@@ -1598,7 +1609,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Any unconstructed components are 100% constructed.
+        ///   Looks up a localized string similar to Any unconstructed components are 100% constructed..
         /// </summary>
         public static string CtlCubeMnuConvertFramework100Tooltip
         {
@@ -1614,7 +1625,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to All components are set to a 25% constructed state.
+        ///   Looks up a localized string similar to All components are set to a 25% constructed state..
         /// </summary>
         public static string CtlCubeMnuConvertFramework25Tooltip
         {
@@ -1630,7 +1641,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to All components are set to a 50% constructed state.
+        ///   Looks up a localized string similar to All components are set to a 50% constructed state..
         /// </summary>
         public static string CtlCubeMnuConvertFramework50Tooltip
         {
@@ -1646,7 +1657,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to All components are set to a 75% constructed state.
+        ///   Looks up a localized string similar to All components are set to a 75% constructed state..
         /// </summary>
         public static string CtlCubeMnuConvertFramework75Tooltip
         {
@@ -1678,7 +1689,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Reorients to the accepted single orientation for a Station, and corrects the position to match standard Space Engineers block locations.
+        ///   Looks up a localized string similar to Reorients to the accepted single orientation for a Station, and corrects the position to match standard Space Engineers block locations..
         /// </summary>
         public static string CtlCubeMnuConvertRotateAxisTooltip
         {
@@ -1750,7 +1761,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Change a Station into a Ship.
+        ///   Looks up a localized string similar to Change a Station into a Ship..
         /// </summary>
         public static string CtlCubeMnuConvertToShipTooltip
         {
@@ -1766,7 +1777,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Change a Ship into a Station.
+        ///   Looks up a localized string similar to Change a Ship into a Station..
         /// </summary>
         public static string CtlCubeMnuConvertToStationTooltip
         {
@@ -1798,7 +1809,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Exclude all mechanical blocks from the overlap Operations.
+        ///   Looks up a localized string similar to Exclude all mechanical blocks from the overlap Operations..
         /// </summary>
         public static string CtlCubeMnuExcludeTooltip
         {
@@ -1822,7 +1833,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Finds the single largest surface on the edge, and mirrors from there.
+        ///   Looks up a localized string similar to Finds the single largest surface on the edge, and mirrors from there..
         /// </summary>
         public static string CtlCubeMnuMirrorEvenTooltip
         {
@@ -1838,7 +1849,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Finds the single largest surface on the edge, and mirrors from there.
+        ///   Looks up a localized string similar to Finds the single largest surface on the edge, and mirrors from there..
         /// </summary>
         public static string CtlCubeMnuMirrorOddTooltip
         {
@@ -1854,7 +1865,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Uses planes as defined on the ship/station within Space Engineers.
+        ///   Looks up a localized string similar to Uses planes as defined on the ship/station within Space Engineers..
         /// </summary>
         public static string CtlCubeMnuMirrorSymmetryTooltip
         {
@@ -1870,7 +1881,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Only useful for enormous ships of more than 200,000 blocks. Reorganises order of cubes within the file, to speed up loading time.
+        ///   Looks up a localized string similar to Only useful for enormous ships of more than 200,000 blocks. Reorganises order of cubes within the file, to speed up loading time..
         /// </summary>
         public static string CtlCubeMnuOptimizeTooltip
         {
@@ -1902,7 +1913,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Move any overlapping blocks from the selected object.
+        ///   Looks up a localized string similar to Move any overlapping blocks from the selected object..
         /// </summary>
         public static string CtlCubeMnuOverlapMoveTooltip
         {
@@ -1918,7 +1929,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Remove any overlapping blocks from the selected object.
+        ///   Looks up a localized string similar to Remove any overlapping blocks from the selected object..
         /// </summary>
         public static string CtlCubeMnuOverlapRemoveTooltip
         {
@@ -1926,7 +1937,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Scan the selected object for overlapping blocks.
+        ///   Looks up a localized string similar to Scan the selected object for overlapping blocks..
         /// </summary>
         public static string CtlCubeMnuOverlapScanTooltip
         {
@@ -1934,7 +1945,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Set the overlap settings for the selected object.
+        ///   Looks up a localized string similar to Set the overlap settings for the selected object..
         /// </summary>
         public static string CtlCubeMnuOverlapTooltip
         {
@@ -1982,7 +1993,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Sets the object velocity directly at the player at maximum speed.
+        ///   Looks up a localized string similar to Sets the object velocity directly at the player at maximum speed..
         /// </summary>
         public static string CtlCubeMnuSpeedMaxToPlayerTooltip
         {
@@ -2006,7 +2017,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Set Linear Velocity to zero (0).
+        ///   Looks up a localized string similar to Set Linear Velocity to zero (0)..
         /// </summary>
         public static string CtlCubeMnuSpeedResetLinearTooltip
         {
@@ -2022,7 +2033,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Set Rotation Velocity to zero (0).
+        ///   Looks up a localized string similar to Set Rotation Velocity to zero (0)..
         /// </summary>
         public static string CtlCubeMnuSpeedResetRotationTooltip
         {
@@ -2030,7 +2041,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Set Linear and Rotation Velocity to zero (0).
+        ///   Looks up a localized string similar to Set Linear and Rotation Velocity to zero (0)..
         /// </summary>
         public static string CtlCubeMnuSpeedResetTooltip
         {
@@ -2046,7 +2057,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Reverse Linear and Rotation Velocity, sending objects back in the opposite direction and spin.
+        ///   Looks up a localized string similar to Reverse Linear and Rotation Velocity, sending objects back in the opposite direction and spin..
         /// </summary>
         public static string CtlCubeMnuSpeedReverseTooltip
         {
@@ -2158,7 +2169,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Enter the name of cube to filter by.
+        ///   Looks up a localized string similar to Enter the name of cube to filter by..
         /// </summary>
         public static string CtlCubeTxtFilterTooltip
         {
@@ -2406,7 +2417,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Sets the object velocity directly at the player at maximum speed.
+        ///   Looks up a localized string similar to Sets the object velocity directly at the player at maximum speed..
         /// </summary>
         public static string CtlMeteorMnuMaxAtPlayerTooltip
         {
@@ -2422,7 +2433,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Set Linear and Rotation Velocity to zero (0).
+        ///   Looks up a localized string similar to Set Linear and Rotation Velocity to zero (0)..
         /// </summary>
         public static string CtlMeteorMnuResetSpeedTooltip
         {
@@ -2438,7 +2449,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Reverse Linear and Rotation Velocity, sending objects back in the opposite direction and spin.
+        ///   Looks up a localized string similar to Reverse Linear and Rotation Velocity, sending objects back in the opposite direction and spin..
         /// </summary>
         public static string CtlMeteorMnuReverseSpeedTooltip
         {
@@ -2603,7 +2614,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Will remove any voxel changes to the asteroid. Allows changing random seed, and changing size.
+        ///   Looks up a localized string similar to Will remove any voxel changes to the asteroid. Allows changing random seed, and changing size..
         /// </summary>
         public static string CtlPlanetMnuRegenerateDetail
         {
@@ -2747,7 +2758,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Your content has been changed, and not yet saved.
+        ///   Looks up a localized string similar to Your content has been changed, and not yet saved..
         /// </summary>
         public static string CtlUnsavedStateTitleTooltip
         {
@@ -2853,7 +2864,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Any asteroid cell that intersects a station cube gets removed. This will lead to small narrow gaps between the asteroid and station surfaces.
+        ///   Looks up a localized string similar to Any asteroid cell that intersects a station cube gets removed. This will lead to small narrow gaps between the asteroid and station surfaces..
         /// </summary>
         public static string CtlVoxelMnuExtractStationLooseTooltip
         {
@@ -2869,7 +2880,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Any asteroid cell that is completely enclosed by any number of station cubes get removed. This results in the asteroid overlapping the faces of the station, leaving no gaps.
+        ///   Looks up a localized string similar to Any asteroid cell that is completely enclosed by any number of station cubes get removed. This results in the asteroid overlapping the faces of the station, leaving no gaps..
         /// </summary>
         public static string CtlVoxelMnuExtractStationTightTooltip
         {
@@ -2989,7 +3000,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Removes a half from the direction of the sun.
+        ///   Looks up a localized string similar to Removes a half from the direction of the sun..
         /// </summary>
         public static string CtlVoxelMnuSliceHalfTooltip
         {
@@ -3005,7 +3016,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Removes a quarter from the direction of the sun.
+        ///   Looks up a localized string similar to Removes a quarter from the direction of the sun..
         /// </summary>
         public static string CtlVoxelMnuSliceQuarterTooltip
         {
@@ -3228,7 +3239,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to You have the latest version of SEToolbox.
+        ///   Looks up a localized string similar to You have the latest version of SEToolbox..
         /// </summary>
         public static string DialogLatestVersionMessage
         {
@@ -3298,7 +3309,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to SEToolbox could not connect to the internet to check for an update. Please check your internet connection or filewall settings before trying again.
+        ///   Looks up a localized string similar to SEToolbox could not connect to the internet to check for an update. Please check your internet connection or filewall settings before trying again..
         /// </summary>
         public static string DialogNoNetworkMessage
         {
@@ -3322,16 +3333,16 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Off.
+        ///   Looks up a localized string similar to OFF.
         /// </summary>
-        public static string DialogOffFiles
+        public static string DialogOFFFiles
         {
-            get => ResourceManager.GetString("DialogOffFiles", resourceCulture);
+            get => ResourceManager.GetString("DialogOFFFiles", resourceCulture);
         }
 
         /// <summary>
         ///   Looks up a localized string similar to An old version &apos;{0}&apos; of Space Engineers was detected in the folder &apos;{1}&apos;.
-        ///Please update it before running SEToolbox {2} again.
+        ///Please update it before running SEToolbox {2} again..
         /// </summary>
         public static string DialogOldSEVersionMessage
         {
@@ -3347,7 +3358,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to You are running a prerelease version of SEToolbox.
+        ///   Looks up a localized string similar to You are running a prerelease version of SEToolbox..
         /// </summary>
         public static string DialogPrereleaseVersionMessage
         {
@@ -3432,7 +3443,7 @@ namespace SEToolbox.Properties
         ///{0}
         ///
         ///Please see the Application Event Log for more details.
-        ///Apologies for any inconvenience.
+        ///Apologies for any inconvenience..
         /// </summary>
         public static string DialogUnhandledExceptionEventMessage
         {
@@ -3445,7 +3456,7 @@ namespace SEToolbox.Properties
         ///{0}
         ///
         ///Please see the log.txt file in the application folder for more details.
-        ///Apologies for any inconvenience.
+        ///Apologies for any inconvenience..
         /// </summary>
         public static string DialogUnhandledExceptionMessage
         {
@@ -3493,7 +3504,55 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Specified directory does not exist.
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap disk_blue
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("disk_blue", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap document
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("document", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap document_pulse
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("document_pulse", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap document_view
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("document_view", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap earth
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("earth", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap error24
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("error24", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Specified directory does not exist..
         /// </summary>
         public static string ErrorDirectoryNotFound
         {
@@ -3501,7 +3560,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Specified save game could not be found.
+        ///   Looks up a localized string similar to Specified save game could not be found..
         /// </summary>
         public static string ErrorGameNotFound
         {
@@ -3509,7 +3568,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The blueprint name contains invalid characters. Please remove any symbols before continuing.
+        ///   Looks up a localized string similar to The blueprint name contains invalid characters. Please remove any symbols before continuing..
         /// </summary>
         public static string ErrorInvalidBlueprintCharactersUsed
         {
@@ -3558,7 +3617,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to An error occurred while loading a save file.
+        ///   Looks up a localized string similar to An error occurred while loading a save file..
         /// </summary>
         public static string ErrorLoadSaveGameFileError
         {
@@ -3566,7 +3625,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The Blueprints path does not exist under this profile (Dedicated Server or Service).
+        ///   Looks up a localized string similar to The Blueprints path does not exist under this profile (Dedicated Server or Service)..
         /// </summary>
         public static string ErrorNoBlueprintPath
         {
@@ -3582,7 +3641,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Invalid save path.
+        ///   Looks up a localized string similar to Invalid save path..
         /// </summary>
         public static string ErrorSavePathInvalid
         {
@@ -3598,7 +3657,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The specified file &apos;{0}&apos; is corrupt and does not appear to be a valid compressed archive file.
+        ///   Looks up a localized string similar to The specified file &apos;{0}&apos; is corrupt and does not appear to be a valid compressed archive file..
         /// </summary>
         public static string Exception_CorruptZipFile
         {
@@ -3606,7 +3665,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The Space Engineers asteroid file &apos;{0}&apos; could not be loaded, either because it is corrupt, or it is newer than expected.
+        ///   Looks up a localized string similar to The Space Engineers asteroid file &apos;{0}&apos; could not be loaded, either because it is corrupt, or it is newer than expected..
         /// </summary>
         public static string ExceptionState_CorruptAsteroidFile
         {
@@ -3614,7 +3673,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The Space Engineers content file &apos;{0}&apos; could not be loaded, because it may be out of sync with SEToolbox.
+        ///   Looks up a localized string similar to The Space Engineers content file &apos;{0}&apos; could not be loaded, because it may be out of sync with SEToolbox..
         /// </summary>
         public static string ExceptionState_EmptyContentFile
         {
@@ -3622,7 +3681,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The Space Engineers content file &apos;{0}&apos; could not be loaded, because it could not be located.
+        ///   Looks up a localized string similar to The Space Engineers content file &apos;{0}&apos; could not be loaded, because it could not be located..
         /// </summary>
         public static string ExceptionState_MissingContentFile
         {
@@ -3631,7 +3690,7 @@ namespace SEToolbox.Properties
 
         /// <summary>
         ///   Looks up a localized string similar to The Space Engineers application could not be found.
-        ///To use the SEToolbox, you must have the Space Engineers game installed on your computer.
+        ///To use the SEToolbox, you must have the Space Engineers game installed on your computer..
         /// </summary>
         public static string ExceptionState_NoApplication
         {
@@ -3640,7 +3699,7 @@ namespace SEToolbox.Properties
 
         /// <summary>
         ///   Looks up a localized string similar to The Space Engineers directory &apos;{0}&apos; could not be found.
-        ///To use the SEToolbox, you must have the Space Engineers game installed on your computer.
+        ///To use the SEToolbox, you must have the Space Engineers game installed on your computer..
         /// </summary>
         public static string ExceptionState_NoDirectory
         {
@@ -3649,11 +3708,259 @@ namespace SEToolbox.Properties
 
         /// <summary>
         ///   Looks up a localized string similar to The Space Engineers game was not detected in Registry.
-        ///To use the SEToolbox, you must have the Space Engineers game installed on your computer.
+        ///To use the SEToolbox, you must have the Space Engineers game installed on your computer..
         /// </summary>
         public static string ExceptionState_NoRegistry
         {
             get => ResourceManager.GetString("ExceptionState_NoRegistry", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap export
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("export", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap find
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("find", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap first_aid
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("first_aid", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap fit_to_size
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("fit_to_size", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_brazil
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_brazil", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_catalonia
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_catalonia", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_china
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_china", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_croatia
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_croatia", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_czech_republic
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_czech_republic", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_denmark
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_denmark", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_estonia
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_estonia", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_finland
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_finland", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_france
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_france", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_germany
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_germany", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_great_britain
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_great_britain", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_hungary
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_hungary", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_iceland
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_iceland", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_italy
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_italy", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_lithuania
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_lithuania", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_mexico
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_mexico", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_netherlands
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_netherlands", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_norway
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_norway", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_poland
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_poland", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_romania
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_romania", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_russia
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_russia", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_slovakia
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_slovakia", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_spain
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_spain", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_sweden
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_sweden", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_turkey
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_turkey", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_ukraine
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_ukraine", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap flag_usa
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("flag_usa", resourceCulture);
         }
 
         /// <summary>
@@ -3836,6 +4143,11 @@ namespace SEToolbox.Properties
         {
             get => ResourceManager.GetString("InventoryBagDetail", resourceCulture);
         }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+ 
 
         /// <summary>
         ///   Looks up a localized string similar to Thick Shell.
@@ -4142,7 +4454,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to A toolbox utility for modifying and importing content in the Space Engineers Game.
+        ///   Looks up a localized string similar to A toolbox utility for modifying and importing content in the Space Engineers Game..
         /// </summary>
         public static string WnAboutTxtDescription
         {
@@ -4190,7 +4502,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Please enter a name for the blueprint. If the name already exists in your local blueprint folder, you will be prompted to overwrite it.
+        ///   Looks up a localized string similar to Please enter a name for the blueprint. If the name already exists in your local blueprint folder, you will be prompted to overwrite it..
         /// </summary>
         public static string WnBlueprintDialogLabelDescription
         {
@@ -4612,7 +4924,47 @@ namespace SEToolbox.Properties
         {
             get => ResourceManager.GetString("WnErrorDialogTitle", resourceCulture);
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cubes.
+        /// </summary>
+        public static string WnExplorerColCubes
+        {
+            get => ResourceManager.GetString("WnExplorerColCubes", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Number of cubes.
+        /// </summary>
+        public static string WnExplorerColCubesTooltip
+        {
+            get => ResourceManager.GetString("WnExplorerColCubesTooltip", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Description.
+        /// </summary>
+        public static string WnExplorerColDescription
+        {
+            get => ResourceManager.GetString("WnExplorerColDescription", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Distance.
+        /// </summary>
+        public static string WnExplorerColDistance
+        {
+            get => ResourceManager.GetString("WnExplorerColDistance", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Distance to Player.
+        /// </summary>
+        public static string WnExplorerColDistanceTooltip
+        {
+            get => ResourceManager.GetString("WnExplorerColDistanceTooltip", resourceCulture);
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Faction.
         /// </summary>
@@ -4790,46 +5142,6 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Cubes.
-        /// </summary>
-        public static string WnExplorerColCubes
-        {
-            get => ResourceManager.GetString("WnExplorerColCubes", resourceCulture);
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Number of cubes.
-        /// </summary>
-        public static string WnExplorerColCubesTooltip
-        {
-            get => ResourceManager.GetString("WnExplorerColCubesTooltip", resourceCulture);
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Description.
-        /// </summary>
-        public static string WnExplorerColDescription
-        {
-            get => ResourceManager.GetString("WnExplorerColDescription", resourceCulture);
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Distance.
-        /// </summary>
-        public static string WnExplorerColDistance
-        {
-            get => ResourceManager.GetString("WnExplorerColDistance", resourceCulture);
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Distance to Player.
-        /// </summary>
-        public static string WnExplorerColDistanceTooltip
-        {
-            get => ResourceManager.GetString("WnExplorerColDistanceTooltip", resourceCulture);
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Mass.
         /// </summary>
         public static string WnExplorerColMass
@@ -4974,7 +5286,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Export selected ships and stations to a local Blueprint.
+        ///   Looks up a localized string similar to Export selected ships and stations to a local Blueprint..
         /// </summary>
         public static string WnExplorerMnuExportBlueprintTooltip
         {
@@ -4990,7 +5302,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Export selected ships and stations to a single prefab .sbc file.
+        ///   Looks up a localized string similar to Export selected ships and stations to a single prefab .sbc file..
         /// </summary>
         public static string WnExplorerMnuExportPrefabTooltip
         {
@@ -5006,7 +5318,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Export ships and stations to an .sbc file, to store, allowing import into other worlds.
+        ///   Looks up a localized string similar to Export ships and stations to an .sbc file, to store, allowing import into other worlds..
         /// </summary>
         public static string WnExplorerMnuExportSandboxWithoutOwnerTooltip
         {
@@ -5022,7 +5334,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Export ships and stations to an .xml file, to store, allowing import into other worlds.
+        ///   Looks up a localized string similar to Export ships and stations to an .xml file, to store, allowing import into other worlds..
         /// </summary>
         public static string WnExplorerMnuExportSandboxWithOwnerTooltip
         {
@@ -5038,7 +5350,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Export selected ships, stations and asteroids to a single prefab .sbc file, spawngroup file and asteroids.
+        ///   Looks up a localized string similar to Export selected ships, stations and asteroids to a single prefab .sbc file, spawngroup file and asteroids..
         /// </summary>
         public static string WnExplorerMnuExportSpawnGroupTooltip
         {
@@ -5070,7 +5382,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Undo any changes, and reload world again.
+        ///   Looks up a localized string similar to Undo any changes, and reload world again..
         /// </summary>
         public static string WnExplorerMnuFileReloadTooltip
         {
@@ -5134,7 +5446,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Import a image into a flat array of armor, with color matched to each pixel in the image.
+        ///   Looks up a localized string similar to Import a image into a flat array of armor, with color matched to each pixel in the image..
         /// </summary>
         public static string WnExplorerMnuImportImageTooltip
         {
@@ -5150,7 +5462,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Import previously exported ships and station .sbc files.
+        ///   Looks up a localized string similar to Import previously exported ships and station .sbc files..
         /// </summary>
         public static string WnExplorerMnuImportSandboxTooltip
         {
@@ -5302,7 +5614,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Merge 2 asteroids to create a new asteroid.
+        ///   Looks up a localized string similar to Merge 2 asteroids to create a new asteroid..
         /// </summary>
         public static string WnExplorerMnuSelectionMergeAsteroidTooltip
         {
@@ -5318,7 +5630,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Joins 2 foreign parts to form a new ship.
+        ///   Looks up a localized string similar to Joins 2 foreign parts to form a new ship..
         /// </summary>
         public static string WnExplorerMnuSelectionMergeShipTooltip
         {
@@ -5342,7 +5654,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Rejoins 2 parts from a broken ship back together.
+        ///   Looks up a localized string similar to Rejoins 2 parts from a broken ship back together..
         /// </summary>
         public static string WnExplorerMnuSelectionRejoinShipTooltip
         {
@@ -5366,7 +5678,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Set Linear and Rotation Velocity to zero (0).
+        ///   Looks up a localized string similar to Set Linear and Rotation Velocity to zero (0)..
         /// </summary>
         public static string WnExplorerMnuSelectionResetSpeedTooltip
         {
@@ -5806,7 +6118,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The Maximum number of floating objects in your Save World is defined as {0}.
+        ///   Looks up a localized string similar to The Maximum number of floating objects in your Save World is defined as {0}..
         /// </summary>
         public static string WnGenFloatTxtMaxItems
         {
@@ -5982,7 +6294,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to relative X coordinate.
+        ///   Looks up a localized string similar to  relative X coordinate.
         /// </summary>
         public static string WnGroupMoveTxtRelativeXTooltip
         {
@@ -6326,7 +6638,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Distance in front of Player in Meters.
+        ///   Looks up a localized string similar to Distance in front of Player in Meters..
         /// </summary>
         public static string WnImport3dModelTxtDistanceTooltip
         {
@@ -6334,7 +6646,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to This specifies the longest dimension of the structure.
+        ///   Looks up a localized string similar to This specifies the longest dimension of the structure..
         /// </summary>
         public static string WnImport3dModelTxtMaxLengthTooltip
         {
@@ -6390,7 +6702,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Specifies the direction of rays. Having rays from all 3 directions takes 3 times longer but produces a more accurate conversion for highly detailed models.
+        ///   Looks up a localized string similar to Specifies the direction of rays. Having rays from all 3 directions takes 3 times longer but produces a more accurate conversion for highly detailed models..
         /// </summary>
         public static string WnImportAsteroidModelCboTraceDirectionTooltip
         {
@@ -6398,7 +6710,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Affects the balance of symmetrical model, whether the voxels generated are odd or even from the origin.  Visually you may not see any difference on large asteroids.
+        ///   Looks up a localized string similar to Affects the balance of symmetrical model, whether the voxels generated are odd or even from the origin.  Visually you may not see any difference on large asteroids..
         /// </summary>
         public static string WnImportAsteroidModelCboTraceTypeTooltip
         {
@@ -6446,7 +6758,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Material Shell Depth :.
+        ///   Looks up a localized string similar to Depth of shell material :.
         /// </summary>
         public static string WnImportAsteroidModelLabelDepthMaterialShell
         {
@@ -6718,7 +7030,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Distance in front of Player in Meters.
+        ///   Looks up a localized string similar to Distance in front of Player in Meters..
         /// </summary>
         public static string WnImportAsteroidModelTxtFrontDistanceTooltip
         {
@@ -6726,7 +7038,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to This specifies the longest dimension of the structure in blocks.
+        ///   Looks up a localized string similar to This specifies the longest dimension of the structure in blocks..
         /// </summary>
         public static string WnImportAsteroidModelTxtMaxLengthTooltip
         {
@@ -6774,7 +7086,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Must be valid Space Engineers Asteroid file.
+        ///   Looks up a localized string similar to Must be valid Space Engineers Asteroid file..
         /// </summary>
         public static string WnImportAsteroidTxtFile
         {
@@ -6790,7 +7102,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Radius (m) (1 to 3000).
+        ///   Looks up a localized string similar to Radius (m) (1 to 3000)..
         /// </summary>
         public static string WnImportAsteroidTxtRadiusTooltip
         {
@@ -7030,7 +7342,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to An alpha mask above this number will generate a block.
+        ///   Looks up a localized string similar to An alpha mask above this number will generate a block..
         /// </summary>
         public static string WnImportImageTxtAlphaLevelTooltip
         {
@@ -7070,7 +7382,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to This will attempt to repair the save content it it finds any issues.
+        ///   Looks up a localized string similar to This will attempt to repair the save content it it finds any issues..
         /// </summary>
         public static string WnLoadBtnRepairTooltip
         {
@@ -7174,7 +7486,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Invalid location specified.
+        ///   Looks up a localized string similar to Invalid location specified..
         /// </summary>
         public static string WnLocateAppTxtInvalid
         {
@@ -7183,7 +7495,7 @@ namespace SEToolbox.Properties
 
         /// <summary>
         ///   Looks up a localized string similar to The Space Engineers application could not be located.
-        ///Please specify the location of the Space Engineers Application file.
+        ///Please specify the location of the Space Engineers Application file..
         /// </summary>
         public static string WnLocateAppTxtPromptUser
         {
@@ -7191,7 +7503,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Valid location detected.
+        ///   Looks up a localized string similar to Valid location detected..
         /// </summary>
         public static string WnLocateAppValidText
         {
@@ -7215,7 +7527,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Processing...
+        ///   Looks up a localized string similar to Processing....
         /// </summary>
         public static string WnProgressTitle
         {
@@ -7223,7 +7535,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Calculating...
+        ///   Looks up a localized string similar to Calculating....
         /// </summary>
         public static string WnProgressTxtTimeCalculating
         {
@@ -7247,7 +7559,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Okay.
+        ///   Looks up a localized string similar to OK.
         /// </summary>
         public static string WnRegeneratePlanetBtnOkay
         {
@@ -7268,13 +7580,6 @@ namespace SEToolbox.Properties
         public static string WnRegeneratePlanetLabelSize
         {
             get => ResourceManager.GetString("WnRegeneratePlanetLabelSize", resourceCulture);
-        }
-          /// <summary>
-        ///   Looks up a localized string similar to Diameter Warning.
-        /// </summary>
-        public static string WnRegeneratePlanetDiameterWarning
-        {
-            get => ResourceManager.GetString("WnRegeneratePlanetDiameterWarning", resourceCulture);
         }
 
         /// <summary>
@@ -7382,7 +7687,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ..
+        ///   Looks up a localized string similar to ....
         /// </summary>
         public static string WnSettingsBtnApplicationPath
         {
@@ -7390,7 +7695,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ..
+        ///   Looks up a localized string similar to ....
         /// </summary>
         public static string WnSettingsBtnCustomVoxelPath
         {
@@ -7414,7 +7719,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Check for new updates on startup.
+        ///   Looks up a localized string similar to Check for new updates on startup..
         /// </summary>
         public static string WnSettingsChkCheckForUpdatesTooltip
         {
@@ -7430,7 +7735,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Override text provided by Space Engineers by using Custom localization provided by SEToolbox instead.
+        ///   Looks up a localized string similar to Override text provided by Space Engineers by using Custom localization provided by SEToolbox instead..
         /// </summary>
         public static string WnSettingsChkCustomResourceTooltip
         {
@@ -7486,7 +7791,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Specify an additional location for your personal asteroids.
+        ///   Looks up a localized string similar to Specify an additional location for your personal asteroids..
         /// </summary>
         public static string WnSettingsTxtCustomVoxelPath
         {
@@ -7494,7 +7799,7 @@ namespace SEToolbox.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Space Engineers path.
+        ///   Looks up a localized string similar to Space Engineers path..
         /// </summary>
         public static string WnSettingsTxtlApplicationPathTooltip
         {
@@ -7528,13 +7833,13 @@ namespace SEToolbox.Properties
         /// <summary>
         ///   Looks up a localized string similar to New Filename:.
         /// </summary>
-        public static string WnVoxelMergeLabelFileNameOutput
+        public static string WnVoxelMergeLabelFilenameOutput
         {
-            get => ResourceManager.GetString("WnVoxelMergeLabelFileNameOutput", resourceCulture);
+            get => ResourceManager.GetString("WnVoxelMergeLabelFilenameOutput", resourceCulture);
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The selected Asteroids do not overlap.
+        ///   Looks up a localized string similar to The selected Asteroids do not overlap..
         /// </summary>
         public static string WnVoxelMergeLabelWarningNoOverlap
         {
@@ -7556,6 +7861,23 @@ namespace SEToolbox.Properties
         public static string WnVoxelMergeTitle
         {
             get => ResourceManager.GetString("WnVoxelMergeTitle", resourceCulture);
+        }
+
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap workshop16
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("workshop16", resourceCulture);
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap wrench
+        {
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("wrench", resourceCulture);
         }
     }
 }

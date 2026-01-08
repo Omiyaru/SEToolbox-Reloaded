@@ -23,28 +23,39 @@ namespace SEToolbox.Support
         /// <returns></returns>
         public static IEnumerable<FrameworkElement> Descendents(this FrameworkElement root)
         {
-            return Descendents(root, int.MaxValue);
+            return Descendents(root, Int32.MaxValue);
         }
 
-    public static IEnumerable<FrameworkElement> Descendents(this FrameworkElement root, int depth)
-    {
-        var children = LogicalTreeHelper.GetChildren(root).OfType<FrameworkElement>();
-        var queue = new Queue<FrameworkElement>(children);
-        while (queue.Count > 0)
+        public static IEnumerable<FrameworkElement> Descendents(this FrameworkElement root, int depth)
         {
-            var element = queue.Dequeue();
-            yield return element;
+            var ctrlType = root.GetType();
+            var attr = (ContentPropertyAttribute)ctrlType.GetCustomAttributes(typeof(ContentPropertyAttribute), true).FirstOrDefault();
 
-            if (depth > 0)
+            if (attr != null)
             {
-                foreach (var child in LogicalTreeHelper.GetChildren(element).OfType<FrameworkElement>())
+                var prop = ctrlType.GetProperty(attr.Name);
+                if (prop.PropertyType.GetInterfaces().Contains(typeof(IEnumerable)))
                 {
-                    queue.Enqueue(child);
+                    foreach (var child in ((IEnumerable)prop.GetValue(root)).OfType<FrameworkElement>())
+                    {
+                        yield return child;
+                        foreach (var descendent in Descendents(child, depth - 1))
+                        {
+                            yield return descendent;
+                        }
+                    }
+                }
+                else if (prop.GetValue(root) is FrameworkElement child)
+                {
+                    yield return child;
 
+                    foreach (FrameworkElement descendent in Descendents(child, depth - 1))
+                    {
+                        yield return descendent;
+                    }
                 }
             }
         }
-    }
 
         /// <summary>
         /// Find all elements that are children of the specified element, including Templated controls.
@@ -62,20 +73,23 @@ namespace SEToolbox.Support
 
         public static IEnumerable<DependencyObject> VisualDescendents(this DependencyObject root, int depth)
         {
-            var queue = new Queue<(DependencyObject, int)>([(root, depth)]);
+            var queue = new Queue<(DependencyObject, int)>();
+            queue.Enqueue((root, depth));
+
             while (queue.Count > 0)
             {
                 var (current, currentDepth) = queue.Dequeue();
-                if (currentDepth < 0)
                 {
-                    continue;
+                    yield return current;
                 }
-
-                yield return current;
-                var children = VisualTreeHelper.GetChildrenCount(current);
-                foreach (var child in Enumerable.Range(0, children).Select(i => VisualTreeHelper.GetChild(current, i)))
+                var count = VisualTreeHelper.GetChildrenCount(current);
+                for (int i = 0; i < count; i++)
                 {
-                    queue.Enqueue((child, currentDepth - 1));
+                    var child = VisualTreeHelper.GetChild(current, i);
+                    if (child != null)
+                    {
+                        queue.Enqueue((child, currentDepth - 1));
+                    }
                 }
             }
         }
@@ -93,10 +107,7 @@ namespace SEToolbox.Support
             var parentObject = VisualTreeHelper.GetParent(child);
 
             // get parent item                  // we’ve reached the end of the tree
-                parentObject ??= null;
-                // get parent item                  // we’ve reached the end of the tree
-                return parentObject is T pO ? pO : FindVisualParent<T>(parentObject);
-
+            return parentObject is null ? null : parentObject is T pO ? pO : FindVisualParent<T>(parentObject);
         }
 
         public static T FindVisualChild<T>(this DependencyObject parent) where T : DependencyObject
@@ -112,20 +123,21 @@ namespace SEToolbox.Support
                     break;
                 }
                 child = FindVisualChild<T>(childItem);
-                if (child != null)
-                {
-                    break;
-                }
+                if (child != null) break;
             }
             return child;
         }
 
         public static ItemsControl GetSelectedTreeViewItemParent<T>(TreeViewItem item)
         {
-           DependencyObject parent = VisualTreeHelper.GetParent(item);
-           parent = parent is not null and not TreeViewItem and not TreeView ? VisualTreeHelper.GetParent(parent) : null;
-           return parent as ItemsControl;
+            var parent = VisualTreeHelper.GetParent(item);
+            while (parent != null && !(parent is TreeViewItem || parent is TreeView))
+            {
+                parent = VisualTreeHelper.GetParent(parent);   // use recursion to proceed with next level
+            }
+            return parent as ItemsControl;
         }
+
         /// <summary>
         /// Get the UIElement that is in the container at the point specified
         /// </summary>
@@ -135,15 +147,16 @@ namespace SEToolbox.Support
         internal static UIElement GetUIElement(this ItemsControl container, Point position)
         {
             //move up the UI tree until you find the actual UIElement that is the Item of the container
-            if (container.InputHitTest(position) is UIElement elementAtPosition and not null)
+            if (container.InputHitTest(position) is UIElement elementAtPosition)
             {
                 while (elementAtPosition != null)
                 {
                     object testUiElement = container.ItemContainerGenerator.ItemFromContainer(elementAtPosition);
-                    elementAtPosition = testUiElement != DependencyProperty.UnsetValue ? //if found the UIElement
-                                        elementAtPosition : 
-                                        VisualTreeHelper.GetParent(elementAtPosition) as UIElement;  
-                  
+                    if (testUiElement != DependencyProperty.UnsetValue)  //if found the UIElement
+                    {
+                        return elementAtPosition;
+                    }
+                    elementAtPosition = VisualTreeHelper.GetParent(elementAtPosition) as UIElement;
                 }
             }
             return null;
@@ -191,10 +204,7 @@ namespace SEToolbox.Support
 
         public static Color ToDrawingColor(this System.Windows.Media.Color color)
         {
-            return Color.FromArgb(color.A, 
-                                  color.R, 
-                                  color.G, 
-                                  color.B);
+            return Color.FromArgb(color.A, color.R, color.G, color.B);
         }
 
         public static byte RoundUpToNearest(this byte value, int scale)
@@ -212,17 +222,17 @@ namespace SEToolbox.Support
         /// <param name="parentControl"></param>
         /// <param name="e"></param>
         /// <returns></returns>
-        /// 
         public static T GetHitControl<T>(this UIElement parentControl, MouseEventArgs e) where T : FrameworkElement
         {
-            var hitPoint = e?.GetPosition(parentControl) ?? Mouse.GetPosition(parentControl);
-            var hitElement = parentControl.InputHitTest(hitPoint) as DependencyObject;
-        
-            hitElement = hitElement is not null || hitElement != parentControl as T ? null : VisualTreeHelper.GetParent(hitElement);
+            Point hit = e?.GetPosition(parentControl) ?? Mouse.GetPosition(parentControl);
+            var element = parentControl.InputHitTest(hit) as FrameworkElement;
 
-            return hitElement as T;
-
-
+            while (element != null && !(element is T))
+            {
+                var parent = VisualTreeHelper.GetParent(element);
+                element = parent is T ? (T)parent : parent as FrameworkElement;
+            }
+            return element as T;
         }
 
         #endregion
@@ -240,13 +250,11 @@ namespace SEToolbox.Support
         /// <exception cref="ArgumentNullException">key is null</exception>
         /// <exception cref="NotSupportedException">The System.Collections.Generic.IDictionary&gt;TKey,TValue&lt; is read-only.</exception>    
         public static void Update<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
-        { 
-            Action action = dictionary.ContainsKey(key) switch 
         {
-            true => () => dictionary[key] = value,
-            false => () => dictionary.Add(key, value),
-        };
-            action();
+            if (dictionary.ContainsKey(key))
+                dictionary[key] = value;
+            else
+                dictionary.Add(key, value);
         }
 
         /// <summary>
@@ -272,7 +280,7 @@ namespace SEToolbox.Support
             }
             return text.ToString();
         }
-
-        #endregion
     }
 }
+
+#endregion

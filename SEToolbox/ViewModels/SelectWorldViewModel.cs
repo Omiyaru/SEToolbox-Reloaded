@@ -78,7 +78,7 @@ namespace SEToolbox.ViewModels
         public bool? CloseResult
         {
             get => _closeResult;
-            set => SetProperty(ref _closeResult, value, nameof(CloseResult));
+            set => SetValue(ref _closeResult, value, nameof(CloseResult));
         }
 
         public bool ZoomThumbnail
@@ -120,19 +120,19 @@ namespace SEToolbox.ViewModels
         {
             IsBusy = true;
             // Preload to world before cloasing dialog.
-            if (_dataModel.SelectedWorld.LoadCheckpoint(out string errorInformation) && 
-                _dataModel.SelectedWorld.LoadSector(out errorInformation))
+            if (_dataModel.SelectedWorld.LoadCheckpoint(out string errorInformation))
+            {
+                if (_dataModel.SelectedWorld.LoadSector(out errorInformation))
                 {
                     IsBusy = false;
                     CloseResult = true;
                     return;
                 }
-
+            }
 
             IsBusy = false;
             SystemSounds.Beep.Play();
             _dialogService.ShowErrorDialog(this, Res.ErrorLoadSaveGameFileError, errorInformation, true);
-            Log.WriteLine(errorInformation);
         }
 
         public bool RefreshCanExecute()
@@ -157,23 +157,17 @@ namespace SEToolbox.ViewModels
 
         public bool RepairCanExecute()
         {
-            return SelectedWorld?.SaveType != SaveWorldType.DedicatedServerService || 
-                    (SelectedWorld.SaveType == SaveWorldType.DedicatedServerService && ToolboxUpdater.IsRunningElevated());
-
-
+            return SelectedWorld?.SaveType != SaveWorldType.DedicatedServerService ||
+                    SelectedWorld?.SaveType == SaveWorldType.DedicatedServerService && ToolboxUpdater.IsRunningElevated();
         }
 
         public void RepairExecuted()
         {
-            Action<bool> action = (b) => 
-            {
-                string results = SpaceEngineersRepair.RepairSandBox(_dataModel.SelectedWorld);
+            IsBusy = true;
+            string results = SpaceEngineersRepair.RepairSandBox(_dataModel.SelectedWorld);
             IsBusy = false;
             _dialogService.ShowMessageBox(this, results, Res.ClsRepairTitle, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.None);
-        };
-            action(IsBusy = true); 
         }
-           
 
         public bool BrowseCanExecute()
         {
@@ -200,7 +194,7 @@ namespace SEToolbox.ViewModels
 
                 try
                 {
-                    using FileStream fileStream = File.OpenWrite(openFileDialog.FileName);
+                    using FileStream fs = File.OpenWrite(openFileDialog.FileName);
                     // test opening the file to verify that we have Write Access.
                 }
                 catch
@@ -212,12 +206,15 @@ namespace SEToolbox.ViewModels
                 UserDataPath dataPath = UserDataPath.FindFromSavePath(savePath);
 
                 WorldResource saveResource = SelectWorldModel.LoadSaveFromPath(savePath, userName, saveType, dataPath);
-                if (saveResource.LoadCheckpoint(out string errorInformation) && saveResource.LoadSector(out errorInformation))
+                if (saveResource.LoadCheckpoint(out string errorInformation))
                 {
-                    SelectedWorld = saveResource;
-                    IsBusy = false;
-                    CloseResult = true;
-                    return;
+                    if (saveResource.LoadSector(out errorInformation))
+                    {
+                        SelectedWorld = saveResource;
+                        IsBusy = false;
+                        CloseResult = true;
+                        return;
+                    }
                 }
 
                 IsBusy = false;
@@ -225,7 +222,6 @@ namespace SEToolbox.ViewModels
                 _dialogService.ShowErrorDialog(this, Res.ErrorLoadSaveGameFileError, errorInformation, true);
             }
         }
-      
 
         public bool OpenFolderCanExecute()
         {
@@ -234,7 +230,7 @@ namespace SEToolbox.ViewModels
 
         public void OpenFolderExecuted()
         {
-            Process.Start(new ProcessStartInfo("Explorer", $"\"{SelectedWorld.SavePath}\"") { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("Explorer", string.Format($"\"{SelectedWorld.SavePath}\"")) { UseShellExecute = true });
         }
 
         public bool OpenWorkshopCanExecute()
@@ -246,9 +242,7 @@ namespace SEToolbox.ViewModels
         public void OpenWorkshopExecuted()
         {
             if (SelectedWorld.WorkshopId.HasValue)
-            {
-                Process.Start(new ProcessStartInfo($"http://steamcommunity.com/sharedfiles/filedetails/?id={SelectedWorld.WorkshopId.Value}") { UseShellExecute = true });
-            }
+                Process.Start(new ProcessStartInfo(string.Format($"http://steamcommunity.com/sharedfiles/filedetails/?id={SelectedWorld.WorkshopId.Value}")) { UseShellExecute = true });
         }
 
         public bool ZoomThumbnailCanExecute()

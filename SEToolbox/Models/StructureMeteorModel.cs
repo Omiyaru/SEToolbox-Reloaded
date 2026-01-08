@@ -32,7 +32,10 @@ namespace SEToolbox.Models
         [XmlIgnore]
         public MyObjectBuilder_Meteor Meteor
         {
-            get => EntityBase as MyObjectBuilder_Meteor;
+            get
+            {
+                return EntityBase as MyObjectBuilder_Meteor;
+            }
         }
 
         [XmlIgnore]
@@ -61,12 +64,14 @@ namespace SEToolbox.Models
         public double AngularVelocity
         {
             get => Meteor.AngularVelocity.LinearVector();
+
         }
 
         [XmlIgnore]
         public override double LinearVelocity
         {
             get => Meteor.LinearVelocity.LinearVector();
+          
         }
 
         #endregion
@@ -92,7 +97,7 @@ namespace SEToolbox.Models
             float compVolume = 1;
             double amount = 1;
 
-            if (Meteor.Item?.PhysicalContent is MyObjectBuilder_Ore)
+            if (Meteor?.Item.PhysicalContent is MyObjectBuilder_Ore)
             {
                 MyPhysicalItemDefinition def = (MyPhysicalItemDefinition)MyDefinitionManager.Static.GetDefinition(Meteor.Item.PhysicalContent.TypeId, Meteor.Item.PhysicalContent.SubtypeName);
 
@@ -103,7 +108,7 @@ namespace SEToolbox.Models
                 DisplayName = string.Format($"{Meteor.Item.PhysicalContent.SubtypeName} {Res.CtlMeteorOre}");
                 Volume = compVolume * amount;
                 Mass = compMass * amount;
-                Description = string.Format( $"{Mass:#,##0.00} {Res.GlobalSIMassKilogram}");
+                Description = string.Format($"{Mass:#,##0.00} {Res.GlobalSIMassKilogram}");
             }
             else
             {

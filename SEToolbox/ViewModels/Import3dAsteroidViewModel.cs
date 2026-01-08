@@ -369,9 +369,7 @@ namespace SEToolbox.ViewModels
 
             // do not close if cancelled.
             if (buildEntity)
-            {
                 CloseResult = true;
-            }
         }
 
         public bool CancelCanExecute()
@@ -480,7 +478,7 @@ namespace SEToolbox.ViewModels
 
             Model3DGroup model = MeshHelper.Load(FileName, ignoreErrors: true);
 
-            #region  Dialog Handling and Processing 
+            #region Dialog and Processing
 
             CancellationTokenSource cancelTokenSource = new();
 
@@ -497,7 +495,7 @@ namespace SEToolbox.ViewModels
             void CompletedAction()
             {
                 progressVm.Close();
-            };
+            }
 
             Task<MyVoxelMapBase> voxelMapTask = null;
 
@@ -513,16 +511,12 @@ namespace SEToolbox.ViewModels
             }
 
             if (RunInLowPrioity)
-            {
                 Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.Idle;
-            }
 
             _dialogService.ShowDialog<WindowProgressCancel>(this, progressVm, GenerateAsteroidAsync);
 
             if (RunInLowPrioity)
-            {
                 Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.Normal;
-            }
 
             #endregion
 
@@ -582,9 +576,7 @@ namespace SEToolbox.ViewModels
                 NewEntity = entity;
 
                 if (BeepWhenFinished)
-                {
                     System.Media.SystemSounds.Asterisk.Play();
-                }
             }
 
             return !cancelTokenSource.IsCancellationRequested;

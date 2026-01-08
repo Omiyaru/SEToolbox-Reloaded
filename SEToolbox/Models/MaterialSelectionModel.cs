@@ -28,7 +28,8 @@ namespace SEToolbox.Models
             set => SetProperty(ref _value, value, nameof(Value));
         }
 
-        public byte? MaterialIndex => _value == null ? null : SpaceEngineersResources.GetMaterialIndex(_value);
+        public byte? MaterialIndex => _value == null ? null :
+                 SpaceEngineersResources.GetMaterialIndex(_value);
 
         public bool IsRare
         {
@@ -39,25 +40,25 @@ namespace SEToolbox.Models
         public float MinedRatio
         {
             get => _minedRatio;
-            set => SetProperty(ref _minedRatio, value, nameof(MinedRatio));
+            set => SetValue(ref _minedRatio, value, nameof(MinedRatio));
         }
 
         public string Name
         {
             get => _name;
-            set => SetProperty(ref _name, value, nameof(Name));
+            set => SetValue(ref _name, value, nameof(Name));
         }
         
         public byte Radius
         {
             get => _radius;
-            set => SetProperty(ref _radius, value, nameof(Radius));
+            set => SetValue(ref _radius, value, nameof(Radius));
         }
         
         public int Veins
         {
             get => _veins;
-            set => SetProperty(ref _veins, value, nameof(Veins));
+            set => SetValue(ref _veins, value, nameof(Veins));
         }
         
        

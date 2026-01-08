@@ -50,7 +50,7 @@
                                     </controls:SortableGridViewColumn>
                                     <GridViewColumn Header="{lex:Loc WnComponentsColCubeName}" DisplayMemberBinding="{Binding FriendlyName}"/>
                                     <GridViewColumn Header="{lex:Loc WnComponentsColCubeType}" DisplayMemberBinding="{Binding TypeIdString}"/>
-                                    <GridViewColumn Header="{lex:Loc WnComponentsColCubeSubType}" DisplayMemberBinding="{Binding SubtypeName}"/>
+                                    <GridViewColumn Header="{lex:Loc WnComponentsColCubeSubType}" DisplayMemberBinding="{Binding SubtypeId}"/>
                                     <GridViewColumn Header="{lex:Loc WnComponentsColCubeSize}" DisplayMemberBinding="{Binding CubeSize, Converter={StaticResource EnumToResourceConverter}}" Width="85"/>
                                     <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColCubePCU}" Width="50" DisplayMemberBinding="{Binding PCU}" />
                                     <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColCubeAccessible}" Width="80" DisplayMemberBinding="{Binding Accessible, Converter={StaticResource EnumToResourceConverter}}" />
@@ -122,7 +122,7 @@
                                 <GridViewColumn Header="{lex:Loc WnComponentsColComponentName}" DisplayMemberBinding="{Binding FriendlyName}"/>
                                 <!--<GridViewColumn Header="Internal Name" DisplayMemberBinding="{Binding Name}"/>-->
                                 <GridViewColumn Header="{lex:Loc WnComponentsColComponentType}" DisplayMemberBinding="{Binding TypeIdString}"/>
-                                <GridViewColumn Header="{lex:Loc WnComponentsColComponentSubType}" DisplayMemberBinding="{Binding SubtypeName}"/>
+                                <GridViewColumn Header="{lex:Loc WnComponentsColComponentSubType}" DisplayMemberBinding="{Binding SubtypeId}"/>
                                 <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColComponentAccessible}" Width="80" DisplayMemberBinding="{Binding Accessible, Converter={StaticResource EnumToResourceConverter}}" />
                                 <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColComponentMass}" Width="100" SortBinding="{Binding Mass}">
                                     <GridViewColumn.CellTemplate>
@@ -165,7 +165,7 @@
                                 <GridViewColumn Header="{lex:Loc WnComponentsColItemName}" DisplayMemberBinding="{Binding FriendlyName}"/>
                                 <!--<GridViewColumn Header="Internal Name" DisplayMemberBinding="{Binding Name}"/>-->
                                 <GridViewColumn Header="{lex:Loc WnComponentsColItemType}" DisplayMemberBinding="{Binding TypeIdString}"/>
-                                <GridViewColumn Header="{lex:Loc WnComponentsColItemSubType}" DisplayMemberBinding="{Binding SubtypeName}"/>
+                                <GridViewColumn Header="{lex:Loc WnComponentsColItemSubType}" DisplayMemberBinding="{Binding SubtypeId}"/>
                                 <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColItemAccessible}" Width="80" DisplayMemberBinding="{Binding Accessible, Converter={StaticResource EnumToResourceConverter}}" />
                                 <controls:SortableGridViewColumn Header="{lex:Loc WnComponentsColItemMass}" Width="100" SortBinding="{Binding Mass}">
                                     <GridViewColumn.CellTemplate>

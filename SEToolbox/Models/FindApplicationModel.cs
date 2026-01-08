@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using SEToolbox.Support;
+
+
 namespace SEToolbox.Models
 {
     public class FindApplicationModel : BaseModel
@@ -18,8 +20,11 @@ namespace SEToolbox.Models
         public string GameApplicationPath
         {
             get => _gameApplicationPath;
-            set => SetProperty(ref _gameApplicationPath, value, nameof(GameApplicationPath), () =>
-                   Validate());
+            set => SetProperty(ref _gameApplicationPath, value, nameof(GameApplicationPath), () => 
+            { 
+                Validate();
+            });
+           
         }
 
         public string GameBinPath
@@ -47,26 +52,25 @@ namespace SEToolbox.Models
         public void Validate()
         {
             GameBinPath = null;
-            var fileInfo = new FileInfo(GameApplicationPath);
-            try
-            {   
-                if (fileInfo.Exists  && !string.IsNullOrEmpty(GameApplicationPath))
+
+            if (!string.IsNullOrEmpty(GameApplicationPath))
+			{
+            	try
+            	{
+                	var fullPath = Path.GetFullPath(GameApplicationPath);
+                	if (File.Exists(fullPath))
+                	{
+                    	GameBinPath = Path.GetDirectoryName(fullPath);
+                	}
+            	}
+            	catch 
                 {
-                    GameBinPath = fileInfo.DirectoryName;
-                    IsValidApplication = ToolboxUpdater.ValidateSpaceEngineersInstall(GameBinPath);
-                    IsWrongApplication = !IsValidApplication;
+                    
                 }
-                else
-                {
-                    IsValidApplication = false;
-                    IsWrongApplication = true;
-                }
-            }
-            catch { }
+        	}
+        		IsValidApplication = ToolboxUpdater.ValidateSpaceEngineersInstall(GameBinPath);
+            	IsWrongApplication = !IsValidApplication;
         }
-    }
-
-
         #endregion
+    }
 }
-

@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -17,8 +17,10 @@ namespace SEToolbox.Support
         /// <returns></returns>
         internal static Dictionary<Color, Color> GetOptimizerPalatte()
         {
-            Dictionary<Color, Color> palette = new()
+            return new Dictionary<Color, Color>()
             {
+                
+            
                 {Color.FromArgb(255, 0, 0, 0), Color.Black},
                 {Color.FromArgb(255, 20, 20, 20), Color.Black},
                 {Color.FromArgb(255, 40, 40, 40), Color.Black},
@@ -82,9 +84,8 @@ namespace SEToolbox.Support
 
                 // Make 'Transparent' last, to give preference to 'White' above, otherwise white can be mistakenly made transparent.
                 {Color.Transparent, Color.Transparent},
-            };
 
-            return palette;
+            };
         }
 
         /// <summary>
@@ -93,7 +94,7 @@ namespace SEToolbox.Support
         /// <returns></returns>
         public static Dictionary<Color, string> GetPalatteNames()
         {
-            Dictionary<Color, string> palette = new()
+          return new Dictionary<Color, string>()
             {
                 {Color.Black, "Black"},
                 {Color.Gray, "Gray"},
@@ -103,8 +104,6 @@ namespace SEToolbox.Support
                 {Color.Blue, "Blue"},
                 {Color.Yellow, "Yellow"},
             };
-
-            return palette;
         }
 
         #endregion
@@ -115,7 +114,7 @@ namespace SEToolbox.Support
         {
             return OptimizeImagePalette(imageFileName, null);
         }
-
+        
         public static Bitmap OptimizeImagePalette(string imageFileName, Dictionary<Color, Color> palette)
         {
             imageFileName = Path.GetFullPath(imageFileName);
@@ -127,10 +126,13 @@ namespace SEToolbox.Support
         {
             Bitmap palatteImage;
 
-            using Bitmap image = new(bmp);
-            palette ??= GetOptimizerPalatte();
-            PaletteQuantizer paletteQuantizer = new(palette);
-            palatteImage = paletteQuantizer.Quantize(image);
+            using (Bitmap image = new(bmp))
+            {
+                palette ??= GetOptimizerPalatte();
+                PaletteQuantizer paletteQuantizer = new(palette);
+                palatteImage = paletteQuantizer.Quantize(image);
+            }
+
             bmp.Dispose();
 
             return palatteImage;
@@ -189,12 +191,12 @@ namespace SEToolbox.Support
         /// <param name="list"></param>
         public static void Shuffle<T>(this IList<T> list)
         {
-            int num = list.Count;
-            while (num > 1)
+            int n = list.Count;
+            while (n > 1)
             {
-                num--;
-                int rand = RandomUtil.GetInt(num + 1);
-                (list[num], list[rand]) = (list[rand], list[num]);
+                n--;
+                int k = RandomUtil.GetInt(n + 1);
+                (list[n], list[k]) = (list[k], list[n]);
             }
         }
 
@@ -217,9 +219,7 @@ namespace SEToolbox.Support
             double longitude = Math.Atan2(z, x);
 
             if (double.IsNaN(latitude) || double.IsNaN(longitude))
-            {
                 return null;
-            }
 
             // planarWidth  : 0 to width -1
             // longitude  : -PI to PI?

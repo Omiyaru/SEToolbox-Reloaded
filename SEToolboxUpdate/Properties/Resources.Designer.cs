@@ -39,9 +39,15 @@ namespace SEToolboxUpdate.Properties
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
         internal static global::System.Resources.ResourceManager ResourceManager
         {
-            get => resourceMan = object.ReferenceEquals(resourceMan, null)
-                ? new global::System.Resources.ResourceManager("SEToolboxUpdate.Properties.Resources", typeof(Resources).Assembly)
-                : resourceMan;
+            get
+            {
+                if (object.ReferenceEquals(resourceMan, null))
+                {
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SEToolboxUpdate.Properties.Resources", typeof(Resources).Assembly);
+                    resourceMan = temp;
+                }
+                return resourceMan;
+            }
         }
         
         /// <summary>

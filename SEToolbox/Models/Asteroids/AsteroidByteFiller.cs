@@ -12,23 +12,19 @@ namespace SEToolbox.Models.Asteroids
 {
     public class AsteroidByteFiller : IMyVoxelFiller
     {
-
-        public AsteroidByteFillProperties Initialize(int index, MaterialSelectionModel defaultMaterial, IEnumerable<MaterialSelectionModel> materialsCollection, IEnumerable<GenerateVoxelDetailModel> voxelCollection)
-        {
-            List<MaterialSelectionModel> materials = [.. materialsCollection];
-            var randomModel = new AsteroidByteFillProperties
-            {
-                Index = index,
-            };
-
-            var materialsDictionary = materials.ToDictionary(
-            m => m.Value,
-            m => defaultMaterial.Value == m.Value ? defaultMaterial : m);
-            return randomModel;
-        }
         public IMyVoxelFillProperties CreateRandom(int index, MaterialSelectionModel defaultMaterial, IEnumerable<MaterialSelectionModel> materialsCollection, IEnumerable<GenerateVoxelDetailModel> voxelCollection)
         {
-            AsteroidByteFillProperties randomModel = Initialize(index, defaultMaterial, materialsCollection, voxelCollection);
+            AsteroidByteFillProperties randomModel = new()
+            {
+                Index = index,
+                MainMaterial = defaultMaterial,
+                SecondMaterial = defaultMaterial,
+                ThirdMaterial = defaultMaterial,
+                FourthMaterial = defaultMaterial,
+                FifthMaterial = defaultMaterial,
+                SixthMaterial = defaultMaterial,
+                SeventhMaterial = defaultMaterial,
+            };
 
             //Must be by reference, not by value
 
@@ -36,11 +32,8 @@ namespace SEToolbox.Models.Asteroids
             List<GenerateVoxelDetailModel> smallVoxelFileList = [.. voxelCollection.Where(v => v.FileSize > 0 && v.FileSize < 100000)];
 
             if (!largeVoxelFileList.Any() && !smallVoxelFileList.Any())
-            {
                 // no asteroids? You are so screwed.
                 throw new Exception("No valid asteroids found. Re-validate your game cache.");
-            }
-
             bool hasSmallVoxelFiles = smallVoxelFileList.Any();
             double randomValue = hasSmallVoxelFiles ? RandomUtil.GetDouble(1, 100) : 100;
             double d = largeVoxelFileList.Any() ? randomValue : 1;
@@ -54,17 +47,19 @@ namespace SEToolbox.Models.Asteroids
 
             List<MaterialSelectionModel> rareMaterials = [.. materialsCollection.Where(m => m.IsRare && m.MinedRatio >= 2)];
             List<MaterialSelectionModel> superRareMaterials = [.. materialsCollection.Where(m => m.IsRare && m.MinedRatio < 2)];
-            Action action = isLarge switch
+
+            if (isLarge)
             {
+                AssignMaterials(randomModel, rareMaterials, superRareMaterials, [(40, 60), (6, 12), (6, 12)], [(2, 4), (1, 3), (1, 3)]);
+            }
+            else
+            {
+                AssignMaterials(randomModel, rareMaterials, superRareMaterials, [(6, 13)], [(2, 4)]);
+            }
 
-                true => () => { AssignMaterials(randomModel, rareMaterials, superRareMaterials, [(40, 60), (6, 12), (6, 12)], [(2, 4), (1, 3), (1, 3)]); },
-                false => () => { AssignMaterials(randomModel, rareMaterials, superRareMaterials, [(6, 13)], [(2, 4)]); }
-
-            };
-    
             return randomModel;
-
         }
+
         private static void AssignMaterials(AsteroidByteFillProperties model, List<MaterialSelectionModel> rare, List<MaterialSelectionModel> superRare, (int min, int max)[] rarePercents, (int min, int max)[] superRarePercents)
         {
             for (int i = 0; i < rarePercents.Length && rare.Any(); i++)
@@ -125,14 +120,14 @@ namespace SEToolbox.Models.Asteroids
             List<byte> materialSelection =
             [
                 // Ensure MainMaterial is not null
-              (byte)Conditional.NotNullCoalesced(properties?.MainMaterial, SpaceEngineersResources.GetMaterialIndex(properties.MainMaterial.Value),0),
+              (byte)Conditional.ConditionCoalesced(null,properties?.MainMaterial, SpaceEngineersResources.GetMaterialIndex(properties.MainMaterial.Value),0),
             ];
 
             for (int i = 2; i <= 7; i++)
             {
                 double percent = 0;
                 string materialValue = null;
-               
+
                 switch (i)
                 {
                     case 2:

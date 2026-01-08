@@ -20,7 +20,7 @@ namespace SEToolbox.Models
 
         private MyObjectBuilderType _typeId;
 
-        private string _subtypeName;
+        private string _subtypeId;
 
         private string _textureFile;
 
@@ -90,10 +90,10 @@ namespace SEToolbox.Models
             set => SetProperty(ref _typeId, value, nameof(TypeId));
         }
 
-        public string SubtypeName
+        public string SubtypeId
         {
-            get => _subtypeName;
-            set => SetProperty(ref _subtypeName, value, nameof(SubtypeName));
+            get => _subtypeId;
+            set => SetProperty(ref _subtypeId, value, nameof(SubtypeId));
         }
 
         public string TextureFile
@@ -216,19 +216,19 @@ namespace SEToolbox.Models
             var resource = SpaceEngineersResources.CubeBlockDefinitions.FirstOrDefault(b => b.Id.TypeId == cube.TypeId && b.Id.SubtypeName == cube.SubtypeName);
 
           if (resource == null) 
-          {
-             return false;
-          }
+            {
+                return false;
+            }
            
-            var subtypeName = cube.SubtypeName;
+
             var newSubTypeName = resource.Id.SubtypeName switch
             {
-                string when resource.Id.SubtypeName.StartsWith("LargeBlockArmor") => subtypeName.Replace("LargeBlockArmor", "LargeHeavyBlockArmor"),
-                string when resource.Id.SubtypeName.StartsWith("Large") && (resource.Id.SubtypeName.EndsWith("HalfArmorBlock") || 
-                            resource.Id.SubtypeName.EndsWith("HalfSlopeArmorBlock")) => subtypeName.Replace("LargeHalf", "LargeHeavyHalf"),
-                string when resource.Id.SubtypeName.StartsWith("SmallBlockArmor") => subtypeName.Replace("SmallBlockArmor", "SmallHeavyBlockArmor"),
-                string when !resource.Id.SubtypeName.StartsWith("Large") && (resource.Id.SubtypeName.EndsWith("HalfArmorBlock") ||
-                             resource.Id.SubtypeName.EndsWith("HalfSlopeArmorBlock")) => Regex.Replace(subtypeName, "^(Half)(.*)", "HeavyHalf$2", RegexOptions.IgnoreCase),
+                { } SubTypeName when resource.Id.SubtypeName.StartsWith("LargeBlockArmor") => SubTypeName.Replace("LargeBlockArmor", "LargeHeavyBlockArmor"),
+                { } SubTypeName when resource.Id.SubtypeName.StartsWith("Large") && (resource.Id.SubtypeName.EndsWith("HalfArmorBlock") || 
+                                     resource.Id.SubtypeName.EndsWith("HalfSlopeArmorBlock")) => SubTypeName.Replace("LargeHalf", "LargeHeavyHalf"),
+                { } SubTypeName when resource.Id.SubtypeName.StartsWith("SmallBlockArmor") => SubTypeName.Replace("SmallBlockArmor", "SmallHeavyBlockArmor"),
+                { } SubTypeName when !resource.Id.SubtypeName.StartsWith("Large") && (resource.Id.SubtypeName.EndsWith("HalfArmorBlock") ||
+                                     resource.Id.SubtypeName.EndsWith("HalfSlopeArmorBlock")) => Regex.Replace(SubTypeName, "^(Half)(.*)", "HeavyHalf$2", RegexOptions.IgnoreCase),
                 _ => null
             };
 
@@ -245,15 +245,15 @@ namespace SEToolbox.Models
         {
             var cubeBlockDefinitions = SpaceEngineersResources.CubeBlockDefinitions;
             var typeId = cube.TypeId;
-            var subtypeName = cube.SubtypeName;
-            var newSubTypeName = subtypeName switch
+            var subTypeName = cube.SubtypeName;
+            var newSubTypeName = subTypeName switch
             {
-                string when subtypeName.StartsWith("LargeHeavyBlockArmor") => subtypeName.Replace("LargeHeavyBlockArmor", "LargeBlockArmor"),
-                string when subtypeName.StartsWith("Large") && (subtypeName.EndsWith("HalfArmorBlock") || 
-                            subtypeName.EndsWith("HalfSlopeArmorBlock")) => subtypeName.Replace("LargeHeavyHalf", "LargeHalf"),
-                string when subtypeName.StartsWith("SmallHeavyBlockArmor") => subtypeName.Replace("SmallHeavyBlockArmor", "SmallBlockArmor"),
-                string when !subtypeName.StartsWith("Large") && (subtypeName.EndsWith("HalfArmorBlock") || 
-                            subtypeName.EndsWith("HalfSlopeArmorBlock")) => Regex.Replace(subtypeName, "^(HeavyHalf)(.*)", "Half$2", RegexOptions.IgnoreCase),
+                { } SubTypeName when SubTypeName.StartsWith("LargeHeavyBlockArmor") => SubTypeName.Replace("LargeHeavyBlockArmor", "LargeBlockArmor"),
+                { } SubTypeName when SubTypeName.StartsWith("Large") && (SubTypeName.EndsWith("HalfArmorBlock") || 
+                                   SubTypeName.EndsWith("HalfSlopeArmorBlock")) => SubTypeName.Replace("LargeHeavyHalf", "LargeHalf"),
+                { } SubTypeName when SubTypeName.StartsWith("SmallHeavyBlockArmor") => SubTypeName.Replace("SmallHeavyBlockArmor", "SmallBlockArmor"),
+                { } SubTypeName when !SubTypeName.StartsWith("Large") && (SubTypeName.EndsWith("HalfArmorBlock") || 
+                                   SubTypeName.EndsWith("HalfSlopeArmorBlock")) => Regex.Replace(SubTypeName, "^(HeavyHalf)(.*)", "Half$2", RegexOptions.IgnoreCase),
                 _ => null
             };
 
@@ -266,9 +266,9 @@ namespace SEToolbox.Models
             return false;
         }
 
-        public MyObjectBuilder_CubeBlock CreateCube(MyObjectBuilderType typeId, string subtypeName, MyCubeBlockDefinition definition)
+        public MyObjectBuilder_CubeBlock CreateCube(MyObjectBuilderType typeId, string subTypeId, MyCubeBlockDefinition definition)
         {
-            MyObjectBuilder_CubeBlock newCube = SpaceEngineersResources.CreateNewObject<MyObjectBuilder_CubeBlock>(typeId, subtypeName);
+            MyObjectBuilder_CubeBlock newCube = SpaceEngineersResources.CreateNewObject<MyObjectBuilder_CubeBlock>(typeId, subTypeId);
             newCube.BlockOrientation = Cube.BlockOrientation;
             newCube.ColorMaskHSV = Cube.ColorMaskHSV;
             newCube.BuildPercent = Cube.BuildPercent;
@@ -289,14 +289,12 @@ namespace SEToolbox.Models
         public bool ChangeOwner(long newOwnerId)
         {
             // There appear to be quite a few exceptions, blocks that inherit from MyObjectBuilder_TerminalBlock but SE doesn't allow setting of Owner.
-            if (Cube is MyObjectBuilder_InteriorLight ||
-                Cube  is MyObjectBuilder_ReflectorLight ||
-                Cube  is MyObjectBuilder_LandingGear ||
-                Cube  is MyObjectBuilder_Cockpit && SubtypeName == "PassengerSeatLarge" || 
-                Cube  is MyObjectBuilder_Thrust)
-            {
+            if (Cube is MyObjectBuilder_InteriorLight
+                || Cube  is MyObjectBuilder_ReflectorLight
+                || Cube  is MyObjectBuilder_LandingGear
+                || Cube  is MyObjectBuilder_Cockpit && SubtypeId == "PassengerSeatLarge"
+                || Cube  is MyObjectBuilder_Thrust)
                 return false;
-            }
 
             if (Cube is MyObjectBuilder_TerminalBlock)
             {
@@ -364,14 +362,13 @@ namespace SEToolbox.Models
             BuiltByName = buyiltByIdentity?.DisplayName + (buyiltByIdentity == null || SpaceEngineersCore.WorldResource.Checkpoint.AllPlayersData?.Dictionary.Values.Any(p => p.IdentityId == BuiltBy) == false ? $" ({Res.ClsCharacterDead})" : "");
 
             TypeId = definition.Id.TypeId;
-            SubtypeName = definition.Id.SubtypeName;
+            SubtypeId = definition.Id.SubtypeName;
             PCU = definition.PCU;
 
             Inventory ??= [];
+            Inventory.Clear();
             foreach (var item in cube.ComponentContainer.GetInventory(definition))
-            {
                 Inventory.Add(item);
-            }
 
             while (Inventory.Count < 2)
             {

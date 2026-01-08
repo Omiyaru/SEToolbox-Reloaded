@@ -23,7 +23,7 @@ namespace SEToolbox.Models
         {
             get => _name;
             set => SetProperty(ref _name, value, () => 
-            	   FriendlyName = SpaceEngineersApi.GetResourceName(Name),
+            	   FriendlyName == SpaceEngineersApi.GetResourceName(Name),
                    nameof(Name), 
                    nameof(FriendlyName));
         }
@@ -34,11 +34,11 @@ namespace SEToolbox.Models
 
         public string TypeIdString { get; set; }
 
-        public string SubtypeName { get; set; }
+        public string SubtypeId { get; set; }
 
         public double Mass { get; set; }
 
-        public decimal Count { get; set; }
+        public Decimal Count { get; set; }
 
         public double Volume { get; set; }
 

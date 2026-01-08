@@ -1,5 +1,6 @@
 ﻿using System;
 
+
 namespace SEToolbox.Support
 {
     public static class ArrayHelper
@@ -16,9 +17,7 @@ namespace SEToolbox.Support
             var array = new T[length1][];
 
             for (var x = 0; x < length1; x++)
-            {
                 array[x] = new T[length2];
-            }
 
             return array;
         }
@@ -55,19 +54,15 @@ namespace SEToolbox.Support
         /// <returns>Merged array of the correct generic Type.</returns>
         public static T[] MergeGenericArrays<T>(T[] array1, T[] array2)
         {
-            if (Conditional.Null(array1,array2))
-            {
+            if ((bool)Conditional.Condition(null,array1,array2))
                 return [.. array1, .. array2 ?? []];
-            }
 
             int totalLength = array1.Length + (array2?.Length ?? 0);
             T[] mergedArray = new T[totalLength];
 
             Array.Copy(array1, 0, mergedArray, 0, array1.Length);
             if (array2 != null)
-            {
                 Array.Copy(array2, 0, mergedArray, array1.Length, array2.Length);
-            }
 
             return mergedArray;
         }

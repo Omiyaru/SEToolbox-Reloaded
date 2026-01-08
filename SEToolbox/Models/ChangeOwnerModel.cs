@@ -2,7 +2,7 @@
 using System.Linq;
 
 using SEToolbox.Interop;
-
+using Generic = System.Collections.Generic;
 
 namespace SEToolbox.Models
 {
@@ -56,8 +56,11 @@ namespace SEToolbox.Models
 
             foreach (var identity in SpaceEngineersCore.WorldResource.Checkpoint.Identities.OrderBy(p => p.DisplayName))
             {
-                    var player = SpaceEngineersCore.WorldResource.Checkpoint.AllPlayersData?.Dictionary.FirstOrDefault(kvp => kvp.Value.IdentityId == identity.PlayerId);
-                    PlayerList.Add(new OwnerModel() { Name = identity.DisplayName, PlayerId = identity.PlayerId, Model = identity.Model, IsPlayer = player?.Value != null });
+                if (SpaceEngineersCore.WorldResource.Checkpoint.AllPlayersData != null)
+                {
+                    var player = SpaceEngineersCore.WorldResource.Checkpoint.AllPlayersData.Dictionary.FirstOrDefault(kvp => kvp.Value.IdentityId == identity.PlayerId);
+                    PlayerList.Add(new OwnerModel() { Name = identity.DisplayName, PlayerId = identity.PlayerId, Model = identity.Model, IsPlayer = player.Value != null });
+                }
             }
 
             SelectedPlayer = PlayerList.FirstOrDefault(p => p.PlayerId == initalOwner);

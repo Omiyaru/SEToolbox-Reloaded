@@ -94,26 +94,29 @@ namespace ToolboxTest
             const string fileName = @".\TestAssets\SampleWorld.sbw";
 
             MyObjectBuilder_Checkpoint checkpoint;
+            bool isCompressed;
             bool result;
 
-            using MyZipArchive archive = MyZipArchive.OpenOnFile(fileName);
-            MyZipFileInfo fileInfo = archive.GetFile(SpaceEngineersConsts.SandBoxCheckpointFileName);
-            checkpoint = SpaceEngineersApi.TryReadSpaceEngineersFile<MyObjectBuilder_Checkpoint>(fileInfo.GetStream());
+            using (MyZipArchive archive = MyZipArchive.OpenOnFile(fileName))
 
-
-            // Use TryReadSpaceEngineersFile with a temporary file path
-            string tempFilePath = Path.GetTempFileName();
-            using (Stream fileStream = fileInfo.GetStream())
-            using (FileStream tempFileStream = File.Create(tempFilePath))
             {
-                fileStream.CopyTo(tempFileStream);
+                MyZipFileInfo fileInfo = archive.GetFile(SpaceEngineersConsts.SandBoxCheckpointFileName);
+                checkpoint = SpaceEngineersApi.TryReadSpaceEngineersFile<MyObjectBuilder_Checkpoint>(fileInfo.GetStream());
+
+
+                // Use TryReadSpaceEngineersFile with a temporary file path
+                string tempFilePath = Path.GetTempFileName();
+                using (Stream fileStream = fileInfo.GetStream())
+                using (FileStream tempFileStream = File.Create(tempFilePath))
+                {
+                    fileStream.CopyTo(tempFileStream);
+                }
+
+                result = SpaceEngineersApi.TryReadSpaceEngineersFile(tempFilePath, out checkpoint, out isCompressed, out string errorInformation);
+
+                // Clean up the temporary file
+                File.Delete(tempFilePath);
             }
-
-            result = SpaceEngineersApi.TryReadSpaceEngineersFile(tempFilePath, out checkpoint, out bool isCompressed, out string errorInformation);
-
-            // Clean up the temporary file
-            File.Delete(tempFilePath);
-
 
             Assert.IsTrue(result, "Failed to read the Space Engineers file.");
             Assert.IsFalse(isCompressed, "File should not be compressed.");
@@ -338,6 +341,7 @@ namespace ToolboxTest
             QuaternionD quaternion = positionOrientation.ToQuaternionD();
             Sandbox.Definitions.MyCubeBlockDefinition definition = SpaceEngineersApi.GetCubeDefinition(cube.TypeId, gridSizeEnum, cube.SubtypeName);
 
+
             Vector3I orientSize = definition.Size.Transform(cube.BlockOrientation).Abs();
             Vector3D min = cube.Min.ToVector3D() * gridSizeEnum.ToLength();
             Vector3D max = (cube.Min + orientSize).ToVector3D() * gridSizeEnum.ToLength();
@@ -354,9 +358,9 @@ namespace ToolboxTest
         public void Rotation()
         {
             MyPositionAndOrientation positionAndOrientation = new(
-                                     new(10.0d, -10.0d, -2.5d),
-                                     new(0.0f, 0.0f, -1.0f),
-                                     new(0.0f, 1.0f, 0.0f));
+                    new SerializableVector3D(10.0d, -10.0d, -2.5d),
+                    new SerializableVector3(0.0f, 0.0f, -1.0f),
+                    new SerializableVector3(0.0f, 1.0f, 0.0f));
 
             // -90 around Z
             Quaternion quaternion = Quaternion.CreateFromYawPitchRoll(0, 0, -MathHelper.PiOver2);

@@ -14,9 +14,8 @@ namespace SEToolbox.Interfaces
         /// </summary>
         public ReadOnlyCollection<FrameworkElement> Views
         {
-            get => default;
+        get => default;
         }
-          
         /// <summary>
         /// Registers a View.
         /// </summary>
@@ -113,13 +112,17 @@ namespace SEToolbox.Interfaces
         /// <returns>
         /// A MessageBoxResult value that specifies which message box button is clicked by the user.
         /// </returns>
-        public MessageBoxResult ShowMessageBox( object ownerViewModel,
-                                                string messageBoxText, string caption,
-                                                MessageBoxButton button, MessageBoxImage icon)
+        public MessageBoxResult ShowMessageBox(
+            object ownerViewModel,
+            string messageBoxText,
+            string caption,
+            MessageBoxButton button,
+            MessageBoxImage icon)
         {
             Contract.Requires(ownerViewModel != null);
             Contract.Requires(!string.IsNullOrWhiteSpace(messageBoxText));
             Contract.Requires(!string.IsNullOrWhiteSpace(caption));
+
             return default;
         }
 

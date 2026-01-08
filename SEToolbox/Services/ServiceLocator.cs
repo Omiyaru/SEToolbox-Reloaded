@@ -28,11 +28,6 @@ namespace SEToolbox.Services
         }
 
         /// <summary>
-        /// Unregisters a service.
-        /// </summary>
-        public static void Unregister<TInterface>() => services.Remove(typeof(TInterface));
-        
-        /// <summary>
         /// Resolves a service.
         /// </summary>
         public static TInterface Resolve<TInterface>()
@@ -48,15 +43,6 @@ namespace SEToolbox.Services
         {
             services.Add(typeof(TInterface), new ServiceInfo(typeof(TImplemention), isSingleton));
         }
-
-        // internal static void Register<T>(T serviceInstance)
-        // {
-        //     if (services.TryGetValue(typeof(T), out _))
-        //     {
-        //         services.Remove(typeof(T));
-        //         services.Add(typeof(T), new ServiceInfo(typeof(T), false) { ServiceImplementation = serviceInstance });
-        //     }
-        // }
 
         /// <summary>
         /// Class holding service information. Initializes a new instance of the <see cref="ServiceInfo"/> class.
@@ -74,11 +60,18 @@ namespace SEToolbox.Services
             /// Gets the service implementation.
             /// </summary>
             public object ServiceImplementation
-            {    
-                get => _serviceImplementation = _isSingleton ? _serviceImplementation ??= CreateInstance(_serviceImplementationType)  : _serviceImplementation;
-                //set => _serviceImplementation = value;
-                
-
+            {
+                get
+                {
+                    if (_isSingleton)
+                    {
+                        return _serviceImplementation ??= CreateInstance(_serviceImplementationType);
+                    }
+                    else
+                    {
+                        return CreateInstance(_serviceImplementationType);
+                    }
+                }
             }
 
             /// <summary>
@@ -87,9 +80,11 @@ namespace SEToolbox.Services
             /// <param name="type">The type of the instance to create.</param>
             private static object CreateInstance(Type type)
             {
-                 return services.ContainsKey(type) ? services[type].ServiceImplementation : ReflectionUtil.CreateInstance(type);
-            }
+                if (services.ContainsKey(type))
+                    return services[type].ServiceImplementation;
 
+                return ReflectionUtil.CreateInstance(type);
+            }
         }
     }
 }

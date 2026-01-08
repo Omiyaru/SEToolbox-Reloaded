@@ -47,7 +47,7 @@
 //             var diagnostics = await compilation.WithAnalyzers(analyzers).GetAnalyzerDiagnosticsAsync();
 
 //             var errors = diagnostics
-//                 .Where(d => d.event == DiagnosticSeverity.Error)
+//                 .Where(d => d.Severity == DiagnosticSeverity.Error)
 //                 .Select(FormatDiagnostic)
 //                 .ToList();
 

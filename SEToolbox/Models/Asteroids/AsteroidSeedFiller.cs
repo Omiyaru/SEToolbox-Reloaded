@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Octokit;
+
 using SEToolbox.Interop.Asteroids;
 using SEToolbox.Support;
 
@@ -16,12 +16,12 @@ namespace SEToolbox.Models.Asteroids
             var randomModel = new AsteroidSeedFillProperties
             {
                 Index = index
-            }; 
+            };
 
             var materials = new List<MaterialSelectionModel>(properties.MaterialsList);
             var materialsDictionary = materials.ToDictionary(
             m => m.Value,
-            m => defaultMaterial.Value == m.Value ? defaultMaterial : m);
+            m => defaultMaterial.Value == m.Value ? defaultMaterial : m, StringComparer.OrdinalIgnoreCase);
             return randomModel;
         }
 
@@ -35,9 +35,7 @@ namespace SEToolbox.Models.Asteroids
 
             // Ensure we have at least one list populated
             if (!largeVoxelFileList.Any() && !smallVoxelFileList.Any())
-            {
                 throw new Exception("No valid asteroids found. Re-validate your game cache.");
-            }
 
             // Fallback logic if one list is empty
             double d = RandomUtil.GetDouble(1, 100);
@@ -67,11 +65,10 @@ namespace SEToolbox.Models.Asteroids
 
             AssignMaterials(index, randomModel, rare, chunks, chunkSize, ref multiplier, isLarge, isSuperRare: false);
 
-            
             multiplier = 1.0;
             chunks = isLarge ? 50 : 10;//large/small 
             chunkSize = isLarge ? 2 : 0; //large/small
-          
+       
             AssignMaterials(index, randomModel, superRare, chunks, chunkSize, ref multiplier, isLarge, isSuperRare: true);
 
             return randomModel;
@@ -80,32 +77,26 @@ namespace SEToolbox.Models.Asteroids
         public MaterialSelectionModel GetMaterial(int index, List<MaterialSelectionModel> materials)
         {
             if (materials == null || materials.Count == 0)
-            {
                 throw new ArgumentNullException(nameof(materials));
-            }
-
             if (index < 0 || index >= materials.Count)
-            {
                 throw new ArgumentOutOfRangeException(nameof(index));
-            }
-
             return materials[index];
         }
 
         private static void AssignMaterials(int index, AsteroidSeedFillProperties randomModel, List<MaterialSelectionModel> materials, int chunks, int chunkSize, ref double multiplier, bool isLarge = false, bool isSuperRare = false)
-        {
-            bool isSecretRandom;
+        {   
+           bool isSecretRandom;
             randomModel.MaterialsList = [];
-            _ = isSuperRare ? 5 : 1; // superRare starts filling from slot 5+
+            int slotIndex = isSuperRare ? 5 : 1; // superRare starts filling from slot 5+
 
-            int slotIndex = isLarge ? 7 | 5 : 4 | 3;
+            _ = isSuperRare || isLarge ? 7 | 5 : 4 | 3;
 
             var materialsToRemove = new List<MaterialSelectionModel>();
             foreach (var mat in materials)
-            {
+            { 
                 isSecretRandom = RandomUtil.EnableSecretRandom;
                 int idx = RandomUtil.GetInt(materials.Count);
-
+                
                 var material = materials[index];
                 int veins = RandomUtil.GetInt((int)(chunks * multiplier), (int)(chunks * 1.5 * multiplier));
                 double radius = chunkSize > 0 ? RandomUtil.GetInt((int)(chunkSize * multiplier), (int)(chunkSize * 1.5 * multiplier)) : 0;
@@ -137,13 +128,16 @@ namespace SEToolbox.Models.Asteroids
                         int hash;
                         hash = HashCode.Combine(materials.IndexOf(material), veins, Convert.ToInt32(radius)).GetHashCode();
                         RandomUtil.SetSeed(hash);
-                    }
+                       }
+
                     multiplier *= multiplierFactor;
                 }
-                materials.RemoveAt(index);
+
+                    materials.RemoveAt(index);
+                }
+                multiplier *= isLarge ? 0.85 : 0.75;
             }
-            multiplier *= isLarge ? 0.85 : 0.75;
-        }
+
 
         //interiorMaterial???
         public void FillAsteroid(MyVoxelMapBase asteroid, IMyVoxelFillProperties fillProperties)
@@ -156,7 +150,7 @@ namespace SEToolbox.Models.Asteroids
                 */
             //byte oldMaterial = asteroid.VoxelMaterial;
             //var value = properties.MainMaterial;
-
+            
             // ForceVoxelFaceMaterial should no longer be required.
             // MyVoxelMaterialDefinition voxelSurfaceMaterial = value.VoxelSurfaceMaterial
             //asteroid.ForceVoxelFaceMaterial("Uraninite_01");
@@ -171,12 +165,14 @@ namespace SEToolbox.Models.Asteroids
             {
                 int veins = properties.GetVeins(index, null);
                 if (veins <= 0)
-                {
                     continue;
-                }
-
                 MaterialSelectionModel material = AsteroidSeedFillProperties.GetMaterial(index, null);
+
                 double radius = AsteroidSeedFillProperties.GetRadius(index);
+
+                if (veins <= 0)
+                    continue;
+
                 for (int v = 0; v < veins; v++)
                 {
                     asteroid.SeedMaterialSphere(material.MaterialIndex.Value, radius);

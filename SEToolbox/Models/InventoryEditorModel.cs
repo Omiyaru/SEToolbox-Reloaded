@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -79,17 +78,22 @@ namespace SEToolbox.Models
             _inventory = inventory;
             _maxVolume = maxVolume;
             _character = character;
-            
             UpdateGeneralFromEntityBase();
 
-            UpdateItems(inventory);
-            // pointers to fixed bufffers may only be used for in an unsafe context, such as in a constructor.   
-            //   Cube.InventorySize.X * CUbe.InventorySize.Y * CUbe.InventorySize.Z * 1000 * Sandbox.InventorySizeMultiplier
-            //  || Cube.InventoryMaxVolume * 1000 * Sandbox.InventorySizeMultiplier;
-            // Character.Inventory = 0.4 * 1000 * Sandbox.InventorySizeMultiplier;
+            if (inventory.Items.Any())
+            {
+                MyObjectBuilder_InventoryItem firstItem = inventory.Items.FirstOrDefault();
+                if (firstItem != null)
+                {
+                    _selectedRow = new InventoryModel(firstItem, "Item Name", "Item Description");
+                    _isValid = true;
+                }
 
+                // Cube.InventorySize.X * Cube.InventorySize.Y * Cube.InventorySize.Z * 1000 * Sandbox.InventorySizeMultiplier;
+                // or Cube.InventoryMaxVolume * 1000 * Sandbox.InventorySizeMultiplier;
+                //Character.Inventory = 0.4 * 1000 * Sandbox.InventorySizeMultiplier;
+            }
         }
-
 
         #endregion
 
@@ -150,27 +154,18 @@ namespace SEToolbox.Models
 
         private void UpdateGeneralFromEntityBase()
         {
-           List<InventoryModel> list = [];
+            ObservableCollection<InventoryModel> list = [];
             string contentPath = ToolboxUpdater.GetApplicationContentPath();
             TotalVolume = 0;
             TotalMass = 0;
-            list.Clear();
 
-            list.AddRange(_inventory?.Items.Select(item => CreateItem(item, contentPath)) ?? Enumerable.Empty<InventoryModel>());
-
-            Items = new ObservableCollection<InventoryModel>(list);
-        }
-
-        public void UpdateItems(MyObjectBuilder_Inventory inventory)
-        {
-
-            if (inventory.Items.Any())
+            foreach (MyObjectBuilder_InventoryItem item in _inventory?.Items)
             {
-                var items = inventory.Items.Select(item => new InventoryModel(item, "Item Name", "Item Description")).ToList();
-                _selectedRow = items.FirstOrDefault();
-                _isValid = true;
-                _items = new ObservableCollection<InventoryModel>(items);
+                list.Add(CreateItem(item, contentPath));
             }
+
+
+            Items = list;
         }
 
         private InventoryModel CreateItem(MyObjectBuilder_InventoryItem item, string contentPath)
@@ -181,28 +176,27 @@ namespace SEToolbox.Models
             string textureFile;
             double massMultiplier;
             double volumeMultiplier;
-            switch (definition)
+
+            if (definition == null)
             {
-                case null:
                 name = item.PhysicalContent.SubtypeName + " " + item.PhysicalContent.TypeId;
                 massMultiplier = 1;
                 volumeMultiplier = 1;
                 textureFile = null;
-                break;
-                case MyPhysicalItemDefinition def:
-                name = def.DisplayNameText;
-                massMultiplier = def.Mass;
-                volumeMultiplier = def.Volume * SpaceEngineersConsts.VolumeMultiplier;
-                textureFile = (def.Icons == null || definition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(def.Icons.First(), Path.Combine(contentPath, def.Icons.First()));
-                break;
             }
-        
+            else
+            {
+                name = definition.DisplayNameText;
+                massMultiplier = definition.Mass;
+                volumeMultiplier = definition.Volume * SpaceEngineersConsts.VolumeMultiplier;
+                textureFile = (definition.Icons == null || definition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(definition.Icons.First(), Path.Combine(contentPath, definition.Icons.First()));
+            }
 
             InventoryModel newItem = new(item, name, item.PhysicalContent.SubtypeName)
             {
                 Name = name,
                 Amount = (decimal)item.Amount,
-                SubtypeName = item.PhysicalContent.SubtypeName,
+                SubtypeId = item.PhysicalContent.SubtypeName,
                 TypeId = item.PhysicalContent.TypeId,
                 MassMultiplier = massMultiplier,
                 VolumeMultiplier = volumeMultiplier,
@@ -219,7 +213,7 @@ namespace SEToolbox.Models
             return newItem;
         }
 
-        internal void AddItem(MyObjectBuilder_InventoryItem item)
+        internal void Additem(MyObjectBuilder_InventoryItem item)
         {
             string contentPath = ToolboxUpdater.GetApplicationContentPath();
             item.ItemId = _inventory.nextItemId++;
@@ -230,14 +224,15 @@ namespace SEToolbox.Models
         internal void RemoveItem(int index)
         {
             var invItem = _inventory.Items[index];
-            var gunObject = (MyObjectBuilder_PhysicalGunObject)invItem.PhysicalContent;
-            // Remove HandWeapon if item is HandWeapon.
-            if (invItem.PhysicalContent.TypeId == MOBTypeIds.PhysicalGunObject &&
-                 gunObject.GunEntity?.EntityId == _character?.HandWeapon?.EntityId)
-            {
-                _character.HandWeapon = null;
-            }
 
+            // Remove HandWeapon if item is HandWeapon.
+            if (invItem.PhysicalContent.TypeId == MOBTypeIds.PhysicalGunObject)
+            {
+                if (((MyObjectBuilder_PhysicalGunObject)invItem.PhysicalContent).GunEntity?.EntityId == _character?.HandWeapon.EntityId)
+                {
+                    _character?.HandWeapon = null;
+                }
+            }
 
             TotalVolume -= Items[index].Volume;
             TotalMass -= Items[index].Mass;

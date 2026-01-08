@@ -34,7 +34,7 @@ namespace SEToolbox.ViewModels
         }
 
         #endregion
-        private Action<bool> _busyAction;
+
         #region Command Properties
 
         public ICommand CopyDetailCommand
@@ -151,7 +151,7 @@ namespace SEToolbox.ViewModels
 
         public long VoxCells
         {
-            get => DataModel.VoxCells;
+            get => DataModel.VoxCells; 
             set => DataModel.VoxCells = value;
         }
 
@@ -174,7 +174,7 @@ namespace SEToolbox.ViewModels
 
         public List<VoxelMaterialAssetModel> GameMaterialList
         {
-            get => DataModel.GameMaterialList;
+            get => DataModel.GameMaterialList; 
             set => DataModel.GameMaterialList = value;
         }
 
@@ -182,11 +182,6 @@ namespace SEToolbox.ViewModels
         {
             get => DataModel.EditMaterialList;
             set => DataModel.EditMaterialList = value;
-        }
-        public Action<bool> BusyAction
-        {
-            get => b => { MainViewModel.IsBusy = true; };
-            set => SetValue(_busyAction, value, nameof(BusyAction), () => MainViewModel.IsBusy = false);
         }
 
         #endregion
@@ -211,14 +206,15 @@ namespace SEToolbox.ViewModels
             }
 
             string detail = string.Format(Properties.Resources.CtlVoxelDetail,
-                                          Name,
-                                          Size.Width, Size.Height, Size.Depth,
-                                          ContentSize.Width, ContentSize.Height, ContentSize.Depth,
-                                          Center.X, Center.Y, Center.Z,
-                                          Volume, VoxCells, PlayerDistance,
-                                          PositionAndOrientation.Value.Position.X,
-                                          PositionAndOrientation.Value.Position.Y,
-                                          PositionAndOrientation.Value.Position.Z, ore);
+                Name,
+                Size.Width, Size.Height, Size.Depth,
+                ContentSize.Width, ContentSize.Height, ContentSize.Depth,
+                Center.X, Center.Y, Center.Z,
+                Volume,
+                VoxCells,
+                PlayerDistance,
+                PositionAndOrientation.Value.Position.X, PositionAndOrientation.Value.Position.Y, PositionAndOrientation.Value.Position.Z,
+                ore);
 
             try
             {
@@ -233,389 +229,365 @@ namespace SEToolbox.ViewModels
 
         public bool ReseedCanExecute()
         {
-            return IsDataModelValid();
+            return DataModel.IsValid;
         }
 
         public void ReseedExecuted()
         {
-            BusyAction = (b) =>
+            MainViewModel.IsBusy = true;
+
+            string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
+
+            MyVoxelMapBase asteroid = new();
+            asteroid.Load(sourceFile);
+            _ = asteroid.VoxCells;
+
+            var materials = AsteroidSeedFillProperties.MaterialsData.Select(x => x.Value.Material);
+            var material = materials.Where(m => m.MaterialIndex == 0).FirstOrDefault();
+             var index = AsteroidSeedFillProperties.MaterialsData.First(x => x.Value.Material == material).Key;
+            var rare = materials.Where(m => m.IsRare).ToList();
+            var superRare = rare.Where(m => m.MinedRatio < 2).ToList();
+            var nonRare = materials.Except(rare).ToList();
+            var c = AsteroidSeedFillProperties.MaterialsData[index];
+            var random = new Random();
+            foreach (var m in nonRare)
             {
+                
+                int idx = random.Next(nonRare.Count) ;
+                var newMaterial = nonRare[index];
+               AsteroidSeedFillProperties. SetMaterial(index, newMaterial, material.Radius, material.Veins);
+            }
 
-                string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
+            foreach (var m in rare)
+            {
+                material = m;
+                int idx = random.Next(rare.Count);
+                var newMaterial = rare[index];
+                AsteroidSeedFillProperties.SetMaterial(index, newMaterial, material.Radius, material.Veins);
+            }
 
-                MyVoxelMapBase asteroid = new();
-                asteroid.Load(sourceFile);
-                _ = asteroid.VoxCells;
-
-                var materials = AsteroidSeedFillProperties.MaterialsData.Select(x => x.Value.Material);
-                var material = materials.Where(m => m.MaterialIndex == 0).FirstOrDefault();
-                var index = AsteroidSeedFillProperties.MaterialsData.First(x => x.Value.Material == material).Key;
-                var rare = materials.Where(m => m.IsRare).ToList();
-                var superRare = rare.Where(m => m.MinedRatio < 2).ToList();
-                var nonRare = materials.Except(rare).ToList();
-                var c = AsteroidSeedFillProperties.MaterialsData[index];
-                var random = new Random();
-                foreach (var m in nonRare)
-                {
-                    material = m;
-                    int idx = random.Next(nonRare.Count);
-                    var newMaterial = nonRare[index];
-                    AsteroidSeedFillProperties.SetMaterial(index, newMaterial, material.Radius, material.Veins);
-                }
-
-                foreach (var m in rare)
-                {
-                    material = m;
-                    int idx = random.Next(rare.Count);
-                    var newMaterial = rare[index];
-                    AsteroidSeedFillProperties.SetMaterial(index, newMaterial, material.Radius, material.Veins);
-                }
-
-                foreach (var m in superRare)
-                {
-                    material = m;
-                    int idx = random.Next(superRare.Count);
-                    var newMaterial = superRare[index];
-                    AsteroidSeedFillProperties.SetMaterial(index, newMaterial, material.Radius, material.Veins);
-                }
-                ;
-
-                string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
-                asteroid.Save(tempFileName);
-                DataModel.UpdateNewSource(asteroid, tempFileName);
-
-                MainViewModel.IsModified = true;
+            foreach (var m in superRare)
+            {
+                int idx = random.Next(superRare.Count);
+                var newMaterial = superRare[index];
+                AsteroidSeedFillProperties.SetMaterial(index, newMaterial, material.Radius, material.Veins);
             };
-            BusyAction(true);
-            DataModel.UpdateGeneralFromEntityBase();
+
+            string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
+            asteroid.Save(tempFileName);
+
+            DataModel.UpdateNewSource(asteroid, tempFileName);
+
+            MainViewModel.IsModified = true;
+            MainViewModel.IsBusy = false;
+
             DataModel.MaterialAssets = null;
             DataModel.InitializeAsync();
-
         }
 
         public bool ReplaceSurfaceCanExecute(string materialName)
         {
-            return IsDataModelValid();
+            return DataModel.IsValid;
         }
 
         public void ReplaceSurfaceExecuted(string materialName)
         {
-            BusyAction = (b) =>
-            {
-                string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
+            MainViewModel.IsBusy = true;
 
-                MyVoxelMapBase asteroid = new();
-                asteroid.Load(sourceFile);
-                asteroid.ForceShellMaterial(materialName, 2);
+            string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
 
-                string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
-                asteroid.Save(tempFileName);
+            MyVoxelMapBase asteroid = new();
+            asteroid.Load(sourceFile);
+            asteroid.ForceShellMaterial(materialName, 2);
 
-                DataModel.UpdateNewSource(asteroid, tempFileName);
+            string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
+            asteroid.Save(tempFileName);
 
-                MainViewModel.IsModified = true;
+            DataModel.UpdateNewSource(asteroid, tempFileName);
 
-            };
-            BusyAction(true);
-            DataModel.UpdateGeneralFromEntityBase();
+            MainViewModel.IsModified = true;
+            MainViewModel.IsBusy = false;
+
             DataModel.MaterialAssets = null;
             DataModel.InitializeAsync();
         }
 
         public bool ReplaceAllCanExecute(string materialName)
         {
-            return IsDataModelValid();
+            return DataModel.IsValid;
         }
 
         public void ReplaceAllExecuted(string materialName)
         {
-            BusyAction = (b) =>
-            {
-                string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
+            MainViewModel.IsBusy = true;
 
-                MyVoxelMapBase asteroid = new();
-                asteroid.Load(sourceFile);
-                asteroid.ForceBaseMaterial(materialName, materialName);
+            string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
 
-                string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
-                asteroid.Save(tempFileName);
+            MyVoxelMapBase asteroid = new();
+            asteroid.Load(sourceFile);
+            asteroid.ForceBaseMaterial(materialName, materialName);
 
-                DataModel.UpdateNewSource(asteroid, tempFileName);
+            string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
+            asteroid.Save(tempFileName);
 
-                MainViewModel.IsModified = true;
-            };
-            BusyAction(true);
-            DataModel.UpdateGeneralFromEntityBase();
+            DataModel.UpdateNewSource(asteroid, tempFileName);
+
+            MainViewModel.IsModified = true;
+            MainViewModel.IsBusy = false;
+
             DataModel.MaterialAssets = null;
             DataModel.InitializeAsync();
         }
 
         public bool ReplaceSelectedMenuCanExecute(string materialName)
         {
-            return SelectedMaterialAssetCanExecute();
+            return DataModel is { IsValid: true };
         }
 
         public bool ReplaceSelectedCanExecute(string materialName)
         {
-            return SelectedMaterialAssetCanExecute();
+            return DataModel is { IsValid: true };
         }
 
         public void ReplaceSelectedExecuted(string materialName)
         {
-            BusyAction = (b) =>
+            MainViewModel.IsBusy = true;
+
+            string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
+
+            MyVoxelMapBase asteroid = new();
+            asteroid.Load(sourceFile);
+
+            if (string.IsNullOrEmpty(materialName))
             {
-                string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
+                asteroid.RemoveContent(SelectedMaterialAsset.MaterialName, null);
+                DataModel.VoxCells = asteroid.VoxCells;
+            }
+            else
+            {
+                asteroid.ReplaceMaterial(SelectedMaterialAsset.MaterialName, materialName);
+            }
 
-                MyVoxelMapBase asteroid = new();
-                asteroid.Load(sourceFile);
+            string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
+            asteroid.Save(tempFileName);
 
-                if (string.IsNullOrEmpty(materialName))
-                {
-                    asteroid.RemoveContent(SelectedMaterialAsset.MaterialName, null);
-                    DataModel.VoxCells = asteroid.VoxCells;
-                }
-                else
-                {
-                    asteroid.ReplaceMaterial(SelectedMaterialAsset.MaterialName, materialName);
-                }
+            DataModel.UpdateNewSource(asteroid, tempFileName);
 
-                string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
-                asteroid.Save(tempFileName);
+            MainViewModel.IsModified = true;
+            MainViewModel.IsBusy = false;
 
-                DataModel.UpdateNewSource(asteroid, tempFileName);
-
-                MainViewModel.IsModified = true;
-            };
-            BusyAction(true);
             DataModel.UpdateGeneralFromEntityBase();
             DataModel.MaterialAssets = null;
             DataModel.InitializeAsync();
-
         }
 
         public bool SliceQuarterCanExecute()
         {
-            return IsDataModelValid();
+            return DataModel.IsValid;
         }
 
         public void SliceQuarterExecuted()
         {
-            BusyAction = (b) =>
+            MainViewModel.IsBusy = true;
+
+            string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
+
+            MyVoxelMapBase asteroid = new();
+            asteroid.Load(sourceFile);
+            asteroid.RefreshAssets();
+
+            int height = asteroid.BoundingContent.Size.Y + 1;
+            VRageMath.Vector3D contentCenter = asteroid.ContentCenter;
+            VRageMath.Vector3I asteroidSize = asteroid.Size;
+            VRageMath.Vector3I min = (VRageMath.Vector3I)VRageMath.Vector3D.Round(contentCenter, 0);
+
+            // remove the Top half.
+            asteroid.RemoveMaterial(min.X, asteroidSize.X, min.Y, asteroidSize.Y, 0, min.Z);
+
+            string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
+            asteroid.Save(tempFileName);
+
+            string newFileName = MainViewModel.CreateUniqueVoxelStorageName(DataModel.Name);
+            MyPositionAndOrientation posOrient = DataModel.PositionAndOrientation ?? new MyPositionAndOrientation();
+            posOrient.Position.y += height;
+
+            // genreate a new Asteroid entry.
+            MyObjectBuilder_VoxelMap newEntity = new()
             {
-                string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
-
-                MyVoxelMapBase asteroid = new();
-                asteroid.Load(sourceFile);
-                asteroid.RefreshAssets();
-
-                int height = asteroid.BoundingContent.Size.Y + 1;
-                VRageMath.Vector3D contentCenter = asteroid.ContentCenter;
-                VRageMath.Vector3I asteroidSize = asteroid.Size;
-                VRageMath.Vector3I min = (VRageMath.Vector3I)VRageMath.Vector3D.Round(contentCenter, 0);
-
-                // remove the Top half.
-                asteroid.RemoveMaterial(min.X, asteroidSize.X, min.Y, asteroidSize.Y, 0, min.Z);
-
-                string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
-                asteroid.Save(tempFileName);
-
-                string newFileName = MainViewModel.CreateUniqueVoxelStorageName(DataModel.Name);
-                MyPositionAndOrientation posOrient = DataModel.PositionAndOrientation ?? new MyPositionAndOrientation();
-                posOrient.Position.y += height;
-
-                // genreate a new Asteroid entry.
-                MyObjectBuilder_VoxelMap newEntity = new()
+                EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ASTEROID),
+                PersistentFlags = MyPersistentEntityFlags2.CastShadows | MyPersistentEntityFlags2.InScene,
+                StorageName = Path.GetFileNameWithoutExtension(newFileName),
+                PositionAndOrientation = new MyPositionAndOrientation
                 {
-                    EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ASTEROID),
-                    PersistentFlags = MyPersistentEntityFlags2.CastShadows | MyPersistentEntityFlags2.InScene,
-                    StorageName = Path.GetFileNameWithoutExtension(newFileName),
-                    PositionAndOrientation = new MyPositionAndOrientation
-                    {
-                        Position = posOrient.Position,
-                        Forward = posOrient.Forward,
-                        Up = posOrient.Up
-                    }
-                };
-
-                var structure = MainViewModel.AddEntity(newEntity);
-                ((StructureVoxelModel)structure).UpdateNewSource(asteroid, tempFileName); // Set the temporary file location of the Source Voxel, as it hasn't been written yet.
-
-                MainViewModel.IsModified = true;
+                    Position = posOrient.Position,
+                    Forward = posOrient.Forward,
+                    Up = posOrient.Up
+                }
             };
-            BusyAction(true);
+
+            var structure = MainViewModel.AddEntity(newEntity);
+            ((StructureVoxelModel)structure).UpdateNewSource(asteroid, tempFileName); // Set the temporary file location of the Source Voxel, as it hasn't been written yet.
+
+            MainViewModel.IsModified = true;
+            MainViewModel.IsBusy = false;
         }
 
         public bool SliceHalfCanExecute()
         {
-            return IsDataModelValid();
+            return DataModel.IsValid;
         }
 
         public void SliceHalfExecuted()
         {
-            BusyAction = (b) =>
+            MainViewModel.IsBusy = true;
+
+            string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
+
+            MyVoxelMapBase asteroid = new();
+            asteroid.Load(sourceFile);
+            asteroid.RefreshAssets();
+
+            int height = asteroid.BoundingContent.Size.Y + 1;
+
+            // remove the Top half.
+            asteroid.RemoveMaterial(null, null, (int)Math.Round(asteroid.ContentCenter.Y, 0), asteroid.Size.Y, null, null);
+
+            string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
+            asteroid.Save(tempFileName);
+
+            string newFileName = MainViewModel.CreateUniqueVoxelStorageName(DataModel.Name);
+            MyPositionAndOrientation posOrient = DataModel.PositionAndOrientation ?? new MyPositionAndOrientation();
+            posOrient.Position.y += height;
+
+            // genreate a new Asteroid entry.
+            MyObjectBuilder_VoxelMap newEntity = new()
             {
-                string sourceFile = DataModel.SourceVoxelFilePath ?? DataModel.VoxelFilePath;
-
-                MyVoxelMapBase asteroid = new();
-                asteroid.Load(sourceFile);
-                asteroid.RefreshAssets();
-
-                int height = asteroid.BoundingContent.Size.Y + 1;
-
-                // remove the Top half.
-                asteroid.RemoveMaterial(null, null, (int)Math.Round(asteroid.ContentCenter.Y, 0), asteroid.Size.Y, null, null);
-
-                string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
-                asteroid.Save(tempFileName);
-
-                string newFileName = MainViewModel.CreateUniqueVoxelStorageName(DataModel.Name);
-                MyPositionAndOrientation posOrient = DataModel.PositionAndOrientation ?? new MyPositionAndOrientation();
-                posOrient.Position.y += height;
-
-                // genreate a new Asteroid entry.
-                MyObjectBuilder_VoxelMap newEntity = new()
+                EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ASTEROID),
+                PersistentFlags = MyPersistentEntityFlags2.CastShadows | MyPersistentEntityFlags2.InScene,
+                StorageName = Path.GetFileNameWithoutExtension(newFileName),
+                PositionAndOrientation = new MyPositionAndOrientation
                 {
-                    EntityId = SpaceEngineersApi.GenerateEntityId(IDType.ASTEROID),
-                    PersistentFlags = MyPersistentEntityFlags2.CastShadows | MyPersistentEntityFlags2.InScene,
-                    StorageName = Path.GetFileNameWithoutExtension(newFileName),
-                    PositionAndOrientation = new MyPositionAndOrientation
-                    {
-                        Position = posOrient.Position,
-                        Forward = posOrient.Forward,
-                        Up = posOrient.Up
-                    }
-                };
-
-                var structure = MainViewModel.AddEntity(newEntity);
-                ((StructureVoxelModel)structure).UpdateNewSource(asteroid, tempFileName); // Set the temporary file location of the Source Voxel, as it hasn't been written yet.
-
-                MainViewModel.IsModified = true;
+                    Position = posOrient.Position,
+                    Forward = posOrient.Forward,
+                    Up = posOrient.Up
+                }
             };
-            BusyAction(true);
+
+            var structure = MainViewModel.AddEntity(newEntity);
+            ((StructureVoxelModel)structure).UpdateNewSource(asteroid, tempFileName); // Set the temporary file location of the Source Voxel, as it hasn't been written yet.
+
+            MainViewModel.IsModified = true;
+            MainViewModel.IsBusy = false;
         }
 
         public bool ExtractStationIntersectLooseCanExecute()
         {
-            return IsDataModelValid();
+            return DataModel.IsValid;
         }
 
         public void ExtractStationIntersectLooseExecuted()
         {
-            BusyAction = (b) =>
+            MainViewModel.IsBusy = true;
+            bool modified = ExtractStationIntersect(false);
+            if (modified)
             {
-                bool modified = ExtractStationIntersect(false);
-                if (modified)
-                {
-                    DataModel.InitializeAsync();
-                    MainViewModel.IsModified = true;
-                }
-            };
-            BusyAction(true);
+                DataModel.InitializeAsync();
+                MainViewModel.IsModified = true;
+            }
+            MainViewModel.IsBusy = false;
         }
 
         public bool ExtractStationIntersectTightCanExecute()
         {
-            return IsDataModelValid();
+            return DataModel.IsValid;
         }
 
         public void ExtractStationIntersectTightExecuted()
         {
-            BusyAction = (b) =>
+            MainViewModel.IsBusy = true;
+            bool modified = ExtractStationIntersect(true);
+            if (modified)
             {
-                bool modified = ExtractStationIntersect(true);
-                if (modified)
-                {
-                    DataModel.InitializeAsync();
-                    MainViewModel.IsModified = true;
-                }
-            };
-            BusyAction(true);
+                DataModel.InitializeAsync();
+                MainViewModel.IsModified = true;
+            }
+            MainViewModel.IsBusy = false;
         }
 
         public bool RotateAsteroidYawPositiveCanExecute()
         {
-            return IsDataModelValid();
+            return DataModel.IsValid;
         }
 
         public void RotateAsteroidPitchPositiveExecuted()
         {
-            BusyAction = (b) =>
-            {
-                // +90 around X
-                MaterialAssets = null;
-                DataModel.RotateAsteroid(VRageMath.Quaternion.CreateFromYawPitchRoll(0, VRageMath.MathHelper.PiOver2, 0));
-                DataModel.InitializeAsync();
-                MainViewModel.IsModified = true;
-            };
-            BusyAction(true);
+            MainViewModel.IsBusy = true;
+            // +90 around X
+            MaterialAssets = null;
+            DataModel.RotateAsteroid(VRageMath.Quaternion.CreateFromYawPitchRoll(0, VRageMath.MathHelper.PiOver2, 0));
+            DataModel.InitializeAsync();
+            MainViewModel.IsModified = true;
+            MainViewModel.IsBusy = false;
         }
 
         public bool RotateAsteroidPitchNegativeCanExecute()
         {
-            return IsDataModelValid();
+            return DataModel.IsValid;
         }
 
         public void RotateAsteroidPitchNegativeExecuted()
         {
-            BusyAction = (b) =>
-            {
-                // -90 around X
-                DataModel.RotateAsteroid(VRageMath.Quaternion.CreateFromYawPitchRoll(0, -VRageMath.MathHelper.PiOver2, 0));
-                DataModel.InitializeAsync();
-                MainViewModel.IsModified = true;
-            };
-            BusyAction(true);
+            MainViewModel.IsBusy = true;
+            // -90 around X
+            DataModel.RotateAsteroid(VRageMath.Quaternion.CreateFromYawPitchRoll(0, -VRageMath.MathHelper.PiOver2, 0));
+            DataModel.InitializeAsync();
+            MainViewModel.IsModified = true;
+            MainViewModel.IsBusy = false;
         }
 
         public bool RotateAsteroidRollPositiveCanExecute()
         {
-            return IsDataModelValid();
+            return DataModel.IsValid;
         }
 
         public void RotateAsteroidYawPositiveExecuted()
         {
-            BusyAction = (b) =>
-           {
-               // +90 around Y
-               DataModel.RotateAsteroid(VRageMath.Quaternion.CreateFromYawPitchRoll(VRageMath.MathHelper.PiOver2, 0, 0));
-               DataModel.InitializeAsync();
-               MainViewModel.IsModified = true;
-           };
-            BusyAction(true);
+            MainViewModel.IsBusy = true;
+            // +90 around Y
+            DataModel.RotateAsteroid(VRageMath.Quaternion.CreateFromYawPitchRoll(VRageMath.MathHelper.PiOver2, 0, 0));
+            DataModel.InitializeAsync();
+            MainViewModel.IsModified = true;
+            MainViewModel.IsBusy = false;
         }
 
         public bool RotateAsteroidYawNegativeCanExecute()
         {
-            return IsDataModelValid();
+            return DataModel.IsValid;
         }
 
         public void RotateAsteroidYawNegativeExecuted()
         {
-            BusyAction = (b) =>
-            {
-                // -90 around Y
-                DataModel.RotateAsteroid(VRageMath.Quaternion.CreateFromYawPitchRoll(-VRageMath.MathHelper.PiOver2, 0, 0));
-                DataModel.InitializeAsync();
-                MainViewModel.IsModified = true;
-            };
-            BusyAction(true);
+            MainViewModel.IsBusy = true;
+            // -90 around Y
+            DataModel.RotateAsteroid(VRageMath.Quaternion.CreateFromYawPitchRoll(-VRageMath.MathHelper.PiOver2, 0, 0));
+            DataModel.InitializeAsync();
+            MainViewModel.IsModified = true;
+            MainViewModel.IsBusy = false;
         }
 
         public bool RotateAsteroidPitchPositiveCanExecute()
         {
-            return IsDataModelValid();
+            return DataModel.IsValid;
         }
 
         public void RotateAsteroidRollPositiveExecuted()
         {
-            BusyAction = (b) =>
-            {
-                // +90 around Z
-                DataModel.RotateAsteroid(VRageMath.Quaternion.CreateFromYawPitchRoll(0, 0, VRageMath.MathHelper.PiOver2));
-                DataModel.InitializeAsync();
-                MainViewModel.IsModified = true;
-            };
-            BusyAction(true);
+            MainViewModel.IsBusy = true;
+            // +90 around Z
+            DataModel.RotateAsteroid(VRageMath.Quaternion.CreateFromYawPitchRoll(0, 0, VRageMath.MathHelper.PiOver2));
+            DataModel.InitializeAsync();
+            MainViewModel.IsModified = true;
+            MainViewModel.IsBusy = false;
         }
 
         public bool RotateAsteroidRollNegativeCanExecute()
@@ -625,14 +597,12 @@ namespace SEToolbox.ViewModels
 
         public void RotateAsteroidRollNegativeExecuted()
         {
-            BusyAction = (b) =>
-            {
-                // -90 around Z
-                DataModel.RotateAsteroid(VRageMath.Quaternion.CreateFromYawPitchRoll(0, 0, -VRageMath.MathHelper.PiOver2));
-                DataModel.InitializeAsync();
-                MainViewModel.IsModified = true;
-            };
-            BusyAction(true);
+            MainViewModel.IsBusy = true;
+            // -90 around Z
+            DataModel.RotateAsteroid(VRageMath.Quaternion.CreateFromYawPitchRoll(0, 0, -VRageMath.MathHelper.PiOver2));
+            DataModel.InitializeAsync();
+            MainViewModel.IsModified = true;
+            MainViewModel.IsBusy = false;
         }
 
         private bool ExtractStationIntersect(bool tightIntersection)
@@ -640,17 +610,6 @@ namespace SEToolbox.ViewModels
             return DataModel.ExtractStationIntersect(MainViewModel, tightIntersection);
         }
 
-        private bool IsDataModelValid()
-        {
-            return DataModel is { IsValid: true };
-        }
-
-        private bool SelectedMaterialAssetCanExecute()
-        {
-            return IsDataModelValid() && SelectedMaterialAsset != null;
-
-        }
-    }
         #endregion
+    }
 }
-

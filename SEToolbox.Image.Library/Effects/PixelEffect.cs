@@ -8,21 +8,26 @@ namespace SEToolbox.ImageLibrary.Effects
     /// <summary>
     /// Summary description for Class1.
     /// </summary>
-    /// <remarks>
-    /// Construct the effect
-    /// </remarks>
-    /// <param name="singlePass">If true, the quantization only needs to loop through the source pixels once</param>
-    /// <remarks>
-    /// If you construct this class with a true value for singlePass, then the code will, when quantizing your image,
-    /// only call the 'QuantizeImage' function. If two passes are required, the code will call 'InitialQuantizeImage'
-    /// and then 'QuantizeImage'.
-    /// </remarks>
-    public unsafe abstract class PixelEffect(bool singlePass) : IPixelEffect
+    public unsafe abstract class PixelEffect : IPixelEffect
     {
         /// <summary>
         /// Flag used to indicate whether a single pass or two passes are needed for quantization.
         /// </summary>
-        private readonly bool _singlePass = singlePass;
+        private readonly bool _singlePass;
+
+        /// <summary>
+        /// Construct the effect
+        /// </summary>
+        /// <param name="singlePass">If true, the quantization only needs to loop through the source pixels once</param>
+        /// <remarks>
+        /// If you construct this class with a true value for singlePass, then the code will, when quantizing your image,
+        /// only call the 'QuantizeImage' function. If two passes are required, the code will call 'InitialQuantizeImage'
+        /// and then 'QuantizeImage'.
+        /// </remarks>
+        protected PixelEffect(bool singlePass)
+        {
+            _singlePass = singlePass;
+        }
 
         /// <summary>
         /// Quantize an image and return the resulting output bitmap
@@ -61,6 +66,7 @@ namespace SEToolbox.ImageLibrary.Effects
             //Debug.Assert(color == myTestTransparentColor, "channels must match original");
 
 
+
             try
             {
                 // Get the source image bits and lock into memory
@@ -70,9 +76,7 @@ namespace SEToolbox.ImageLibrary.Effects
                 // For something like an octree quantizer, this will run through
                 // all image pixels, build a data structure, and create a palette.
                 if (!_singlePass)
-                {
                     FirstPass(sourceData, width, height);
-                }
 
                 // Then call the second pass which actually does the conversion
                 SecondPass(sourceData, output, width, height, bounds);
@@ -97,23 +101,21 @@ namespace SEToolbox.ImageLibrary.Effects
         {
             // Define the source data pointers. The source row is a byte to
             // keep addition of the stride value easier (as this is in bytes)
-            var pixelsSourceRowPtr = (byte*)sourceData.Scan0.ToPointer();
+            var pSourceRow = (byte*)sourceData.Scan0.ToPointer();
 
             // Loop through each row
             for (var row = 0; row < height; row++)
             {
                 // Set the source pixel to the first pixel in this row
-                int* pixelSourcePtr = (int*)pixelsSourceRowPtr;
+                Int32* pSourcePixel = (Int32*)pSourceRow;
 
                 // And loop through each column
-                for (var col = 0; col < width; col++, pixelSourcePtr++)
-                {
+                for (var col = 0; col < width; col++, pSourcePixel++)
                     // Now I have the pixel, call the FirstPassQuantize function...
-                    InitialQuantizePixel((Color32*)pixelSourcePtr);
-                }
+                    InitialQuantizePixel((Color32*)pSourcePixel);
 
                 // Add the stride to the source row
-                pixelsSourceRowPtr += sourceData.Stride;
+                pSourceRow += sourceData.Stride;
             }
         }
 
@@ -136,37 +138,37 @@ namespace SEToolbox.ImageLibrary.Effects
 
                 // Define the source data pointers. The source row is a byte to
                 // keep addition of the stride value easier (as this is in bytes)
-                byte* pixelsSourceRowPtr = (byte*)sourceData.Scan0.ToPointer();
-                int* pixelSourcePtr = (int*)pixelsSourceRowPtr;
-                int* pixelPrevPtr = pixelSourcePtr;
+                byte* pSourceRow = (byte*)sourceData.Scan0.ToPointer();
+                Int32* pSourcePixel = (Int32*)pSourceRow;
+                Int32* pPreviousPixel = pSourcePixel;
 
                 // Now define the destination data pointers
-                byte* pixelDestRowPtr = (byte*)outputData.Scan0.ToPointer();
-                int* pixelDestPtr = (int*)pixelDestRowPtr;
+                byte* pDestinationRow = (byte*)outputData.Scan0.ToPointer();
+                Int32* pDestinationPixel = (Int32*)pDestinationRow;
 
                 // And convert assign the value of the , so that I have values going into the loop
-                QuantizePixel((Color32*)pixelSourcePtr, (Color32*)pixelDestPtr);
+                QuantizePixel((Color32*)pSourcePixel, (Color32*)pDestinationPixel);
 
                 // Loop through each row
                 for (var row = 0; row < height; row++)
                 {
                     // Set the source pixel to the first pixel in this row
-                    pixelSourcePtr = (int*)pixelsSourceRowPtr;
+                    pSourcePixel = (Int32*)pSourceRow;
 
                     // And set the destination pixel pointer to the first pixel in the row
-                    pixelDestPtr = (int*)pixelDestRowPtr;
+                    pDestinationPixel = (Int32*)pDestinationRow;
 
                     // Loop through each pixel on this scan line
-                    for (var col = 0; col < width; col++, pixelSourcePtr++, pixelDestPtr++)
+                    for (var col = 0; col < width; col++, pSourcePixel++, pDestinationPixel++)
                     {
-                        QuantizePixel((Color32*)pixelSourcePtr, (Color32*)pixelDestPtr);
+                        QuantizePixel((Color32*)pSourcePixel, (Color32*)pDestinationPixel);
                     }
 
                     // Add the stride to the source row
-                    pixelsSourceRowPtr += sourceData.Stride;
+                    pSourceRow += sourceData.Stride;
 
                     // And to the destination row
-                    pixelDestRowPtr += outputData.Stride;
+                    pDestinationRow += outputData.Stride;
                 }
             }
             finally
@@ -232,14 +234,14 @@ namespace SEToolbox.ImageLibrary.Effects
             /// Permits the color32 to be treated as an int32
             /// </summary>
             [FieldOffset(0)]
-            public int Argb;
+            public int ARGB;
 
             /// <summary>
             /// Return the color for this Color32 object
             /// </summary>
-            public readonly Color Color
+            public Color Color
             {
-                get => Color.FromArgb(Alpha, Red, Green, Blue);
+                get { return Color.FromArgb(Alpha, Red, Green, Blue); }
             }
         }
     }
