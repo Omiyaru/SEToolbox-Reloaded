@@ -5,11 +5,11 @@ namespace SEToolbox.Services
 {
     public class BrowserBehavior
     {
-        public static readonly DependencyProperty HtmlProperty = DependencyProperty.RegisterAttached(
-                "Html",
-                typeof(string),
-                typeof(BrowserBehavior),
-                new FrameworkPropertyMetadata(OnHtmlChanged));
+        public static readonly DependencyProperty HtmlProperty = 
+        		DependencyProperty.RegisterAttached("Html",
+		                                            typeof(string),
+		                                            typeof(BrowserBehavior),
+		                                            new FrameworkPropertyMetadata(OnHtmlChanged));
 
         [AttachedPropertyBrowsableForType(typeof(WebBrowser))]
         public static string GetHtml(WebBrowser d)
