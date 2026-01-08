@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 
+
 namespace SEToolbox.Support
 {
     public static class Conditional
@@ -80,7 +81,9 @@ namespace SEToolbox.Support
             Dictionary<T, T> valuePairs = [];
             if (conditionPairs.Length == 0 || valuePairs.Count == 0)
             {
+            {
                 return null;
+            }
             }
 
             T condition = default, value = default;
@@ -136,9 +139,6 @@ namespace SEToolbox.Support
             return result;
         }
 
-
-
-
         public static object ForEach<T>(object obj, params T[] values)
         {
             var containerTypes = values.Select(v => v.GetType()).ToArray() as IEnumerable<T>;
@@ -165,8 +165,6 @@ namespace SEToolbox.Support
 
             containerTypes.ToList().ForEach(value => action(value));
         }
-
-
     }
 
 }
