@@ -35,19 +35,7 @@ namespace SEToolbox.Models.Asteroids
         public static Dictionary<int, (string Name, MaterialSelectionModel Material, double? Radius, int? Veins)> _materialsData = MaterialsData;
         private static readonly Dictionary<int, (string Name, MaterialSelectionModel Material, double? Radius, int? Veins)> _materialsDataCache = [];
         public static Dictionary<int, (string Name, MaterialSelectionModel Material, double? Radius, int? Veins)> MaterialsData => _materialsDataCache;
-        // private static void BuildMaterialsDataCache()
-        // {
-        //     if (_materialsDataCache.Count > 0)
-        //         return;
-        //     var index = 0;
-        //     foreach (var material in _materialsData.Select(x => x.Value.Material))
-        //     {
-        //         _materialsDataCache.Add(index, ($"{material}", material, index > 0 ? material.Radius : null, index > 0 ? material.Veins : null));
-        //         index++;
-        //     }
-        //}
-
-
+      
         #region Properties
         public ObservableCollection<GenerateVoxelDetailModel> VoxelFileList
         {
@@ -239,20 +227,18 @@ namespace SEToolbox.Models.Asteroids
         public static void GetMaterial(int index, MaterialSelectionModel material, int? radius, int? veins)
         {
             if (material == null)
+            {
                 throw new ArgumentNullException(nameof(material));
+            }
 
             if (index < 0 || index >= MaterialsData.Count)
+            {
                 throw new ArgumentOutOfRangeException(nameof(index));
+            }
 
             MaterialsData[index] = ($"{material}", material, radius, veins);
         }
 
-        /// <summary>
-        /// Retrieves the radius of the material at the specified vein index.
-        /// </summary>
-        /// <param name="index">The index of the vein from which to retrieve the radius.</param>
-        /// <returns>The radius of the material at the specified vein index.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when the vein index is invalid.</exception>
         public static double GetRadius(int index)
         {
             var materials = MaterialsData.Select(x => x.Value.Material).ToList();
@@ -262,10 +248,14 @@ namespace SEToolbox.Models.Asteroids
         public static MaterialSelectionModel GetMaterial(int index, List<MaterialSelectionModel> materialList)
         {
             if (materialList == null)
+            {
                 throw new ArgumentNullException(nameof(materialList));
+            }
 
             if (index < 0 || index >= materialList.Count)
+            {
                 throw new ArgumentOutOfRangeException(nameof(index));
+            }
 
             return materialList[index];
         }
@@ -273,17 +263,24 @@ namespace SEToolbox.Models.Asteroids
         public int GetVeins(int index, List<MaterialSelectionModel> materialsList)
         {
             if (index < 0 || index >= MaterialsList.Count)
+            {
                 throw new ArgumentOutOfRangeException(nameof(index), "Invalid vein index: " + index);
+            }
+
             return materialsList[index].Veins;
         }
 
         public static void SetMaterial(int index, MaterialSelectionModel material, int? radius, int? veins)
         {
             if (material == null)
+            {
                 throw new ArgumentNullException(nameof(material));
+            }
 
             if (index < 0 || index >= MaterialsData.Count)
+            {
                 throw new ArgumentOutOfRangeException(nameof(index));
+            }
 
             MaterialsData[index] = ($"{material}", material, radius, veins);
         }
@@ -291,16 +288,18 @@ namespace SEToolbox.Models.Asteroids
         internal void Randomize()
         {
             if (MaterialsList == null || MaterialsList.Count == 0)
+            {
                 throw new InvalidOperationException(" Materials list is empty or not initialized.");
+            }
 
             var random = new Random();
             var indices = Enumerable.Range(0, MaterialsList.Count).OrderBy(i => RandomUtil.GetInt(0, MaterialsList.Count)).ToArray();
 
-            var veins = RandomUtil.GetInt((int)(MaterialsData.Select(x => x.Value.Veins).Min() * 0.85),
-                                    (int)(MaterialsData.Select(x => x.Value.Veins).Max() * 1.5 * 0.85));
+            var veins = RandomUtil.GetInt((int)(MaterialsData.Min(x => x.Value.Veins) * 0.85),
+                                          (int)(MaterialsData.Max(x => x.Value.Veins) * 1.5 * 0.85));
 
-            var radius = RandomUtil.GetInt((int)(MaterialsData.Select(x => x.Value.Radius).Min() * 0.85),
-                                     (int)(MaterialsData.Select(x => x.Value.Radius).Max() * 1.5 * 0.85));
+            var radius = RandomUtil.GetInt((int)(MaterialsData.Min(x => x.Value.Radius) * 0.85),
+                                           (int)(MaterialsData.Max(x => x.Value.Radius) * 1.5 * 0.85));
 
           
             MainMaterial = MaterialsList[indices[0]];
@@ -309,8 +308,7 @@ namespace SEToolbox.Models.Asteroids
             {
                 GetMaterial(index, MaterialsList[index], radius, veins);
             }
-        }
-
+        }    
     }
 }
 
