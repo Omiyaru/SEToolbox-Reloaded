@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Media.Animation;
 using SEToolbox.Support;
 using Binding = System.Windows.Data.Binding;
 using Primitives = System.Windows.Controls.Primitives;
@@ -25,7 +24,9 @@ namespace SEToolbox.Controls
 
         #region ColumnHeaderArrowUpTemplate
         public static readonly DependencyProperty ColumnHeaderArrowUpTemplateProperty =
-            DependencyProperty.Register(nameof(ColumnHeaderArrowUpTemplate), typeof(DataTemplate), typeof(SortableListView));
+            DependencyProperty.Register(nameof(ColumnHeaderArrowUpTemplate),
+                                        typeof(DataTemplate),
+                                        typeof(SortableListView));
 
         public DataTemplate ColumnHeaderArrowUpTemplate
         {
@@ -37,32 +38,39 @@ namespace SEToolbox.Controls
         #region ColumnHeaderArrowDownTemplate
 
         public static readonly DependencyProperty ColumnHeaderArrowDownTemplateProperty =
-            DependencyProperty.Register(nameof(ColumnHeaderArrowDownTemplate), typeof(DataTemplate), typeof(SortableListView));
+            DependencyProperty.Register(nameof(ColumnHeaderArrowDownTemplate),
+                                        typeof(DataTemplate),
+                                        typeof(SortableListView));
 
         public DataTemplate ColumnHeaderArrowDownTemplate
         {
             get => (DataTemplate)GetValue(ColumnHeaderArrowDownTemplateProperty);
             set => SetValue(ColumnHeaderArrowDownTemplateProperty, value);
         }
+
         #endregion
-        
+
         #endregion
 
         public static readonly DependencyProperty DefaultSortColumnProperty =
-            DependencyProperty.Register(nameof(DefaultSortColumn), typeof(string), typeof(SortableListView));
+            DependencyProperty.Register(nameof(DefaultSortColumn),
+                                        typeof(string),
+                                        typeof(SortableListView));
 
         public string DefaultSortColumn
         {
-            get => (string)GetValue(DefaultSortColumnProperty);
+            get => GetValue(DefaultSortColumnProperty) as string;
             set => SetValue(DefaultSortColumnProperty, value);
         }
 
         public static readonly RoutedEvent MouseDoubleClickItemEvent =
-            EventManager.RegisterRoutedEvent(nameof(MouseDoubleClickItem), RoutingStrategy.Direct, typeof(MouseButtonEventHandler), typeof(SortableListView));
+            EventManager.RegisterRoutedEvent(nameof(MouseDoubleClickItem),
+                                             RoutingStrategy.Direct,
+                                             typeof(MouseButtonEventHandler),
+                                             typeof(SortableListView));
 
         public static event MouseButtonEventHandler MouseDoubleClickItem;
 
-        
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
@@ -72,34 +80,18 @@ namespace SEToolbox.Controls
             AddHandler(MouseDoubleClickEvent, new RoutedEventHandler(MouseDoubleClickedHandler));
         }
 
+        #region  Methods
 
-        private static void MouseDoubleClickedHandler(object sender, RoutedEventArgs e)
+        protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
         {
-            var listView = ((ListView)sender).GetHitControl<ListViewItem>((MouseEventArgs)e);
-            if (listView != null)
+            base.OnItemsSourceChanged(oldValue, newValue);
+            ICollectionView dataView = CollectionViewSource.GetDefaultView(ItemsSource);
+            if (ItemsSource != null && dataView.SortDescriptions.Count == 0 && _sortList.Any())
             {
-                MouseDoubleClickItem?.Invoke(sender, e as MouseButtonEventArgs);
+                _sortList.ForEach(sortColumn => dataView.SortDescriptions.Add(new SortDescription(sortColumn.SortPath, sortColumn.SortDirection)));
+                dataView.Refresh();
             }
         }
-
-
-        #region  Methods
-        // protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
-        // {
-        //     base.OnItemsSourceChanged(oldValue, newValue);
-        //     if (ItemsSource != null)
-        //     {
-        //         ICollectionView dataView = CollectionViewSource.GetDefaultView(ItemsSource);
-        //         if (dataView.SortDescriptions.Count == 0 && _sortList.Any())
-        //         {
-        //             foreach (SortColumn sortColumn in _sortList)
-        //             {
-        //                 dataView.SortDescriptions.Add(new SortDescription(sortColumn.SortPath, sortColumn.SortDirection));
-        //             }
-        //             dataView.Refresh();
-        //         }
-        //     }
-        // }
 
         private static bool IsMatchingColumn(SortableGridViewColumn column, string sortColumn)
         {
@@ -121,27 +113,26 @@ namespace SEToolbox.Controls
         {
 
             if (DefaultSortColumn == null || View is not GridView gridView)
+            {
                 return;
+            }
 
             GridViewColumn selectedColumn = FindColumnToSort(gridView.Columns);
 
-            if (selectedColumn != null)
-            {
-                _sortList.Clear();
-                _sortList.Add(new SortColumn(DefaultSortColumn, ListSortDirection.Ascending, selectedColumn));
-                Sort(this, _sortList);
 
-                if (ColumnHeaderArrowUpTemplate != null)
-                    selectedColumn.HeaderTemplate = ColumnHeaderArrowUpTemplate;
-            }
+            _sortList.Clear();
+            _sortList.Add(new SortColumn(DefaultSortColumn, ListSortDirection.Ascending, selectedColumn));
+            Sort(this, _sortList);
+
+           _ = ColumnHeaderArrowUpTemplate != null ?selectedColumn?.HeaderTemplate = ColumnHeaderArrowUpTemplate : null; 
+      
         }
 
-        GridViewColumn FindColumnToSort(IList<GridViewColumn> columns)
+        private GridViewColumn FindColumnToSort(IList<GridViewColumn> columns)
         {
-            var column = columns.FirstOrDefault(c =>
-                c is SortableGridViewColumn sortableColumn && IsMatchingColumn(sortableColumn, DefaultSortColumn) ||
-                c.DisplayMemberBinding is Binding binding && binding.Path.Path == DefaultSortColumn ||
-                c.Header.ToString() == DefaultSortColumn);
+            var column = columns.FirstOrDefault(c => c is SortableGridViewColumn sortableColumn && IsMatchingColumn(sortableColumn, DefaultSortColumn) ||
+                                               (c.DisplayMemberBinding is Binding binding && binding.Path.Path == DefaultSortColumn) ||
+                                                c.Header.ToString() == DefaultSortColumn);
 
             return column;
         }
@@ -151,39 +142,26 @@ namespace SEToolbox.Controls
             var headerClicked = sender as GridViewColumnHeader;
             var listView = headerClicked.FindVisualParent<ListView>();
             var headerPaths = GetHeaderPaths(headerClicked);
-
-            if (e.OriginalSource is not GridViewColumnHeader || headerClicked.Role == GridViewColumnHeaderRole.Padding || headerClicked.Column is null || headerPaths.Count == 0)
+            if (headerClicked is null || e.OriginalSource is not DependencyObject originalSource || headerClicked.Column is null || headerClicked.Role == GridViewColumnHeaderRole.Padding || headerPaths.Count == 0)
             {
                 return;
             }
 
             var oldItem = _sortList.FirstOrDefault(i => i.SortPath == headerPaths[0] || ReferenceEquals(i.Column, headerClicked.Column));
 
-            ListSortDirection direction;
-            if (oldItem == null)
+            ListSortDirection direction = ListSortDirection.Ascending | oldItem.SortDirection;
+      
+            Action action = (oldItem, direction) switch
             {
-                direction = ListSortDirection.Ascending;
-            }
-            else if (oldItem.Column.Equals(headerClicked.Column))
-            {
-                direction = oldItem.SortDirection == ListSortDirection.Ascending
-                    ? ListSortDirection.Descending
-                    : ListSortDirection.Ascending;
-            }
-            else
-            {
-                _sortList.RemoveAll(i => i.SortPath == headerPaths[0] || ReferenceEquals(i.Column, headerClicked.Column));
-
-                if (headerClicked.Column != null)
-                {
-                    headerClicked.Column.HeaderTemplate = null;
-                }
-
-                Sort(listView, _sortList);
-                return;
-            }
-
-            UpdateHeaderTemplate(headerClicked, direction);
+                _ when oldItem == null => () => _sortList.Add(new SortColumn(headerPaths[0], ListSortDirection.Ascending, headerClicked.Column)),
+                _ when oldItem.Column.Equals(headerClicked.Column) => () => direction = oldItem.SortDirection == ListSortDirection.Ascending ? 
+                                                                                                                 ListSortDirection.Descending : 
+                                                                                                                 ListSortDirection.Ascending,
+                _ when oldItem.Column != headerClicked.Column => () =>  _sortList.RemoveAll(i => i.SortPath == headerPaths[0] || ReferenceEquals(i.Column, headerClicked.Column)), 
+                _ => () => { headerClicked?.Column.HeaderTemplate = null; Sort(listView, _sortList); return; },                                                                   
+            }; 
+            action.Invoke();
+            UpdateHeaderTemplate(headerClicked, direction);    
             UpdateSortList(headerClicked, direction, headerPaths);
             Sort(listView, _sortList);
         }
@@ -194,24 +172,20 @@ namespace SEToolbox.Controls
             {
                 return
                 [
-                    headerClicked.Column.DisplayMemberBinding is Binding displayBinding
-                        ? displayBinding.Path.Path
-                        : headerClicked.Column.Header as string
+                    headerClicked.Column.DisplayMemberBinding is Binding displayBinding ? displayBinding.Path.Path : 
+                                                                                          headerClicked.Column.Header as string
                 ];
             }
 
             var headerPaths = new List<string>();
-            if (sortableColumn.SortBinding is MultiBinding multiBinding)
+           Action action = sortableColumn.SortBinding switch
             {
-                foreach (var binding in multiBinding.Bindings.OfType<Binding>())
-                {
-                    headerPaths.Add(binding.Path.Path);
-                }
-            }
-            else if (sortableColumn.SortBinding is Binding binding)
-            {
-                headerPaths.Add(binding.Path.Path);
-            }
+                MultiBinding multiBinding => () => headerPaths.AddRange(multiBinding.Bindings.OfType<Binding>().Select(binding => binding.Path.Path)),
+
+               Binding binding => () => headerPaths.AddRange([binding.Path.Path]),
+               _ => () => headerPaths.AddRange([sortableColumn.SortBinding.ToString()])
+            };
+            action.Invoke();
 
             return headerPaths;
         }
@@ -227,6 +201,7 @@ namespace SEToolbox.Controls
             }
 
             _sortList.ForEach(sortColumn => sortColumn.Column.HeaderTemplate = null);
+            
             foreach (string colPath in headerPaths)
             {
                 _sortList.Insert(0, new SortColumn(colPath, direction, headerClicked.Column));
@@ -256,7 +231,15 @@ namespace SEToolbox.Controls
         {
             headerClicked.Column.HeaderTemplate = direction == ListSortDirection.Ascending ? ColumnHeaderArrowUpTemplate : ColumnHeaderArrowDownTemplate;
         }
-
+        
+        private static void MouseDoubleClickedHandler(object sender, RoutedEventArgs e)
+        {
+            var listView = ((ListView)sender).GetHitControl<ListViewItem>((MouseEventArgs)e);
+            if (listView != null)
+            {
+                MouseDoubleClickItem?.Invoke(sender, e as MouseButtonEventArgs);
+            }
+        }
         public class SortColumn(string sortPath, ListSortDirection direction, GridViewColumn gridViewColumn)
         {
             public string SortPath { get; set; } = sortPath;
@@ -265,4 +248,4 @@ namespace SEToolbox.Controls
         }
     }
 }
-#endregion
+        #endregion

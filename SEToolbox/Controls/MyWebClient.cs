@@ -21,7 +21,6 @@ namespace SEToolbox.Controls
          }
          catch (Exception ex)
          {
-           
             throw new WebException( ex.Message);
          }  
              RequestUri = response?.Result.RequestMessage.RequestUri;

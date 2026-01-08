@@ -24,28 +24,22 @@ namespace SEToolbox.Controls
 
         public void ExpandSubtree(object item, bool expaned = false)
         {
-            if (item != null && expaned == false)
+            if (item != null && expaned == false && ItemContainerGenerator.ContainerFromItem(item) is ItemsControl itemsControl)
             {
-                if (ItemContainerGenerator.ContainerFromItem(item) is ItemsControl itemsControl)
+                foreach (object subItem in itemsControl.Items)
                 {
-                    foreach (object subItem in itemsControl.Items)
-                    {
-                        ExpandSubtree(subItem, true);
-                    }
+                    ExpandSubtree(subItem, true);
                 }
             }
         }
 
         internal void CollapseSubtree(object item, bool expanded = false)
         {
-            if (item != null && expanded == true)
+            if (item != null && expanded == true && ItemContainerGenerator.ContainerFromItem(item) is ItemsControl itemsControl)
             {
-                if (ItemContainerGenerator.ContainerFromItem(item) is ItemsControl itemsControl)
+                foreach (var subItem in itemsControl.Items)
                 {
-                    foreach (var subItem in itemsControl.Items)
-                    {
-                        CollapseSubtree(subItem, false);
-                    }
+                    CollapseSubtree(subItem, false);
                 }
             }
         }
@@ -69,7 +63,9 @@ namespace SEToolbox.Controls
             protected override void InsertItem(int index, object item)
             {
                 if (item == null)
-                    throw new ArgumentNullException("item");
+                {
+                    throw new ArgumentNullException("item is null");
+                }
 
                 _items.Add(item);
                 _treeView.ExpandSubtree(item);
@@ -87,7 +83,9 @@ namespace SEToolbox.Controls
             protected override void SetItem(int index, object item)
             {
                 if (item == null)
+                {
                     throw new ArgumentNullException("item");
+                }
 
                 var oldItem = this[index];
                 _items.Remove(oldItem);

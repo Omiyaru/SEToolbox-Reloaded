@@ -12,9 +12,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Markup;
 using System.Windows.Input;
+using System.Windows.Markup;
+using System.Windows.Media;
 
 namespace SEToolbox.Controls
 {
@@ -29,11 +29,10 @@ namespace SEToolbox.Controls
         #region Dependency Properties
 
         public static readonly DependencyProperty AutoGenerateAspectsProperty =
-            DependencyProperty.Register(
-                nameof(AutoGenerateAspects),
-                typeof(bool),
-                typeof(AspectView),
-                new PropertyMetadata(true, (d, e) => ((AspectView)d).RefreshAspects()));
+            DependencyProperty.Register(nameof(AutoGenerateAspects),
+                                        typeof(bool),
+                                        typeof(AspectView),
+                                        new PropertyMetadata(true, (d, e) => ((AspectView)d).RefreshAspects()));
 
         public bool AutoGenerateAspects
         {
@@ -42,11 +41,10 @@ namespace SEToolbox.Controls
         }
 
         public static readonly DependencyProperty ReflectionFallbackProperty =
-            DependencyProperty.Register(
-                nameof(ReflectionFallback),
-                typeof(bool),
-                typeof(AspectView),
-                new PropertyMetadata(true, (d, e) => ((AspectView)d).RefreshAspects()));
+            DependencyProperty.Register(nameof(ReflectionFallback),
+                                        typeof(bool),
+                                        typeof(AspectView),
+                                        new PropertyMetadata(true, (d, e) => ((AspectView)d).RefreshAspects()));
 
         public bool ReflectionFallback
         {
@@ -55,11 +53,10 @@ namespace SEToolbox.Controls
         }
 
         public static readonly DependencyProperty GroupByCategoryProperty =
-            DependencyProperty.Register(
-                nameof(GroupByCategory),
-                typeof(bool),
-                typeof(AspectView),
-                new PropertyMetadata(true, (d, e) => ((AspectView)d).RefreshAspects()));
+            DependencyProperty.Register(nameof(GroupByCategory),
+                                        typeof(bool),
+                                        typeof(AspectView),
+                                        new PropertyMetadata(true, (d, e) => ((AspectView)d).RefreshAspects()));
 
         public bool GroupByCategory
         {
@@ -68,11 +65,10 @@ namespace SEToolbox.Controls
         }
 
         public static readonly DependencyProperty IncludeNonBrowsableProperty =
-            DependencyProperty.Register(
-                nameof(IncludeNonBrowsable),
-                typeof(bool),
-                typeof(AspectView),
-                new PropertyMetadata(false, (d, e) => ((AspectView)d).RefreshAspects()));
+            DependencyProperty.Register(nameof(IncludeNonBrowsable),
+                                        typeof(bool),
+                                        typeof(AspectView),
+                                        new PropertyMetadata(false, (d, e) => ((AspectView)d).RefreshAspects()));
 
         public bool IncludeNonBrowsable
         {
@@ -83,8 +79,15 @@ namespace SEToolbox.Controls
         #endregion
 
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null) =>
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            if (PropertyChanged == null)
+            {
+                return;
+            }
+
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
 
         private readonly AutoTemplateSelector _templateSelector;
         private readonly ItemsControl _itemsControl;
@@ -106,7 +109,10 @@ namespace SEToolbox.Controls
 
         private void BuildUI()
         {
-            if (Aspects == null) return;
+            if (Aspects == null)
+            {
+                return;
+            }
 
             var expander = new Expander
             {
@@ -141,17 +147,18 @@ namespace SEToolbox.Controls
         {
             var pos = e.GetPosition(_itemsControl);
             var element = _itemsControl.InputHitTest(pos) as DependencyObject;
-            var item = ItemsControl.ContainerFromElement(_itemsControl, element) as ListViewItem;
+            var item = ContainerFromElement(_itemsControl, element) as ListViewItem;
 
 
             if (ReferenceEquals(_lastDropTarget, item))
+            {
                 return;
+            }
 
             _lastDropTarget.SetValue(BackgroundProperty, null);
 
             item?.Background = Brushes.LightBlue; // Or any highlight color
             _lastDropTarget = item;
-
         }
 
 
@@ -160,7 +167,7 @@ namespace SEToolbox.Controls
             _lastDropTarget?.ClearValue(BackgroundProperty);
             _lastDropTarget = null;
         }
-    
+
 
         private void OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -168,14 +175,15 @@ namespace SEToolbox.Controls
         }
 
         private void OnMouseMove(object sender, MouseEventArgs e)
-        {
+        {    
+            var itemsSelector = _itemsControl as Selector;
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 Point position = e.GetPosition(null);
                 if (Math.Abs(position.X - _dragStartPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
                     Math.Abs(position.Y - _dragStartPoint.Y) > SystemParameters.MinimumVerticalDragDistance)
                 {
-                    if ((_itemsControl as Selector).SelectedItem is Aspect aspect)
+                    if (itemsSelector.SelectedItem is Aspect aspect)
                     {
                         DragDrop.DoDragDrop(_itemsControl, aspect, DragDropEffects.Move);
                     }
@@ -185,25 +193,31 @@ namespace SEToolbox.Controls
 
         private void OnDrop(object sender, DragEventArgs e)
         {
-            try
+            var originalSourceElement = e.OriginalSource as FrameworkElement;
+            if (e.Data == null || e.OriginalSource == null)
             {
-                if (e.Data.GetDataPresent(typeof(Aspect)))
-                {
-                    Aspect droppedData = e.Data.GetData(typeof(Aspect)) as Aspect;
-                    if (((FrameworkElement)e.OriginalSource).DataContext is not Aspect target || droppedData == target)
-                        return;
-
-                    int removedIdx = Aspects.IndexOf(droppedData);
-                    int targetIdx = Aspects.IndexOf(target);
-                    if (removedIdx >= 0 && targetIdx >= 0 && removedIdx != targetIdx)
-                    {
-                        Aspects.Move(removedIdx, targetIdx);
-                    }
-                }
+                return;
             }
-            catch (Exception ex)
+
+            if (e.Data.GetDataPresent(typeof(Aspect)))
             {
-                System.Diagnostics.Debug.WriteLine($"Error in OnDrop: {ex.Message}");
+                if (e.Data.GetData(typeof(Aspect)) is not Aspect droppedData)
+                {
+                    throw new ArgumentNullException(nameof(droppedData));
+                }
+
+                if (originalSourceElement.DataContext is not Aspect target || droppedData == target)
+                {
+                    return;
+                }
+
+                int removedIdx = Aspects.IndexOf(droppedData);
+                int targetIdx = Aspects.IndexOf(target);
+                if (removedIdx < 0 || targetIdx < 0 || removedIdx == targetIdx)
+                {
+                    throw new InvalidOperationException("Invalid Aspect indices");
+                }
+                Aspects.Move(removedIdx, targetIdx);
             }
         }
 
@@ -217,23 +231,34 @@ namespace SEToolbox.Controls
             var target = ResolveFirstItem(ItemsSource);
             if (target == null)
             {
-                if (ReflectionFallback) Aspects.Clear();
+                if (ReflectionFallback)
+                {
+                    Aspects.Clear();
+                }
+
                 OnPropertyChanged(nameof(Aspects));
                 return;
             }
 
             if (GroupByCategory)
             {
+                var targetGroups = GenerateAspectGroups(target);
                 AspectGroups.Clear();
-                foreach (var group in GenerateAspectGroups(target))
+                foreach (var group in targetGroups)
+                {
                     AspectGroups.Add(group);
+                }
+
                 _itemsControl.ItemsSource = AspectGroups;
             }
             else
             {
                 Aspects.Clear();
                 foreach (var aspect in GenerateAspects(target))
+                {
                     Aspects.Add(aspect);
+                }
+
                 _itemsControl.ItemsSource = Aspects;
             }
 
@@ -250,7 +275,6 @@ namespace SEToolbox.Controls
                     AutoGenerateMissingFlat(target);
                 }
             }
-
             OnPropertyChanged(nameof(Aspects));
         }
 
@@ -270,7 +294,10 @@ namespace SEToolbox.Controls
         private void AutoGenerateFlat(object target)
         {
             Aspects.Clear();
-            foreach (var aspect in GenerateAspects(target)) Aspects.Add(aspect);
+            foreach (var aspect in GenerateAspects(target))
+            {
+                Aspects.Add(aspect);
+            }
         }
 
         private void AutoGenerateMissingFlat(object target)
@@ -278,7 +305,10 @@ namespace SEToolbox.Controls
             var existingKeys = ExistingAspectKeys(Aspects);
             foreach (var aspect in GenerateAspects(target))
             {
-                if (!existingKeys.Contains(AspectKey(aspect))) Aspects.Add(aspect);
+                if (!existingKeys.Contains(AspectKey(aspect)))
+                {
+                    Aspects.Add(aspect);
+                }
             }
         }
 
@@ -286,7 +316,9 @@ namespace SEToolbox.Controls
         {
             AspectGroups.Clear();
             foreach (var group in GenerateAspectGroups(target))
+            {
                 AspectGroups.Add(group);
+            }
         }
 
         private void AutoGenerateMissingWithCategories(object target)
@@ -305,7 +337,9 @@ namespace SEToolbox.Controls
                     foreach (var aspect in newGroup)
                     {
                         if (!existingKeys.Contains(AspectKey(aspect)))
+                        {
                             existingGroup.Add(aspect);
+                        }
                     }
                 }
             }
@@ -318,27 +352,43 @@ namespace SEToolbox.Controls
         private static HashSet<string> ExistingAspectKeys(IEnumerable nodes)
         {
             var keys = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var n in nodes)
+            foreach (var node in nodes)
             {
-                if (n is Aspect a) keys.Add(AspectKey(a));
-                if (n is AspectGroup g) foreach (var a2 in g) keys.Add(AspectKey(a2));
+                if (node is Aspect aspectKeyA)
+                {
+                    keys.Add(AspectKey(aspectKeyA));
+                }
+
+                if (node is AspectGroup group)
+                {
+                    foreach (var aspectKeyB in group)
+                    {
+                        keys.Add(AspectKey(aspectKeyB));
+                    }
+                }
             }
             return keys;
         }
 
-        private static string AspectKey(Aspect a) =>
-            $"{a.Binding?.Source?.GetType().FullName ?? ""}:{a.Binding?.Path?.Path ?? a.Header ?? ""}";
+        private static string AspectKey(Aspect a)
+        {
+
+            return $"{a.Binding?.Source?.GetType().FullName ?? string.Empty}:{a.Binding?.Path?.Path ?? a.Header ?? string.Empty}";
+        }
 
         private IEnumerable<PropertyInfo> GetBrowsableProps(object target, bool includeNonBrowsable)
         {
             return target.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.CanRead && (includeNonBrowsable || p.GetCustomAttribute<BrowsableAttribute>()?.Browsable != false));
+                         .Where(p => p.CanRead && (includeNonBrowsable ||
+                                     p.GetCustomAttribute<BrowsableAttribute>()?.Browsable != false));
         }
 
         private IEnumerable<Aspect> GenerateAspects(object target)
         {
             if (target == null)
+            {
                 yield break;
+            }
 
             var props = GetBrowsableProps(target, IncludeNonBrowsable)
                 .OrderBy(p => p.GetCustomAttribute<DisplayAttribute>()?.GetOrder() ?? int.MaxValue)
@@ -390,7 +440,7 @@ namespace SEToolbox.Controls
 
         private static (string displayName, string description, bool readOnly) ReadMeta(PropertyInfo p)
         {
-            var displayName= p.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName;
+            var displayName = p.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName;
             var description = p.GetCustomAttribute<DescriptionAttribute>()?.Description;
             var isReadOnly = p.GetCustomAttribute<ReadOnlyAttribute>()?.IsReadOnly ?? false;
             return (displayName, description, isReadOnly);
@@ -400,280 +450,296 @@ namespace SEToolbox.Controls
     }
 
     public interface IAspectNodes : IList<IAspect> { }
-public class AspectNodes : ObservableCollection<IAspectNodes>, IAspect { }
+    public class AspectNodes : ObservableCollection<IAspectNodes>, IAspect { }
 
-public interface IAspect
-{
     public interface IAspect
     {
-        string Header { get; }
-        string Description { get; }
-        IEnumerable<IAspect> Children { get; }
-        bool IsLeafNode { get; }
-    }
-}
-
-public class AspectGroup(string header) : ObservableCollection<Aspect>
-{
-    public string Header { get; set; } = header;
-}
-
-public class AspectGroups : ObservableCollection<AspectGroup>, IAspect
-{
-    public new IEnumerable<AspectGroup> Items => this;
-    public AspectGroups() : base()
-    {
-        foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
+        public interface IAspect
         {
-            if (type.IsSubclassOf(typeof(Aspect)))
-            {
-                Aspect aspect = (Aspect)Activator.CreateInstance(type);
-                AspectGroup aspectGroup = new(aspect.Header) { aspect };
-
-                Add(aspectGroup);
-            }
+            string Header { get; }
+            string Description { get; }
+            IEnumerable<IAspect> Children { get; }
+            bool IsLeafNode { get; }
         }
     }
 
-    public object Header { get; internal set; }
-
-    public IEnumerable<AspectGroup> Children => this;
-    public bool IsLeafNode => true;
-}
-
-public class AspectCollection : ObservableCollection<Aspect>
-{
-}
-
-
-[ContentProperty(nameof(Value))]
-public class Aspect : UserControl, INotifyPropertyChanged, IAspect
-{
-    public string Header { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public IEnumerable<IAspect> Children => [];
-    public bool IsLeafNode => true;
-    public Binding Binding { get; set; } = null;
-    public string BindingPath { get; set; } = string.Empty;
-    public Type EditorType { get; set; } = null;
-    public string Category { get; set; } = string.Empty;
-    public DataTemplate DataTemplate { get; set; } = null;
-    public static Typeface Font { get; set; } = new Typeface("Segoe UI");
-    public bool IsReadOnly { get; set; } = false;
-    public Type AspectType { get; set; } = null;
-    public PropertyInfo AspectInfo { get; set; }
-
-    public TextAlignment TextAlignment { get; private set; }
-
-    public static readonly DependencyProperty ValueProperty =
-        DependencyProperty.Register(
-            nameof(Value),
-            typeof(object),
-            typeof(Aspect),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnValueChanged));
-
-    public object Value
+    public class AspectGroup(string header) : ObservableCollection<Aspect>
     {
-        get => GetValue(ValueProperty);
-        set => SetValue(ValueProperty, value);
+        public string Header { get; set; } = header;
     }
 
-    public object Target { get; set; }
-
-    private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    public class AspectGroups : ObservableCollection<AspectGroup>, IAspect
     {
-        var aspect = (Aspect)d;
-        if (aspect.AspectInfo != null && aspect.Target != null && !aspect.IsReadOnly)
+        public new IEnumerable<AspectGroup> Items => this;
+        public AspectGroups() : base()
         {
-            try
+            foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
             {
-                aspect.AspectInfo.SetValue(aspect.Target, e.NewValue);
-            }
-            catch (Exception)
-            {
+                if (type.IsSubclassOf(typeof(Aspect)))
+                {
+                    Aspect aspect = (Aspect)Activator.CreateInstance(type);
+                    AspectGroup aspectGroup = new(aspect.Header) { aspect };
 
+                    Add(aspectGroup);
+                }
             }
         }
-        aspect.OnPropertyChanged(nameof(Value));
+
+        public object Header { get; internal set; }
+
+        public IEnumerable<AspectGroup> Children => this;
+        public bool IsLeafNode => true;
     }
 
-    public Aspect()
+    public class AspectCollection : ObservableCollection<Aspect>
     {
-        Header = string.Empty;
-        Description = string.Empty;
-        Value = string.Empty;
-        BindingPath = string.Empty;
-        Category = string.Empty;
-        EditorType = null;
-        DataTemplate = null;
-        AspectInfo = null;
-        TextAlignment = TextAlignment.Left;
-        HorizontalAlignment = HorizontalAlignment.Left;
-        VerticalAlignment = VerticalAlignment.Top;
-        Target = null;
-        ToolTip = null;
-        Font = new Typeface("Segoe UI");
-        IsReadOnly = false;
     }
 
-    // INotifyPropertyChanged implementation
-    public event PropertyChangedEventHandler PropertyChanged;
-    protected virtual void OnPropertyChanged([CallerMemberName] string name = null)
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-}
+    [ContentProperty(nameof(Value))]
+    public class Aspect : UserControl, INotifyPropertyChanged, IAspect
+    {
+        public string Header { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public IEnumerable<IAspect> Children => [];
+        public bool IsLeafNode => true;
+        public Binding Binding { get; set; } = null;
+        public string BindingPath { get; set; } = string.Empty;
+        public Type EditorType { get; set; } = null;
+        public string Category { get; set; } = string.Empty;
+        public DataTemplate DataTemplate { get; set; } = null;
+        public static Typeface Font { get; set; } = new Typeface("Segoe UI");
+        public bool IsReadOnly { get; set; } = false;
+        public Type AspectType { get; set; } = null;
+        public PropertyInfo AspectInfo { get; set; }
 
-public class AutoTemplateSelector : DataTemplateSelector
-{
-    public override DataTemplate SelectTemplate(object item, DependencyObject container) =>
-        item switch
+        public TextAlignment TextAlignment { get; private set; }
+
+        public static readonly DependencyProperty ValueProperty =
+            DependencyProperty.Register(nameof(Value),
+                                        typeof(object),
+                                        typeof(Aspect),
+                                        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnValueChanged));
+
+        public object Value
         {
-            { } control => (DataTemplate)Application.Current.FindResource($"{control.GetType().Name}Template"),
-            _ => null
-        };
-}
-
-public class GroupAwareTemplateSelector : DataTemplateSelector
-{
-    private static readonly Dictionary<Type, Type> EditorControlMap = typeof(AspectView).GetFields(BindingFlags.Static | BindingFlags.Public)
-        .Where(f => f.FieldType == typeof(Dictionary<Type, Type>))
-        .Select(f => (Dictionary<Type, Type>)f.GetValue(null))
-        .First();
-
-    private static readonly Dictionary<string, Action<FrameworkElementFactory, Aspect>> propertyBindingMap =
-        typeof(AspectView).GetMethods(BindingFlags.Static | BindingFlags.Public)
-        .Where(m => m.ReturnType == typeof(Action<FrameworkElementFactory, Aspect>))
-        .ToDictionary(m => m.Name, m => (Action<FrameworkElementFactory, Aspect>)m.CreateDelegate(null, typeof(Action<FrameworkElementFactory, Aspect>)));
-
-
-    public static Func<Type, Aspect, DataTemplate> UnknownTypeResolver { get; set; }
-
-    private static Type ResolveControlType(Type type)
-    {
-        return EditorControlMap.TryGetValue(type, out var controlType) ? controlType :
-            type.IsEnum ? typeof(ComboBox) :
-            IsNumericType(type) || IsNumericNull(type) ? typeof(TextBox) :
-            IsBooleanType(type) ? typeof(CheckBox) :
-            typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string) ? typeof(ListBox) :
-            type.IsClass && type != typeof(string) ? typeof(Expander) :
-            (TryGetEditorAttributeType(type) ?? EditorControlMap.Values.FirstOrDefault(x => x != null));
-
-    }
-
-
-    private static DataTemplate CreateGroupTemplate(string groupNamePath, DataTemplateSelector reUseSelector)
-    {
-        var expander = new FrameworkElementFactory(typeof(Expander));
-        expander.SetBinding(HeaderedContentControl.HeaderProperty, new Binding(groupNamePath));
-        var innerItems = new FrameworkElementFactory(typeof(ItemsControl));
-        innerItems.SetBinding(ItemsControl.ItemsSourceProperty, new Binding("."));
-        innerItems.SetValue(ItemsControl.ItemTemplateSelectorProperty, reUseSelector);
-        expander.AppendChild(innerItems);
-        return new DataTemplate { VisualTree = expander };
-    }
-
-    private static DataTemplate CreateBindingTemplate(Type controlType, Aspect aspect)
-    {
-        var template = new DataTemplate();
-        var f = new FrameworkElementFactory(controlType);
-        if (propertyBindingMap.TryGetValue(controlType.Name, out var bindingAction))
-            bindingAction(f, aspect);
-        else
-            // Fallback for custom controls
-            f.SetBinding(ContentControl.ContentProperty, new Binding(nameof(Aspect.Value)) { Source = aspect });
-        template.VisualTree = f;
-        return template;
-    }
-
-    public override DataTemplate SelectTemplate(object item, DependencyObject container)
-    {
-        var type = item?.GetType();
-        var resolvedType = ResolveControlType(type);
-        var controlType = EditorControlMap.Values.FirstOrDefault(x => x != null);
-        return item switch
-        {
-            AspectGroup aspectGroup => CreateGroupTemplate(nameof(AspectGroup.Header), this),
-            Aspect aspect when aspect.DataTemplate != null => aspect.DataTemplate,
-            Aspect aspect when EditorControlMap.Values.Any(x => x == null) => CreateBindingTemplate(EditorControlMap.Keys.FirstOrDefault(x => x.IsAssignableFrom(aspect.GetType())), aspect),
-            Aspect aspect when type == aspect.AspectType || type == aspect.Value?.GetType() => CreateBindingTemplate(type, aspect),
-            Aspect aspect when type == typeof(string) => CreateBindingTemplate(typeof(TextBlock), aspect),
-            Aspect aspect when EditorControlMap.TryGetValue(resolvedType, out controlType) => CreateBindingTemplate(resolvedType, aspect),
-            Aspect aspect when EditorControlMap.TryGetValue(type, out controlType) => CreateBindingTemplate(controlType, aspect),
-            Aspect aspect => SmartFallback(aspect, type),
-            _ => base.SelectTemplate(item, container)
-        };
-    }
-
-    private static DataTemplate SmartFallback(Aspect aspect, Type type)
-    {
-        if (type.IsClass && type != typeof(string))
-        {
-            return CreateExpandableObjectTemplate(aspect);
+            get => GetValue(ValueProperty);
+            set => SetValue(ValueProperty, value);
         }
 
-        return UnknownTypeResolver?.Invoke(type, aspect) ??
-               CreateBindingTemplate(typeof(TextBlock), aspect);
+        public object Target { get; set; }
+
+        private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var aspect = (Aspect)d;
+            if (aspect.AspectInfo != null && aspect.Target != null && !aspect.IsReadOnly)
+            {
+                try
+                {
+                    aspect.AspectInfo.SetValue(aspect.Target, e.NewValue);
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+            }
+            aspect.OnPropertyChanged(nameof(Value));
+        }
+
+        public Aspect()
+        {
+            Header = string.Empty;
+            Description = string.Empty;
+            Value = string.Empty;
+            BindingPath = string.Empty;
+            Category = string.Empty;
+            EditorType = null;
+            DataTemplate = null;
+            AspectInfo = null;
+            TextAlignment = TextAlignment.Left;
+            HorizontalAlignment = HorizontalAlignment.Left;
+            VerticalAlignment = VerticalAlignment.Top;
+            Target = null;
+            ToolTip = null;
+            Font = new Typeface("Segoe UI");
+            IsReadOnly = false;
+        }
+
+        // INotifyPropertyChanged implementation
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
     }
 
-    private static DataTemplate CreateExpandableObjectTemplate(Aspect aspect)
+    public class AutoTemplateSelector : DataTemplateSelector
     {
-        var template = new DataTemplate();
-        var f = new FrameworkElementFactory(typeof(Expander));
-        f.SetValue(Expander.IsExpandedProperty, false);
-        f.SetBinding(HeaderedContentControl.HeaderProperty, new Binding(nameof(Aspect.Header)) { Source = aspect });
-        var innerItems = new FrameworkElementFactory(typeof(ItemsControl));
-        innerItems.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(Aspect.Value)) { Source = aspect });
-        innerItems.SetValue(ItemsControl.ItemTemplateSelectorProperty, new GroupAwareTemplateSelector());
-        var panel = new FrameworkElementFactory(typeof(StackPanel));
-        panel.AppendChild(innerItems);
-        f.AppendChild(panel);
-        template.VisualTree = f;
-        return template;
+        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+        {
+            return item switch
+            {
+                { } control => (DataTemplate)Application.Current.FindResource($"{control.GetType().Name}Template"),
+                _ => null
+            };
+        }
     }
 
-    private static Type TryGetEditorAttributeType(Type type)
+    public class GroupAwareTemplateSelector : DataTemplateSelector
     {
-        if (type.GetCustomAttributes(typeof(EditorAttribute), true).FirstOrDefault() is not EditorAttribute editorAttr)
-            return null;
+        private static readonly Dictionary<Type, Type> EditorControlMap = typeof(AspectView).GetFields(BindingFlags.Static | BindingFlags.Public)
+                                                                                            .Where(f => f.FieldType == typeof(Dictionary<Type, Type>))
+                                                                                            .Select(f => (Dictionary<Type, Type>)f.GetValue(null))
+                                                                                            .First();
 
-        return Type.GetType(editorAttr.EditorTypeName ?? string.Empty);
+        private static readonly Dictionary<string, Action<FrameworkElementFactory, Aspect>> propertyBindingMap =
+                                typeof(AspectView).GetMethods(BindingFlags.Static | BindingFlags.Public)
+                                 .Where(m => m.ReturnType == typeof(Action<FrameworkElementFactory, Aspect>))
+                                 .ToDictionary(m => m.Name, m => (Action<FrameworkElementFactory, Aspect>)m.CreateDelegate(null, typeof(Action<FrameworkElementFactory, Aspect>)));
+
+
+        public static Func<Type, Aspect, DataTemplate> UnknownTypeResolver { get; set; }
+
+        private static Type ResolveControlType(Type type)
+        {
+            return EditorControlMap.TryGetValue(type, out var controlType) ? controlType :
+                type.IsEnum ? typeof(ComboBox) :
+                IsNumericType(type) || IsNumericNull(type) ? typeof(TextBox) :
+                IsBooleanType(type) ? typeof(CheckBox) :
+                typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string) ? typeof(ListBox) :
+                type.IsClass && type != typeof(string) ? typeof(Expander) :
+                (TryGetEditorAttributeType(type) ?? EditorControlMap.Values.FirstOrDefault(x => x != null));
+
+        }
+
+        private static DataTemplate CreateGroupTemplate(string groupNamePath, DataTemplateSelector reUseSelector)
+        {
+            var expander = new FrameworkElementFactory(typeof(Expander));
+            expander.SetBinding(HeaderedContentControl.HeaderProperty, new Binding(groupNamePath));
+            var innerItems = new FrameworkElementFactory(typeof(ItemsControl));
+            innerItems.SetBinding(ItemsControl.ItemsSourceProperty, new Binding("."));
+            innerItems.SetValue(ItemsControl.ItemTemplateSelectorProperty, reUseSelector);
+            expander.AppendChild(innerItems);
+            return new DataTemplate { VisualTree = expander };
+        }
+
+        private static DataTemplate CreateBindingTemplate(Type controlType, Aspect aspect)
+        {
+            var template = new DataTemplate();
+            var f = new FrameworkElementFactory(controlType);
+            if (propertyBindingMap.TryGetValue(controlType.Name, out var bindingAction))
+            {
+                bindingAction(f, aspect);
+            }
+            else
+            {
+                // Fallback for custom controls
+                f.SetBinding(ContentControl.ContentProperty, new Binding(nameof(Aspect.Value)) { Source = aspect });
+            }
+
+            template.VisualTree = f;
+            return template;
+        }
+
+        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+        {
+            var type = item?.GetType();
+            var resolvedType = ResolveControlType(type);
+            var controlType = EditorControlMap.Values.FirstOrDefault(x => x != null);
+            return item switch
+            {
+                AspectGroup aspectGroup => CreateGroupTemplate(nameof(AspectGroup.Header), this),
+                Aspect aspect when aspect.DataTemplate != null => aspect.DataTemplate,
+                Aspect aspect when EditorControlMap.Values.Any(x => x == null) => CreateBindingTemplate(EditorControlMap.Keys.FirstOrDefault(x => x.IsAssignableFrom(aspect.GetType())), aspect),
+                Aspect aspect when type == aspect.AspectType || type == aspect.Value?.GetType() => CreateBindingTemplate(type, aspect),
+                Aspect aspect when type == typeof(string) => CreateBindingTemplate(typeof(TextBlock), aspect),
+                Aspect aspect when EditorControlMap.TryGetValue(resolvedType, out controlType) => CreateBindingTemplate(resolvedType, aspect),
+                Aspect aspect when EditorControlMap.TryGetValue(type, out controlType) => CreateBindingTemplate(controlType, aspect),
+                Aspect aspect => SmartFallback(aspect, type),
+                _ => base.SelectTemplate(item, container)
+            };
+        }
+
+        private static DataTemplate SmartFallback(Aspect aspect, Type type)
+        {
+            if (type.IsClass && type != typeof(string))
+            {
+                return CreateExpandableObjectTemplate(aspect);
+            }
+
+            return UnknownTypeResolver?.Invoke(type, aspect) ??
+                   CreateBindingTemplate(typeof(TextBlock), aspect);
+        }
+
+        private static DataTemplate CreateExpandableObjectTemplate(Aspect aspect)
+        {
+            var template = new DataTemplate();
+            var f = new FrameworkElementFactory(typeof(Expander));
+            f.SetValue(Expander.IsExpandedProperty, false);
+            f.SetBinding(HeaderedContentControl.HeaderProperty, new Binding(nameof(Aspect.Header)) { Source = aspect });
+            var innerItems = new FrameworkElementFactory(typeof(ItemsControl));
+            innerItems.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(Aspect.Value)) { Source = aspect });
+            innerItems.SetValue(ItemsControl.ItemTemplateSelectorProperty, new GroupAwareTemplateSelector());
+            var panel = new FrameworkElementFactory(typeof(StackPanel));
+            panel.AppendChild(innerItems);
+            f.AppendChild(panel);
+            template.VisualTree = f;
+            return template;
+        }
+
+        private static Type TryGetEditorAttributeType(Type type)
+        {
+            if (type.GetCustomAttributes(typeof(EditorAttribute), true).FirstOrDefault() is not EditorAttribute editorAttr)
+            {
+                return null;
+            }
+
+            return Type.GetType(editorAttr.EditorTypeName ?? string.Empty);
+        }
+
+        #region Type Helpers
+
+        private static readonly Type[] _booleanTypes = [typeof(bool), typeof(bool?)];
+
+        private static readonly Type[] _numericTypes =
+        [
+            typeof(sbyte), typeof(byte), typeof(short), typeof(ushort),
+            typeof(int), typeof(uint), typeof(long), typeof(ulong),
+            typeof(float), typeof(double), typeof(decimal)
+        ];
+        private static readonly HashSet<Type> _booleanTypeSet = [.. _booleanTypes];
+        private static readonly HashSet<Type> _numericTypeSet = [.. _numericTypes];
+
+
+        private static bool IsBooleanType(Type t) => _booleanTypeSet.Contains(t);
+
+        private static bool IsNumericType(Type t) => _numericTypeSet.Contains(t);
+
+        private static bool IsNumericNull(Type valueType)
+        {
+            return valueType.IsValueType &&
+                   valueType.IsGenericType &&
+                   valueType.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                    _numericTypeSet.Contains(Nullable.GetUnderlyingType(valueType));
+        }
+
+        #endregion
+
+        public void SetCustomTemplate(IEnumerable<Aspect> aspects, string propertyName, DataTemplate template)
+        {
+            foreach (var aspect in aspects.Where(a => a.Header == propertyName))
+            {
+                aspect.DataTemplate = template;
+            }
+        }
+
     }
 
-    #region Type Helpers
-    private static readonly HashSet<Type> _booleanTypes = [typeof(bool), typeof(bool?)];
-    private static bool IsBooleanType(Type t) => _booleanTypes.Contains(t);
-
-    private static readonly HashSet<Type> _numericTypes = [.. Enum.GetValues(typeof(TypeCode))
-            .Cast<TypeCode>()
-            .Select(t => Type.GetType(t.ToString()))
-            .ToLookup(t => t, t => t).Where(g => g.Count() == 1).SelectMany(g => g)];
-
-    private static bool IsNumericType(Type t) => _numericTypes.TryGetValue(t, out _);
-
-    private static bool IsNumericNull(Type valueType)
+    #region Custom Framework Elements
+    public class ImageBox : Image, IUriContext
     {
-        return
-        valueType.IsValueType &&
-        valueType.IsGenericType &&
-        valueType.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-        IsNumericType(Nullable.GetUnderlyingType(valueType));
+        public ComboBox DType { get; set; }
+
+        public List<string> Items { get; set; }
     }
-
-    #endregion
-
-    public void SetCustomTemplate(IEnumerable<Aspect> aspects, string propertyName, DataTemplate template)
-    {
-        foreach (var aspect in aspects.Where(a => a.Header == propertyName))
-            aspect.DataTemplate = template;
-    }
-
-}
-
-#region Custom Framework Elements
-public class ImageBox : Image, IUriContext
-{
-    public ComboBox DType { get; set; }
-
-    public List<string> Items { get; set; }
-}
     #endregion
 }
