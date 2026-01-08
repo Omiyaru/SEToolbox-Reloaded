@@ -11,10 +11,8 @@ namespace SEToolbox.Converters
         {
             double distance = (double)value;
 
-            if (distance > 1000)
-                return string.Format($"{distance / 1000:#,###0.0.0} {Res.GlobalSIDistanceKilometre}");
-
-            return string.Format($"{distance:#,###0.0} {Res.GlobalSIDistanceMetre}");
+            return distance > 1000 ? $"{distance / 1000:#,###0.0.0} {Res.GlobalSIDistanceKilometre}"
+                                   : $"{distance:#,###0.0} {Res.GlobalSIDistanceMetre}";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -13,23 +13,12 @@ namespace SEToolbox.Converters
         public static readonly Cursor WaitCursor = Cursors.Wait;
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            bool? boolValue = value as bool?;
-            if (boolValue.HasValue && boolValue.Value)
-            {
-                return WaitCursor;
-            }
-
-            return null;
+            return (bool)value ? WaitCursor : null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value is Cursor cursor && cursor == WaitCursor)
-            {
-                return true;
-            }
-
-            return false;
+            return value is Cursor cursor ? cursor == WaitCursor : null;
         }
-}
+    }
 }

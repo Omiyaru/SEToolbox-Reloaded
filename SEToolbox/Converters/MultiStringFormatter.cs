@@ -11,10 +11,8 @@ namespace SEToolbox.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (parameter is not string format)
-                return string.Concat(values.Select(v => v?.ToString()));
-
-            return string.Concat(values.Select(v => string.Format(culture, $"{v}")));
+            return parameter is not string format ? string.Concat(values.Select(v => v?.ToString())) 
+                                                    : string.Concat(values.Select(v => string.Format(culture, $"{v}")));
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

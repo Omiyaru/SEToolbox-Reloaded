@@ -7,22 +7,21 @@ namespace SEToolbox.Converters
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value != null)
-            {
-                if (value is Enum @enum)
-                {
-                    string header = @enum.GetType().Name;
-                     string resource = $"{header}_{value}";
-                    return GetResource(resource, value);
-                }
-                else if (value is bool)
-                {
-                    return GetResource(string.Format($"{value.GetType().Name}_{value}"), value);
-                }
 
-                return value;
+            var type = value.GetType();
+
+            if (type.IsEnum)
+            {
+                string header = type.Name;
+                string resource = $"{header}_{value}";
+                return GetResource(resource, value);
             }
-            return null;
+            else if (type == typeof(bool) || value is bool)
+            {
+                return GetResource($"{value.GetType().Name}_{value}", value);
+            }
+
+            return value ??= null ?? value;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

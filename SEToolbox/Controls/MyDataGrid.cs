@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using System.Windows;
 using SEToolbox.Support;
+using System;
 
 namespace SEToolbox.Controls
 {
@@ -19,21 +20,15 @@ namespace SEToolbox.Controls
         {
             var dataGrid = sender as DataGrid;
             var cell = dataGrid.GetHitControl<DataGridCell>(e);
+            
 
-            if (cell is { IsReadOnly: false, IsEditing: false })
+            if (cell is { IsReadOnly: false, IsEditing: false } and not null)
             {
                 cell?.Focus();
-                dataGrid = cell?.FindVisualParent<DataGrid>();
-                var row = cell?.FindVisualParent<DataGridRow>();
+                var parentDataGrid = cell.FindVisualParent<DataGrid>();
+                _ = parentDataGrid?.SelectionUnit == DataGridSelectionUnit.FullRow ? cell.FindVisualParent<DataGridRow>()?.IsSelected = !cell.FindVisualParent<DataGridRow>().IsSelected
+                                                                                    : cell.IsSelected = !cell.IsSelected;
 
-                if (dataGrid?.SelectionUnit != DataGridSelectionUnit.FullRow)
-                {
-                    cell?.IsSelected = !cell.IsSelected;
-                }
-                else
-                {
-                    row?.IsSelected = !row.IsSelected;
-                }
             }
         }
     }

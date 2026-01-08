@@ -13,20 +13,19 @@ namespace SEToolbox.Converters
             {
                 null => false,
                 bool b => b,
-                string s => !string.IsNullOrEmpty(s),
+                string s => bool.TryParse(s, out bool result) && result,
                 _ => true,
             };
             finalValue = !finalValue;
 
-            if (targetType == typeof(Visibility))
-                return finalValue ? Visibility.Visible : Visibility.Collapsed;
-
-            return finalValue;
+            return targetType == typeof(Visibility) ? finalValue ? Visibility.Visible 
+                                                    : Visibility.Collapsed 
+                                                    : finalValue;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var finalValue = value switch
+            bool finalValue = value switch
             {
                 null => false,
                 Visibility visibility when visibility == Visibility.Visible => true,

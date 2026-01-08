@@ -14,7 +14,9 @@ namespace SEToolbox.Converters
             value ??= DependencyProperty.UnsetValue;
 
             if (!File.Exists(value as string))
+            {
                 return DependencyProperty.UnsetValue;
+            }
 
             // Load the image, and prevent locking of the existing file.
             BitmapImage bitmapImage = new();

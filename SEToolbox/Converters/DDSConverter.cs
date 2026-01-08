@@ -20,11 +20,11 @@ namespace SEToolbox.Converters
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is not string fileName )
+             value ??= null;
+             if (value is not string fileName )
+            {
                 throw new NotSupportedException($"{GetType().FullName} cannot convert from {value.GetType().FullName}.");
-
-            if (value == null || string.IsNullOrEmpty(fileName))
-                return null;
+            }
 
             (int width, int height, bool noAlpha) = ParseSizeParameter(parameter as string);
             string cacheKey = GenerateCacheKey(fileName, width, height);
@@ -35,19 +35,15 @@ namespace SEToolbox.Converters
             }
 
             string extension = Path.GetExtension(fileName).ToLower();
-            var imageSource = extension switch
+            ImageSource imageSource = extension switch
             {
                 ".png" => LoadPngImage(fileName, width, height),
                 ".dds" => LoadDdsImage(fileName, width, height, noAlpha),
                 _ => null
             };
 
-            if (imageSource != null)
-            {
-                Cache[cacheKey] = imageSource;
-            }
 
-            return imageSource;
+            return Cache[cacheKey] = imageSource ??= null ?? imageSource;
         }
 
          private static (int width, int height, bool noAlpha) ParseSizeParameter(string sizeParameter)
@@ -90,14 +86,16 @@ namespace SEToolbox.Converters
             }
             catch
             {
-                return null;
+                throw new FileNotFoundException($"File not found: {fileName}" + Environment.NewLine + Environment.StackTrace);
             }
         }
 
         private static ImageSource LoadDdsImage(string fileName, int width, int height, bool noAlpha)
         {
             using Stream textureStream = MyFileSystem.OpenRead(fileName);
-            return TexUtil.CreateImage(textureStream, 0, width, height, noAlpha);
+            ImageSource image = TexUtil.CreateImage(textureStream, 0, width, height, noAlpha);
+              Cache.Add(fileName, image);
+                return image;
         }
 
         private static ImageSource RescaleBitmap(BitmapImage bitmapImage, int width, int height)
@@ -108,8 +106,8 @@ namespace SEToolbox.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // TODO: #21 localize
-            throw new NotSupportedException($"{GetType().FullName} does not support converting back.");
+            string message = string.Format($"{GetType().FullName}  does not support converting back." , CultureInfo.CurrentUICulture);
+            throw new NotSupportedException(message);
         }
 
         public static void ClearCache()

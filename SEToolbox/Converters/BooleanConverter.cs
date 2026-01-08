@@ -21,15 +21,14 @@ namespace SEToolbox.Converters
             {
                 null => false,
                 bool boolValue => boolValue,
-                string stringValue => !string.IsNullOrEmpty(stringValue),
+                string stringValue => bool.TryParse(stringValue, out bool result) && result,
                 _ => true,
             };
             finalValue ^= _isInverse;
 
-            if (targetType == typeof(Visibility))
-                return finalValue ? Visibility.Visible : Visibility.Collapsed;
-
-            return finalValue;
+            return targetType == typeof(Visibility) ? finalValue ? Visibility.Visible 
+                                                    : Visibility.Collapsed 
+                                                    : finalValue;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -38,7 +37,7 @@ namespace SEToolbox.Converters
             {
                 null => false,
                 Visibility vis => vis == Visibility.Visible,
-                bool b => b,
+                bool boolValue => boolValue,
                 _ => true,
             };
             return finalValue ^ _isInverse;

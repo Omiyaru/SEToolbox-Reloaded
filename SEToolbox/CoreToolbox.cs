@@ -1,10 +1,3 @@
-
-using SEToolbox.Interop;
-using SEToolbox.Models;
-using SEToolbox.Support;
-using SEToolbox.ViewModels;
-using SEToolbox.Views;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +7,13 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
+using SEToolbox.Interop;
+using SEToolbox.Models;
+using SEToolbox.Support;
+using SEToolbox.ViewModels;
+using SEToolbox.Views;
+
+
 
 using static Sandbox.Game.World.MyWorldGenerator;
 using static SEToolbox.Support.GlobalSettings;
@@ -28,7 +28,7 @@ namespace SEToolbox
     {
         #region Fields
         private readonly SpaceEngineersCore core = new();
-        private string gameBinDir = ToolboxUpdater.GetApplicationFilePath();
+
         private static WindowExplorer eWindow = new();
         private static readonly List<WindowDimension> _windowDimensions = [];
         private static readonly ExplorerModel explorerModel = new();
@@ -40,63 +40,66 @@ namespace SEToolbox
         public bool Init(string[] args)
         {
             // Detection and correction of local settings of SE install location.
-            DetectInstall();
+            FindInstall();
             LoadAssemblies(args);
-            //AltLoad(filePath, true);
 
             return true;
         }
-        
-        public string[] validApplications = [
-               	"SpaceEngineers.exe",
-                "SpaceEngineersDedicated.exe",
-                //"MedievalEngineers.exe",
-                //"MedievalEngineersDedicated.exe"
-            ];
 
-        public bool DetectInstall()
+        public string[] validApplications =
+        [
+            "SpaceEngineers.exe",
+            "SpaceEngineersDedicated.exe",
+            //"MedievalEngineers.exe",
+            //"MedievalEngineersDedicated.exe"
+        ];
+
+        public bool FindInstall()
         {
-            string filePath = ToolboxUpdater.GetApplicationFilePath();
-
-            if (Default.PromptUser || !ToolboxUpdater.ValidateSpaceEngineersInstall(filePath))
-            {   
-                SConsole.WriteLine("Detecting SE install.");
-                var files = Directory.EnumerateFiles(gameBinDir).Select(Path.GetFileName).ToList();
-                bool isValid = false;
-                var validApplication = validApplications.FirstOrDefault(files.Contains);
-                if (isValid = !string.IsNullOrEmpty(validApplication))
+            var gameBinDir = ToolboxUpdater.GetApplicationFilePath();
+            SConsole.WriteLine($"Locate SE install path: {gameBinDir}");
+            if (Default.PromptUser || !ToolboxUpdater.ValidateSpaceEngineersInstall(gameBinDir))
+            {
+                if (Default.PromptUser)
                 {
-                    gameBinDir = Path.Combine(filePath, validApplication);
+                    Log.WriteLine("Prompting user for Space Engineers install location.");
                 }
 
-                FindApplicationModel faModel = new()
-                {
-                    GameApplicationPath = gameBinDir
-                };
+                var validFiles = Directory.EnumerateFiles(gameBinDir).Select(Path.GetFileName).Where(validApplications.Contains);
 
-                var faViewModel = new FindApplicationViewModel(faModel);
-                var faWindow = new WindowFindApplication(faViewModel);
-
-                if (faWindow?.ShowDialog() == true)
+                var isValid = validFiles.Any();
+                if (isValid)
                 {
-                    filePath = faModel.GameApplicationPath;
-                    SConsole.WriteLine($"Detected SE install: {filePath}");
+                    gameBinDir = validFiles.FirstOrDefault();
                 }
                 else
                 {
-                    return false;
+                    Log.WriteLine($"No valid Space Engineers install found in {gameBinDir}");
+                    gameBinDir = string.Empty;
                 }
             }
 
-            if (!string.IsNullOrEmpty(filePath))
+            if (string.IsNullOrEmpty(gameBinDir) && !Directory.Exists(gameBinDir))
             {
-                filePath = Default.SEBinPath;
+                var faModel = new FindApplicationModel { GameApplicationPath = gameBinDir };
+                var faViewModel = new FindApplicationViewModel(faModel);
+                var faWindow = new WindowFindApplication(faViewModel);
+
+                if (faWindow?.ShowDialog() != true)
+                {
+                    return false;
+                }
+                gameBinDir = faModel.GameBinPath;
+                Log.WriteLine($"SE Install Location: {gameBinDir}");
+            }
+            else
+            {
+                gameBinDir = Path.GetDirectoryName(gameBinDir) ?? string.Empty;
             }
 
             // Update and save user path.
             Default.SEBinPath = gameBinDir;
             Default.Save();
-
             return true;
         }
 
@@ -104,13 +107,13 @@ namespace SEToolbox
         {
             string delimiter = "/" ?? "-";
             bool ignoreUpdates = args.Any(arg => arg.Equals($"{delimiter}X", StringComparison.OrdinalIgnoreCase));
-           
+
 
             // Go looking for any changes in the Dependant Space Engineers assemblies and immediately attempt to update.
             if (!ignoreUpdates && ToolboxUpdater.IsBaseAssembliesChanged() && !Debugger.IsAttached)
             {
-            	SConsole.WriteLine("Running non-elevated update process.");
-                ToolboxUpdater.RunElevated(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "SEToolboxUpdate"), $"{delimiter}/B " + String.Join(" ", args), false, false);
+                Log.WriteLine("Running non-elevated update process.");// 
+                ToolboxUpdater.RunElevated(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "SEToolboxUpdate"), $"{delimiter}/B " + string.Join(" ", args), false, false);
                 return Task.FromResult(false);
             }
 
@@ -120,9 +123,9 @@ namespace SEToolbox
                 // Clean up Temp files if this is the only instance running.
                 TempFileUtil.DestroyTempFiles();
             }
-           return Task.FromResult(true);
+            return Task.FromResult(true);
         }
-        
+
         // Do not load any of the Space Engineers assemblies or dependent classes before this point.
         // ============================================
 
@@ -133,11 +136,18 @@ namespace SEToolbox
             InitializeWorld(args);
             core.SpaceEngineersCoreLoader();
             InitializeExplorerModel(args);
+            InitializeMainWindow();
+            return true;
+        }
+
+        public Task InitializeMainWindow()
+        {
             RestoreExplorerWindow(false);
             InitializeWindow(eWindow);
-            ValidateLoadState(eWindow);
-            
-            return true;
+            UpdateTimesStarted();
+            ShowMainWindow(eWindow);
+
+            return Task.FromResult(true);
         }
 
         public static Task<bool> VerifyGameVersion(string[] args)
@@ -151,11 +161,11 @@ namespace SEToolbox
             // This is usually because a user has not updated a manual install of a Dedicated Server, or their Steam did not update properly.
             if (Default.SEVersion < GetAppVersion(true))
             {
-                MessageBox.Show(string.Format(Res.DialogOldSEVersionMessage, 
-                                              Consts.GetSEVersion(), Default.SEBinPath, 
-                                              GetAppVersion()), Res.DialogOldSEVersionTitle, 
-                                              MessageBoxButton.OK, MessageBoxImage.Exclamation
-                                              );
+                _ = MessageBox.Show(string.Format(Res.DialogOldSEVersionMessage,
+                                                  Consts.GetSEVersion(),
+                                                  Default.SEBinPath,
+                                                  GetAppVersion()), Res.DialogOldSEVersionTitle,
+                                                  MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 Application.Current.Shutdown();
                 return Task.FromResult(false);
             }
@@ -163,8 +173,7 @@ namespace SEToolbox
             // the /B argument indicates the SEToolboxUpdate had started SEToolbox after fetching updated game binaries.
             if (isNewVersion && args.Any(arg => arg.Equals($"{delimiter}B", StringComparison.OrdinalIgnoreCase)))
             {
-                // Reset the counter used to indicate if the game binaries have updated.
-                Default.TimesStartedLastGameUpdate = null;
+                TimesStartedInfo.SinceGameUpdate = null;
             }
             return Task.FromResult(true);
         }
@@ -177,10 +186,9 @@ namespace SEToolbox
                 {
                     return Task.FromResult(false);
                 }
-                worldDirectory = args
-                    .Where(arg => IsValidGameFilePath(arg) && IsSandboxFile(Path.GetFileName(arg)))
-                    .Select(GetWorldDirectory)
-                    .FirstOrDefault();
+                worldDirectory = args.Where(arg => IsValidGameFilePath(arg) && IsSandboxFile(Path.GetFileName(arg)))
+                                     .Select(GetWorldDirectory)
+                                     .FirstOrDefault();
 
                 return Task.FromResult(!string.IsNullOrEmpty(worldDirectory));
             }
@@ -201,7 +209,7 @@ namespace SEToolbox
         {
             return Path.GetFileName(path).Equals(Consts.SandBoxCheckpointFileName, StringComparison.InvariantCultureIgnoreCase)
                 ? Path.GetDirectoryName(path)
-                : Path.GetDirectoryName(Path.GetDirectoryName(path));
+                : Path.GetDirectoryName(Path.GetDirectoryName(path) ?? throw new InvalidOperationException("Unable to get world directory from path: " + path + Environment.NewLine + Environment.StackTrace));
         }
 
         public bool InitializeExplorerModel(string[] args)
@@ -221,33 +229,28 @@ namespace SEToolbox
 
             return true;
         }
-        
+
         public static void RestoreExplorerWindow(bool allowClose = true)
         {
             ExplorerViewModel eViewModel = new(explorerModel);
-
+            eWindow = new WindowExplorer(eViewModel);
             if (allowClose)
             {
-                eWindow = new WindowExplorer(eViewModel);
-                if (!(bool)Conditional.ConditionPairs(null, eWindow, null, eViewModel, true, allowClose))
+                eViewModel.CloseRequested += (sender, e) =>
                 {
-                    eViewModel.CloseRequested += (sender, e) =>
-                    {
-                        SConsole.WriteLine("Saving window settings.");
-                        SaveWindowSettings(eWindow);
-                        SConsole.WriteLine("Shutting down.");
-                        Application.Current.Shutdown();
-                    };
-                }
+                    Log.WriteLine("Saving window settings.");
+                    SaveWindowSettings(eWindow);
+                    Log.WriteLine("Shutting down.");
+                    Application.Current.Shutdown();
+                };
             }
         }
 
         public static void InitializeWindow(WindowExplorer eWindow)
         {
-            SConsole.WriteLine($"Initializing main window{Loader.WriteProgressDots()}");
-            if (eWindow != null)
+            eWindow?.Loaded += (sender, e) =>
             {
-                eWindow.Loaded += (sender, e) =>
+                Log.WriteLine("Main window loading complete.");
                 {
                     SConsole.WriteLine($"Main window loading complete.");
                     Splasher.CloseSplash();
@@ -263,45 +266,48 @@ namespace SEToolbox
                     bool isInsideDesktop = workingAreaRect.Contains(windowRect);
                     bool hasWindowDimensions = Default?.WindowDimensions?.Count > 0;
                     foreach (Screen screen in Screen.AllScreens)
-                    {   
+                    {
                         try
                         {
                             isInsideDesktop |= screen.WorkingArea.IntersectsWith(windowRect);
                         }
-                        catch
+                        catch (Exception ex) when (ex is InvalidOperationException || ex is ArgumentException)
                         {
                             // some virtual screens have been know to cause issues.
+                            Log.WriteLine($"Ignoring exception while getting working area for screen {screen.DeviceName}: {ex.Message}");
                         }
-                    }
 
-                    if (isInsideDesktop && hasWindowDimensions)
-                    {
-                        eWindow.Dispatcher.Invoke(() =>
+                        if (isInsideDesktop && hasWindowDimensions)
                         {
-                            Default.WindowDimensions?.Keys
-                                   .Where(key => key.HasValue)
-                                   .ForEach(key => Default.SetWindowDimension(key.Value));
-                            if (Default.WindowState.HasValue)
+                            foreach (var key in Default.WindowDimensions.Keys.Where(key => key.HasValue))
                             {
-                                eWindow.WindowState = Default.WindowState.GetValueOrDefault();
+                                Default.SetWindowDimension(key.Value);
                             }
-                        });
-                    }
+                        }
+
+                        eWindow.WindowState = Default.WindowState.HasValue ? Default.WindowState.GetValueOrDefault() : WindowState.Normal;
+                    };
                 };
+            };
+        }
+
+
+        public static void ShowMainWindow(WindowExplorer eWindow)
+        {
+            Log.WriteLine("Showing main window.");
+            if (!eWindow.IsVisible)
+            {
+                eWindow?.Show();
+                eWindow?.Activate();
             }
         }
 
-        public static bool ValidateLoadState(WindowExplorer eWindow)
+        public static bool UpdateTimesStarted()
         {
-            SConsole.WriteLine("Validating load state.");
-            if (!Default.TimesStartedTotal.HasValue && eWindow != null)
-                Default.TimesStartedTotal = Default.TimesStartedTotal.GetValueOrDefault() + 1;
-            	Default.TimesStartedLastReset = Default.TimesStartedLastReset.GetValueOrDefault() + 1;
-            	Default.TimesStartedLastGameUpdate = Default.TimesStartedLastGameUpdate.GetValueOrDefault() + 1;
-            	Default.Save();
-                SConsole.WriteLine("Showing main window.");
-            _ = eWindow?.ShowDialog();
+            Log.WriteLine("Updating Start Times .");
 
+            TimesStartedInfo.UpdateTimesStartedInfo();
+            Default.Save();
             return true;
         }
 
@@ -318,10 +324,13 @@ namespace SEToolbox
         {
             Default.WindowState = eWindow.WindowState;
             eWindow.WindowState = WindowState.Normal; // Reset the State before getting the window size.
-            _windowDimensions.AddRange(from item in _windowDimensions
-                                       select item);
+            foreach (var item in _windowDimensions)
+            {
+                _windowDimensions.Add(item);
+            }
+
             Default.Save();
         }
- 		#endregion
+        #endregion
     }
 }

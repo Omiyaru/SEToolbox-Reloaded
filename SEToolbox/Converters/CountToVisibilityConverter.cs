@@ -9,7 +9,7 @@ namespace SEToolbox.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var childrenCount = (int)value;
+            var childrenCount = value as int? ?? 0;
 
             return childrenCount > 0 ? Visibility.Visible : Visibility.Collapsed;
         }

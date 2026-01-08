@@ -18,7 +18,9 @@ namespace SEToolbox.Converters
             try
             {
                 if (((string)value).Length > 0)
-                    parseValue = Int32.Parse((string)value, null);
+                {
+                    parseValue = int.Parse((string)value, null);
+                }
             }
             catch (Exception e)
             {
@@ -27,7 +29,7 @@ namespace SEToolbox.Converters
 
             if ((parseValue < Min) || (parseValue > Max))
             {
-                return new ValidationResult(false, string.Format($"{Res.ValidationInvalidRange} {Min} - {Max}."));
+                return new ValidationResult(false, $"{Res.ValidationInvalidRange} {Min} - {Max}.");
             }
 
             return new ValidationResult(true, null);

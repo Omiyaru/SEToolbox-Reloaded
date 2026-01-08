@@ -11,10 +11,9 @@ namespace SEToolbox.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values.All(value => value.GetType() == values[0].GetType()))
-                return System.Convert.ChangeType(values[0], targetType);
-            else
-                return DependencyProperty.UnsetValue;
+            return values.All(value => value.GetType() == values[0].GetType()) 
+                                                        ? System.Convert.ChangeType(values[0], targetType)
+                                                        : DependencyProperty.UnsetValue;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

@@ -18,7 +18,9 @@ namespace SEToolbox.Converters
             try
             {
                 if (((string)value).Length > 0)
+                {
                     parseValue = decimal.Parse((string)value, null);
+                }
             }
             catch (Exception e)
             {

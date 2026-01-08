@@ -9,38 +9,16 @@ namespace SEToolbox.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            string mainColor = (string)value;
+            string mainColor = value as string;
 
-            if (mainColor == null)
+            byte ParseByte(int i, int j) => byte.Parse(mainColor.Substring(i, j), NumberStyles.HexNumber);
+            return mainColor.TrimStart('#') switch 
             {
-                return new SolidColorBrush(Colors.Transparent);
-            }
-
-            if (mainColor.StartsWith("#"))
-            {
-                mainColor = mainColor.Substring(1);
-            }
-
-            if (mainColor.Length == 8)
-            {
-                return new SolidColorBrush(Color.FromArgb(
-                    System.Convert.ToByte(mainColor.Substring(0, 2), 16),
-                    System.Convert.ToByte(mainColor.Substring(2, 2), 16),
-                    System.Convert.ToByte(mainColor.Substring(4, 2), 16),
-                    System.Convert.ToByte(mainColor.Substring(6, 2), 16)
-                ));
-            }
-
-            if (mainColor.Length == 6)
-            {
-                return new SolidColorBrush(Color.FromRgb(
-                    System.Convert.ToByte(mainColor.Substring(0, 2), 16),
-                    System.Convert.ToByte(mainColor.Substring(2, 2), 16),
-                    System.Convert.ToByte(mainColor.Substring(4, 2), 16)
-                ));
-            }
-
-            return new SolidColorBrush(Colors.Black);
+               null => new SolidColorBrush(Colors.Transparent),
+                { Length: 8 }  => new SolidColorBrush(Color.FromArgb(ParseByte(0, 2), ParseByte(2, 2), ParseByte(4, 2), ParseByte(6, 2))),
+                { Length: 6 } => new SolidColorBrush(Color.FromRgb(ParseByte(0, 2), ParseByte(2, 2), ParseByte(4, 2))),
+                _ => new SolidColorBrush(Colors.Black),
+            };
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
