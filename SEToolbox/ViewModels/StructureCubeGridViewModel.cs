@@ -17,7 +17,6 @@ using SEToolbox.Services;
 using SEToolbox.Support;
 using SEToolbox.Views;
 using VRage.Game;
-using Sandbox.Game.Entities.Inventory;
 using Res = SEToolbox.Properties.Resources;
 
 namespace SEToolbox.ViewModels
@@ -32,7 +31,7 @@ namespace SEToolbox.ViewModels
         private ObservableCollection<CubeItemViewModel> _selections;
         private CubeItemViewModel _selectedCubeItem;
         private string[] _filerView;
-
+        private readonly Action<bool> _busyAction;
         #endregion
 
         #region Ctor
@@ -52,16 +51,16 @@ namespace SEToolbox.ViewModels
             _dialogService = dialogService;
             _colorDialogFactory = colorDialogFactory;
 
-            CubeItemViewModel ViewModelCreator(CubeItemModel model) => new(this, model);
-            ObservableCollection<CubeItemViewModel> CollectionCreator() => new ObservableViewModelCollection<CubeItemViewModel, CubeItemModel>(dataModel.CubeList, ViewModelCreator);
-            _cubeList = new Lazy<ObservableCollection<CubeItemViewModel>>(CollectionCreator);
+            CubeItemViewModel viewModelCreator(CubeItemModel model) => new(this, model);
+            ObservableCollection<CubeItemViewModel> collectionCreator() => new ObservableViewModelCollection<CubeItemViewModel, CubeItemModel>(dataModel.CubeList, viewModelCreator);
+            _cubeList = new Lazy<ObservableCollection<CubeItemViewModel>>(collectionCreator);
 
             DataModel.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
             {
                 if (e.PropertyName == "CubeList")
                 {
-                    CollectionCreator();
-                    _cubeList = new Lazy<ObservableCollection<CubeItemViewModel>>(CollectionCreator);
+                    collectionCreator();
+                    _cubeList = new Lazy<ObservableCollection<CubeItemViewModel>>(collectionCreator);
                 }
                 // Will bubble property change events from the Model to the ViewModel.
                 OnPropertyChanged(e.PropertyName);
@@ -201,11 +200,10 @@ namespace SEToolbox.ViewModels
         public bool ToggleExcludedBlocks //why did i put this here??
         {
             get => DataModel.ToggleExcludedBlocks;
-            set => SetProperty(DataModel.ToggleExcludedBlocks, value, () => 
-            { 
-                MainViewModel.IsModified = true;
-            }, nameof(ToggleExcludedBlocks));
-          
+            set => SetProperty(DataModel.ToggleExcludedBlocks, value, () =>
+                   MainViewModel.IsModified = true);//, 
+                                                    //nameof(ToggleExcludedBlocks));
+
         }
 
         public bool IsDamaged
@@ -235,15 +233,14 @@ namespace SEToolbox.ViewModels
             get => DataModel.Dampeners;
 
             set => SetValue(DataModel.Dampeners, value, () =>
-                   MainViewModel.IsModified = true); 
-            
+                   MainViewModel.IsModified = true);
         }
 
         public bool Destructible
         {
             get => DataModel.Destructible;
             set => SetValue(DataModel.Destructible, value, () =>
-                   MainViewModel.IsModified = true); 
+                   MainViewModel.IsModified = true);
         }
 
         public Point3D Min
@@ -266,7 +263,7 @@ namespace SEToolbox.ViewModels
 
         public BindableSize3DModel Size
         {
-            get =>  new(DataModel.Size);
+            get => new(DataModel.Size);
         }
 
         public BindableVector3DModel Center
@@ -354,7 +351,11 @@ namespace SEToolbox.ViewModels
             get => DataModel.IsSubsSystemNotReady;
             set => DataModel.IsSubsSystemNotReady = value;
         }
-
+        public Action<bool> BusyAction
+        {
+            get => b => { MainViewModel.IsBusy = true; };
+            set => SetValue(_busyAction, value, nameof(BusyAction), () => MainViewModel.IsBusy = false);
+        }
         #endregion
 
         #region Command Methods
@@ -518,32 +519,36 @@ namespace SEToolbox.ViewModels
 
         public void ConvertCubeToHeavyArmorExecuted()
         {
-            MainViewModel.IsBusy = true;
-            MainViewModel.ResetProgress(0, Selections.Count);
+            BusyAction = (b) =>
+           {
+               MainViewModel.ResetProgress(0, Selections.Count);
 
-            string contentPath = ToolboxUpdater.GetApplicationContentPath();
-            bool changes = false;
-            foreach (CubeItemViewModel cubeVm in Selections)
-            {
-                MainViewModel.Progress++;
-                if (cubeVm.ConvertFromLightToHeavyArmor())
-                {
-                    changes = true;
+               string contentPath = ToolboxUpdater.GetApplicationContentPath();
+               bool changes = false;
+               foreach (CubeItemViewModel cubeVm in Selections)
+               {
+                   MainViewModel.Progress++;
+                   if (cubeVm.ConvertFromLightToHeavyArmor())
+                   {
+                       changes = true;
 
-                    var index = DataModel.CubeGrid.CubeBlocks.IndexOf(cubeVm.Cube);
-                    var cubeDefinition = SpaceEngineersApi.GetCubeDefinition(cubeVm.Cube.TypeId, GridSize, cubeVm.Cube.SubtypeName);
-                    var newCube = cubeVm.CreateCube(cubeVm.Cube.TypeId, cubeVm.Cube.SubtypeName, cubeDefinition);
-                    cubeVm.TextureFile = (cubeDefinition.Icons == null || cubeDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(cubeDefinition.Icons.First(), Path.Combine(contentPath, cubeDefinition.Icons.First()));
+                       var index = DataModel.CubeGrid.CubeBlocks.IndexOf(cubeVm.Cube);
+                       var cubeDefinition = SpaceEngineersApi.GetCubeDefinition(cubeVm.Cube.TypeId, GridSize, cubeVm.Cube.SubtypeName);
+                       var newCube = cubeVm.CreateCube(cubeVm.Cube.TypeId, cubeVm.Cube.SubtypeName, cubeDefinition);
+                       cubeVm.TextureFile = (cubeDefinition.Icons == null || cubeDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(cubeDefinition.Icons.First(), Path.Combine(contentPath, cubeDefinition.Icons.First()));
 
-                    DataModel.CubeGrid.CubeBlocks.RemoveAt(index);
-                    DataModel.CubeGrid.CubeBlocks.Insert(index, newCube);
-                }
-            }
+                       DataModel.CubeGrid.CubeBlocks.RemoveAt(index);
+                       DataModel.CubeGrid.CubeBlocks.Insert(index, newCube);
+                   }
+               }
 
-            MainViewModel.ClearProgress();
-            if (changes)
-                MainViewModel.IsModified = true;
-            MainViewModel.IsBusy = false;
+               MainViewModel.ClearProgress();
+               if (changes)
+               {
+                   MainViewModel.IsModified = true;
+               }
+           };
+            BusyAction(true);
         }
 
         public bool ConvertGridToLightArmorCanExecute()
@@ -566,32 +571,37 @@ namespace SEToolbox.ViewModels
 
         public void ConvertCubeToLightArmorExecuted()
         {
-            MainViewModel.IsBusy = true;
-            MainViewModel.ResetProgress(0, Selections.Count);
+            BusyAction = (b) =>
+           {
+               MainViewModel.ResetProgress(0, Selections.Count);
 
-            string contentPath = ToolboxUpdater.GetApplicationContentPath();
-            bool changes = false;
-            foreach (CubeItemViewModel cubeVm in Selections)
-            {
-                MainViewModel.Progress++;
-                if (cubeVm.ConvertFromHeavyToLightArmor())
-                {
-                    changes = true;
+               string contentPath = ToolboxUpdater.GetApplicationContentPath();
+               bool changes = false;
+               foreach (CubeItemViewModel cubeVm in Selections)
+               {
+                   MainViewModel.Progress++;
+                   if (cubeVm.ConvertFromHeavyToLightArmor())
+                   {
+                       changes = true;
 
-                    var index = DataModel.CubeGrid.CubeBlocks.IndexOf(cubeVm.Cube);
-                    var cubeDefinition = SpaceEngineersApi.GetCubeDefinition(cubeVm.Cube.TypeId, GridSize, cubeVm.Cube.SubtypeName);
-                    var newCube = cubeVm.CreateCube(cubeVm.Cube.TypeId, cubeVm.Cube.SubtypeName, cubeDefinition);
-                    cubeVm.TextureFile = (cubeDefinition.Icons == null || cubeDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(cubeDefinition.Icons.First(), Path.Combine(contentPath, cubeDefinition.Icons.First()));
+                       var index = DataModel.CubeGrid.CubeBlocks.IndexOf(cubeVm.Cube);
+                       var cubeDefinition = SpaceEngineersApi.GetCubeDefinition(cubeVm.Cube.TypeId, GridSize, cubeVm.Cube.SubtypeName);
+                       var newCube = cubeVm.CreateCube(cubeVm.Cube.TypeId, cubeVm.Cube.SubtypeName, cubeDefinition);
+                       cubeVm.TextureFile = (cubeDefinition.Icons == null || cubeDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(cubeDefinition.Icons.First(), Path.Combine(contentPath, cubeDefinition.Icons.First()));
 
-                    DataModel.CubeGrid.CubeBlocks.RemoveAt(index);
-                    DataModel.CubeGrid.CubeBlocks.Insert(index, newCube);
-                }
-            }
+                       DataModel.CubeGrid.CubeBlocks.RemoveAt(index);
+                       DataModel.CubeGrid.CubeBlocks.Insert(index, newCube);
+                   }
+               }
 
-            MainViewModel.ClearProgress();
-            if (changes)
-                MainViewModel.IsModified = true;
-            MainViewModel.IsBusy = false;
+               MainViewModel.ClearProgress();
+               if (changes)
+               {
+                   MainViewModel.IsModified = true;
+               }
+           };
+
+            BusyAction(true);
         }
 
         public bool ConvertGridFrameworkCanExecute()
@@ -624,18 +634,21 @@ namespace SEToolbox.ViewModels
 
         public void ConvertCubeToFrameworkExecuted(double value)
         {
-            MainViewModel.IsBusy = true;
-            MainViewModel.ResetProgress(0, Selections.Count);
-
-            foreach (var cube in Selections)
+            BusyAction = (b) =>
             {
-                MainViewModel.Progress++;
-                cube.UpdateBuildPercent(value);
-            }
+                MainViewModel.ResetProgress(0, Selections.Count);
 
-            MainViewModel.ClearProgress();
-            MainViewModel.IsModified = true;
-            MainViewModel.IsBusy = false;
+                foreach (var cube in Selections)
+                {
+                    MainViewModel.Progress++;
+                    cube.UpdateBuildPercent(value);
+                }
+
+                MainViewModel.ClearProgress();
+                MainViewModel.IsModified = true;
+            };
+
+            BusyAction(true);
         }
 
         public bool ConvertToStationCanExecute()
@@ -653,7 +666,9 @@ namespace SEToolbox.ViewModels
         {
             int count = DataModel.SetInertiaTensor(state);
             if (count > 0)
+            {
                 MainViewModel.IsModified = true;
+            }
             return count;
         }
 
@@ -880,15 +895,21 @@ namespace SEToolbox.ViewModels
 
         public void MirrorStructureByPlaneExecuted()
         {
-            MainViewModel.IsBusy = true;
-            if (DataModel.MirrorModel(true, false))
+            BusyAction = (b) =>
             {
-                MainViewModel.IsModified = true;
-                IsSubsSystemNotReady = true;
-                IsConstructionNotReady = true;
-                DataModel.InitializeAsync();
-            }
-            MainViewModel.IsBusy = false;
+                if (DataModel.MirrorModel(true, false))
+                {
+                    MainViewModel.IsModified = true;
+                    IsSubsSystemNotReady = true;
+                    IsConstructionNotReady = true;
+                    DataModel.InitializeAsync();
+                }
+            };
+             
+            // MainViewModel.ShowProgress(BusyAction);
+
+            BusyAction(true);
+
         }
 
         public bool MirrorStructureGuessOddCanExecute()
@@ -898,15 +919,19 @@ namespace SEToolbox.ViewModels
 
         public void MirrorStructureGuessOddExecuted()
         {
-            MainViewModel.IsBusy = true;
-            if (DataModel.MirrorModel(false, true))
+            BusyAction = (b) =>
             {
-                MainViewModel.IsModified = true;
-                IsSubsSystemNotReady = true;
-                IsConstructionNotReady = true;
-                DataModel.InitializeAsync();
-            }
-            MainViewModel.IsBusy = false;
+                if (DataModel.MirrorModel(false, true))
+                {
+                    MainViewModel.IsModified = true;
+                    IsSubsSystemNotReady = true;
+                    IsConstructionNotReady = true;
+                    DataModel.InitializeAsync();
+                }
+            };
+
+            //MainViewModel.ShowProgress(BusyAction);
+            BusyAction(true);
         }
 
         public bool MirrorStructureGuessEvenCanExecute()
@@ -916,15 +941,18 @@ namespace SEToolbox.ViewModels
 
         public void MirrorStructureGuessEvenExecuted()
         {
-            MainViewModel.IsBusy = true;
-            if (DataModel.MirrorModel(false, false))
-            {
-                MainViewModel.IsModified = true;
-                IsSubsSystemNotReady = true;
-                IsConstructionNotReady = true;
-                DataModel.InitializeAsync();
-            }
-            MainViewModel.IsBusy = false;
+            BusyAction = (b) =>
+           {
+               if (DataModel.MirrorModel(false, false))
+               {
+                   MainViewModel.IsModified = true;
+                   IsSubsSystemNotReady = true;
+                   IsConstructionNotReady = true;
+                   DataModel.InitializeAsync();
+               }
+           };
+
+            BusyAction(true);
         }
 
         public bool CopyDetailCanExecute()
@@ -1056,7 +1084,9 @@ namespace SEToolbox.ViewModels
                 MainViewModel.Progress++;
                 var cube = Selections[0];
                 if (DataModel.CubeGrid.CubeBlocks.Remove(cube.Cube))
+                {
                     DataModel.CubeList.Remove(cube.DataModel);
+                }
             }
 
             MainViewModel.ClearProgress();
@@ -1082,38 +1112,40 @@ namespace SEToolbox.ViewModels
         {
             SelectCubeModel model = new();
             SelectCubeViewModel loadVm = new(this, model);
-            model.Load(GridSize, SelectedCubeItem.Cube.TypeId, SelectedCubeItem.SubtypeId);
+            model.Load(GridSize, SelectedCubeItem.Cube.TypeId, SelectedCubeItem.SubtypeName);
             bool? result = _dialogService.ShowDialog<WindowSelectCube>(this, loadVm);
             if (result == true)
             {
-                MainViewModel.IsBusy = true;
-                string contentPath = ToolboxUpdater.GetApplicationContentPath();
-                bool change = false;
-                MainViewModel.ResetProgress(0, Selections.Count);
-
-                foreach (CubeItemViewModel cube in Selections)
+                BusyAction = (b) =>
                 {
-                    MainViewModel.Progress++;
-                    if (cube.TypeId != model.CubeItem.TypeId || cube.SubtypeId != model.CubeItem.SubtypeId)
+                    string contentPath = ToolboxUpdater.GetApplicationContentPath();
+                    bool change = false;
+                    MainViewModel.ResetProgress(0, Selections.Count);
+
+                    foreach (CubeItemViewModel cube in Selections)
                     {
-                        int index = DataModel.CubeGrid.CubeBlocks.IndexOf(cube.Cube);
-                        DataModel.CubeGrid.CubeBlocks.RemoveAt(index);
+                        MainViewModel.Progress++;
+                        if (cube.TypeId != model.CubeItem.TypeId || cube.SubtypeName != model.CubeItem.SubtypeName)
+                        {
+                            int index = DataModel.CubeGrid.CubeBlocks.IndexOf(cube.Cube);
+                            DataModel.CubeGrid.CubeBlocks.RemoveAt(index);
 
-                        Sandbox.Definitions.MyCubeBlockDefinition cubeDefinition = SpaceEngineersApi.GetCubeDefinition(model.CubeItem.TypeId, GridSize, model.CubeItem.SubtypeId);
-                        MyObjectBuilder_CubeBlock newCube = cube.CreateCube(model.CubeItem.TypeId, model.CubeItem.SubtypeId, cubeDefinition);
-                        cube.TextureFile = (cubeDefinition.Icons == null || cubeDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(cubeDefinition.Icons.First(), Path.Combine(contentPath, cubeDefinition.Icons.First()));
-                        DataModel.CubeGrid.CubeBlocks.Insert(index, newCube);
+                            Sandbox.Definitions.MyCubeBlockDefinition cubeDefinition = SpaceEngineersApi.GetCubeDefinition(model.CubeItem.TypeId, GridSize, model.CubeItem.SubtypeName);
+                            MyObjectBuilder_CubeBlock newCube = cube.CreateCube(model.CubeItem.TypeId, model.CubeItem.SubtypeName, cubeDefinition);
+                            cube.TextureFile = (cubeDefinition.Icons == null || cubeDefinition.Icons.First() == null) ? null : SpaceEngineersCore.GetDataPathOrDefault(cubeDefinition.Icons.First(), Path.Combine(contentPath, cubeDefinition.Icons.First()));
+                            DataModel.CubeGrid.CubeBlocks.Insert(index, newCube);
 
-                        change = true;
+                            change = true;
+                        }
                     }
-                }
 
-                MainViewModel.ClearProgress();
-                if (change)
-                {
-                    MainViewModel.IsModified = true;
-                }
-                MainViewModel.IsBusy = false;
+                    MainViewModel.ClearProgress();
+                    if (change)
+                    {
+                        MainViewModel.IsModified = true;
+                    }
+                };
+                BusyAction(true);
             }
         }
 
@@ -1131,19 +1163,23 @@ namespace SEToolbox.ViewModels
 
             if (_dialogService.ShowColorDialog(OwnerViewModel, colorDialog) == System.Windows.Forms.DialogResult.OK)
             {
-                MainViewModel.IsBusy = true;
-                MainViewModel.ResetProgress(0, Selections.Count);
-
-                foreach (CubeItemViewModel cube in Selections)
+                BusyAction = (b) =>
                 {
-                    MainViewModel.Progress++;
-                    if (colorDialog.DrawingColor.HasValue)
-                        cube.UpdateColor(colorDialog.DrawingColor.Value.FromPaletteColorToHsvMask());
-                }
+                    MainViewModel.ResetProgress(0, Selections.Count);
+                    foreach (CubeItemViewModel cube in Selections)
+                    {
+                        MainViewModel.Progress++;
+                        if (colorDialog.DrawingColor.HasValue)
+                        {
+                            cube.UpdateColor(colorDialog.DrawingColor.Value.FromPaletteColorToHsvMask());
+                        }
+                    }
 
-                MainViewModel.ClearProgress();
-                MainViewModel.IsModified = true;
-                MainViewModel.IsBusy = false;
+                    MainViewModel.ClearProgress();
+                    MainViewModel.IsModified = true;
+
+                };
+                BusyAction(true);
             }
 
             MainViewModel.CreativeModeColors = colorDialog.CustomColors;
@@ -1161,19 +1197,20 @@ namespace SEToolbox.ViewModels
             bool? result = _dialogService.ShowDialog<WindowFrameworkBuild>(this, loadVm);
             if (result == true)
             {
-                MainViewModel.IsBusy = true;
-                MainViewModel.ResetProgress(0, Selections.Count);
-
-                foreach (CubeItemViewModel cube in Selections)
+                BusyAction = (b) =>
                 {
-                    MainViewModel.Progress++;
-                    cube.UpdateBuildPercent(model.BuildPercent.Value / 100);
-                }
+                    MainViewModel.ResetProgress(0, Selections.Count);
+                    foreach (CubeItemViewModel cube in Selections)
+                    {
+                        MainViewModel.Progress++;
+                        cube.UpdateBuildPercent(model.BuildPercent.Value / 100);
+                    }
 
-                MainViewModel.ClearProgress();
-                MainViewModel.IsModified = true;
-                MainViewModel.IsBusy = false;
+                    MainViewModel.ClearProgress();
+                    MainViewModel.IsModified = true;
+                };
             }
+            BusyAction(true);
         }
 
         public bool SetOwnerCanExecute()
@@ -1192,19 +1229,24 @@ namespace SEToolbox.ViewModels
             bool? result = _dialogService.ShowDialog<WindowChangeOwner>(this, loadVm);
             if (result == true)
             {
-                MainViewModel.IsBusy = true;
-                MainViewModel.ResetProgress(0, Selections.Count);
-
-                foreach (CubeItemViewModel cube in Selections)
+                BusyAction = (b) =>
                 {
-                    MainViewModel.Progress++;
-                    cube.ChangeOwner(model.SelectedPlayer.PlayerId);
-                }
+                    MainViewModel.IsBusy = true;
+                    MainViewModel.ResetProgress(0, Selections.Count);
 
-                MainViewModel.ClearProgress();
-                MainViewModel.IsModified = true;
-                MainViewModel.IsBusy = false;
+                    foreach (CubeItemViewModel cube in Selections)
+                    {
+                        MainViewModel.Progress++;
+                        cube.ChangeOwner(model.SelectedPlayer.PlayerId);
+                    }
+
+                    MainViewModel.ClearProgress();
+                    MainViewModel.IsModified = true;
+                    MainViewModel.IsBusy = false;
+                };
             }
+            ;
+            BusyAction(true);
         }
 
         public bool SetBuiltByCanExecute()
@@ -1223,19 +1265,24 @@ namespace SEToolbox.ViewModels
             bool? result = _dialogService.ShowDialog<WindowChangeOwner>(this, loadVm);
             if (result == true)
             {
-                MainViewModel.IsBusy = true;
-                MainViewModel.ResetProgress(0, Selections.Count);
-
-                foreach (CubeItemViewModel cube in Selections)
+                BusyAction = (b) =>
                 {
-                    MainViewModel.Progress++;
-                    cube.ChangeBuiltBy(model.SelectedPlayer.PlayerId);
-                }
+                    MainViewModel.IsBusy = true;
+                    MainViewModel.ResetProgress(0, Selections.Count);
 
-                MainViewModel.ClearProgress();
-                MainViewModel.IsModified = true;
-                MainViewModel.IsBusy = false;
+                    foreach (CubeItemViewModel cube in Selections)
+                    {
+                        MainViewModel.Progress++;
+                        cube.ChangeBuiltBy(model.SelectedPlayer.PlayerId);
+                    }
+
+                    MainViewModel.ClearProgress();
+                    MainViewModel.IsModified = true;
+                    MainViewModel.IsBusy = false;
+                };
             }
+            ;
+            BusyAction(true);
         }
 
         #endregion
@@ -1245,10 +1292,9 @@ namespace SEToolbox.ViewModels
         private void ApplyCubeFilter()
         {
             // Prepare filter beforehand.
-            if (string.IsNullOrEmpty(ActiveComponentFilter))
-                _filerView = [];
-            else
-                _filerView = [.. ActiveComponentFilter.ToLowerInvariant().Split([' '], StringSplitOptions.RemoveEmptyEntries).Distinct()];
+            _filerView = string.IsNullOrEmpty(ActiveComponentFilter)
+                ? []
+                : [.. ActiveComponentFilter.ToLowerInvariant().Split([' '], StringSplitOptions.RemoveEmptyEntries).Distinct()];
 
             CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(CubeList);
             view.Filter = UserFilter;
@@ -1257,12 +1303,14 @@ namespace SEToolbox.ViewModels
         private bool UserFilter(object item)
         {
             if (_filerView.Length == 0)
+            {
                 return true;
+            }
 
             CubeItemViewModel cube = (CubeItemViewModel)item;
-            return _filerView.All(s => ( cube.FriendlyName.ToLowerInvariant().Contains(s)) || cube.ColorText.ToLowerInvariant().Contains(s));
+            return _filerView.All(s => cube.FriendlyName.ToLowerInvariant().Contains(s) || cube.ColorText.ToLowerInvariant().Contains(s));
         }
-        
+
         #endregion
     }
 }

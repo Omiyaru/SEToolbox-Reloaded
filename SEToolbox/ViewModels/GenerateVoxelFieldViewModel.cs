@@ -212,14 +212,12 @@ namespace SEToolbox.ViewModels
 
         public void AddRowExecuted()
         {
-            if (SelectedRow != null)
-            {
-                VoxelCollection.Insert(VoxelCollection.IndexOf(SelectedRow) + 1, (AsteroidByteFillProperties)SelectedRow.Clone());
-            }
-            else
-            {
-                VoxelCollection.Add(_dataModel.NewDefaultVoxel(VoxelCollection.Count + 1));
-            }
+            Action action =  (SelectedRow != null) switch 
+            { 
+                true => () => VoxelCollection.Insert(VoxelCollection.IndexOf(SelectedRow) + 1, (AsteroidByteFillProperties)SelectedRow.Clone()),
+                false => ()  =>  VoxelCollection.Add(_dataModel.NewDefaultVoxel(VoxelCollection.Count + 1)),
+            };
+            action();
 
             _dataModel.RenumberCollection();
         }
@@ -282,7 +280,9 @@ namespace SEToolbox.ViewModels
                 MainViewModel.Progress++;
 
                 if (string.IsNullOrEmpty(voxelDesign.VoxelFile.SourceFileName) || !MyVoxelMapBase.IsVoxelMapFile(voxelDesign.VoxelFile.SourceFileName))
+                {
                     continue;
+                }
 
                 using MyVoxelMapBase asteroid = new();
                 string tempSourceFileName = null;
@@ -290,8 +290,9 @@ namespace SEToolbox.ViewModels
                 int id = asteroidFillType.Id;
 
                 switch (asteroidFillType.Id)
-                {
-                    case 0: //AsteroidFillType.None:
+                {   
+                    
+                    case 0: // AsteroidFillType.None // AsteroidFillType.Custom
                         asteroid.Load(voxelDesign.VoxelFile.SourceFileName);
                         tempSourceFileName = voxelDesign.VoxelFile.SourceFileName;
                         break;
@@ -302,10 +303,6 @@ namespace SEToolbox.ViewModels
                         filler.FillAsteroid(asteroid, voxelDesign);
                         tempSourceFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
                         asteroid.Save(tempSourceFileName);
-                        break;
-                    case 2:  //AsteroidFillType.Custom
-                        asteroid.Load(voxelDesign.VoxelFile.SourceFileName);
-                        tempSourceFileName = voxelDesign.VoxelFile.SourceFileName;
                         break;
                     default:
                         throw new InvalidOperationException("Unsupported AsteroidFillType.");

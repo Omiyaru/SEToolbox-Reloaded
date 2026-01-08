@@ -22,16 +22,11 @@ namespace SEToolbox.Support
             foreach (Match match in matches)
             {
                 string schemaName = match.Groups["schema"].Value;
-                if (string.IsNullOrEmpty(schemaName))
-                {
-                    manager.AddNamespace("", match.Groups["key"].Value);
-                }
-                else
-                {
-                    manager.AddNamespace(schemaName, match.Groups["key"].Value);
-                }
+                Action action = string.IsNullOrEmpty(schemaName) ? () => manager.AddNamespace("", match.Groups["key"].Value) :
+                                                                   () => manager.AddNamespace(schemaName, match.Groups["key"].Value);
+                action();
             }
-
+            
             return manager;
         }
 
@@ -49,7 +44,7 @@ namespace SEToolbox.Support
         internal static T ToValue<T>(this XPathNavigator navRoot, string name)
         {
             XPathNavigator node = navRoot.SelectSingleNode(name) ?? throw new ArgumentNullException(nameof(name), "Node cannot be null.");
-            object item = node.Value;
+            object item = node?.Value;
 
             return typeof(T) switch
             {
@@ -65,9 +60,9 @@ namespace SEToolbox.Support
                 Type t when t.BaseType == typeof(Enum) => (T)Enum.Parse(typeof(T), (string)item),
                 Type t when t == typeof(CultureInfo) => (T)(object)CultureInfo.GetCultureInfoByIetfLanguageTag((string)item),
                 Type t when t == typeof(Point3D) => (T)(object)new Point3D(
-                    Convert.ToDouble(node.SelectSingleNode("X").Value, CultureInfo.InvariantCulture),
-                    Convert.ToDouble(node.SelectSingleNode("Y").Value, CultureInfo.InvariantCulture),
-                    Convert.ToDouble(node.SelectSingleNode("Z").Value, CultureInfo.InvariantCulture)),
+                    double.Parse(node.SelectSingleNode("X")?.Value, CultureInfo.InvariantCulture),
+                    double.Parse(node.SelectSingleNode("Y")?.Value, CultureInfo.InvariantCulture),
+                    double.Parse(node.SelectSingleNode("Z")?.Value, CultureInfo.InvariantCulture)),
                 Type t when t == typeof(Rect) => (T)new RectConverter().ConvertFromString((string)item),
                 Type t when t == typeof(XmlDocument) => (T)item,
                 _ => throw new NotImplementedException($"The datatype [{typeof(T).Name}] has not been catered for.")

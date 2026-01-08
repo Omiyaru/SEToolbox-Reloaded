@@ -3,25 +3,15 @@
 namespace SEToolbox.Services
 {
     /// <summary>
-    /// ViewModel of the FolderBrowserDialog.
+    /// ViewModel of the FolderBrowserDialog initializes a new instance of the <see cref="FolderBrowserDialogViewModel"/> class.
     /// </summary>
-    public class FolderBrowserDialogViewModel : IFolderBrowserDialog
+    public class FolderBrowserDialogViewModel() : IFolderBrowserDialog
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FolderBrowserDialogViewModel"/> class.
-        /// </summary>
-        public FolderBrowserDialogViewModel()
-        {
-            // Set default values
-            Description = string.Empty;
-            SelectedPath = string.Empty;
-            ShowNewFolderButton = true;
-        }
 
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
-        public string SelectedPath { get; set; }
+        public string SelectedPath { get; set; } = string.Empty;
 
-        public bool ShowNewFolderButton { get; set; }
+        public bool ShowNewFolderButton { get; set; } = true;
     }
 }

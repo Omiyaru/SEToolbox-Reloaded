@@ -196,7 +196,7 @@ namespace SEToolbox.ViewModels
                                 IsUnique ? GenerateFloatingObjectModel.UniqueUnits.ToFixedPoint() : 1;
 
             IsValidItemToImport = true;
-            entity.Item.PhysicalContent = SpaceEngineersResources.CreateNewObject<MyObjectBuilder_PhysicalObject>(StockItem.TypeId, StockItem.SubtypeId);
+            entity.Item.PhysicalContent = SpaceEngineersResources.CreateNewObject<MyObjectBuilder_PhysicalObject>(StockItem.TypeId, StockItem.SubtypeName);
 
             /// <summary> See <see cref="Interop.SpaceEngineersTypeIds"/> for a list of all possible types.</summary
             switch (StockItem.TypeId)
@@ -257,10 +257,10 @@ namespace SEToolbox.ViewModels
         // This is a hack approach for enums like AngleGrinderItem
         void CreateGunEntity(MyObjectBuilder_FloatingObject entity)
         {
-            string enumName = StockItem.SubtypeId.Substring(0, StockItem.SubtypeId.Length - 4);
+            string enumName = StockItem.SubtypeName.Substring(0, StockItem.SubtypeName.Length - 4);
             if (Enum.TryParse(enumName, out MyObjectBuilderType itemEnum))
             {
-                var gunEntity = SpaceEngineersResources.CreateNewObject<MyObjectBuilder_EntityBase>(itemEnum, StockItem.SubtypeId);
+                var gunEntity = SpaceEngineersResources.CreateNewObject<MyObjectBuilder_EntityBase>(itemEnum, StockItem.SubtypeName);
                 {
                     gunEntity.EntityId = SpaceEngineersApi.GenerateEntityId();
                     gunEntity.PersistentFlags = MyPersistentEntityFlags2.None;

@@ -19,7 +19,6 @@ using MOBTypeIds = SEToolbox.Interop.SpaceEngineersTypes.MOBTypeIds;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Media3D = System.Windows.Media.Media3D;
 
-
 namespace SEToolbox.Interop
 {
     /// <summary>
@@ -33,12 +32,17 @@ namespace SEToolbox.Interop
             int vecAxisY = vector.Y - yAxis;
             int vecAxisZ = vector.Z - zAxis;
             int offsetX = xMirror == Support.Mirror.Odd ? -vecAxisX : 0;
+
             offsetX += xMirror == Support.Mirror.EvenUp ? 1 :
                       (xMirror == Support.Mirror.EvenDown ? -1 : 0);
+
             int offsetY = yMirror == Support.Mirror.Odd ? -vecAxisY : 0;
+
             offsetY += yMirror == Support.Mirror.EvenUp ? 1 :
                       (yMirror == Support.Mirror.EvenDown ? -1 : 0);
+
             int offsetZ = zMirror == Support.Mirror.Odd ? -vecAxisZ : 0;
+
             offsetZ += zMirror == Support.Mirror.EvenUp ? 1 :
                       (zMirror == Support.Mirror.EvenDown ? -1 : 0);
 
@@ -50,12 +54,16 @@ namespace SEToolbox.Interop
 
         public static double LinearVector(this Vector3 vector)
         {
-            return Math.Sqrt(Math.Pow(vector.X, 2) + Math.Pow(vector.Y, 2) + Math.Pow(vector.Z, 2));
+            return Math.Sqrt(Math.Pow(vector.X, 2) +
+                             Math.Pow(vector.Y, 2) +
+                             Math.Pow(vector.Z, 2));
         }
 
         public static Vector3I ToVector3I(this SerializableVector3I vector)
         {
-            return new(vector.X, vector.Y, vector.Z);
+            return new(vector.X,
+                       vector.Y,
+                       vector.Z);
         }
 
         public static Vector3I RoundToVector3I(this Vector3 vector)
@@ -74,17 +82,23 @@ namespace SEToolbox.Interop
 
         public static Vector3 ToVector3(this SerializableVector3I vector)
         {
-            return new(vector.X, vector.Y, vector.Z);
+            return new(vector.X,
+                       vector.Y,
+                       vector.Z);
         }
 
         public static Vector3D ToVector3D(this SerializableVector3I vector)
         {
-            return new(vector.X, vector.Y, vector.Z);
+            return new(vector.X,
+                       vector.Y,
+                       vector.Z);
         }
 
         public static Vector3 ToVector3(this SerializableVector3 vector)
         {
-            return new(vector.X, vector.Y, vector.Z);
+            return new(vector.X,
+                       vector.Y,
+                       vector.Z);
         }
 
         public static Vector3I SizeInt(this BoundingBox box)
@@ -105,27 +119,37 @@ namespace SEToolbox.Interop
 
         public static Media3D.Vector3D ToVector3D(this SerializableVector3 vector)
         {
-            return new Media3D.Vector3D(vector.X, vector.Y, vector.Z);
+            return new Media3D.Vector3D(vector.X,
+                                        vector.Y,
+                                        vector.Z);
         }
 
         public static Media3D.Vector3D ToVector3D(this Vector3 vector)
         {
-            return new Media3D.Vector3D(vector.X, vector.Y, vector.Z);
+            return new Media3D.Vector3D(vector.X,
+                                        vector.Y,
+                                        vector.Z);
         }
 
         public static Point3D ToPoint3D(this Vector3D vector)
         {
-            return new Point3D(vector.X, vector.Y, vector.Z);
+            return new Point3D(vector.X,
+                                vector.Y,
+                                vector.Z);
         }
 
         public static Point3D ToPoint3D(this SerializableVector3 point)
         {
-            return new Point3D(point.X, point.Y, point.Z);
+            return new Point3D(point.X,
+                               point.Y,
+                               point.Z);
         }
 
         public static Point3D ToPoint3D(this SerializableVector3D point)
         {
-            return new Point3D(point.X, point.Y, point.Z);
+            return new Point3D(point.X,
+                               point.Y,
+                               point.Z);
         }
 
         public static System.Windows.Point ToPoint(this Vector2 vector)
@@ -142,7 +166,9 @@ namespace SEToolbox.Interop
 
         public static Vector3D ToVector3D(this Point3D point)
         {
-            return new(point.X, point.Y, point.Z);
+            return new(point.X,
+                       point.Y,
+                       point.Z);
         }
 
         public static Vector3 ToVector3(this Media3D.Size3D size3D)
@@ -154,7 +180,9 @@ namespace SEToolbox.Interop
 
         public static Vector3D ToVector3D(this Media3D.Size3D size3D)
         {
-            return new(size3D.X, size3D.Y, size3D.Z);
+            return new(size3D.X,
+                       size3D.Y,
+                       size3D.Z);
         }
 
         public static Vector3 ToVector3(this Media3D.Vector3D size3D)
@@ -166,18 +194,22 @@ namespace SEToolbox.Interop
 
         public static Vector3D ToVector3D(this Media3D.Vector3D size3D)
         {
-            return new(size3D.X, size3D.Y, size3D.Z);
+            return new(size3D.X,
+                       size3D.Y,
+                       size3D.Z);
         }
 
         public static Quaternion ToQuaternion(this SerializableBlockOrientation blockOrientation)
         {
-            var matrix = Matrix.CreateFromDir(Base6Directions.GetVector(blockOrientation.Forward), Base6Directions.GetVector(blockOrientation.Up));
+            var matrix = Matrix.CreateFromDir(Base6Directions.GetVector(blockOrientation.Forward),
+                                              Base6Directions.GetVector(blockOrientation.Up));
             return Quaternion.CreateFromRotationMatrix(matrix);
         }
 
         public static Quaternion ToQuaternion(this MyPositionAndOrientation positionOrientation)
         {
-            return Quaternion.CreateFromForwardUp(positionOrientation.Forward, positionOrientation.Up);
+            return Quaternion.CreateFromForwardUp(positionOrientation.Forward,
+                                                  positionOrientation.Up);
         }
 
         public static QuaternionD ToQuaternionD(this MyPositionAndOrientation positionOrientation)
@@ -188,7 +220,8 @@ namespace SEToolbox.Interop
 
         public static Matrix ToMatrix(this MyPositionAndOrientation positionOrientation)
         {
-            return Matrix.CreateFromQuaternion(Quaternion.CreateFromForwardUp(positionOrientation.Forward, positionOrientation.Up));
+            return Matrix.CreateFromQuaternion(Quaternion.CreateFromForwardUp(positionOrientation.Forward,
+                                                                              positionOrientation.Up));
         }
 
         public static Matrix ToMatrix(this Quaternion quaternion)
@@ -256,12 +289,15 @@ namespace SEToolbox.Interop
 
         public static Vector3D ToVector3D(this Vector3I vector)
         {
-            return new(vector.X, vector.Y, vector.Z);
+            return new(vector.X,
+                       vector.Y,
+                       vector.Z);
         }
 
         public static BoundingBoxD ToBoundingBoxD(this BoundingBoxI box)
         {
-            return new(box.Min, box.Max);
+            return new(box.Min,
+                       box.Max);
 
         }
 
@@ -275,52 +311,51 @@ namespace SEToolbox.Interop
         public static SerializableVector3D RoundOff(this SerializableVector3D vector, float roundTo)
         {
             return new(Math.Round(vector.X / roundTo, 0, MidpointRounding.ToEven) * roundTo,
-                        Math.Round(vector.Y / roundTo, 0, MidpointRounding.ToEven) * roundTo,
-                        Math.Round(vector.Z / roundTo, 0, MidpointRounding.ToEven) * roundTo);
+                       Math.Round(vector.Y / roundTo, 0, MidpointRounding.ToEven) * roundTo,
+                       Math.Round(vector.Z / roundTo, 0, MidpointRounding.ToEven) * roundTo);
 
         }
 
         public static MatrixD ToMatrixD(this QuaternionD value)
         {
-            double xx = value.X * value.X;
-            double yy = value.Y * value.Y;
-            double zz = value.Z * value.Z;
-            double xy = value.X * value.Y;
-            double xz = value.X * value.Z;
-            double yz = value.Y * value.Z;
-            double wx = value.X * value.W;
-            double wy = value.Y * value.W;
-            double wz = value.Z * value.W;
+            double x2 = value.X * 2.0;
+            double y2 = value.Y * 2.0;
+            double z2 = value.Z * 2.0;
+
+            double xx = value.X * x2;
+            double yy = value.Y * y2;
+            double zz = value.Z * z2;
+
+            double xy = value.X * y2;
+            double xz = value.X * z2;
+            double yz = value.Y * z2;
+
+            double wx = value.W * x2;
+            double wy = value.W * y2;
+            double wz = value.W * z2;
+
 
             MatrixD result = new(
-                1.0d - 2.0d * (yy + zz),
-                2.0d * (xy + wz),
-                2.0d * (xz - wy),
-                0d,
-                2.0d * (xy - wz),
-                1.0d - 2.0d * (xx + zz),
-                2.0d * (yz + wx),
-                0d,
-                2.0d * (xz + wy),
-                2.0d * (yz - wx),
-                1.0d - 2.0d * (xx + yy),
-                0d, 0d, 0d, 0d, 1d);
+                
+           
+
+                1.0d - (yy + zz), xy - wz, xz + wy, 0d,
+                xy + wz, 1.0d - (xx + zz), yz - wx, 0d,
+                xz - wy, yz + wx, 1.0d - (xx + yy), 0d,
+                0d, 0d, 0d, 1d);
 
             return result;
         }
 
         public static SerializableVector3 RoundToAxis(this SerializableVector3 vector)
         {
-            if (Math.Abs(vector.X) > Math.Abs(vector.Y) && Math.Abs(vector.X) > Math.Abs(vector.Z))
-                return new SerializableVector3(Math.Sign(vector.X), 0, 0);
+            int axis = Math.Abs(vector.X) > Math.Abs(vector.Y) ?
+                      (Math.Abs(vector.X) > Math.Abs(vector.Z) ? 0 : 2) :
+                      (Math.Abs(vector.Y) > Math.Abs(vector.Z) ? 1 : 2);
 
-            if (Math.Abs(vector.Y) > Math.Abs(vector.X) && Math.Abs(vector.Y) > Math.Abs(vector.Z))
-                return new SerializableVector3(0, Math.Sign(vector.Y), 0);
-
-            if (Math.Abs(vector.Z) > Math.Abs(vector.X) && Math.Abs(vector.Z) > Math.Abs(vector.Y))
-                return new SerializableVector3(0, 0, Math.Sign(vector.Z));
-
-            return new SerializableVector3();
+            return new SerializableVector3(axis == 0 ? Math.Sign(vector.X) : 0,
+                                           axis == 1 ? Math.Sign(vector.Y) : 0,
+                                           axis == 2 ? Math.Sign(vector.Z) : 0);
         }
 
         private static decimal Clamp(decimal value, decimal min, decimal max)
@@ -353,33 +388,18 @@ namespace SEToolbox.Interop
             decimal x = chroma * (1 - Math.Abs(hue1 % 2 - 1));
 
             decimal r1 = 0, g1 = 0, b1 = 0;
-
-            switch ((int)hue)
+            var hue1Int = (r1, g1, b1);
+            _ = (int)hue1 switch
             {
-                case 0:
-                    r1 = chroma; g1 = x;
-                    break;
-                case 1:
-                    r1 = x; g1 = chroma;
-                    break;
-                case 2:
-                    g1 = chroma; b1 = x;
-                    break;
-                case 3:
-                    g1 = x; b1 = chroma;
-                    break;
-                case 4:
-                    r1 = x; b1 = chroma;
-                    break;
-                case 5:
-                    r1 = chroma; b1 = x;
-                    break;
-                default:
-                    if (chroma != 0)
-                        throw new InvalidOperationException("Unexpected value");
-                    r1 = 0; g1 = 0; b1 = 0;
-                    break;
-            }
+                0 => (chroma, x, 0),
+                1 => (x, chroma, 0),
+                2 => (0, chroma, x),
+                3 => (0, x, chroma),
+                4 => (x, 0, chroma),
+                5 => (chroma, 0, x),
+                _ => hue1Int
+            };
+
             decimal m = value - chroma;
 
             // round off (not up or truncate down) values to correct for aberration.
@@ -409,15 +429,16 @@ namespace SEToolbox.Interop
         /// <param name="b">the System RGB color</param>
         /// <returns>the HSV stored value.</returns>
         /// <remarks>sourced from wikipedia</remarks>
+
         private static SerializableVector3 FromPaletteColorToHsvMask(decimal r, decimal g, decimal b)
         {
             decimal max = Math.Max(r, Math.Max(g, b));
             decimal min = Math.Min(r, Math.Min(g, b));
             decimal chroma = max - min;
             decimal hue1 = chroma == 0 ? 0 :
-                           max == r ? (g - b) / chroma % 6 :
-                           max == g ? (b - r) / chroma + 2 :
-                           ((r - g) / chroma) + 4;
+                              max == r ? (g - b) / chroma % 6 :
+                              max == g ? (b - r) / chroma + 2 :
+                                        (r - g) / chroma + 4;
 
 
             decimal hue = 60 * hue1;
@@ -425,9 +446,12 @@ namespace SEToolbox.Interop
             decimal saturation = 0;
 
             if (value != 0)
+            {
                 saturation = chroma / value;
+            }
 
-            return new((float)hue / 360, (float)saturation - MyColorPickerConstants.SATURATION_DELTA,
+            return new((float)hue / 360,
+                       (float)saturation - MyColorPickerConstants.SATURATION_DELTA,
                        (float)value - MyColorPickerConstants.VALUE_DELTA + MyColorPickerConstants.VALUE_COLORIZE_DELTA);
 
         }
@@ -495,7 +519,8 @@ namespace SEToolbox.Interop
                 [0,4,7],
                 [0,7,3],
                 [5,1,2],
-                [5,2,6]];
+                [5,2,6]
+            ];
 
             foreach (int[] triangle in triangles)
             {
@@ -520,12 +545,16 @@ namespace SEToolbox.Interop
 
         public static SerializableVector3UByte Transform(this SerializableVector3UByte value, Quaternion rotation)
         {
-            Vector3I vector = Vector3I.Transform(new(value.X - 127, value.Y - 127, value.Z - 127), rotation);
+            Vector3I vector = Vector3I.Transform(new(value.X - 127,
+                                                     value.Y - 127,
+                                                     value.Z - 127),
+                                                     rotation);
             return new SerializableVector3UByte((byte)(vector.X + 127),
                                                 (byte)(vector.Y + 127),
                                                 (byte)(vector.Z + 127));
 
         }
+
 
         public static Vector3D Transform(this Vector3D value, QuaternionD rotation)
         {
@@ -570,27 +599,27 @@ namespace SEToolbox.Interop
             ObservableCollection<InventoryEditorModel> inventoryEditors = [];
             var inventoryBase = objectBuilderBase.ComponentContainer.Components.FirstOrDefault(e => e.TypeId == "MyInventoryBase");
             var inventoryBaseComponent = inventoryBase.Component;
+            var iem = ParseInventory(inventoryBaseComponent as MyObjectBuilder_Inventory, definition);
             if (objectBuilderBase.ComponentContainer == null || inventoryBaseComponent == null)
             {
                 return inventoryEditors;
             }
-            if (inventoryBaseComponent is MyObjectBuilder_Inventory singleInventory)
+            
+            if (inventoryBaseComponent is MyObjectBuilder_Inventory singleInventory)  
             {
-                if (ParseInventory(singleInventory, definition) is InventoryEditorModel iem)
-                {
-                    inventoryEditors.Add(iem);
-                }
+              inventoryEditors.Add(iem);
             }
             if (inventoryBaseComponent is MyObjectBuilder_InventoryAggregate aggregate)
             {
-                foreach (var field in aggregate.Inventories.OfType<MyObjectBuilder_Inventory>())
-                {
-                    if (ParseInventory(field, definition) is InventoryEditorModel iem)
-                    {
-                        inventoryEditors.Add(iem);
-                    }
+                var inventoryEnumerable = aggregate.Inventories.OfType<MyObjectBuilder_Inventory>();
+                var aggregateEditors = inventoryEnumerable.Select(i => ParseInventory(i, definition)).Where(i => i != null);
+                foreach (var _ in aggregateEditors)
+                {   
+                     inventoryEditors.Add(iem);
                 }
+               
             }
+
             return inventoryEditors;
         }
 
@@ -599,10 +628,11 @@ namespace SEToolbox.Interop
             List<MyObjectBuilder_Character> list = [];
 
             if (cube is not MyObjectBuilder_Cockpit cockpit)
+            {
                 return list;
+            }
 
-            if (cockpit.ComponentContainer?.Components
-                       .FirstOrDefault(e => e.TypeId == "MyHierarchyComponentBase")?.Component is MyObjectBuilder_HierarchyComponentBase hierarchyBase)
+            if (cockpit.ComponentContainer?.Components.FirstOrDefault(e => e.TypeId == "MyHierarchyComponentBase")?.Component is MyObjectBuilder_HierarchyComponentBase hierarchyBase)
             {
                 list.AddRange(hierarchyBase.Children.Where(e => e is MyObjectBuilder_Character).Cast<MyObjectBuilder_Character>());
             }
@@ -653,50 +683,55 @@ namespace SEToolbox.Interop
         /// </summary>
         public static void RemoveHierarchyCharacter(this MyObjectBuilder_CubeGrid cubeGrid)
         {
-            cubeGrid.CubeBlocks.Where(c => c.TypeId == MOBTypeIds.Cockpit).Select(c => // Cockpit
+
+            foreach (var cockpit in cubeGrid.CubeBlocks.OfType<MyObjectBuilder_Cockpit>()
+                                                       .Where(c => c.TypeId == MOBTypeIds.Cockpit))
             {
-                ((MyObjectBuilder_Cockpit)c).RemoveHierarchyCharacter();
-                return c;
-            }).ToArray();
+                cockpit.RemoveHierarchyCharacter();
+            }
         }
 
         public static ObservableCollection<InventoryEditorModel> GetInventory(this MyObjectBuilder_ComponentContainer componentContainer, MyCubeBlockDefinition definition = null)
         {
             ObservableCollection<InventoryEditorModel> inventoryEditors = [];
 
-            if (componentContainer != null)
+
+            var inventoryBase = componentContainer?.Components.FirstOrDefault(e => e.TypeId == "MyInventoryBase");
+
+            if (inventoryBase?.Component is MyObjectBuilder_Inventory singleInventory)
             {
-                var inventoryBase = componentContainer.Components.FirstOrDefault(e => e.TypeId == "MyInventoryBase");
-
-                if (inventoryBase?.Component is MyObjectBuilder_Inventory singleInventory && singleInventory != null)
+                InventoryEditorModel iem = ParseInventory(singleInventory, definition);
+                if (iem != null)
                 {
-                    InventoryEditorModel iem = ParseInventory(singleInventory, definition);
-                    if (iem != null)
-                        inventoryEditors.Add(iem);
+                    inventoryEditors.Add(iem);
                 }
+            }
 
-                if (inventoryBase.Component is MyObjectBuilder_InventoryAggregate aggregate)
+            if (inventoryBase.Component is MyObjectBuilder_InventoryAggregate aggregate)
+            {
+                foreach (var inventory in aggregate.Inventories)
                 {
-                    foreach (var inventory in aggregate.Inventories)
+                    var iem = ParseInventory(inventory as MyObjectBuilder_Inventory, definition);
+                    if (iem != null)
                     {
-                        var iem = ParseInventory(inventory as MyObjectBuilder_Inventory, definition);
-                        if (iem != null)
-                            inventoryEditors.Add(iem);
+                        inventoryEditors.Add(iem);
                     }
                 }
             }
+
 
             return inventoryEditors;
         }
 
         private static InventoryEditorModel ParseInventory(MyObjectBuilder_Inventory inventory, MyCubeBlockDefinition definition, MyObjectBuilder_Character character = null)
         {
-            if (inventory == null)
-                return null;
+            inventory ??= null;
             float volumeMultiplier = 1f; // Unsure if there should be a default of 1 if there isn't a InventorySize defined.
 
-            if (definition == null)
+            if (definition == null && volumeMultiplier != 1f)
+            {
                 volumeMultiplier = 0.4f;
+            }
             else
             {
                 var definitionType = definition.GetType();
@@ -720,9 +755,9 @@ namespace SEToolbox.Interop
             return [.. definitionManager.GetAllDefinitions().Where(e => e.Id.TypeId == typeof(VRage.Game.ObjectBuilders.Definitions.MyObjectBuilder_GasProperties)).Cast<MyGasProperties>()];
         }
 
-        public static MyDefinitionBase GetDefinition(this MyDefinitionManager definitionManager, MyObjectBuilderType typeId, string subTypeId)
+        public static MyDefinitionBase GetDefinition(this MyDefinitionManager definitionManager, MyObjectBuilderType typeId, string subtypeName)
         {
-            return definitionManager.GetAllDefinitions().FirstOrDefault(e => e.Id.TypeId == typeId && e.Id.SubtypeName == subTypeId);
+            return definitionManager.GetAllDefinitions().FirstOrDefault(e => e.Id.TypeId == typeId && e.Id.SubtypeName == subtypeName);
         }
 
         public static string GetVoxelDisplayTexture(this MyVoxelMaterialDefinition voxelMaterialDefinition)

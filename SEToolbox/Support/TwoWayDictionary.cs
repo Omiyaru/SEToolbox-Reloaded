@@ -1,5 +1,6 @@
 
 using System.Collections.Concurrent;
+using System.Linq;
 
 
 namespace SEToolbox.Support
@@ -27,12 +28,30 @@ namespace SEToolbox.Support
             };
         }
 
+        public bool TryGetValues(object into, object outOf)
+        {
+            foreach (var kvp in _forward)
+            {
+                return (into, outOf) switch
+                {
+                    TKey key when outOf is TValue => _forward.TryGetValue(key, out _),
+                    TValue value when outOf is TKey => _reverse.TryGetValue(value, out _),
+                    _ => false,
+                };
+            }
+
+            return false;
+        }
+
         public void Add(object key, object value)
         {
             if (key is TKey k && value is TValue v)
             {
                 if (!_forward.TryAdd(k, v))
+                {
                     return;
+                }
+
                 _reverse.TryAdd(v, k);
             }
         }

@@ -51,7 +51,7 @@ namespace SEToolbox.Interop
             }
             catch (Exception ex)
             {
-                SConsole.WriteLine($"An error occurred: {ex.Message}, Reverting changes.");
+                Log.WriteLine($"An error occurred: {ex.Message}, Reverting changes.");
                 RevertChanges(sourcePath, targetPath);
             }
         }

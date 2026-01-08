@@ -13,7 +13,6 @@ namespace SEToolbox.Interop
     public static class VoxelFileLoader
     {
 
-
         public static VoxelGridModel Load(string path)
         {
             using var fs = File.OpenRead(path);
@@ -23,7 +22,9 @@ namespace SEToolbox.Interop
             // Skip 8-byte magic string
             var magic = Encoding.ASCII.GetString(reader.ReadBytes(8));
             if (magic != "VOXELMAP")
+            {
                 throw new InvalidDataException("Invalid voxel file header.");
+            }
 
             int version = reader.ReadInt32();
             int sizeX = reader.ReadInt32();

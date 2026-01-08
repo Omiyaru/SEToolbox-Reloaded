@@ -5,12 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using DialogResult = System.Windows.Forms.DialogResult;
-
 using SEToolbox.Interfaces;
-
-using SEToolbox.Support;
-using System.Windows.Markup;
-using System.Reflection.Metadata;
 
 namespace SEToolbox.Services
 {
@@ -19,7 +14,7 @@ namespace SEToolbox.Services
     /// </summary>
     class DialogService : IDialogService
     {
-        private readonly HashSet<FrameworkElement> _views;
+        private readonly Dictionary<object, FrameworkElement> _views;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DialogService"/> class.
@@ -36,7 +31,7 @@ namespace SEToolbox.Services
         /// </summary>
         public ReadOnlyCollection<FrameworkElement> Views
         {
-            get => new([.. _views]);
+            get => new([.. _views.Values]);
         }
 
         /// <summary>
@@ -47,7 +42,8 @@ namespace SEToolbox.Services
         {
             // Get owner window
             Window owner = GetOwner(view);
-            if (owner == null)
+            
+            if (owner is null)
             {
                 // Perform a late register when the View hasn't been loaded yet.
                 // This will happen if e.g. the View is contained in a Frame.
@@ -55,11 +51,13 @@ namespace SEToolbox.Services
                 return;
             }
 
-            // Register for owner window closing, since we then should unregister View reference,
-            // preventing memory leaks
-            owner.Closed += OwnerClosed;
+                // Register for owner window closing, since we then should unregister View reference,
+                // preventing memory leaks
+                owner.Closed += OwnerClosed;
 
-            _views.Add(view);
+                // Register the view
+                _views.Add(view?.DataContext, view);
+
         }
 
         /// <summary>
@@ -68,7 +66,10 @@ namespace SEToolbox.Services
         /// <param name="view">The unregistered View.</param>
         public void Unregister(FrameworkElement view)
         {
-            _views.Remove(view);
+            if (view.DataContext != null && _views.TryGetValue(view.DataContext, out var registeredView) && ReferenceEquals(registeredView, view))
+            {
+               _views.Remove(view.DataContext);
+            }
         }
 
         /// <summary>
@@ -102,7 +103,7 @@ namespace SEToolbox.Services
         /// <typeparam name="T">The type of the dialog to show.</typeparam>
         public void Show<T>(object ownerViewModel, object viewModel) where T : Window
         {
-             Show(ownerViewModel, viewModel, typeof(T));
+            Show(ownerViewModel, viewModel, typeof(T));
         }
 
         /// <summary>
@@ -120,12 +121,11 @@ namespace SEToolbox.Services
         /// <returns>
         /// A MessageBoxResult value that specifies which message box button is clicked by the user.
         /// </returns>
-        public MessageBoxResult ShowMessageBox(
-            object ownerViewModel,
-            string messageBoxText,
-            string caption,
-            MessageBoxButton button,
-            MessageBoxImage icon)
+        public MessageBoxResult ShowMessageBox(object ownerViewModel, 
+                                               string messageBoxText,
+                                               string caption, 
+                                               MessageBoxButton button,
+                                               MessageBoxImage icon)
         {
             return MessageBox.Show(FindOwnerWindow(ownerViewModel), messageBoxText, caption, button, icon);
         }
@@ -206,11 +206,10 @@ namespace SEToolbox.Services
         /// Attached property describing whether a FrameworkElement is acting as a View in MVVM.
         /// </summary>
         public static readonly DependencyProperty IsRegisteredViewProperty =
-            DependencyProperty.RegisterAttached(
-            "IsRegisteredView",
-            typeof(bool),
-            typeof(DialogService),
-            new UIPropertyMetadata(IsRegisteredViewPropertyChanged));
+            DependencyProperty.RegisterAttached("IsRegisteredView",
+                                                typeof(bool),
+                                                typeof(DialogService),
+                                                new UIPropertyMetadata(IsRegisteredViewPropertyChanged));
 
 
         /// <summary>
@@ -233,25 +232,25 @@ namespace SEToolbox.Services
         /// Is responsible for handling IsRegisteredViewProperty changes, i.e. whether
         /// FrameworkElement is acting as View in MVVM or not.
         /// </summary>
-        private static void IsRegisteredViewPropertyChanged(DependencyObject target,
-            DependencyPropertyChangedEventArgs e)
+        private static void IsRegisteredViewPropertyChanged(DependencyObject target, DependencyPropertyChangedEventArgs e)
         {
             // The Visual Studio Designer or Blend will run this code when setting the attached
             // property, however at that point there is no IDialogService registered
             // in the ServiceLocator which will cause the Resolve method to throw a ArgumentException.
-            if (DesignerProperties.GetIsInDesignMode(target)) return;
-
-            if (target is FrameworkElement view)
+            if (DesignerProperties.GetIsInDesignMode(target))
             {
-                var dialogService = ServiceLocator.Resolve<IDialogService>();
-                if ((bool)e.OldValue)
-                {
-                    dialogService.Unregister(view);
-                }
-                else if ((bool)e.NewValue)
-                {
-                    dialogService.Register(view);
-                }
+                return;
+            }
+
+            var dialogService = ServiceLocator.Resolve<IDialogService>();
+            if (target is FrameworkElement view && view.DataContext != null)
+            {
+                var newValue = (bool)e.NewValue;
+                var oldValue = (bool)e.OldValue;
+                Action dialogAction() => newValue != oldValue ?
+                                      () => dialogService.Register(view) :
+                                      () => dialogService.Unregister(view);
+                dialogAction();
             }
         }
 
@@ -271,7 +270,7 @@ namespace SEToolbox.Services
         private bool? ShowDialog(object ownerViewModel, object viewModel, Type dialogType, Action action)
         {
             // Create dialog and set properties
-            Window dialog = (Window)Activator.CreateInstance(dialogType) ;
+            Window dialog = Activator.CreateInstance(dialogType) as Window;
             dialog.Owner = FindOwnerWindow(ownerViewModel);
             dialog.DataContext = viewModel;
 
@@ -313,18 +312,10 @@ namespace SEToolbox.Services
         /// </summary>
         private Window FindOwnerWindow(object viewModel)
         {
-            try
-            {
-                var view = _views.SingleOrDefault(v => ReferenceEquals(v.DataContext, viewModel)) ?? throw new ArgumentException("Viewmodel is not referenced by any registered View.");
-                return view as Window ?? Window.GetWindow(view);
-            }
-            catch (Exception ex)
-            {
-                SConsole.WriteLine(string.Format($"An error occurred while finding the owner window: {ex.Message}"));
-                throw null;
-            }
+            var view = _views.SingleOrDefault(v => ReferenceEquals(v.Value, viewModel));
+            return viewModel == null ? throw new ArgumentNullException(nameof(viewModel)) : GetOwner(view.Value);
+                                    
         }
-
 
         /// <summary>
         /// Callback for late View register. It wasn't possible to do a instant register since the
@@ -332,14 +323,12 @@ namespace SEToolbox.Services
         /// </summary>
         private void LateRegister(object sender, RoutedEventArgs e)
         {
-            if (sender is FrameworkElement view)
-            {
-                // Unregister loaded event
-                view.Loaded -= LateRegister;
+            var view = sender as FrameworkElement;
+            // Unregister loaded event
+            view?.Loaded -= LateRegister;
 
-                // Register the view
-                Register(view);
-            }
+            // Register the view
+            Register(view);
         }
 
         /// <summary>
@@ -349,17 +338,19 @@ namespace SEToolbox.Services
         private void OwnerClosed(object sender, EventArgs e)
         {
             if (sender is Window owner)
-            {
-                // Find Views acting within closed window
-                var windowViews =
-                    from view in _views
-                    where Window.GetWindow(view) == owner
-                    select view;
+            {   // Find Views acting within closed window
+
+                var views = from window in _views
+                               where GetOwner(window.Value) == owner
+                               select window.Key;
 
                 // Unregister Views in window
-                foreach (var view in windowViews.ToArray())
+                foreach (var key in views.ToList())
                 {
-                    Unregister(view);
+                    if (_views.TryGetValue(key, out var view))
+                    {
+                        Unregister(view);
+                    }
                 }
             }
         }
@@ -371,7 +362,7 @@ namespace SEToolbox.Services
         /// <returns>The owning Window if found; otherwise null.</returns>
         private Window GetOwner(FrameworkElement view)
         {
-            return view as Window ?? Window.GetWindow(view);
+            return view is Window ? Window.GetWindow(view) :null ;
         }
     }
 }

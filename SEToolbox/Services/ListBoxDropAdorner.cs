@@ -6,7 +6,7 @@ namespace SEToolbox.Services
 {
     internal class ListBoxDropAdorner : Adorner
     {
-        private readonly AdornerLayer adornerLayer;
+        private AdornerLayer adornerLayer;
 
         public bool IsAboveElement { get; set; }
 

@@ -4,6 +4,7 @@ using VRage.Game;
 using VRageMath;
 using VRage.Utils;
 using Sandbox.Game.World;
+using System.Collections.Concurrent;
 
 
 namespace SEToolbox.Interfaces
@@ -47,11 +48,11 @@ namespace SEToolbox.Interfaces
         int PlayerRelation { get; set; } // value between 0 and 1
 
         //order is (reputation, relation, player/faction),player/faction)
-        public Dictionary<MyPlayer, (int, float, MyPlayer)> PlayerToPlayerRelationship { get; set; }
+        public ConcurrentDictionary<MyPlayer, (int, float, MyPlayer)> PlayerToPlayerRelationship { get; set; }
         
-        public Dictionary<MyPlayer, (int, float, MyFaction)> FactionToPlayerRelationship { get; set; }
+        public ConcurrentDictionary<MyPlayer, (int, float, MyFaction)> FactionToPlayerRelationship { get; set; }
         
-        public Dictionary< MyFaction,(int, float, MyFaction)> FactionToFactionRelationship { get; set; }
+        public ConcurrentDictionary<MyFaction,(int, float, MyFaction)> FactionToFactionRelationship { get; set; }
         
 
 

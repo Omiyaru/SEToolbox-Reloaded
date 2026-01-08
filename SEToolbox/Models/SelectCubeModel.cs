@@ -22,9 +22,9 @@ namespace SEToolbox.Models
         #region Ctor
 
         public SelectCubeModel()
-	{
-        _cubeList = [];    
-	}
+        {
+            _cubeList = [];
+        }
 
         #endregion
 
@@ -46,7 +46,7 @@ namespace SEToolbox.Models
 
         #region Methods
 
-        public void Load(MyCubeSize cubeSize, MyObjectBuilderType typeId, string subTypeId)
+        public void Load(MyCubeSize cubeSize, MyObjectBuilderType typeId, string subtypeName)
         {
             CubeList.Clear();
 
@@ -63,7 +63,9 @@ namespace SEToolbox.Models
                     string icon = cubeDefinition.Icons.FirstOrDefault();
 
                     if (icon != null)
+                    {
                         textureFile = SpaceEngineersCore.GetDataPathOrDefault(icon, Path.Combine(contentPath, icon));
+                    }
                 }
 
                 TimeSpan buildTime = TimeSpan.Zero;
@@ -73,7 +75,9 @@ namespace SEToolbox.Models
                     double buildTimeSeconds = (double)cubeDefinition.MaxIntegrity / cubeDefinition.IntegrityPointsPerSec;
 
                     if (buildTimeSeconds <= TimeSpan.MaxValue.TotalSeconds)
+                    {
                         buildTime = TimeSpan.FromSeconds(buildTimeSeconds);
+                    }
                 }
 
                 ComponentItemModel c = new()
@@ -81,7 +85,7 @@ namespace SEToolbox.Models
                     Name = cubeDefinition.DisplayNameText,
                     TypeId = cubeDefinition.Id.TypeId,
                     TypeIdString = cubeDefinition.Id.TypeId.ToString(),
-                    SubtypeId = cubeDefinition.Id.SubtypeName,
+                    SubtypeName = cubeDefinition.Id.SubtypeName,
                     TextureFile = textureFile,
                     Time = buildTime,
                     Accessible = cubeDefinition.Public,
@@ -90,7 +94,7 @@ namespace SEToolbox.Models
                     Size = new BindableSize3DIModel(cubeDefinition.Size),
                 };
 
-                list.Add(c.FriendlyName + c.TypeIdString + c.SubtypeId, c);
+                list.Add(c.FriendlyName + c.TypeIdString + c.SubtypeName, c);
             }
 
             ComponentItemModel cubeItem = null;
@@ -101,11 +105,13 @@ namespace SEToolbox.Models
 
                 CubeList.Add(cube);
 
-                if (cubeItem == null && cube.TypeId == typeId && cube.SubtypeId == subTypeId)
+                if (cubeItem == null && cube.TypeId == typeId && cube.SubtypeName == subtypeName)
+                {
                     cubeItem = cube;
+                }
             }
 
-            CubeItem = cubeItem ?? new ComponentItemModel();
+            CubeItem = cubeItem;
         }
 
         #endregion

@@ -362,7 +362,9 @@ namespace SEToolbox.Models
         public FactionModel(MyFaction selectedFaction)
         {
             if (selectedFaction == null)
+            {
                 throw new ArgumentNullException(nameof(selectedFaction));
+            }
 
             _factionIcon = selectedFaction.FactionIcon;
             _factionId = selectedFaction.FactionId;
@@ -400,12 +402,11 @@ namespace SEToolbox.Models
             var sessionFactions = SGW.MySession.Static?.Factions;
             if (sessionFactions != null)
             {
-                foreach (var factionPair in sessionFactions)
+                foreach (var factionPair in from factionPair in sessionFactions
+                                            where !_factions.ContainsKey(factionPair.Key)
+                                            select factionPair)
                 {
-                    if (!_factions.ContainsKey(factionPair.Key))
-                    {
-                       _factions.Add(factionPair.Key, factionPair.Value);
-                    }
+                    _factions.Add(factionPair.Key, factionPair.Value);
                 }
             }
         }
@@ -414,7 +415,9 @@ namespace SEToolbox.Models
         {
             var faction = factions.FirstOrDefault(f => f?.FactionId == factionId);
             if (faction == null)
+            {
                 return [];
+            }
 
             return [.. faction.Members.Values];
         }
@@ -519,7 +522,9 @@ namespace SEToolbox.Models
         public int GetFactionCount(long factionId, int factionCount)
         {
             if (_factions == null || _factions.Count == 0)
+            {
                 return 0;
+            }
 
             if (factionId < 0)
             {
@@ -553,7 +558,9 @@ namespace SEToolbox.Models
         public void SetAsLeader(long factionId, long leaderId)
         {
             if (factionId < 0 || leaderId < 0)
+            {
                 return;
+            }
 
             if (_factions.TryGetValue(factionId, out MyFaction faction) &&
                 faction.Members.TryGetValue(leaderId, out MyFactionMember member))
@@ -563,7 +570,7 @@ namespace SEToolbox.Models
             }
         }
 
-        //public void Update factions list insteadd of reloading all factions andd members/
+        //public void Update  todo: implement a way to update the factions list insteadd of reloading all factions andd members
 
         public void SetFactionScore(long factionId, int score)
         {
@@ -668,7 +675,6 @@ namespace SEToolbox.Models
             KeyValuePair<long, MyFaction> factionPair = _factions.FirstOrDefault(static x => x.Value.Name.Equals(SGW.MySession.Static.Factions));
             if (!factionPair.Equals(default(KeyValuePair<long, MyFaction>)))
             {
-
                 MyFaction faction = factionPair.Value;
                 {
 

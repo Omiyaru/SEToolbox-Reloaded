@@ -38,8 +38,8 @@ namespace SEToolbox.ImageLibrary
         {
             _colorMatcher = paletteReplacement;
 
-            _colorMap = new Hashtable();
-            _finalColors = new List<Color>(_colorMatcher.Values.Distinct());
+            _colorMap = [];
+            _finalColors = [.. _colorMatcher.Values.Distinct()];
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace SEToolbox.ImageLibrary
         protected override byte QuantizePixel(Color32* pixel)
         {
             byte colorIndex = 0;
-            int colorHash = pixel->ARGB;
+            int colorHash = pixel->Argb;
 
             // Check if the color is in the lookup table
             if (_colorMap.ContainsKey(colorHash))
@@ -92,18 +92,19 @@ namespace SEToolbox.ImageLibrary
                         int blueDistance = paletteColor.B - blue;
 
                         int distance = (redDistance * redDistance) +
-                                           (greenDistance * greenDistance) +
-                                           (blueDistance * blueDistance);
+                                       (greenDistance * greenDistance) +
+                                       (blueDistance * blueDistance);
 
                         if (distance < leastDistance)
                         {
                             colorIndex = (byte)_finalColors.IndexOf(kvp.Value);
-
                             leastDistance = distance;
 
                             // And if it's an exact match, exit the loop
                             if (0 == distance)
+                            {
                                 break;
+                            }
                         }
                     }
                 }
@@ -120,16 +121,33 @@ namespace SEToolbox.ImageLibrary
         /// </summary>
         /// <param name="palette">Any old palette, this is overrwritten</param>
         /// <returns>The new color palette</returns>
-        protected override ColorPalette GetPalette(ColorPalette palette)
-        {
+        protected override ColorPalette GetPalette(ColorPalette palette, bool cleanPalette = false)
+        {   
             // blanking the original palette is not necessary, unless we want a clean palette.
-            //for (int index = 0; index < palette.Entries.Length; index++)
-            //    palette.Entries[index] = Color.FromArgb(0, 0, 0, 0);
+            if (cleanPalette)
+            {
+                for (int index = 0; index < palette.Entries.Length; index++)
+                {
+                    palette.Entries[index] = Color.FromArgb(0, 0, 0, 0);
+                }
+            }
 
             for (int index = 0; index < _finalColors.Count; index++)
+            {
                 palette.Entries[index] = _finalColors[index];
+            }
+
+            // Add the transparent color
+            palette.Entries[_finalColors.Count] = Color.FromArgb(0, 0, 0, 0);
 
             return palette;
         }
+
+        protected override ColorPalette CLearPalette(ColorPalette original)
+        {
+            GetPalette(original, true);
+            return original;
+        }
     }
 }
+

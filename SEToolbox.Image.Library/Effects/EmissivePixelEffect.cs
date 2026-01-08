@@ -3,21 +3,15 @@ namespace SEToolbox.ImageLibrary.Effects
     /// <summary>
     /// Summary description for EmissiveEffect.
     /// </summary>
-    public unsafe class EmissivePixelEffect : PixelEffect
+    /// <remarks>
+    /// Construct the Emissive pixel effect
+    /// </remarks>
+    /// <remarks>
+    /// Emissive pixel effect only requires a single effect step
+    /// </remarks>
+    public unsafe class EmissivePixelEffect(byte alphaEmmissiveValue) : PixelEffect(true)
     {
-        private readonly byte _alphaEmmissiveValue;
-
-        /// <summary>
-        /// Construct the Emissive pixel effect
-        /// </summary>
-        /// <remarks>
-        /// Emissive pixel effect only requires a single effect step
-        /// </remarks>
-        public EmissivePixelEffect(byte alphaEmmissiveValue)
-            : base(true)
-        {
-            _alphaEmmissiveValue = alphaEmmissiveValue;
-        }
+        private readonly byte _alphaEmmissiveValue = alphaEmmissiveValue;
 
         /// <summary>
         /// Override this to process the pixel in the second pass of the algorithm
@@ -31,14 +25,7 @@ namespace SEToolbox.ImageLibrary.Effects
             destinationPixel->Green = pixel->Green;
             destinationPixel->Blue = pixel->Blue;
 
-            if (pixel->Alpha == _alphaEmmissiveValue)
-            {
-                destinationPixel->Alpha = 255;
-            }
-            else
-            {
-                destinationPixel->Alpha = 0;
-            }
+            destinationPixel->Alpha = (byte)(pixel->Alpha == _alphaEmmissiveValue ? 255 : 0);
         }
     }
 }

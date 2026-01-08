@@ -6,17 +6,14 @@ namespace SEToolbox.Services
     public static class DialogCloser
     {
         public static readonly DependencyProperty DialogResultProperty =
-            DependencyProperty.RegisterAttached(
-                "DialogResult",
-                typeof(bool?),
-                typeof(DialogCloser),
-                new PropertyMetadata(DialogResultChanged));
+            DependencyProperty.RegisterAttached("DialogResult",
+                                                typeof(bool?),
+                                                typeof(DialogCloser),
+                                                new PropertyMetadata(DialogResultChanged));
 
-        private static void DialogResultChanged(
-            DependencyObject d,
-            DependencyPropertyChangedEventArgs e)
+        private static void DialogResultChanged( DependencyObject depObj, DependencyPropertyChangedEventArgs e)
         {
-            if (d is Window window)
+            if (depObj is Window window )
             {
                 try
                 {
@@ -32,7 +29,6 @@ namespace SEToolbox.Services
                 }
             }
         }
-        
         public static void SetDialogResult(Window target, bool? value)
         {
             target.SetValue(DialogResultProperty, value);

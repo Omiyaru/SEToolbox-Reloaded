@@ -127,7 +127,7 @@ namespace SEToolbox.ViewModels
                     for (int i = 0; i < newEntities.Length; i++)
                     {
                         var item = ((MyObjectBuilder_FloatingObject)newEntities[i]).Item;
-                        _dataModel.Additem(item);
+                        _dataModel.AddItem(item);
                     }
 
                     // Bubble change up to MainViewModel.IsModified = true;
@@ -160,9 +160,9 @@ namespace SEToolbox.ViewModels
                 if (current.GetType().Name == nameof(MainViewModel))
                 {
                     System.Reflection.PropertyInfo prop = current.GetType().GetProperty(nameof(MainViewModel.IsModified));
-                    if (prop != null && prop.CanWrite)
+                    if (prop.CanWrite)
                     {
-                        prop.SetValue(current, true);
+                        prop?.SetValue(current, true);
                     }
                     break;
                 }

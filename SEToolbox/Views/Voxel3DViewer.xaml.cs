@@ -91,7 +91,10 @@ namespace SEToolbox.Views
             {
                 showChunkGrid = !showChunkGrid;
                 chunkGridLines.Children.Clear();
-                if (showChunkGrid) RenderChunkGrid();
+                if (showChunkGrid)
+                {
+                    RenderChunkGrid();
+                }
             }
             else if (e.Key == Key.R)
             {
@@ -103,7 +106,11 @@ namespace SEToolbox.Views
 
         private void UpdateView()
         {
-            if (isSliceView) RenderSlice();
+            if (isSliceView)
+            {
+                RenderSlice();
+            }
+
             ((UIElement)sliceVisualsContainer).Visibility = isSliceView ? Visibility.Visible : Visibility.Hidden;
             ((UIElement)volumeVisualsContainer).Visibility = isSliceView ? Visibility.Hidden : Visibility.Visible;
         }
@@ -118,17 +125,22 @@ namespace SEToolbox.Views
         {
             sliceVisuals.Children.Clear();
             for (int x = 0; x < voxelGrid.SizeX; x++)
+            {
                 for (int y = 0; y < voxelGrid.SizeY; y++)
                 {
                     _ = voxelGrid.GetMaterial(x, y, currentZ);
                     var val = voxelGrid.GetContent(x, y, currentZ);
-                    if (val == 0) continue;
+                    if (val == 0)
+                    {
+                        continue;
+                    }
 
                     var color = showMaterial ? System.Windows.Media.Color.FromArgb(255, 255, 255, 255) : System.Windows.Media.Color.FromArgb(val, 255, 255, 255);
 
                     var box = CreateVoxelCube(x, y, currentZ, color);
                     sliceVisuals.Children.Add(box);
                 }
+            }
         }
 
         private void RenderFullVolume()
@@ -137,11 +149,17 @@ namespace SEToolbox.Views
 
             int step = 2; // skip every 2 voxels for performance
             for (int z = 0; z < voxelGrid.SizeZ; z += step)
+            {
                 for (int y = 0; y < voxelGrid.SizeY; y += step)
+                {
                     for (int x = 0; x < voxelGrid.SizeX; x += step)
                     {
                         var val = voxelGrid.GetContent(x, y, z);
-                        if (val == 0) continue;
+                        if (val == 0)
+                        {
+                            continue;
+                        }
+
                         _ = voxelGrid.GetMaterial(x, y, z);
                         var color = showMaterial ? System.Windows.Media.Color.FromArgb(255, 255, 255, 255) : System.Windows.Media.Color.FromArgb(val, 255, 255, 255);
 
@@ -149,6 +167,8 @@ namespace SEToolbox.Views
                         var box = CreateVoxelCube(x, y, z, color);
                         volumeVisuals.Children.Add(box);
                     }
+                }
+            }
         }
 
         private void RenderChunkGrid()

@@ -33,19 +33,17 @@ namespace SEToolbox.Interop.Models
         {
             Dictionary<string, object> data = [];
 
-            using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
-            {
-                var reader = new BinaryReader(stream);
-                try
-                {
-                    LoadTagData(reader, data);
-                }
-                catch
-                {
-                    // Ignore errors
-                }
-            }
+            using var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
 
+            var reader = new BinaryReader(stream);
+            try
+            {
+                LoadTagData(reader, data);
+            }
+            catch
+            {
+                // Ignore errors
+            }
             return data;
         }
 
@@ -61,12 +59,9 @@ namespace SEToolbox.Interop.Models
             BinaryWriter writer = new(fileStream);
             foreach (KeyValuePair<string, object> kvp in data)
             {
-                MethodInfo method = methods.FirstOrDefault(m => m.Name.Equals("ExportData") && m.GetParameters().Length > 2 && m.GetParameters()[2].ParameterType == kvp.Value.GetType());
-
-                method?.Invoke(null, [writer, kvp.Key, kvp.Value]);
-                
-                method = methods.FirstOrDefault(m => m.Name.Equals("ExportData") && m.GetParameters().Length > 2 && m.GetParameters()[2].ParameterType == kvp.Value.GetType().MakeByRefType());
-                method?.Invoke(null, [writer, kvp.Key, kvp.Value]);
+                MethodInfo method = methods.FirstOrDefault(m => m.Name.Equals(nameof(ExportData)) && m.GetParameters().Length > 2 && m.GetParameters()[2].ParameterType.IsAssignableFrom(kvp.Value.GetType()));
+                object[] parameters = [writer, kvp.Key, kvp.Value];
+                method?.Invoke(null, parameters);
             }
         }
 
@@ -159,25 +154,16 @@ namespace SEToolbox.Interop.Models
         /// <param name="matrix"></param>
         private static void WriteMatrix(this BinaryWriter writer, ref Matrix matrix)
         {
-            writer.Write(matrix.M11);
-            writer.Write(matrix.M12);
-            writer.Write(matrix.M13);
-            writer.Write(matrix.M14);
+            var data = new float[16]
+            {
+                matrix.M11, matrix.M12, matrix.M13, matrix.M14,
+                matrix.M21, matrix.M22, matrix.M23, matrix.M24,
+                matrix.M31, matrix.M32, matrix.M33, matrix.M34,
+                matrix.M41, matrix.M42, matrix.M43, matrix.M44
+            };
 
-            writer.Write(matrix.M21);
-            writer.Write(matrix.M22);
-            writer.Write(matrix.M23);
-            writer.Write(matrix.M24);
+            data.ForEach(writer.Write);
 
-            writer.Write(matrix.M31);
-            writer.Write(matrix.M32);
-            writer.Write(matrix.M33);
-            writer.Write(matrix.M34);
-
-            writer.Write(matrix.M41);
-            writer.Write(matrix.M42);
-            writer.Write(matrix.M43);
-            writer.Write(matrix.M44);
         }
 
         /// <summary>
@@ -340,7 +326,9 @@ namespace SEToolbox.Interop.Models
         private static bool ExportData(this BinaryWriter writer, string tagName, Vector3[] vectorArray)
         {
             if (vectorArray == null)
+            {
                 return true;
+            }
 
             WriteTag(writer, tagName);
             writer.Write(vectorArray.Length);
@@ -363,7 +351,9 @@ namespace SEToolbox.Interop.Models
         private static bool ExportData(this BinaryWriter writer, string tagName, Vector4[] vectorArray)
         {
             if (vectorArray == null)
+            {
                 return true;
+            }
 
             WriteTag(writer, tagName);
             writer.Write(vectorArray.Length);
@@ -386,7 +376,9 @@ namespace SEToolbox.Interop.Models
         private static bool ExportData(this BinaryWriter writer, string tagName, Vector3I[] vectorArray)
         {
             if (vectorArray == null)
+            {
                 return true;
+            }
 
             WriteTag(writer, tagName);
             writer.Write(vectorArray.Length);
@@ -409,7 +401,9 @@ namespace SEToolbox.Interop.Models
         private static bool ExportData(this BinaryWriter writer, string tagName, Vector4I[] vectorArray)
         {
             if (vectorArray == null)
+            {
                 return true;
+            }
 
             WriteTag(writer, tagName);
             writer.Write(vectorArray.Length);
@@ -432,7 +426,9 @@ namespace SEToolbox.Interop.Models
         private static bool ExportData(this BinaryWriter writer, string tagName, Matrix[] matrixArray)
         {
             if (matrixArray == null)
+            {
                 return true;
+            }
 
             WriteTag(writer, tagName);
             writer.Write(matrixArray.Length);
@@ -477,21 +473,23 @@ namespace SEToolbox.Interop.Models
         /// </summary>
         /// <param name="writer"></param>
         /// <param name="tagName"></param>
-        /// <param name="stringArrayay"></param>
+        /// <param name="stringArray"></param>
         /// <returns></returns>
-        private static bool ExportData(this BinaryWriter writer, string tagName, string[] stringArrayay)
+        private static bool ExportData(this BinaryWriter writer, string tagName, string[] stringArray)
         {
             WriteTag(writer, tagName);
 
-            if (stringArrayay == null)
+            if (stringArray == null)
             {
                 writer.Write(0);
                 return true;
             }
 
-            writer.Write(stringArrayay.Length);
-            foreach (string sVal in stringArrayay)
+            writer.Write(stringArray.Length);
+            foreach (string sVal in stringArray)
+            {
                 writer.Write(sVal);
+            }
 
             return true;
         }
@@ -516,7 +514,9 @@ namespace SEToolbox.Interop.Models
 
             writer.Write(intArray.Length);
             foreach (int iVal in intArray)
+            {
                 writer.Write(iVal);
+            }
 
             return true;
         }
@@ -626,7 +626,9 @@ namespace SEToolbox.Interop.Models
             writer.Write(animations.Skeleton.Count);
 
             foreach (int skeleton in animations.Skeleton)
+            {
                 writer.Write(skeleton);
+            }
 
             return true;
         }
@@ -910,7 +912,6 @@ namespace SEToolbox.Interop.Models
             {
                 vectorArray[i] = ReadVector4(reader);
             }
-
             return vectorArray;
         }
 
@@ -923,7 +924,6 @@ namespace SEToolbox.Interop.Models
             {
                 vectorArray[i] = ReadVector4I(reader);
             }
-
             return vectorArray;
         }
         /// Read array of HalfVector4
@@ -937,7 +937,6 @@ namespace SEToolbox.Interop.Models
             {
                 vectorArray[i] = ReadHalfVector4(reader);
             }
-
             return vectorArray;
         }
 
@@ -953,7 +952,6 @@ namespace SEToolbox.Interop.Models
             {
                 vectorArray[i] = ReadByte4(reader);
             }
-
             return vectorArray;
         }
 
@@ -969,7 +967,6 @@ namespace SEToolbox.Interop.Models
             {
                 vectorArray[i] = ReadHalfVector2(reader);
             }
-
             return vectorArray;
         }
 
@@ -983,6 +980,7 @@ namespace SEToolbox.Interop.Models
         {
             int nCount = reader.ReadInt32();
             Vector2[] vectorArray = new Vector2[nCount];
+
             for (int i = 0; i < nCount; ++i)
             {
                 vectorArray[i] = ReadVector2(reader);
@@ -1000,11 +998,11 @@ namespace SEToolbox.Interop.Models
         {
             int nCount = reader.ReadInt32();
             string[] stringArray = new string[nCount];
+
             for (int i = 0; i < nCount; ++i)
             {
                 stringArray[i] = reader.ReadString();
             }
-
             return stringArray;
         }
 
@@ -1041,28 +1039,17 @@ namespace SEToolbox.Interop.Models
         /// <returns></returns>
         private static Matrix ReadMatrix(BinaryReader reader)
         {
-            Matrix matrix;
+            Matrix matrix = new();
+            List<float> data =
+            [
+                matrix.M11, matrix.M12, matrix.M13, matrix.M14,
+                matrix.M21, matrix.M22, matrix.M23, matrix.M24,
+                matrix.M31, matrix.M32, matrix.M33, matrix.M34,
+                matrix.M41, matrix.M42, matrix.M43, matrix.M44
+            ];
 
-            matrix.M11 = reader.ReadSingle();
-            matrix.M12 = reader.ReadSingle();
-            matrix.M13 = reader.ReadSingle();
-            matrix.M14 = reader.ReadSingle();
-
-            matrix.M21 = reader.ReadSingle();
-            matrix.M22 = reader.ReadSingle();
-            matrix.M23 = reader.ReadSingle();
-            matrix.M24 = reader.ReadSingle();
-
-            matrix.M31 = reader.ReadSingle();
-            matrix.M32 = reader.ReadSingle();
-            matrix.M33 = reader.ReadSingle();
-            matrix.M34 = reader.ReadSingle();
-
-            matrix.M41 = reader.ReadSingle();
-            matrix.M42 = reader.ReadSingle();
-            matrix.M43 = reader.ReadSingle();
-            matrix.M44 = reader.ReadSingle();
-
+            data.ForEach( x => x = reader.ReadSingle());
+        
             return matrix;
         }
 
@@ -1143,13 +1130,12 @@ namespace SEToolbox.Interop.Models
         private static int[] ReadArrayOfInt(BinaryReader reader)
         {
             int nCount = reader.ReadInt32();
-            int[] intArr = new int[nCount];
+            int[] intArray = new int[nCount];
             for (int i = 0; i < nCount; ++i)
             {
-                intArr[i] = reader.ReadInt32();
+                intArray[i] = reader.ReadInt32();
             }
-
-            return intArr;
+            return intArray;
         }
 
         private static byte[] ReadArrayOfBytes(BinaryReader reader)
@@ -1196,7 +1182,6 @@ namespace SEToolbox.Interop.Models
             return modelAnimations;
         }
 
-
         private static MyModelBone[] ReadMyModelBoneArray(BinaryReader reader)
         {
             int nCount = reader.ReadInt32();
@@ -1209,7 +1194,6 @@ namespace SEToolbox.Interop.Models
                 Matrix matrix = ReadMatrix(reader);
                 myModelBoneArray[i] = new MyModelBone { Name = name, Parent = parent, Transform = matrix };
             }
-
             return myModelBoneArray;
         }
 
@@ -1228,8 +1212,7 @@ namespace SEToolbox.Interop.Models
 
             return myLodDescriptorArray;
         }
-
-        #endregion
+        
         private static MyModelInfo ReadMyModelInfo(BinaryReader reader)
         {
             int triCount = reader.ReadInt32();
@@ -1237,6 +1220,8 @@ namespace SEToolbox.Interop.Models
             Vector3 boundingBoxSize = ReadVector3(reader);
             return new MyModelInfo(triCount, vertCount, boundingBoxSize);
         }
+
+        #endregion
 
         #region Import Data Readers
 
@@ -1253,100 +1238,95 @@ namespace SEToolbox.Interop.Models
 
                 switch (tagName)
                 {
-
                     case MyImporterConstants.TAG_DEBUG:
-                        data.Add(tagName, reader.ReadBoolean());
+                         data.Add(tagName, ReadArrayOfString(reader));
                         break;
 
                     case MyImporterConstants.TAG_DUMMIES:
-                        data.Add(tagName, ReadDummies(reader));
+                         data.Add(tagName, ReadDummies(reader));
                         break;
 
                     case MyImporterConstants.TAG_VERTICES:
-                        data.Add(tagName, ReadArrayOfHalfVector4(reader));
+                         data.Add(tagName, ReadArrayOfHalfVector4(reader));
                         break;
                     case MyImporterConstants.TAG_TEXCOORDS0:
                     case MyImporterConstants.TAG_TEXCOORDS1:
-                        data.Add(tagName, ReadArrayOfHalfVector2(reader));
+                         data.Add(tagName, ReadArrayOfHalfVector2(reader));
                         break;
 
                     case MyImporterConstants.TAG_INDICES:
-                        data.Add(tagName, ReadArrayOfInt(reader));
+                         data.Add(tagName, ReadArrayOfInt(reader));
                         break;
                     case MyImporterConstants.TAG_MODEL_INFO:
                         data.Add(tagName, ReadMyModelInfo(reader));
                         break;
                     case MyImporterConstants.TAG_BOUNDING_BOX:
-                        data.Add(tagName, ReadBoundingBox(reader));
+                         data.Add(tagName, ReadBoundingBox(reader));
                         break;
                     case MyImporterConstants.TAG_BOUNDING_SPHERE:
-                        data.Add(tagName, ReadBoundingSphere(reader));
+                         data.Add(tagName, ReadBoundingSphere(reader));
                         break;
                     case MyImporterConstants.TAG_MESH_PARTS:
-                        data.Add(tagName, ReadMeshParts(reader));
+                         data.Add(tagName, ReadMeshParts(reader));
                         break;
                     case MyImporterConstants.TAG_MESH_SECTIONS:
-                        data.Add(tagName, ReadMeshSections(reader));
+                         data.Add(tagName, ReadMeshSections(reader));
                         break;
                     case MyImporterConstants.TAG_BLENDINDICES:
-                        data.Add(tagName, ReadArrayOfVector4I(reader));
+                         data.Add(tagName, ReadArrayOfVector4I(reader));
                         break;
-
                     case MyImporterConstants.TAG_BLENDWEIGHTS:
-                        data.Add(tagName, ReadArrayOfVector4(reader));
+                         data.Add(tagName, ReadArrayOfVector4(reader));
                         break;
 
                     case MyImporterConstants.TAG_ANIMATIONS:
-                        data.Add(tagName, ReadModelAnimations(reader));
+                         data.Add(tagName, ReadModelAnimations(reader));
                         break;
 
                     case MyImporterConstants.TAG_BONES:
-                        data.Add(tagName, ReadMyModelBoneArray(reader));
+                         data.Add(tagName, ReadMyModelBoneArray(reader));
                         break;
 
                     case MyImporterConstants.TAG_BONE_MAPPING:
-                        data.Add(tagName, ReadArrayOfVector3I(reader));//readsingle???
+                         data.Add(tagName, ReadArrayOfVector3I(reader));//readsingle???
                         break;
                     case MyImporterConstants.TAG_LODS:
-                        data.Add(tagName, ReadMyLodDescriptorArray(reader));
+                         data.Add(tagName, ReadMyLodDescriptorArray(reader));
                         break;
                     case MyImporterConstants.TAG_PATTERN_SCALE:
                     case MyImporterConstants.TAG_RESCALE_FACTOR:
-                        data.Add(tagName, reader.ReadSingle());
+                         data.Add(tagName, reader.ReadSingle());
                         break;
-                    case MyImporterConstants.TAG_MODEL_BVH:
-                        GImpactQuantizedBvh bvh = new();
-                        bvh.Load(ReadArrayOfBytes(reader));
-                        data.Add(tagName, bvh);
+                    case MyImporterConstants.TAG_MODEL_BVH: 
+                         GImpactQuantizedBvh bvh = new() ;
+                         bvh.Load(ReadArrayOfBytes(reader));
+                         data.Add(tagName, bvh);
                         break;
                     case MyImporterConstants.TAG_HAVOK_DESTRUCTION_GEOMETRY:
                     case MyImporterConstants.TAG_HAVOK_COLLISION_GEOMETRY:
                     case MyImporterConstants.TAG_HAVOK_DESTRUCTION:
                         data.Add(tagName, ReadArrayOfBytes(reader));
-                        break;
+                       break;
                     case MyImporterConstants.TAG_GEOMETRY_DATA_ASSET:
-                    //data.Add(tagName, ReadArrayOfBytes(reader));
-                    // break; 
+                         data.Add(tagName, ReadArrayOfBytes(reader));
+                        break; 
                     case MyImporterConstants.TAG_FBXHASHSTRING:
                     case MyImporterConstants.TAG_HKTHASHSTRING:
                     case MyImporterConstants.TAG_XMLHASHSTRING:
-                        data.Add(tagName, reader.ReadString());
+                         data.Add(tagName, reader.ReadString());
                         break;
                     case MyImporterConstants.TAG_USE_CHANNEL_TEXTURES:
                     case MyImporterConstants.TAG_IS_SKINNED:
                     case MyImporterConstants.TAG_SWAP_WINDING_ORDER:
-                        data.Add(tagName, reader.ReadBoolean());
+                         data.Add(tagName, reader.ReadBoolean());
                         break;
                     case MyImporterConstants.TAG_NORMALS:
                     case MyImporterConstants.TAG_BINORMALS:
                     case MyImporterConstants.TAG_TANGENTS:
-                        data.Add(tagName, ReadArrayOfByte4(reader));
+                         data.Add(tagName, ReadArrayOfByte4(reader));
                         break;
-                          //case MyImporterConstants.TAG_CENTERED:
-                    //    data.Add(tagName, reader.ReadBoolean());
-                    //    break;
                     default:
-                        throw new NotImplementedException(string.Format($"tag '{tagName}' has not been implemented"));
+                         throw new NotImplementedException(string.Format($"tag '{tagName}' has not been implemented"));
                 }
             }
         }

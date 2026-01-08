@@ -84,7 +84,6 @@ namespace SEToolbox.Interop
         {
             return $"{buildInt / 1000:D2}{separator}{buildInt / 100 % 10:D1}{separator}{buildInt % 100:D2}";
         }
-        
 
         public static Version GetSEVersion()
         {
@@ -97,10 +96,24 @@ namespace SEToolbox.Interop
                 return new();
             }
         }
-        
+
         public static int GetSEVersionInt() => SE_VERSION;
         private static readonly int SE_VERSION = typeof(SEGame).GetField(nameof(SEGame.SE_VERSION), BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic)?.GetValue(null) is int ver ? ver : 0;
+        private static int toolboxBaseVersion = SE_VERSION | 0;
+        //public static int TB_VERSION = 0; 
+        //private static int _toolboxVersion = 0;
+        //public static int GetToolboxVersionInt() => TB_VERSION;
+        //   public static string GetToolboxVersion()
+        //   { 
+        //     if (TB_VERSION == 0) return "";
+        //     if (toolboxBaseVersion != SE_VERSION )
+        //     {
+        //         _toolboxVersion = TB_VERSION;
+        //         ;
+        //     }
+        //     string toolboxVersion = $"{toolboxBaseVersion}.{TB_VERSION}";
+        //     return $"{toolboxVersion}";
+        //   }
 
-        
     }
 }

@@ -18,6 +18,7 @@ using VRage.ObjectBuilders;
 using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
 using Res = SEToolbox.Properties.Resources;
 using Mod = SEToolbox.Support.Modelling;
+using System.Collections.Generic;
 
 namespace SEToolbox.ViewModels
 {
@@ -36,12 +37,12 @@ namespace SEToolbox.ViewModels
 
         #region Constructors
 
-        public Import3DModelViewModel(BaseViewModel parentViewModel, Import3DModelModel dataModel)
+        public Import3DModelViewModel (BaseViewModel parentViewModel, Import3DModelModel dataModel)
             : this(parentViewModel, dataModel, ServiceLocator.Resolve<IDialogService>(), ServiceLocator.Resolve<IOpenFileDialog>)
         {
         }
 
-        public Import3DModelViewModel(BaseViewModel parentViewModel, Import3DModelModel dataModel, IDialogService dialogService, Func<IOpenFileDialog> openFileDialogFactory)
+        public Import3DModelViewModel (BaseViewModel parentViewModel, Import3DModelModel dataModel, IDialogService dialogService, Func<IOpenFileDialog> openFileDialogFactory)
             : base(parentViewModel)
         {
             Contract.Requires(dialogService != null);
@@ -437,11 +438,12 @@ namespace SEToolbox.ViewModels
             // Large|HeavyBlockArmor|Block,
             // Small|BlockArmor|Slope,
             // Small|HeavyBlockArmor|Corner,
+            //Todo add the new round armor blocks
 
-            SubtypeId blockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Block");
-            SubtypeId slopeBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), cornerBlockPrefix + "Slope");
-            SubtypeId cornerBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), cornerBlockPrefix + "Corner");
-            SubtypeId inverseCornerBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), cornerBlockPrefix + "CornerInv");
+            SubTypeId blockType = (SubTypeId)Enum.Parse(typeof(SubTypeId), blockPrefix + "Block");
+            SubTypeId slopeBlockType = (SubTypeId)Enum.Parse(typeof(SubTypeId), cornerBlockPrefix + "Slope");
+            SubTypeId cornerBlockType = (SubTypeId)Enum.Parse(typeof(SubTypeId), cornerBlockPrefix + "Corner");
+            SubTypeId inverseCornerBlockType = (SubTypeId)Enum.Parse(typeof(SubTypeId), cornerBlockPrefix + "CornerInv");
 
 
             entity.CubeBlocks = [];
@@ -552,60 +554,44 @@ namespace SEToolbox.ViewModels
             string blockPrefix = "";
             switch (ClassType)
             {
-                case ImportModelClassType.SmallShip:
-                    entity.GridSizeEnum = MyCubeSize.Small;
-                    blockPrefix += "Small";
+                case ImportModelClassType when ClassType == ImportModelClassType.SmallShip && entity.GridSizeEnum == MyCubeSize.Small:
+                case ImportModelClassType when ClassType == ImportModelClassType.LargeShip && entity.GridSizeEnum == MyCubeSize.Large:
+                    
+                    blockPrefix += entity.GridSizeEnum.ToString();
                     entity.IsStatic = false;
                     break;
 
-                case ImportModelClassType.LargeShip:
-                    entity.GridSizeEnum = MyCubeSize.Large;
-                    blockPrefix += "Large";
-                    entity.IsStatic = false;
-                    break;
-
-                case ImportModelClassType.SmallStation:
-                    entity.GridSizeEnum = MyCubeSize.Small;
-                    blockPrefix += "Small";
+                case ImportModelClassType when ClassType == ImportModelClassType.SmallStation && entity.GridSizeEnum == MyCubeSize.Small:
+                case ImportModelClassType when ClassType == ImportModelClassType.LargeStation && entity.GridSizeEnum == MyCubeSize.Large:
+                    blockPrefix += entity.GridSizeEnum.ToString();
                     entity.IsStatic = true;
-                    Position = Position.RoundOff(MyCubeSize.Small.ToLength());
+                    Position = Position.RoundOff(entity.GridSizeEnum.ToLength());
                     Forward = Forward.RoundToAxis();
                     Up = Up.RoundToAxis();
                     break;
 
-                case ImportModelClassType.LargeStation:
-                    entity.GridSizeEnum = MyCubeSize.Large;
-                    blockPrefix += "Large";
-                    entity.IsStatic = true;
-                    Position = Position.RoundOff(MyCubeSize.Large.ToLength());
-                    Forward = Forward.RoundToAxis();
-                    Up = Up.RoundToAxis();
-                    break;
+        
             }
 
             switch (ArmorType)
             {
                 case ImportArmorType.Heavy: blockPrefix += "HeavyBlockArmor"; break;
-                case ImportArmorType.Light: blockPrefix += "BlockArmor"; break;                // Currently in development, and only specified as 'Light' on the 'Large' structures.
-                //Round Armor
+                case ImportArmorType.Light: blockPrefix += "BlockArmor"; break;  // ??Currently in development, and only specified as 'Light' on the 'Large' structures.
                 case ImportArmorType.HeavyRounded:
                 case ImportArmorType.LightRounded:
                     blockPrefix += "Rounded";
                     break;
-                // Angled
                 case ImportArmorType.HeavyAngled:
                 case ImportArmorType.LightAngled:
-                    blockPrefix += "Angled"; 
+                    blockPrefix += "Angled";
                     break;
-                // Slope
                 case ImportArmorType.HeavySlope:
                 case ImportArmorType.LightSlope:
                     blockPrefix += "Slope";
                     break;
-                // Corner
                 case ImportArmorType.HeavyCorner:
                 case ImportArmorType.LightCorner:
-                    blockPrefix += "Corner"; 
+                    blockPrefix += "Corner";
                     break;
             }
 
@@ -615,15 +601,15 @@ namespace SEToolbox.ViewModels
             // Small|BlockArmor|Slope,
             // Small|HeavyBlockArmor|Corner,
 
-            SubtypeId blockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Block");
-            SubtypeId smallBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "SmallBlock");
-            SubtypeId heavyBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "SmallHeavyBlock");
-            SubtypeId largeBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "BlockArmor");
-            SubtypeId roundBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "ArmorRound");
-            SubtypeId angledBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Angled");
-            SubtypeId slopeBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Slope");
-            SubtypeId cornerBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "Corner");
-            SubtypeId inverseCornerBlockType = (SubtypeId)Enum.Parse(typeof(SubtypeId), blockPrefix + "CornerInv");
+            SubTypeId blockType = (SubTypeId)Enum.Parse(typeof(SubTypeId), blockPrefix + "Block");
+            SubTypeId smallBlockType = (SubTypeId)Enum.Parse(typeof(SubTypeId), blockPrefix + "SmallBlock");
+            SubTypeId heavyBlockType = (SubTypeId)Enum.Parse(typeof(SubTypeId), blockPrefix + "SmallHeavyBlock");
+            SubTypeId largeBlockType = (SubTypeId)Enum.Parse(typeof(SubTypeId), blockPrefix + "BlockArmor");
+            SubTypeId roundBlockType = (SubTypeId)Enum.Parse(typeof(SubTypeId), blockPrefix + "ArmorRound");
+            SubTypeId angledBlockType = (SubTypeId)Enum.Parse(typeof(SubTypeId), blockPrefix + "Angled");
+            SubTypeId slopeBlockType = (SubTypeId)Enum.Parse(typeof(SubTypeId), blockPrefix + "Slope");
+            SubTypeId cornerBlockType = (SubTypeId)Enum.Parse(typeof(SubTypeId), blockPrefix + "Corner");
+            SubTypeId inverseCornerBlockType = (SubTypeId)Enum.Parse(typeof(SubTypeId), blockPrefix + "CornerInv");
 
             entity.CubeBlocks = [];
 

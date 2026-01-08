@@ -3,13 +3,12 @@
 //      Copyright © 2009 Mid-Space. All rights reserved.
 //  </copyright>
 // ===============================================================================
-    using System.Windows;
-    using System.Windows.Media;
-    using System.Windows.Media.Effects;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Effects;
 
 namespace SEToolbox.ImageShaders.EffectFiles
 {
-
 
     /// <summary>
     /// This is the implementation of an extensible framework ShaderEffect which loads
@@ -62,10 +61,9 @@ namespace SEToolbox.ImageShaders.EffectFiles
         /// </summary>
         [System.ComponentModel.Browsable(false)]
         public Brush Input
-
-{
-     get => (Brush)GetValue(InputProperty);
-set => SetValue(InputProperty, value);
+        {
+            get => (Brush)GetValue(InputProperty);
+            set => SetValue(InputProperty, value);
         }
     }
 }

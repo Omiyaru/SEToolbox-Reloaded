@@ -64,12 +64,12 @@
                             </MenuItem>
                             <MenuItem Header="{lex:Loc CtlCubeMnuSpeedReverse}" Command="{Binding ReverseVelocityCommand}" ToolTip="{lex:Loc CtlCubeMnuSpeedReverseTooltip}">
                                 <MenuItem.Icon>
-                                    <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=navigate_left2}" />
+                                    <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=navigate_left}" />
                                 </MenuItem.Icon>
                             </MenuItem>
                             <MenuItem Header="{lex:Loc CtlCubeMnuSpeedMaxToPlayer}" Command="{Binding MaxVelocityAtPlayerCommand}" ToolTip="{lex:Loc CtlCubeMnuSpeedMaxToPlayerTooltip}">
                                 <MenuItem.Icon>
-                                    <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=navigate_right2}" />
+                                    <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=navigate_right}" />
                                 </MenuItem.Icon>
                             </MenuItem>
                         </MenuItem>
@@ -123,7 +123,7 @@
                             </MenuItem>
                             <MenuItem Header="{lex:Loc CtlCubeMnuConvertRotate}">
                                 <MenuItem.Icon>
-                                    <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=replace2}" />
+                                    <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=replace}" />
                                 </MenuItem.Icon>
                                 <MenuItem Header="{lex:Loc CtlCubeMnuConvertRotateAxis}" Command="{Binding ReorientStationCommand}" ToolTip="{lex:Loc CtlCubeMnuConvertRotateAxisTooltip}" />
                                 <!--  <Separator/>
@@ -240,12 +240,12 @@
                                     </MenuItem>
                                     <MenuItem Header="{lex:Loc CtlCubeMnuSpeedReverse}" Command="{Binding ReverseVelocityCommand}" ToolTip="{lex:Loc CtlCubeMnuSpeedReverseTooltip}">
                                         <MenuItem.Icon>
-                                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=navigate_left2}" />
+                                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=navigate_left}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem Header="{lex:Loc CtlCubeMnuSpeedMaxToPlayer}" Command="{Binding MaxVelocityAtPlayerCommand}" ToolTip="{lex:Loc CtlCubeMnuSpeedMaxToPlayerTooltip}">
                                         <MenuItem.Icon>
-                                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=navigate_right2}" />
+                                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=navigate_right}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
                                 </ContextMenu>
@@ -351,7 +351,7 @@
                     <Menu Grid.Row="1" Grid.ColumnSpan="2">
                             <MenuItem Command="{Binding DeleteCubesCommand}" Header="{lex:Loc CtlCubeMnuDeleteCube}" Style="{StaticResource ToolBarTopMenuitem}">
                             <MenuItem.Icon>
-                                    <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=delete2}"/>
+                                    <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=delete}"/>
                             </MenuItem.Icon>
                         </MenuItem>
                             <MenuItem Header="{lex:Loc CtlCubeMnuConvert}" Command="{Binding ConvertCubesCommand}" Style="{StaticResource ToolBarTopMenuitem}">
@@ -545,7 +545,7 @@
                                                             <ColumnDefinition Width="Auto" />
                                                         </Grid.ColumnDefinitions>
                                                         <TextBlock Grid.Column="0" Text="{Binding Name}" />
-                                                        <TextBlock Grid.Column="1" Text="{Binding SubTypeId}" />
+                                                        <TextBlock Grid.Column="1" Text="{Binding SubtypeName}" />
                                                         <TextBlock Grid.Column="2" Text="{Binding Amount}" />
                                                         <TextBlock Grid.Column="3" Text="{Binding TotalVolume}" />
                                                         <TextBlock Grid.Column="4" Text="{Binding MaxVolume}" />

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using System.ComponentModel;
 using System.Linq;
-using System.Linq.Expressions;
 
 
 namespace SEToolbox.Models
@@ -37,71 +35,85 @@ namespace SEToolbox.Models
         {
             var propertyName = propertyNames.FirstOrDefault() ?? string.Empty;
             if (!EqualityComparer<T>.Default.Equals(field, value))
-
+            {
                 field = value;
+            }
             if (propertyNames.Length > 0 && !string.IsNullOrEmpty(propertyName))
             {
                 OnPropertyChanged(propertyName);
-            } 
+            }
         }
 
         public void SetProperty<T>(T field, T value, params object[] parameters) => SetProperty(ref field, value, parameters);
 
         public void SetProperty<T>(ref T field, T value) => SetProperty(ref field, value, string.Empty);
-        
+
         public void SetProperty<T>(ref T field, T value, params object[] parameters)
         {
             if (EqualityComparer<T>.Default.Equals(field, value))
+            {
                 return;
+            }
 
             var actionToInvoke = parameters.OfType<Action>().FirstOrDefault();
             var propertyName = parameters.OfType<string>().FirstOrDefault();
             var propertyNames = parameters.OfType<string>().ToArray();
-            bool changeProperty = Array.IndexOf(parameters, propertyName) < Array.IndexOf(parameters, actionToInvoke);
-            bool invokeBeforePropertySet = Array.IndexOf(parameters, actionToInvoke) < Array.IndexOf(parameters, propertyName) || changeProperty;
-            if (actionToInvoke != null && propertyNames != null)
+            var actionIndex = Array.IndexOf(parameters, actionToInvoke);
+            var propertyNameIndex = Array.IndexOf(parameters, propertyName);
+            var invokeBeforePropertySet = actionIndex < propertyNameIndex;
+
+            if (invokeBeforePropertySet)
             {
-                if (invokeBeforePropertySet)
-                    actionToInvoke?.Invoke();
-                field = value;
+                actionToInvoke?.Invoke();
+            }
+            field = value;
+
+            if (!invokeBeforePropertySet)
+            {
+                actionToInvoke?.Invoke();
+            }
+
+            if (field is IEnumerable<T> && value is IEnumerable<T> values &&  propertyNames?.Length > 0)
+            {
+                for (var i = 0; i < values.Count(); i++)
+                {
+                    OnPropertyChanged(propertyNames[i]);
+                }
+                return;
+            }
+            
+
+            if (!string.IsNullOrEmpty(propertyName))
+            {
                 OnPropertyChanged(propertyName);
-                if (!invokeBeforePropertySet)
-                    actionToInvoke?.Invoke();
             }
-            else if (actionToInvoke != null && propertyNames == null)
-            {
-                if (invokeBeforePropertySet)
-                    actionToInvoke?.Invoke();
-                field = value;
-                if (!invokeBeforePropertySet)
-                    actionToInvoke?.Invoke();
-            }
-            else if (actionToInvoke == null && propertyNames != null)
-            {
-                field = value;
-                OnPropertyChanged(propertyName);
-            }
-         
         }
 
-        public void SetValue<T>( T field, T value, params object[] parameters) => SetValue(field, value, parameters);
+        public void SetValue<T>(T field, T value, params object[] parameters) => SetValue(field, value, parameters);
 
         public void SetValue<T>(ref T field, T value, params object[] parameters)
         {
-            
-          if (parameters.Length > 1)
+
+            if (parameters.Length > 1)
             {
-                var actionToInvoke = parameters.OfType<Action>().FirstOrDefault() ?? parameters.OfType<Expression<Action>>().FirstOrDefault()?.Compile();
-                bool? invokeBefore = Array.IndexOf(parameters, actionToInvoke) < Array.IndexOf(parameters, field);
+                var actionToInvoke = parameters.OfType<Action>().FirstOrDefault(); 
+                var actionIndex = Array.IndexOf(parameters, actionToInvoke);
+                var propertyNameIndex = Array.IndexOf(parameters, field);
+                bool? invokeBefore = actionIndex < propertyNameIndex;
                 var propertyNames = parameters.OfType<string>().ToArray();
 
                 if (actionToInvoke != null)
                 {
-                    if (invokeBefore == true)   
-                    actionToInvoke?.Invoke();
+                    if (invokeBefore == true)
+                    {
+                        actionToInvoke?.Invoke();
+                    }
+
                     field = value;
                     if (invokeBefore == false)
+                    {
                         actionToInvoke?.Invoke();
+                    }
                 }
                 if (actionToInvoke != null && propertyNames == null)
                 {
@@ -129,7 +141,11 @@ namespace SEToolbox.Models
         public event PropertyChangedEventHandler PropertyChanged
         {
             add => _propertyChanged += value;
-            remove { if (_propertyChanged != null) _propertyChanged -= value; }
+            remove { if (_propertyChanged != null)
+                {
+                    _propertyChanged -= value;
+                }
+            }
         }
 
         #endregion

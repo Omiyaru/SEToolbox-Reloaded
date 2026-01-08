@@ -117,11 +117,8 @@ namespace SEToolbox.ViewModels
         public bool ShowGPS
         {
             get => DataModel.ShowGPS;
-            set
-            {
-                DataModel.ShowGPS = value;
-                MainViewModel.IsModified = true;
-            }
+            set => SetValue(DataModel.ShowGPS, value,() =>
+                   MainViewModel.IsModified = true);
         }
 
         public string PlanetGenerator
@@ -145,7 +142,9 @@ namespace SEToolbox.ViewModels
                 Name,
                 Center.X, Center.Y, Center.Z,
                 PlayerDistance,
-                PositionAndOrientation.Value.Position.X, PositionAndOrientation.Value.Position.Y, PositionAndOrientation.Value.Position.Z,
+                PositionAndOrientation.Value.Position.X, 
+                PositionAndOrientation.Value.Position.Y, 
+                PositionAndOrientation.Value.Position.Z,
                 Radius,
                 HasAtmosphere,
                 AtmosphereRadius,

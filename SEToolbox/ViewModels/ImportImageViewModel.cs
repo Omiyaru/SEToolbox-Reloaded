@@ -18,6 +18,7 @@ using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
 using Res = SEToolbox.Properties.Resources;
 using System.Linq;
 using ImageHelper = SEToolbox.ImageLibrary.ImageHelper;
+using System.Collections.Generic;
 
 namespace SEToolbox.ViewModels
 {
@@ -64,27 +65,27 @@ namespace SEToolbox.ViewModels
 
         public ICommand BrowseImageCommand
         {
-           get => new DelegateCommand(BrowseImageExecuted, BrowseImageCanExecute);
+            get => new DelegateCommand(BrowseImageExecuted, BrowseImageCanExecute);
         }
 
         public ICommand SetToOriginalSizeCommand
         {
-           get => new DelegateCommand(SetToOriginalSizeExecuted, SetToOriginalSizeCanExecute);
+            get => new DelegateCommand(SetToOriginalSizeExecuted, SetToOriginalSizeCanExecute);
         }
 
         public ICommand CreateCommand
         {
-           get => new DelegateCommand(CreateExecuted, CreateCanExecute);
+            get => new DelegateCommand(CreateExecuted, CreateCanExecute);
         }
 
         public ICommand CancelCommand
         {
-           get => new DelegateCommand(CancelExecuted, CancelCanExecute);
+            get => new DelegateCommand(CancelExecuted, CancelCanExecute);
         }
 
         public ICommand ChangeKeyColorCommand
         {
-           get => new DelegateCommand(ChangeKeyColorExecuted, ChangeKeyColorCanExecute);
+            get => new DelegateCommand(ChangeKeyColorExecuted, ChangeKeyColorCanExecute);
         }
 
         #endregion
@@ -104,9 +105,8 @@ namespace SEToolbox.ViewModels
         {
             get => _dataModel.FileName;
 
-            set => SetValue(_dataModel.FileName, value, () => 
-                   FileNameChanged());  
-
+            set => SetValue(_dataModel.FileName, value, () =>
+                   FileNameChanged());
         }
 
         public bool IsValidImage
@@ -124,10 +124,10 @@ namespace SEToolbox.ViewModels
         public BindableSizeModel NewImageSize
         {
             get => _dataModel.NewImageSize;
-            set => SetValue( _dataModel.NewImageSize, value, () =>
+            set => SetValue(_dataModel.NewImageSize, value, () =>
                    ProcessImage());
         }
-            
+
 
         public BindablePoint3DModel Position
         {
@@ -137,7 +137,8 @@ namespace SEToolbox.ViewModels
 
         public BindableVector3DModel Forward
         {
-            get => _dataModel.Forward; set => _dataModel.Forward = value;
+            get => _dataModel.Forward;
+            set => _dataModel.Forward = value;
         }
 
         public BindableVector3DModel Up
@@ -154,7 +155,7 @@ namespace SEToolbox.ViewModels
 
         public ImportArmorType ArmorType
         {
-            get => _dataModel.ArmorType; 
+            get => _dataModel.ArmorType;
             set => _dataModel.ArmorType = value;
         }
 
@@ -172,10 +173,10 @@ namespace SEToolbox.ViewModels
             get => _isBusy;
             set => SetProperty(ref _isBusy, value, nameof(IsBusy), () =>
             {
-                 if(_isBusy)
-                 {
+                if (_isBusy)
+                {
                     Application.DoEvents();
-                 }
+                }
             });
         }
 
@@ -293,16 +294,17 @@ namespace SEToolbox.ViewModels
         {
             IsBusy = true;
 
-            if (File.Exists(fileName))
+            //  Read image properties
+            if (File.Exists(fileName) && IsImageFile(fileName) && _sourceImage != null)
             {
                 // Validate file is a real image
-
-                //  Read image properties
-                if (IsImageFile(fileName) && _sourceImage != null)
+                try
                 {
-                    _sourceImage.Dispose();
-
-                    _sourceImage = Image.FromFile(fileName);
+                    _sourceImage?.Dispose();
+                    using Image image = Image.FromFile(fileName);
+                    IsValidImage = image.Width > 0 && image.Height > 0;
+                    _sourceImage?.Dispose();
+                    _sourceImage = image;
                     OriginalImageSize = new Size(_sourceImage.Width, _sourceImage.Height);
 
                     NewImageSize = new BindableSizeModel(_sourceImage.Width, _sourceImage.Height);
@@ -320,8 +322,9 @@ namespace SEToolbox.ViewModels
                     ArmorType = ImportArmorType.Light;
 
                     IsValidImage = true;
+
                 }
-                else
+                catch (Exception)
                 {
                     IsValidImage = false;
                     Position = new BindablePoint3DModel(0, 0, 0);
@@ -342,7 +345,7 @@ namespace SEToolbox.ViewModels
 
         private static bool IsImageFile(string fileName)
         {
-            string[] validExtensions = [".jpg", ".jpeg", ".png", ".bmp", ".gif"];// ".dds",
+            string[] validExtensions = [".jpg", ".jpeg", ".png", ".bmp", ".gif", ".dds"];
             string fileExtension = Path.GetExtension(fileName).ToLowerInvariant();
             return validExtensions.Contains(fileExtension);
         }
@@ -353,21 +356,7 @@ namespace SEToolbox.ViewModels
             if (_sourceImage != null)
             {
                 Bitmap image = ImageHelper.ResizeImage(_sourceImage, NewImageSize.Size);
-
-                if (image != null)
-                {
-                    NewImage = ImageHelper.ConvertBitmapToBitmapImage(image);
-
-                    //ImageHelper.SavePng(@"C:\temp\test.png", image);
-                }
-                else
-                {
-                    NewImage = null;
-                }
-            }
-            else
-            {
-                NewImage = null;
+                NewImage = image != null ? ImageHelper.ConvertBitmapToBitmapImage(image): null;
             }
         }
 
@@ -385,32 +374,17 @@ namespace SEToolbox.ViewModels
             string blockPrefix = "";
             switch (ClassType)
             {
-                case ImportImageClassType.SmallShip:
-                    entity.GridSizeEnum = MyCubeSize.Small;
-                    blockPrefix += "Small";
+                case ImportImageClassType when ClassType == ImportImageClassType.SmallShip && entity.GridSizeEnum == MyCubeSize.Small:
+                case ImportImageClassType when ClassType == ImportImageClassType.LargeShip && entity.GridSizeEnum == MyCubeSize.Large:
+                    blockPrefix = entity.GridSizeEnum.ToString();
                     entity.IsStatic = false;
                     break;
 
-                case ImportImageClassType.SmallStation:
-                    entity.GridSizeEnum = MyCubeSize.Small;
-                    blockPrefix += "Small";
+                case ImportImageClassType when ClassType == ImportImageClassType.SmallStation && entity.GridSizeEnum == MyCubeSize.Small:
+                case ImportImageClassType when ClassType == ImportImageClassType.LargeStation && entity.GridSizeEnum == MyCubeSize.Large:
+                    blockPrefix = entity.GridSizeEnum.ToString();
                     entity.IsStatic = true;
-                    Position = Position.RoundOff(MyCubeSize.Small.ToLength());
-                    Forward = Forward.RoundToAxis();
-                    Up = Up.RoundToAxis();
-                    break;
-
-                case ImportImageClassType.LargeShip:
-                    entity.GridSizeEnum = MyCubeSize.Large;
-                    blockPrefix += "Large";
-                    entity.IsStatic = false;
-                    break;
-
-                case ImportImageClassType.LargeStation:
-                    entity.GridSizeEnum = MyCubeSize.Large;
-                    blockPrefix += "Large";
-                    entity.IsStatic = true;
-                    Position = Position.RoundOff(MyCubeSize.Large.ToLength());
+                    Position = Position.RoundOff(entity.GridSizeEnum.ToLength());
                     Forward = Forward.RoundToAxis();
                     Up = Up.RoundToAxis();
                     break;
@@ -424,8 +398,6 @@ namespace SEToolbox.ViewModels
                 case ImportArmorType.Corner: blockPrefix += "Corner"; break;
                 case ImportArmorType.Angled: blockPrefix += "Angled"; break;
                 case ImportArmorType.Slope: blockPrefix += "Slope"; break;
-
-
             }
 
             entity.PositionAndOrientation = new MyPositionAndOrientation
@@ -435,7 +407,7 @@ namespace SEToolbox.ViewModels
                 Forward = Forward?.ToVector3() ?? new VRageMath.Vector3(0, 0, 1), // Default to forward vector if null
                 Up = Up?.ToVector3() ?? new VRageMath.Vector3(0, 1, 0) // Default to up vector if null
             };
-            //see: Import3DModelViewModel for referenceand subtypeids
+            //see: Import3DModelViewModel  for reference and SubtypeNames
 
             // Large|BlockArmor|Corner
             // Large|RoundArmor_|Corner
@@ -446,37 +418,36 @@ namespace SEToolbox.ViewModels
             entity.CubeBlocks = [];
             Bitmap image = ImageHelper.ResizeImage(_sourceImage, NewImageSize.Size);
 
-            using (Bitmap palatteImage = new(image))
+            using Bitmap palatteImage = new(image);
+
+            // Optimal order load. from grid coordinate (0,0,0) and up.
+            for (int x = palatteImage.Width - 1; x >= 0; x--)
             {
-                // Optimal order load. from grid coordinate (0,0,0) and up.
-                for (int x = palatteImage.Width - 1; x >= 0; x--)
+                for (int y = palatteImage.Height - 1; y >= 0; y--)
                 {
-                    for (int y = palatteImage.Height - 1; y >= 0; y--)
+                    const int z = 0;
+                    Color color = palatteImage.GetPixel(x, y);
+
+                    // Specifically ignore anything with less than half "Transparent" Alpha. 
+                    if (IsAlphaLevel && color.A < AlphaLevel || IsKeyColor && color.R == KeyColor.R &&
+                                                                              color.G == KeyColor.G &&
+                                                                              color.B == KeyColor.B)
                     {
-                        const int z = 0;
-                        Color color = palatteImage.GetPixel(x, y);
+                        continue;
+                    }
 
-                        // Specifically ignore anything with less than half "Transparent" Alpha.
-                        if (IsAlphaLevel && color.A < AlphaLevel)
-                            continue;
-
-                        if (IsKeyColor && color.R == KeyColor.R && color.G == KeyColor.G && color.B == KeyColor.B)
-                            continue;
-
-                        // Parse the string through the Enumeration to check that the 'subtypeid' is still valid in the game engine.
-                        string armorString = blockPrefix + "Block";
-                        if (Enum.IsDefined(typeof(SubtypeId), armorString))
-                        {
-                            SubtypeId armor = (SubtypeId)Enum.Parse(typeof(SubtypeId), armorString);
-                            MyObjectBuilder_CubeBlock newCube;
-                            entity.CubeBlocks.Add(newCube = new MyObjectBuilder_CubeBlock());
-                            newCube.SubtypeName = armor.ToString();
-                            newCube.EntityId = 0;
-                            newCube.BlockOrientation = Modelling.GetCubeOrientation(CubeType.Cube);
-                            newCube.Min = new VRageMath.Vector3I(palatteImage.Width - x - 1, palatteImage.Height - y - 1, z);
-                            newCube.ColorMaskHSV = color.FromPaletteColorToHsvMask();
-                        }
-
+                    // Parse the string through the Enumeration to check that the 'SubTypeId' is still valid in the game engine.
+                    string armorString = blockPrefix + "Block";
+                    if (Enum.IsDefined(typeof(SubTypeId), armorString))
+                    {
+                        SubTypeId armor = (SubTypeId)Enum.Parse(typeof(SubTypeId), armorString);
+                        MyObjectBuilder_CubeBlock newCube;
+                        entity.CubeBlocks.Add(newCube = new MyObjectBuilder_CubeBlock());
+                        newCube.SubtypeName = armor.ToString();
+                        newCube.EntityId = 0;
+                        newCube.BlockOrientation = Modelling.GetCubeOrientation(CubeType.Cube);
+                        newCube.Min = new VRageMath.Vector3I(palatteImage.Width - x - 1, palatteImage.Height - y - 1, z);
+                        newCube.ColorMaskHSV = color.FromPaletteColorToHsvMask();
                     }
                 }
             }

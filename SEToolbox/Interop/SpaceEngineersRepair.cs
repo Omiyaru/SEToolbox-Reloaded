@@ -28,17 +28,11 @@ namespace SEToolbox.Interop
 
             var repairWorld = world;
 
-            if (!repairWorld.LoadSector(out string sectorErrorInformation))
+            if (!repairWorld.LoadSector(out string sectorErrorInformation) ||
+                !repairWorld.LoadCheckpoint(out string errorInformation))
             {
                 statusNormal = false;
-                str.AppendLine(sectorErrorInformation);
-                missingFiles = true;
-            }
-
-            if (!repairWorld.LoadCheckpoint(out string errorInformation))
-            {
-                statusNormal = false;
-                str.AppendLine(errorInformation);
+                Log.WriteLine(sectorErrorInformation);
                 missingFiles = true;
             }
 
@@ -46,8 +40,8 @@ namespace SEToolbox.Interop
 
             if (xDoc == null)
             {
-                str.AppendLine(Res.ClsRepairSectorBroken);
-                str.AppendLine(Res.ClsRepairUnableToRepair);
+                Log.WriteLine(Res.ClsRepairSectorBroken);
+                Log.WriteLine(Res.ClsRepairUnableToRepair);
                 missingFiles = true;
             }
             else
@@ -69,17 +63,18 @@ namespace SEToolbox.Interop
                         {
                             var entityId = Convert.ToInt64(entityIdNodes.Current.Value);
                             var node = shipNodes.Current.SelectSingleNode(string.Format($"CubeBlocks/*[./EntityId='{nsManager}']", entityId));
+                            if (node != null)
+                            {
+                                string x = node.ToValue<string>("Min/@x");
+                                string y = node.ToValue<string>("Min/@y");
+                                string z = node.ToValue<string>("Min/@z");
 
-                            string x = node?.ToValue<string>("Min/@x");
-                            string y = node?.ToValue<string>("Min/@y");
-                            string z = node?.ToValue<string>("Min/@z");
-
-                            entityIdNodes.Current.InsertBefore(string.Format($"<Vector3I><X>{x}</X><Y>{y}</Y><Z>{z}</Z></Vector3I>"));
-                            removeNodes.Add(entityIdNodes.Current.Clone());
-                            str.AppendLine(Res.ClsRepairReplacedBlockGroup);
-                            saveAfterScan = true;
-                            statusNormal = false;
-
+                                entityIdNodes.Current.InsertBefore(string.Format($"<Vector3I><X>{x}</X><Y>{y}</Y><Z>{z}</Z></Vector3I>"));
+                                removeNodes.Add(entityIdNodes.Current.Clone());
+                                Log.WriteLine(Res.ClsRepairReplacedBlockGroup);
+                                saveAfterScan = true;
+                                statusNormal = false;
+                            }
                         }
 
                         foreach (var node in removeNodes)
@@ -89,7 +84,6 @@ namespace SEToolbox.Interop
                     }
                 }
 
-                //test?
                 //<BlockGroups>
                 //<MyObjectBuilder_BlockGroup>
                 //    <Name>Open</Name>
@@ -133,7 +127,7 @@ namespace SEToolbox.Interop
                 if (saveAfterScan)
                 {
                     repairWorld.SaveSectorXml(true, xDoc);
-                    str.AppendLine(Res.ClsRepairSavedChanges);
+                    Log.WriteLine(Res.ClsRepairSavedChanges);
                 }
 
                 #endregion
@@ -144,201 +138,186 @@ namespace SEToolbox.Interop
             if (!repairWorld.LoadSector(out errorInformation))
             {
                 statusNormal = false;
-                str.AppendLine(errorInformation);
+                Log.WriteLine(errorInformation);
                 missingFiles = true;
             }
-
-            if (repairWorld.Checkpoint == null)
+            Dictionary<Object, string> loadErrors = new()
             {
-                statusNormal = false;
-                str.AppendLine(Res.ClsRepairCheckpointBroken);
-                str.AppendLine(Res.ClsRepairUnableToRepair);
-                missingFiles = true;
-            }
-
-            if (repairWorld.SectorData == null)
+                { repairWorld.Checkpoint, Res.ClsRepairCheckpointBroken },
+                { repairWorld.SectorData, Res.ClsRepairSectorBroken }
+            };
+            foreach (var kvp in loadErrors)
             {
-                statusNormal = false;
-                str.AppendLine(Res.ClsRepairSectorBroken);
-                str.AppendLine(Res.ClsRepairUnableToRepair);
-                missingFiles = true;
-            }
 
-            if (!missingFiles)
-            {
-                MyObjectBuilder_Character character;
-
-                saveAfterScan = false;
-
-                Dictionary<long, long> idReplacementTable = [];
-                if (repairWorld.Checkpoint.Identities != null)
+                if (loadErrors.Keys == null)
                 {
-                    foreach (var identity in repairWorld.Checkpoint.Identities)
-                    {
-                        if (!SpaceEngineersApi.ValidateEntityType(IDType.IDENTITY, identity.IdentityId))
-                        {
-                            identity.IdentityId = MergeId(identity.IdentityId, IDType.IDENTITY, ref idReplacementTable);
-
-                            statusNormal = false;
-                            str.AppendLine(Res.ClsRepairFixedPlayerIdentity);
-                            saveAfterScan = true;
-                        }
-                    }
+                    statusNormal = false;
+                    Log.WriteLine(loadErrors.Values);
+                    Log.WriteLine(Res.ClsRepairUnableToRepair);
+                    missingFiles = true;
                 }
 
-                if (repairWorld.Checkpoint.AllPlayersData != null)
+
+                if (!missingFiles)
                 {
-                    foreach (var player in repairWorld.Checkpoint.AllPlayersData?.Dictionary)
-                    {
-                        if (!SpaceEngineersApi.ValidateEntityType(IDType.IDENTITY, player.Value.IdentityId))
-                        {
-                            player.Value.IdentityId = MergeId(player.Value.IdentityId, IDType.IDENTITY, ref idReplacementTable);
-
-                            statusNormal = false;
-                            str.AppendLine(Res.ClsRepairFixedPlayerIdentity);
-                            saveAfterScan = true;
-                        }
-                    }
-                }
-
-                if (saveAfterScan)
-                {
-                    repairWorld.SaveCheckPointAndSector(true);
-                    str.AppendLine(Res.ClsRepairSavedChanges);
-                }
-
-                if (world.SaveType == SaveWorldType.Local)
-                {
-                    var player = repairWorld.FindPlayerCharacter();
-
-                    if (player == null)
-                    {
-                        statusNormal = false;
-                        str.AppendLine(Res.ClsRepairNoPlayerFound);
-
-                        character = repairWorld.FindAstronautCharacter();
-                        if (character != null)
-                        {
-                            repairWorld.Checkpoint.ControlledObject = character.EntityId;
-                            repairWorld.Checkpoint.CameraController = MyCameraControllerEnum.Entity;
-                            repairWorld.Checkpoint.CameraEntity = character.EntityId;
-                            str.AppendLine(Res.ClsRepairFoundSetPlayer);
-                            repairWorld.SaveCheckPointAndSector(true);
-                            str.AppendLine(Res.ClsRepairSavedChanges);
-                        }
-                        else
-                        {
-                            var cockpit = repairWorld.FindPilotCharacter();
-                            if (cockpit != null)
-                            {
-                                repairWorld.Checkpoint.ControlledObject = cockpit.EntityId;
-                                repairWorld.Checkpoint.CameraController = MyCameraControllerEnum.ThirdPersonSpectator;
-                                repairWorld.Checkpoint.CameraEntity = 0;
-                                str.AppendLine(Res.ClsRepairFoundSetPlayer);
-                                repairWorld.SaveCheckPointAndSector(true);
-                                str.AppendLine(Res.ClsRepairSavedChanges);
-                            }
-                        }
-                    }
+                    MyObjectBuilder_Character character;
 
                     saveAfterScan = false;
-                }
-
-                // Scan through all items.
-                foreach (var entity in repairWorld.SectorData.SectorObjects)
-                {
-                    if (entity is MyObjectBuilder_CubeGrid cubeGrid)
+                    List<List<object>> identityCollections =
+                    [
+                        repairWorld.Checkpoint.Identities?.Cast<object>().ToList(),
+                        repairWorld.Checkpoint.AllPlayersData?.Dictionary?.Values.Cast<object>().ToList()
+                    ];
+                    Dictionary<long, long> idReplacementTable = [];
+                    if (repairWorld.Checkpoint.Identities != null)
                     {
-                        var list = new List<MyObjectBuilder_Cockpit>(cubeGrid.CubeBlocks.OfType<MyObjectBuilder_Cockpit>());
-                        for (int i = 0; i < list.Count; i++)
+                        foreach (var identity in identityCollections.FirstOrDefault())
                         {
-                            character = list[i].GetHierarchyCharacters().FirstOrDefault();
-
-                            if (!SpaceEngineersResources.CharacterDefinitions.Any(c => c.Model == character?.CharacterModel || c.Name == character?.CharacterModel))
+                            if (identity is MyObjectBuilder_Identity || identity is KeyValuePair<PlayerId, MyObjectBuilder_Player>)
                             {
-                                character.CharacterModel = Sandbox.Game.Entities.Character.MyCharacter.DefaultModel;
-                                statusNormal = false;
-                                str.AppendLine(Res.ClsRepairFixedCharacterModel);
-                                saveAfterScan = true;
+                                var identityId = identity is MyObjectBuilder_Identity id ? id.IdentityId : ((KeyValuePair<PlayerId, MyObjectBuilder_Player>)identity).Value.IdentityId;
 
-                            }
-                        }
-
-                        foreach (var block in cubeGrid.CubeBlocks)
-                        {
-                            var definition = SpaceEngineersApi.GetCubeDefinition(block.GetType(), cubeGrid.GridSizeEnum, block.SubtypeName);
-                            if (definition == null)
-                            {
-                                str.AppendLine($"Missing definition for block: {block.SubtypeName}");
-                                statusNormal = false;
-                                saveAfterScan = true;
-                            }
-                        }
-                    }
-
-                    character = entity as MyObjectBuilder_Character;
-
-                    if (!SpaceEngineersResources.CharacterDefinitions.Any(c => c.Model == character?.CharacterModel || c.Name == character?.CharacterModel))
-                    {
-                        character?.CharacterModel = Sandbox.Game.Entities.Character.MyCharacter.DefaultModel;
-                        statusNormal = false;
-                        str.AppendLine(Res.ClsRepairFixedCharacterModel);
-                        saveAfterScan = true;
-                    }
-
-                }
-
-                if (world.Checkpoint.AllPlayersData != null)
-                {
-                    List<PlayerId> allPlayersDataKeys = [.. world.Checkpoint.AllPlayersData.Dictionary.Keys];
-                    for (int i = 0; i < allPlayersDataKeys.Count; i++)
-                    {
-                        var key = allPlayersDataKeys[i];
-                        var item = world.Checkpoint.AllPlayersData.Dictionary[key];
-
-                        if (!SpaceEngineersResources.CharacterDefinitions.Any(c => c.Name == item.PlayerModel))
-                        {
-                            item.PlayerModel = SpaceEngineersResources.CharacterDefinitions[0].Name;
-                            statusNormal = false;
-                            str.AppendLine(Res.ClsRepairFixedCharacterModel);
-                            saveAfterScan = true;
-                            // Validate and fix player ID
-
-                            if (item.PlayerId == 0)
-                            {
-                                item.PlayerId = SpaceEngineersApi.GenerateEntityId();
-                                world.Checkpoint.AllPlayers.Add(new PlayerItem(item.PlayerId, "Repair", false, item.SteamID, null));
-                                if (item.PlayerId == 0)
-
-                                    item.PlayerId = SpaceEngineersApi.GenerateEntityId();
-                                world.Checkpoint.AllPlayersData.Dictionary[key] = new MyObjectBuilder_PlayerItem
+                                if (!SpaceEngineersApi.ValidateEntityType(IDType.IDENTITY, identityId))
                                 {
-                                    PlayerId = item.PlayerId,
-                                    DisplayName = item.DisplayName,
-                                    IsDead = false, //??in VRage.Game.ModAPI.IMyCharacter.IsDead or VRage.Game.ModAPI.IMyIdentity.IsDead
-                                    SteamID = item.SteamID,
-                                    IdentityId = item.IdentityId
-                                };
+
+                                    identityId = MergeId(identityId, IDType.IDENTITY, ref idReplacementTable);
+
+                                    statusNormal = false;
+                                    Log.WriteLine(Res.ClsRepairFixedPlayerIdentity);
+                                    saveAfterScan = true;
+                                }
+                            }
+                        }
+
+
+                        if (saveAfterScan)
+                        {
+                            repairWorld.SaveCheckPointAndSector(true);
+                            Log.WriteLine(Res.ClsRepairSavedChanges);
+                        }
+
+                        if (world.SaveType == SaveWorldType.Local)
+                        {
+                            var player = repairWorld.FindPlayerCharacter();
+                            var cockpit = repairWorld.FindPilotCharacter();
+                            if (player == null)
+                            {
                                 statusNormal = false;
-                                str.AppendLine("! Fixed corrupt or missing Player definition.");
-                                saveAfterScan = true;
+                                Log.WriteLine(Res.ClsRepairNoPlayerFound);
+
+                                character = repairWorld.FindAstronautCharacter();
+                                if (character == null)
+                                {
+                                    repairWorld.Checkpoint.ControlledObject = character.EntityId;
+                                    repairWorld.Checkpoint.CameraController = MyCameraControllerEnum.Entity;
+                                    repairWorld.Checkpoint.CameraEntity = character.EntityId;
+                                    Log.WriteLine(Res.ClsRepairFoundSetPlayer);
+                                    repairWorld.SaveCheckPointAndSector(true);
+                                    Log.WriteLine(Res.ClsRepairSavedChanges);
+
+                                }
+
+                                else if (cockpit == null)
+                                {
+
+                                    repairWorld.Checkpoint.ControlledObject = cockpit.EntityId;
+                                    repairWorld.Checkpoint.CameraController = MyCameraControllerEnum.ThirdPersonSpectator;
+                                    repairWorld.Checkpoint.CameraEntity = 0;
+                                    Log.WriteLine(Res.ClsRepairFoundSetPlayer);
+                                    repairWorld.SaveCheckPointAndSector(true);
+                                    Log.WriteLine(Res.ClsRepairSavedChanges);
+                                }
+                                saveAfterScan = false;
+                            }
+
+                            // Scan through all items.
+                            foreach (var entity in repairWorld.SectorData.SectorObjects)
+                            {
+                                if (entity is MyObjectBuilder_CubeGrid cubeGrid)
+                                {
+                                    foreach (MyObjectBuilder_Cockpit c in cubeGrid.CubeBlocks.OfType<MyObjectBuilder_Cockpit>())
+                                    {
+                                        character = cockpit.GetHierarchyCharacters().FirstOrDefault();
+
+                                        if (!SpaceEngineersResources.CharacterDefinitions.Any(c => c.Model == character?.CharacterModel || c.Name == character?.CharacterModel))
+                                        {
+                                            character.CharacterModel = Sandbox.Game.Entities.Character.MyCharacter.DefaultModel;
+                                            statusNormal = false;
+                                            Log.WriteLine(Res.ClsRepairFixedCharacterModel);
+                                            saveAfterScan = true;
+
+                                        }
+                                    }
+                                    foreach (var block in cubeGrid.CubeBlocks)
+                                    {
+                                        var definition = SpaceEngineersApi.GetCubeDefinition(block.GetType(), cubeGrid.GridSizeEnum, block.SubtypeName);
+                                        if (definition == null)
+                                        {
+                                            Log.WriteLine($"Missing definition for block: {block.SubtypeName}");
+                                            statusNormal = false;
+                                            saveAfterScan = true;
+                                        }
+                                    }
+                                }
+
+                                character = entity as MyObjectBuilder_Character;
+
+                                if (!SpaceEngineersResources.CharacterDefinitions.Any(c => c.Model == character?.CharacterModel || c.Name == character?.CharacterModel))
+                                {
+                                    character?.CharacterModel = Sandbox.Game.Entities.Character.MyCharacter.DefaultModel;
+                                    statusNormal = false;
+                                    Log.WriteLine(Res.ClsRepairFixedCharacterModel);
+                                    saveAfterScan = true;
+                                }
+
+                                List<PlayerId> allPlayersDataKeys = [.. world.Checkpoint.AllPlayersData?.Dictionary.Keys];
+                                for (int i = 0; i < allPlayersDataKeys.Count; i++)
+                                {
+                                    var key = allPlayersDataKeys[i];
+                                    var item = world.Checkpoint.AllPlayersData.Dictionary[key];
+
+                                    if (!SpaceEngineersResources.CharacterDefinitions.Any(c => c.Name == item.PlayerModel))
+                                    {
+                                        item.PlayerModel = SpaceEngineersResources.CharacterDefinitions[0].Name;
+                                        statusNormal = false;
+                                        Log.WriteLine(Res.ClsRepairFixedCharacterModel);
+                                        saveAfterScan = true;
+                                        // Validate and fix player ID
+
+                                        if (item.PlayerId == 0)
+                                        {
+                                            item.PlayerId = SpaceEngineersApi.GenerateEntityId();
+                                            world.Checkpoint.AllPlayers.Add(new PlayerItem(item.PlayerId, "Repair", false, item.SteamID, null));
+                                            world.Checkpoint.AllPlayersData.Dictionary[key] = new MyObjectBuilder_PlayerItem
+                                            {
+                                                PlayerId = item.PlayerId,
+                                                DisplayName = item.DisplayName,
+                                                IsDead = false, //??in VRage.Game.ModAPI.IMyCharacter.IsDead or VRage.Game.ModAPI.IMyIdentity.IsDead
+                                                SteamID = item.SteamID,
+                                                IdentityId = item.IdentityId
+                                            };
+                                            statusNormal = false;
+                                            Log.WriteLine("! Fixed corrupt or missing Player definition.");
+                                            saveAfterScan = true;
+                                        }
+                                    }
+                                }
+
+                                if (saveAfterScan)
+                                {
+                                    repairWorld.SaveCheckPointAndSector(true);
+                                    Log.WriteLine(Res.ClsRepairSavedChanges);
+                                }
+                            }
+
+                            if (statusNormal)
+                            {
+                                Log.WriteLine(Res.ClsRepairNoIssues);
                             }
 
                         }
                     }
-
-                    if (saveAfterScan)
-                    {
-                        repairWorld.SaveCheckPointAndSector(true);
-                        str.AppendLine(Res.ClsRepairSavedChanges);
-                    }
                 }
-
-                if (statusNormal)
-                {
-                    str.AppendLine(Res.ClsRepairNoIssues);
-                }
-
             }
             return str.ToString();
         }
@@ -348,13 +327,17 @@ namespace SEToolbox.Interop
             public bool IsDead { get; set; }
         }
 
-        private static long MergeId(long currentId, IDType type, ref Dictionary<Int64, Int64> idReplacementTable)
+        private static long MergeId(long currentId, IDType type, ref Dictionary<long, long> idReplacementTable)
         {
             if (currentId == 0)
+            {
                 return 0;
+            }
 
             if (idReplacementTable.ContainsKey(currentId))
+            {
                 return idReplacementTable[currentId];
+            }
 
             idReplacementTable[currentId] = SpaceEngineersApi.GenerateEntityId(type);
             return idReplacementTable[currentId];
@@ -368,85 +351,72 @@ namespace SEToolbox.Interop
                 // Ensure the WorldResource object is valid
                 if (repairWorld == null)
                 {
-                    log.AppendLine("Error: WorldResource is null. Cannot proceed.");
-                    return;
+                    Log.WriteLine("Error: WorldResource is null. Cannot proceed.");
                 }
+
                 // Check and rewrite the Checkpoint (.sbc) file
+                Log.WriteLine("Checking Checkpoint file...");
                 if (repairWorld.Checkpoint != null)
                 {
-                    log.AppendLine("Checking Checkpoint file...");
-                    if (!ValidateCheckpoint(repairWorld.Checkpoint, log))
+                    if (!ValidateCheckpoint(repairWorld?.Checkpoint, log))
                     {
                         hasErrors = true;
-                        log.AppendLine("Errors found in Checkpoint file. Rewriting...");
+                        Log.WriteLine("Errors found in Checkpoint file. Rewriting...");
                         repairWorld.SaveCheckPoint(true); // Ensure backup is created
-                        log.AppendLine("Checkpoint file successfully rewritten.");
+                        Log.WriteLine("Checkpoint file successfully rewritten.");
                     }
+
+
                     else
                     {
-                        log.AppendLine("Checkpoint file is valid.");
+                        Log.WriteLine("Checkpoint file is missing or invalid.");
+                        hasErrors = true;
                     }
-                }
-                else
-                {
-                    log.AppendLine("Checkpoint file is missing or invalid.");
-                    hasErrors = true;
-                }
-
-                // Check and rewrite the Sector (.sbs) file
-                if (repairWorld.SectorData != null)
-                {
+                    // Check and rewrite the Sector (.sbs) file
                     log.AppendLine("Checking Sector file...");
-                    if (!ValidateSector(repairWorld.SectorData, log))
+                    if (!ValidateSector(repairWorld?.SectorData, log))
                     {
                         hasErrors = true;
-                        log.AppendLine("Errors found in Sector file. Rewriting...");
+                        Log.WriteLine("Errors found in Sector file. Rewriting...");
                         repairWorld.SaveSector(true); // Ensure backup is created
-                        log.AppendLine("Sector file successfully rewritten.");
+                        Log.WriteLine("Sector file successfully rewritten.");
                     }
                     else
                     {
-                        log.AppendLine("Sector file is valid.");
+                        Log.WriteLine("Sector file is valid.");
                     }
-                }
-                else
-                {
-                    log.AppendLine("Sector file is missing or invalid.");
-                    hasErrors = true;
-                }
 
-                // Check and rewrite the Sector XML file
-                var xmlDoc = repairWorld.LoadSectorXml();
-                if (xmlDoc != null)
-                {
-                    log.AppendLine("Checking Sector XML file...");
-                    var xDoc = System.Xml.Linq.XDocument.Parse(xmlDoc.OuterXml); // Convert XmlDocument to XDocument
+
+                    Log.WriteLine("Sector file is missing or invalid.");
+                    hasErrors = true;
+
+
+                    // Check and rewrite the Sector XML file
+                    var xmlDoc = repairWorld.LoadSectorXml();
+
+                    Log.WriteLine("Checking Sector XML file...");
+                    var xDoc = System.Xml.Linq.XDocument.Parse(xmlDoc?.OuterXml); // Convert XmlDocument to XDocument
                     if (!ValidateSectorXml(xDoc, log))
                     {
                         hasErrors = true;
-                        log.AppendLine("Errors found in Sector XML file. Rewriting...");
+                        Log.WriteLine("Errors found in Sector XML file. Rewriting...");
                         repairWorld.SaveSectorXml(true, xmlDoc); // Save the original XmlDocument
-                        log.AppendLine("Sector XML file successfully rewritten.");
+                        Log.WriteLine("Sector XML file successfully rewritten.");
                     }
                     else
                     {
-                        log.AppendLine("Sector XML file is valid.");
+                        Log.WriteLine("Sector XML file is missing or invalid.");
+                        hasErrors = true;
                     }
-                }
-                else
-                {
-                    log.AppendLine("Sector XML file is missing or invalid.");
-                    hasErrors = true;
-                }
-
-                if (!hasErrors)
-                {
-                    log.AppendLine("All sandbox files are valid. No rewriting was necessary.");
+                    if (!hasErrors)
+                    {
+                        Log.WriteLine("All sandbox files are valid. No rewriting was necessary.");
+                    }
                 }
             }
             catch (Exception ex)
             {
-                log.AppendLine($"An error occurred while checking and rewriting sandbox files: {ex.Message}");
+                Log.WriteLine($"An error occurred while checking and rewriting sandbox files: {ex.Message}");
             }
         }
 
@@ -457,13 +427,13 @@ namespace SEToolbox.Interop
 
             if (checkpoint.Identities == null || checkpoint.Identities.Count == 0)
             {
-                log.AppendLine("Checkpoint file: Missing or empty Identities.");
+                Log.WriteLine("Checkpoint file: Missing or empty Identities.");
                 isValid = false;
             }
 
             if (checkpoint.AllPlayersData == null || checkpoint.AllPlayersData.Dictionary.Count == 0)
             {
-                log.AppendLine("Checkpoint file: Missing or empty AllPlayersData.");
+                Log.WriteLine("Checkpoint file: Missing or empty AllPlayersData.");
                 isValid = false;
             }
 
@@ -477,7 +447,7 @@ namespace SEToolbox.Interop
 
             if (sector.SectorObjects == null || sector.SectorObjects.Count == 0)
             {
-                log.AppendLine("Sector file: Missing or empty SectorObjects.");
+                Log.WriteLine("Sector file: Missing or empty SectorObjects.");
                 isValid = false;
             }
 
@@ -492,13 +462,11 @@ namespace SEToolbox.Interop
             var root = xDoc.Root;
             if (root == null || root.Name.LocalName != nameof(MyObjectBuilder_Sector))
             {
-                log.AppendLine("Sector XML file: Invalid root element.");
+                Log.WriteLine("Sector XML file: Invalid root element.");
                 isValid = false;
             }
 
             return isValid;
         }
     }
-
-
 }

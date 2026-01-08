@@ -151,7 +151,9 @@ namespace SEToolbox.Models
                 foreach (GroupMoveItemModel item in Selections)
                 {
                     if (item == null)
+                    {
                         continue;
+                    }
 
                     item.PositionX = item.PositionX + centerPosition.X - Center.X;
                     item.PositionY = item.PositionY + centerPosition.Y - Center.Y;
@@ -163,13 +165,17 @@ namespace SEToolbox.Models
         public Vector3D CalculateGroupCenter(Vector3D centerPosition)
         {
             if (Selections == null || Selections.Count == 0)
+            {
                 return centerPosition;
+            }
 
             Vector3D center = Vector3D.Zero;
             foreach (GroupMoveItemModel item in Selections)
             {
                 if (item == null)
+                {
                     continue;
+                }
 
                 center += new Vector3D(item.PositionX, item.PositionY, item.PositionZ);
             }
@@ -209,7 +215,7 @@ namespace SEToolbox.Models
                         {
                             item.PositionX = selection.Item.DataModel.PositionX = CenterPosition.X;
                             item.PositionY = selection.Item.DataModel.PositionY = CenterPosition.Y;
-                            selection.PositionZ = selection.Item.DataModel.PositionX = CenterPosition.Z;
+                            item.PositionZ = selection.Item.DataModel.PositionX = CenterPosition.Z;
                         }
 
                         selection.PlayerDistance = (_playerPosition - new Vector3D(selection.PositionX, selection.PositionY, selection.PositionZ)).Length();

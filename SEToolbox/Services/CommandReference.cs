@@ -27,11 +27,9 @@ namespace SEToolbox.Services
         #region ICommand Members
 
         public bool CanExecute(object parameter)
-        {
-            if (Command != null)
-                return Command.CanExecute(parameter);
-            return false;
-        }
+        { 
+            return Command?.CanExecute(parameter) ?? false;
+        } 
 
         public void Execute(object parameter)
         {

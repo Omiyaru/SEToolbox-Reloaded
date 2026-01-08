@@ -2,10 +2,7 @@
 
 namespace SEToolbox.Interop.Asteroids
 {
-    public struct MyVoxelBuilderArgs(Vector3I size,
-                                    Vector3I coordinatePoint,
-                                    byte materialIndex,
-                                    byte volume)
+    public struct MyVoxelBuilderArgs(Vector3I size, Vector3I coordinatePoint, byte materialIndex, byte volume)
     {
 
         /// <summary>
@@ -17,6 +14,7 @@ namespace SEToolbox.Interop.Asteroids
         /// The currently selected Voxel Coordinate in local space.
         /// </summary>
         public Vector3I CoordinatePoint { get; } = coordinatePoint;
+        //public (int X, int Y, int Z) Coordinate  { get; }  = (coordinatePoint.X, coordinatePoint.Y, coordinatePoint.Z); 
 
         /// <summary>
         /// The Material to be applied. It may already be set with the existing material.

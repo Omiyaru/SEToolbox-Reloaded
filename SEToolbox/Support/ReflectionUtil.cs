@@ -19,7 +19,10 @@ namespace SEToolbox.Support
         /// <param name="dest">The dest.</param>
         public static void ReplaceMethod(MethodBase source, MethodBase dest)
         {
-            if (!MethodSignaturesEqual(source, dest)) throw new ArgumentException("The method signatures are not the same.", nameof(source));
+            if (!MethodSignaturesEqual(source, dest))
+            {
+                throw new ArgumentException("The method signatures are not the same.", nameof(source));
+            }
 
             ReplaceMethod(GetMethodAddress(source), dest);
         }
@@ -53,12 +56,17 @@ namespace SEToolbox.Support
         public static IntPtr GetMethodAddress(MethodBase method)
         {
             if (method is DynamicMethod)
+            {
                 return GetDynamicMethodAddress(method);
+            }
 
             // Prepare the method so it gets jited
             RuntimeHelpers.PrepareMethod(method.MethodHandle);
 
-            unsafe { return new IntPtr((int*)method.MethodHandle.Value.ToPointer() + 2); }
+            unsafe 
+            { 
+                return new IntPtr((int*)method.MethodHandle.Value.ToPointer() + 2);
+            }
         }
 
         private unsafe static IntPtr GetDynamicMethodAddress(MethodBase method)
@@ -85,37 +93,29 @@ namespace SEToolbox.Support
             if (method is DynamicMethod)
             {
                 FieldInfo fieldInfo = typeof(DynamicMethod).GetField("m_method", BindingFlags.NonPublic | BindingFlags.Instance);
-
-                if (fieldInfo != null)
-                {
-                    RuntimeMethodHandle handle = (RuntimeMethodHandle)fieldInfo.GetValue(method);
-
-                    return handle;
-                }
+                RuntimeMethodHandle handle = (RuntimeMethodHandle)fieldInfo?.GetValue(method);
+                return handle;
             }
 
             return method.MethodHandle;
         }
 
         private static bool MethodSignaturesEqual(MethodBase x, MethodBase y)
-        {
-            if (x.CallingConvention != y.CallingConvention)
-                return false;
-
+        {    
             Type returnX = GetMethodReturnType(x), returnY = GetMethodReturnType(y);
 
-            if (returnX != returnY)
-                return false;
-
             ParameterInfo[] xParams = x.GetParameters(), yParams = y.GetParameters();
-
-            if (xParams.Length != yParams.Length)
+            if (x.CallingConvention != y.CallingConvention ||returnX != returnY || xParams.Length != yParams.Length)
+            {
                 return false;
+            }
 
             for (int i = 0; i < xParams.Length; i++)
             {
                 if (xParams[i].ParameterType != yParams[i].ParameterType)
+                {
                     return false;
+                }
             }
 
             return true;
@@ -126,12 +126,16 @@ namespace SEToolbox.Support
             MethodInfo methodInfo = method as MethodInfo;
 
             if (methodInfo != null)
+            {
                 return methodInfo.ReturnType;
+            }
 
             ConstructorInfo constructorInfo = method as ConstructorInfo;
 
             if (constructorInfo != null)
+            {
                 return typeof(void);
+            }
 
             throw new ArgumentException("Unsupported MethodBase : " + method.GetType().Name, nameof(method));
         }
@@ -156,8 +160,7 @@ namespace SEToolbox.Support
             {
                 fieldInfo = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
 
-                if (fieldInfo == null)
-                    fieldInfo = type.GetField(GetBackingFieldName(fieldName), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                fieldInfo ??= type.GetField(GetBackingFieldName(fieldName), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
 
                 fieldInfoDict[fieldName] = fieldInfo;
             }
@@ -204,15 +207,13 @@ namespace SEToolbox.Support
         }
 
         public static void ConstructField(object obj, string fieldName)
-        {
-            if (obj == null)
-                return;
-
-            Type objectType = obj.GetType();
+        {     Type objectType = obj.GetType();
             FieldInfo field = objectType.GetField(fieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
 
-            if (field == null)
+            if (obj == null|| field == null)
+            {
                 return;
+            }
 
             object val = CreateInstance(field.FieldType);
             field.SetValue(obj, val);

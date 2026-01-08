@@ -22,6 +22,7 @@ using System.Windows.Input;
 using System.Windows.Shell;
 using VRage;
 using VRage.Game;
+using VRage.Game.ObjectBuilders.Components;
 using VRage.ObjectBuilders;
 using VRage.ObjectBuilders.Private;
 using VRageMath;
@@ -57,6 +58,9 @@ namespace SEToolbox.ViewModels
         private ObservableCollection<IFactionBase> _factions;
         private ObservableCollection<IFactionBase> _members;
         private bool? _useExcludedTypes;
+        private bool _isMultipleSelections;
+        private Action<bool> _busyAction;
+        private Action<bool, object> _busyAction2;
 
         #endregion
 
@@ -86,7 +90,7 @@ namespace SEToolbox.ViewModels
             _dataModel = dataModel;
 
             Selections = [];
-            Selections?.CollectionChanged += (sender, e) => OnPropertyChanged(nameof(IsMultipleSelections));
+            Selections.CollectionChanged += (sender, e) => OnPropertyChanged(nameof(IsMultipleSelections));
 
             Structures = [];
             foreach (var item in _dataModel.Structures ?? Enumerable.Empty<IStructureBase>())
@@ -147,11 +151,8 @@ namespace SEToolbox.ViewModels
         public ICommand CopyObjectGpsCommand => new DelegateCommand(CopyObjectGpsExecuted, CopyObjectGpsCanExecute);
         public ICommand SelectJoinedGridsCommand => new DelegateCommand<GridConnectionTypes>(SelectJoinedGridsExecuted, SelectJoinedGridsCanExecute);
         public ICommand GroupMoveCommand => new DelegateCommand(GroupMoveExecuted, GroupMoveCanExecute);
-
         public ICommand GroupMoveToNewPositionCommand => new DelegateCommand(GroupMoveToNewPositionExecuted, GroupMoveToNewPositionCanExecute);
-
         public ICommand RejoinShipCommand => new DelegateCommand(RejoinShipExecuted, RejoinShipCanExecute);
-
         public ICommand JoinShipPartsCommand => new DelegateCommand(JoinShipPartsExecuted, JoinShipPartsCanExecute);
         public ICommand VoxelMergeCommand => new DelegateCommand(VoxelMergeExecuted, VoxelMergeCanExecute);
         public ICommand RepairShipsCommand => new DelegateCommand(RepairShipsExecuted, RepairShipsCanExecute);
@@ -209,21 +210,26 @@ namespace SEToolbox.ViewModels
             set => SetProperty(ref _selectedStructure, value, () =>
             {
                 if (!_ignoreUpdateSelection)
+                {
                     _selectedStructure?.DataModel.InitializeAsync();
+                }
             }, nameof(SelectedStructure));
 
+        }
+
+        public bool IsMultipleSelections
+        {
+            get => _isMultipleSelections;
+            set => SetProperty(ref _isMultipleSelections, value, nameof(IsMultipleSelections));
         }
 
         public ObservableCollection<IStructureViewBase> Selections
         {
             get => _selections;
-            set => SetProperty(ref _selections, value, nameof(Selections));
+            set => SetProperty(ref _selections, value, () =>
+                    IsMultipleSelections ? Selections.Count > 1 : Selections.Count == 1, nameof(Selections));
         }
 
-        public bool IsMultipleSelections
-        {
-            get => _selections.Count > 1;
-        }
 
         public WorldResource ActiveWorld
         {
@@ -290,7 +296,17 @@ namespace SEToolbox.ViewModels
         }
 
         //public Type DataType => throw new NotImplementedException();
+        public Action<bool> BusyAction
+        {
+            get => b => { IsBusy = true; };
+            set => SetValue(_busyAction, value, nameof(BusyAction), () => IsBusy = false);
+        }
 
+        public Action<bool, object> BusyAction2
+        {
+            get => (b, c) => { IsBusy = true; };
+            set => SetValue(_busyAction2, value, nameof(BusyAction2), () => IsBusy = false);
+        }
         #endregion
 
         #region Command Methods
@@ -302,44 +318,33 @@ namespace SEToolbox.ViewModels
 
         public void ClosingExecuted(CancelEventArgs e)
         {
-            if (IsModified)
+            if (!IsModified || CheckCloseWindow())
             {
-                DialogResult result = MessageBox.Show(
-                    "There are unsaved changes. Do you want to save before closing?",
-                    "Unsaved Changes",
-                    MessageBoxButtons.YesNoCancel,
-                    MessageBoxIcon.Warning);
-
-                if (result == DialogResult.Cancel)
-                {
-                    e.Cancel = true;
-                    return;
-                }
-                else if (result == DialogResult.Yes)
-                {
-                    SaveExecuted();
-                }
-            }
-            if (!CheckCloseWindow())
-            {
-                e.Cancel = true;
-                CloseResult = null;
                 return;
             }
-            CloseRequested.Invoke(this, EventArgs.Empty);
+
+            var result = MessageBox.Show("There are unsaved changes. Do you want to save before closing?", "Unsaved Changes",// TODO: make this a resource
+                MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Cancel)
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            if (result == DialogResult.Yes)
+            {
+                SaveExecuted();
+            }
+
+            CloseRequested?.Invoke(this, EventArgs.Empty);
         }
 
         private bool CheckCloseWindow()
         {
-            if (IsBusy)
-            {
-                MessageBox.Show(
-                    "The application is currently busy. Please wait for the operation to complete before closing.",
-                    "Operation in Progress",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
-                return false;
-            }
+            BusyAction = (b) => MessageBox.Show("The application is currently busy. Please wait for the operation to complete before closing.", "Operation in Progress",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            BusyAction(true);
             return true;
         }
 
@@ -359,7 +364,7 @@ namespace SEToolbox.ViewModels
         {
             return true;
         }
-        
+
         public void OpenExecuted()
         {
 
@@ -381,9 +386,9 @@ namespace SEToolbox.ViewModels
         public bool SaveCanExecute()
         {
             return IsActiveWorldValid() &&
-                ((_dataModel.ActiveWorld.SaveType != SaveWorldType.DedicatedServerService && 
+                ((_dataModel.ActiveWorld.SaveType != SaveWorldType.DedicatedServerService &&
                   _dataModel.ActiveWorld.SaveType != SaveWorldType.CustomAdminRequired) ||
-                ((_dataModel.ActiveWorld.SaveType == SaveWorldType.DedicatedServerService || 
+                ((_dataModel.ActiveWorld.SaveType == SaveWorldType.DedicatedServerService ||
                   _dataModel.ActiveWorld.SaveType == SaveWorldType.CustomAdminRequired) &&
                 ToolboxUpdater.IsRunningElevated()));
         }
@@ -406,31 +411,26 @@ namespace SEToolbox.ViewModels
 
         public void SaveAsExecuted()
         {
-            if (_dataModel != null)
+            ISaveFileDialog saveFileDialog = _saveFileDialogFactory();
+            //saveFileDialog.Filter = "Save Files (All Files (*.*)|*.*";
+            //saveFileDialog.Title = "Save As";
+            saveFileDialog.OverwritePrompt = true;
+
+            string newDirectory = Path.GetDirectoryName(saveFileDialog.FileName);
+            if (newDirectory != null && _dialogService.ShowSaveFileDialog(this, saveFileDialog) == DialogResult.OK)
             {
-                ISaveFileDialog saveFileDialog = _saveFileDialogFactory();
-                saveFileDialog.Filter = "Save Files (All Files (*.*)|*.*";
-                saveFileDialog.Title = "Save As";
-                saveFileDialog.OverwritePrompt = true;
-
-                if (_dialogService.ShowSaveFileDialog(this, saveFileDialog) == DialogResult.OK)
+                Directory.CreateDirectory(newDirectory);
+                string[] files = Directory.GetFiles(_dataModel.ActiveWorld.SavePath);
+                foreach (var file in files)
                 {
-                    string newDirectory = Path.GetDirectoryName(saveFileDialog.FileName);
-                    if (newDirectory != null)
-                    {
-                        Directory.CreateDirectory(newDirectory);
-                        string[] files = Directory.GetFiles(_dataModel.ActiveWorld.SavePath);
-                        foreach (var file  in files)
-                        {
-                            _ = file;
-                            _dataModel.ActiveWorld.SavePath = newDirectory;
-                        }
-                    }
-
-                    _dataModel.SaveCheckPointAndSandBox();
+                    _ = file;
+                    _dataModel?.ActiveWorld.SavePath = newDirectory;
                 }
             }
+
+            _dataModel.SaveCheckPointAndSandBox();
         }
+
 
         public bool ClearCanExecute()
         {
@@ -441,8 +441,7 @@ namespace SEToolbox.ViewModels
         {
             _dataModel?.Structures.Clear();
             _dataModel.ActiveWorld = null;
-            Selections.Clear();
-            Structures.Clear();
+            Selections?.Clear();
             SelectedStructure = null;
             OnPropertyChanged(nameof(Structures), nameof(Selections));
         }
@@ -492,15 +491,15 @@ namespace SEToolbox.ViewModels
         public bool IsSavePathValid()
         {
             var savePath = GetSavePath();
-            return !string.IsNullOrWhiteSpace(savePath)
-                   && Directory.Exists(savePath)
-                   && !savePath.Contains("..", StringComparison.Ordinal)
-                   && !Path.IsPathRooted(savePath);
+            return !string.IsNullOrWhiteSpace(savePath) &&
+                   Directory.Exists(Path.GetDirectoryName(savePath)) &&
+                   !Path.IsPathRooted(savePath);
         }
+
 
         public string GetSavePath()
         {
-            return _dataModel.ActiveWorld.SavePath ?? string.Empty;
+            return _dataModel.ActiveWorld?.SavePath ?? string.Empty;
         }
 
         public bool IsActiveCanExecute()
@@ -523,13 +522,18 @@ namespace SEToolbox.ViewModels
             bool? result = _dialogService.ShowDialog<WindowImportVoxel>(this, loadVm);
             if (result == true)
             {
-                IsBusy = true;
-                var newEntity = loadVm.BuildEntity();
-                var structure = _dataModel.AddEntity(newEntity);
-                ((StructureVoxelModel)structure).SourceVoxelFilePath = loadVm.SourceFile; // Set the temporary file location of the Source Voxel, as it hasn't been written yet.
-                if (_preSelectedStructure != null)
-                    SelectedStructure = _preSelectedStructure;
-                IsBusy = false;
+                BusyAction = (b) =>
+                {
+                    MyObjectBuilder_EntityBase newEntity = loadVm.BuildEntity();
+                    IStructureBase structure = _dataModel.AddEntity(newEntity);
+                    ((StructureVoxelModel)structure).SourceVoxelFilePath = loadVm.SourceFile; // Set the temporary file location of the Source Voxel, as it hasn't been written yet.
+                    if (_preSelectedStructure != null)
+                    {
+                        SelectedStructure = _preSelectedStructure;
+                    }
+                };
+                BusyAction(true);
+
             }
         }
 
@@ -545,9 +549,9 @@ namespace SEToolbox.ViewModels
             model.Load(position);
             ImportImageViewModel loadVm = new(this, model);
             bool? result = _dialogService.ShowDialog<WindowImportImage>(this, loadVm);
-            if (result == true)
+
+            BusyAction2 = (b, e) =>
             {
-                IsBusy = true;
                 var newEntity = loadVm.BuildEntity();
                 // make sure resultant object has cubes.
                 if (newEntity.CubeBlocks.Count != 0)
@@ -557,9 +561,10 @@ namespace SEToolbox.ViewModels
                     _dataModel.AddEntity(newEntity);
                     _selectNewStructure = false;
                 }
-                IsBusy = false;
-            }
+            };
+            BusyAction2(true, result);
         }
+
 
         public bool ImportModelCanExecute()
         {
@@ -575,21 +580,25 @@ namespace SEToolbox.ViewModels
             bool? result = _dialogService.ShowDialog<WindowImportModel>(this, loadVm);
             if (result == true)
             {
-                IsBusy = true;
-                MyObjectBuilder_EntityBase newEntity = loadVm.BuildEntity();
-                if (loadVm.IsValidModel)
-                {
-                    _dataModel.CollisionCorrectEntity(newEntity);
-                    IStructureBase structure = _dataModel.AddEntity(newEntity);
-                    if (structure is StructureVoxelModel voxelModel)
-                    {
-                        voxelModel.SourceVoxelFilePath = loadVm.SourceFile;
-                    }
+                BusyAction = (b) =>
+               {
+                   MyObjectBuilder_EntityBase newEntity = loadVm.BuildEntity();
+                   if (loadVm.IsValidModel)
+                   {
+                       _dataModel.CollisionCorrectEntity(newEntity);
+                       IStructureBase structure = _dataModel.AddEntity(newEntity);
+                       if (structure is StructureVoxelModel voxelModel)
+                       {
+                           voxelModel.SourceVoxelFilePath = loadVm.SourceFile;
+                       }
 
-                    if (_preSelectedStructure != null)
-                        SelectedStructure = _preSelectedStructure;
-                }
-                IsBusy = false;
+                       if (_preSelectedStructure != null)
+                       {
+                           SelectedStructure = _preSelectedStructure;
+                       }
+                   }
+               };
+                BusyAction(true);
             }
         }
 
@@ -607,20 +616,23 @@ namespace SEToolbox.ViewModels
             bool? result = _dialogService.ShowDialog<WindowImportAsteroidModel>(this, loadVm);
             if (result == true && loadVm.IsValidEntity)
             {
-                IsBusy = true;
-                _dataModel.CollisionCorrectEntity(loadVm.NewEntity);
-                IStructureBase structure = _dataModel.AddEntity(loadVm.NewEntity);
-                var voxelModel = structure as StructureVoxelModel;
-                voxelModel.SourceVoxelFilePath = loadVm.SourceFile; // Set the temporary file location of the Source Voxel, as it hasn't been written yet.
-                if (_preSelectedStructure != null)
-                    SelectedStructure = _preSelectedStructure;
+                BusyAction = (b) =>
+               {
+                   _dataModel.CollisionCorrectEntity(loadVm.NewEntity);
+                   IStructureBase structure = _dataModel.AddEntity(loadVm.NewEntity);
+                   var voxelModel = structure as StructureVoxelModel;
+                   voxelModel.SourceVoxelFilePath = loadVm.SourceFile; // Set the temporary file location of the Source Voxel, as it hasn't been written yet.
+                   if (_preSelectedStructure != null)
+                   {
+                       SelectedStructure = _preSelectedStructure;
+                   }
 
-                if (loadVm.SaveWhenFinsihed)
-                {
-                    _dataModel.SaveCheckPointAndSandBox();
-                }
-
-                IsBusy = false;
+                   if (loadVm.SaveWhenFinsihed)
+                   {
+                       _dataModel.SaveCheckPointAndSandBox();
+                   }
+               };
+                BusyAction(true);
             }
         }
 
@@ -662,7 +674,7 @@ namespace SEToolbox.ViewModels
 
         public bool OpenFolderCanExecute()
         {
-            return IsActiveWorldValid();
+            return _dataModel.ActiveWorld != null;
         }
 
         static void StartShellProcess(string fileName, string arguments)
@@ -698,7 +710,7 @@ namespace SEToolbox.ViewModels
 
         public void OpenWorkshopExecuted()
         {
-            StartShellProcess(string.Format($"http://steamcommunity.com/sharedfiles/filedetails/?id={_dataModel.ActiveWorld.WorkshopId.Value}"));
+            StartShellProcess($"http://steamcommunity.com/sharedfiles/filedetails/?id={_dataModel.ActiveWorld.WorkshopId.Value}");
         }
         public bool ExportSandboxObjectCanExecute()
         {
@@ -762,24 +774,28 @@ namespace SEToolbox.ViewModels
         public void CreateFloatingItemExecuted()
         {
             GenerateFloatingObjectModel model = new();
-            MyPositionAndOrientation position = ThePlayerCharacter != null ? ThePlayerCharacter.PositionAndOrientation.Value : new(Vector3D.Zero, Vector3.Forward, Vector3.Up); ;
+            MyPositionAndOrientation position = ThePlayerCharacter != null ? ThePlayerCharacter.PositionAndOrientation.Value : new(Vector3D.Zero, Vector3.Forward, Vector3.Up);
             model.Load(position, _dataModel.ActiveWorld.Checkpoint.MaxFloatingObjects);
             GenerateFloatingObjectViewModel loadVm = new(this, model);
             bool? result = _dialogService.ShowDialog<WindowGenerateFloatingObject>(this, loadVm);
             if (result == true)
             {
-                IsBusy = true;
-                MyObjectBuilder_EntityBase[] newEntities = loadVm.BuildEntities();
-                if (loadVm.IsValidItemToImport)
+                BusyAction = (b) =>
                 {
-                    _selectNewStructure = true;
-                    foreach (var ent in newEntities)
+                    MyObjectBuilder_EntityBase[] newEntities = loadVm.BuildEntities();
+                    if (loadVm.IsValidItemToImport)
                     {
-                        _dataModel.AddEntity(ent);
+                        _selectNewStructure = true;
+                        foreach (var ent in newEntities)
+                        {
+                            _dataModel.AddEntity(ent);
+                        }
+                        _selectNewStructure = false;
                     }
-                    _selectNewStructure = false;
-                }
-                IsBusy = false;
+                };
+
+                BusyAction(true);
+
             }
         }
 
@@ -798,22 +814,25 @@ namespace SEToolbox.ViewModels
             model.Unload();
             if (result == true)
             {
-                IsBusy = true;
-                loadVm.BuildEntities(out string[] sourceVoxelFiles, out MyObjectBuilder_EntityBase[] newEntities);
-                _selectNewStructure = true;
-                ResetProgress(0, newEntities.Length);
+                BusyAction = (b) =>
+               {
+                   loadVm.BuildEntities(out string[] sourceVoxelFiles, out MyObjectBuilder_EntityBase[] newEntities);
+                   _selectNewStructure = true;
+                   ResetProgress(0, newEntities.Length);
 
-                for (int i = 0; i < newEntities.Length; i++)
-                {
-                    IStructureBase structure = _dataModel.AddEntity(newEntities[i]);
-                    StructureVoxelModel voxelModel = (StructureVoxelModel)structure;
-                    voxelModel.SourceVoxelFilePath = sourceVoxelFiles[i];
-                    voxelModel.InitializeAsync();
-                    Progress++;
-                }
-                _selectNewStructure = false;
-                IsBusy = false;
-                ClearProgress();
+                   for (int i = 0; i < newEntities.Length; i++)
+                   {
+                       IStructureBase structure = _dataModel.AddEntity(newEntities[i]);
+                       StructureVoxelModel voxelModel = (StructureVoxelModel)structure;
+                       voxelModel.SourceVoxelFilePath = sourceVoxelFiles[i];
+                       voxelModel.InitializeAsync();
+                       Progress++;
+                   }
+                   _selectNewStructure = false;
+
+                   BusyAction(true);
+                   ClearProgress();
+               };
             }
         }
 
@@ -825,7 +844,7 @@ namespace SEToolbox.ViewModels
         public void OpenSettingsExecuted()
         {
             SettingsModel model = new();
-            model.Load(GlobalSettings.Default.SEBinPath, GlobalSettings.Default.CustomVoxelPath, (bool)GlobalSettings.Default.AlwaysCheckForUpdates, (bool)GlobalSettings.Default.UseCustomResource);
+            model.Load(GlobalSettings.Default.SEBinPath, GlobalSettings.Default.CustomVoxelPath, GlobalSettings.Default.AlwaysCheckForUpdates, GlobalSettings.Default.UseCustomResource);
             SettingsViewModel loadVm = new(this, model);
             if (_dialogService.ShowDialog<WindowSettings>(this, loadVm) == true)
             {
@@ -839,25 +858,17 @@ namespace SEToolbox.ViewModels
 
                 if (reloadMods)
                 {
-                    IsBusy = true;
+                    BusyAction = ActiveWorld != null ? (b) => ActiveWorld.LoadDefinitionsAndMods() :
+                                                       (b) => SpaceEngineersCore.Resources.LoadDefinitions();
+                    BusyAction(true);
 
-                    if (ActiveWorld == null)
+
+
+                    if (resetLocalization)
                     {
-                        SpaceEngineersCore.Resources.LoadDefinitions();
+                        SpaceEngineersApi.LoadLocalization();
+                        UpdateLanguages();
                     }
-                    else
-                    {
-                        // Reload the Mods.
-                        ActiveWorld.LoadDefinitionsAndMods();
-                    }
-
-                    IsBusy = false;
-                }
-
-                if (resetLocalization)
-                {
-                    SpaceEngineersApi.LoadLocalization();
-                    UpdateLanguages();
                 }
             }
         }
@@ -887,7 +898,9 @@ namespace SEToolbox.ViewModels
                     break;
                 default:
                     if (ConfirmUpdateAvailable(update.Version))
+                    {
                         StartShellProcess(Res.GlobalUpdatesUrl);
+                    }
                     break;
             }
             MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -967,7 +980,7 @@ namespace SEToolbox.ViewModels
 
         public bool CopyObjectGpsCanExecute()
         {
-            return SelectionsCanExecute();
+            return SelectionsCanExecute(1);
         }
 
         public void CopyObjectGpsExecuted()
@@ -989,12 +1002,12 @@ namespace SEToolbox.ViewModels
             return SelectionsCanExecute();
         }
 
-        public bool SelectionsCanExecute(int count = 0, bool greaterThan = false)
+        public bool SelectionsCanExecute(int? count = 0, bool? greaterThan = null)
         {
-            return IsActiveWorldValid() && (count == 0 ? Selections.Count > 0 :
-                                       greaterThan ? Selections.Count == count :
-                                       Selections.Count > count);
+            int selectionCount = Selections.Count;
+            return IsActiveWorldValid() && (count == null || selectionCount == count || (greaterThan == true && selectionCount > count));
         }
+
 
         public bool IsActiveWorldValid()
         {
@@ -1024,22 +1037,17 @@ namespace SEToolbox.ViewModels
                 if (!searchedIds.Contains(gridModel.EntityId))
                 {
                     List<MyObjectBuilder_CubeGrid> structureList = _dataModel.GetConnectedGridNodes(gridModel, minimumConnectionType);
-
                     var structures = Structures.ToDictionary(st => st.DataModel.EntityId, st => st);
 
                     foreach (MyObjectBuilder_CubeGrid cubegrid in structureList)
                     {
-                        if (!searchedIds.Contains(cubegrid.EntityId))
+                        if (!searchedIds.Contains(cubegrid.EntityId) && structures.TryGetValue(cubegrid.EntityId, out var structure))
                         {
-                            if (structures.TryGetValue(cubegrid.EntityId, out var structure))
-                            {
-                                searchModels.Enqueue((StructureCubeGridModel)structure.DataModel);
-                                newSelectionModels.Add(structure);
-                                break;
-                            }
+                            searchModels.Enqueue((StructureCubeGridModel)structure.DataModel);
+                            newSelectionModels.Add(structure);
+                            break;
                         }
                     }
-
                     searchedIds.Add(gridModel.EntityId);
                 }
             }
@@ -1049,7 +1057,9 @@ namespace SEToolbox.ViewModels
             {
                 Selections.Clear();
                 foreach (IStructureViewBase structure in newSelectionModels)
+                {
                     Selections.Add(structure);
+                }
             }
         }
 
@@ -1082,6 +1092,7 @@ namespace SEToolbox.ViewModels
             {
                 return SelectionsCanExecute(1, true);
             }
+
             return false;
         }
 
@@ -1106,7 +1117,6 @@ namespace SEToolbox.ViewModels
                         model.ApplyNewPositions();
                         _dataModel.CalcDistances();
                         IsModified = true;
-
                     }
                 }
             }
@@ -1115,40 +1125,37 @@ namespace SEToolbox.ViewModels
         public bool RejoinShipCanExecute()
         {
             return SelectionsCanExecute(2) &&
-                (Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType &&
-                 Selections[0].DataModel.ClassType == ClassType.LargeShip ||
-                 Selections[0].DataModel.ClassType == ClassType.SmallShip);
-
+                  (Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType &&
+                   Selections[0].DataModel.ClassType == ClassType.LargeShip ||
+                   Selections[0].DataModel.ClassType == ClassType.SmallShip);
         }
-
 
         public void RejoinShipExecuted()
         {
-            IsBusy = true;
-            RejoinShipModels(Selections[0], Selections[1]);
-            IsBusy = false;
+
+            BusyAction = (b) => RejoinShipModels(Selections[0], Selections[1]);
+
         }
 
         public bool JoinShipPartsCanExecute()
         {
             return SelectionsCanExecute(2) &&
-                    Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType &&
-                    Selections[0].DataModel.ClassType == ClassType.LargeShip ||
-                    Selections[0].DataModel.ClassType == ClassType.SmallShip;
-
+                   Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType &&
+                   Selections[0].DataModel.ClassType == ClassType.LargeShip ||
+                   Selections[0].DataModel.ClassType == ClassType.SmallShip;
         }
 
         public void JoinShipPartsExecuted()
         {
-            IsBusy = true;
-            MergeShipPartModels(Selections[0], Selections[1]);
-            IsBusy = false;
+
+            BusyAction = (b) => MergeShipPartModels(Selections[0], Selections[1]);
+
         }
 
         public bool VoxelMergeCanExecute()
         {
             return SelectionsCanExecute(2, false) &&
-                   ((Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType &&
+                        ((Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType &&
                      Selections[0].DataModel.ClassType == ClassType.Voxel &&
                      Selections[0].DataModel.IsValid) ||
                     (Selections[0].DataModel.ClassType == Selections[1].DataModel.ClassType &&
@@ -1166,7 +1173,7 @@ namespace SEToolbox.ViewModels
             bool? result = _dialogService.ShowDialog<WindowVoxelMerge>(this, loadVm);
             if (result == true)
             {
-                IsBusy = true;
+
                 MyObjectBuilder_EntityBase newEntity = loadVm.BuildEntity();
                 IStructureBase structure = _dataModel.AddEntity(newEntity);
                 ((StructureVoxelModel)structure).SourceVoxelFilePath = loadVm.SourceFile; // Set the temporary file location of the Source Voxel, as it hasn't been written yet.
@@ -1182,6 +1189,7 @@ namespace SEToolbox.ViewModels
                 IsBusy = false;
             }
         }
+
 
         public bool RepairShipsCanExecute()
         {
@@ -1227,9 +1235,7 @@ namespace SEToolbox.ViewModels
 
         public void ConvertToStationExecuted()
         {
-            IsBusy = true;
-            ConvertToStations(Selections);
-            IsBusy = false;
+            BusyAction = (b) => ConvertToStations(Selections);
         }
 
         public bool InertiaTensorCanExecute(bool state)
@@ -1239,14 +1245,16 @@ namespace SEToolbox.ViewModels
 
         public void InertiaTensorExecuted(bool state)
         {
-            IsBusy = true;
-            int count = SetInertiaTensor(Selections, true);
-            IsBusy = false;
-
+            int count = 0;
+            BusyAction = (b) =>
+            {
+                count = SetInertiaTensor(Selections, true);
+            };
+            BusyAction(true);
             _dialogService.ShowMessageBox(this, string.Format(Res.ClsExplorerGridChangesMade, count),
                                                               Res.ClsExplorerTitleChangesMade,
                                                               System.Windows.MessageBoxButton.OK,
-                                                              System.Windows.MessageBoxImage.Information);
+                                                           System.Windows.MessageBoxImage.Information);
         }
 
         private void ShowMessage(string message)
@@ -1413,16 +1421,16 @@ namespace SEToolbox.ViewModels
 
         void Structures_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            switch (e.Action)
+            Action a = e.Action switch
             {
-                case NotifyCollectionChangedAction.Add: AddViewModel(e.NewItems?[0] as IStructureBase); break;
-                case NotifyCollectionChangedAction.Remove: RemoveViewModel(e.OldItems?[0] as IStructureBase); break;
-                case NotifyCollectionChangedAction.Reset: _structures.Clear(); break;
-                case NotifyCollectionChangedAction.Replace: ReplaceViewModel(e.OldItems?[0] as IStructureBase); break;
-                case NotifyCollectionChangedAction.Move: MoveViewModel(e.OldItems?[0] as IStructureBase); break;
-                default:
-                    break;
-            }
+                NotifyCollectionChangedAction.Add => () => AddViewModel(e.NewItems?[0] as IStructureBase),
+                NotifyCollectionChangedAction.Remove => () => RemoveViewModel(e.OldItems?[0] as IStructureBase),
+                NotifyCollectionChangedAction.Reset => () => _structures.Clear(),
+                NotifyCollectionChangedAction.Replace => () => ReplaceViewModel(e.OldItems?[0] as IStructureBase),
+                NotifyCollectionChangedAction.Move => () => MoveViewModel(e.OldItems?[0] as IStructureBase),
+                _ => () => { }
+
+            };
         }
 
         private void AddViewModel(IStructureBase structureBase)
@@ -1468,35 +1476,13 @@ namespace SEToolbox.ViewModels
             }
         }
 
-        private void ReplaceViewModel(IStructureBase model)
-        {
-            IStructureViewBase viewModel = Structures.FirstOrDefault(s => s.DataModel == model);
-            if (viewModel != null)
-            {
-                _structures.Remove(viewModel);
-                _structures.Add(viewModel);
-            }
-        }
-
-        private void MoveViewModel(IStructureBase model)
-        {
-            IStructureViewBase viewModel = Structures.FirstOrDefault(s => s.DataModel == model);
-            if (viewModel != null)
-            {
-                //remove an move the viewmodel
-                int oldIndex = Structures.IndexOf(viewModel);
-                int newIndex = oldIndex + 1;
-                if (newIndex < Structures.Count)
-                {
-                    Structures.Move(oldIndex, newIndex);
-                }
-            }
-        }
-
+        // remove Model from collection, causing sync to happen.
         public void DeleteModel(params IStructureViewBase[] viewModels)
         {
             if (viewModels == null || viewModels.Length == 0)
+            {
                 return;
+            }
 
             int index = Structures.IndexOf(viewModels[0]);
             _ignoreUpdateSelection = true;
@@ -1504,7 +1490,9 @@ namespace SEToolbox.ViewModels
             foreach (IStructureViewBase viewModel in viewModels)
             {
                 if (viewModel == null || !CanDelete(viewModel))
+                {
                     continue;
+                }
                 viewModel.DataModel.CancelAsync();
                 _dataModel.Structures.Remove(viewModel.DataModel);
             }
@@ -1535,6 +1523,31 @@ namespace SEToolbox.ViewModels
             }
         }
 
+        private void ReplaceViewModel(IStructureBase model)
+        {
+            IStructureViewBase viewModel = Structures.FirstOrDefault(s => s.DataModel == model);
+            if (viewModel != null)
+            {
+                _structures.Remove(viewModel);
+                _structures.Add(viewModel);
+            }
+        }
+
+        private void MoveViewModel(IStructureBase model)
+        {
+            IStructureViewBase viewModel = Structures.FirstOrDefault(s => s.DataModel == model);
+            if (viewModel != null)
+            {
+                //remove an move the viewmodel
+                int oldIndex = Structures.IndexOf(viewModel);
+                int newIndex = oldIndex + 1;
+                if (newIndex < Structures.Count)
+                {
+                    Structures.Move(oldIndex, newIndex);
+                }
+            }
+        }
+
         public void OptimizeModel(params IStructureViewBase[] viewModels)
         {
             foreach (var viewModel in viewModels.OfType<StructureCubeGridViewModel>())
@@ -1552,8 +1565,7 @@ namespace SEToolbox.ViewModels
         }
 
         private void RejoinShipModels(IStructureViewBase viewModel1, IStructureViewBase viewModel2)
-        {  
-     
+        {
             StructureCubeGridViewModel ship1 = (StructureCubeGridViewModel)viewModel1;
             StructureCubeGridViewModel ship2 = (StructureCubeGridViewModel)viewModel2;
 
@@ -1564,7 +1576,7 @@ namespace SEToolbox.ViewModels
 
             // Deleting ship2 will also ensure the removal of any duplicate UniqueIds.
             // Any overlapping blocks between the two, will automatically be removed by Space Engineers when the world is loaded.
-            
+
             //RemoveOverlappingBlocks(viewModel1, viewModel2);
         }
 
@@ -1611,12 +1623,14 @@ namespace SEToolbox.ViewModels
         {
             foreach (var structure in structures)
             {
-                if (structure.DataModel.ClassType == ClassType.SmallShip ||
-                    structure.DataModel.ClassType == ClassType.LargeShip ||
-                    structure.DataModel.ClassType == ClassType.LargeStation ||
-                    structure.DataModel.ClassType == ClassType.SmallStation)
+                switch (structure.DataModel.ClassType)
                 {
-                    ((StructureCubeGridViewModel)structure).RepairObjectExecuted();
+                    case ClassType.SmallShip:
+                    case ClassType.LargeShip:
+                    case ClassType.LargeStation:
+                    case ClassType.SmallStation:
+                        ((StructureCubeGridViewModel)structure).RepairObjectExecuted();
+                        break;
                 }
             }
         }
@@ -1626,9 +1640,9 @@ namespace SEToolbox.ViewModels
             foreach (var structure in structures)
             {
                 if (structure.DataModel.ClassType == ClassType.SmallShip ||
-                    structure.DataModel.ClassType == ClassType.LargeShip ||
-                    structure.DataModel.ClassType == ClassType.LargeStation ||
-                    structure.DataModel.ClassType == ClassType.SmallStation)
+                    structure.DataModel.ClassType == ClassType.LargeShip)//||
+                                                                         //structure.DataModel.ClassType == ClassType.LargeStation ||
+                                                                         //structure.DataModel.ClassType == ClassType.SmallStation)
                 {
                     ((StructureCubeGridViewModel)structure).ResetVelocityExecuted();
                 }
@@ -1639,10 +1653,12 @@ namespace SEToolbox.ViewModels
         {
             foreach (var structure in structures)
             {
-                if (structure.DataModel.ClassType == ClassType.LargeStation ||
-                    structure.DataModel.ClassType == ClassType.SmallStation)
+                switch (structure.DataModel.ClassType)
                 {
-                    ((StructureCubeGridViewModel)structure).ConvertToShipExecuted();
+                    case ClassType.LargeStation:
+                    case ClassType.SmallStation:
+                        ((StructureCubeGridViewModel)structure).ConvertToShipExecuted();
+                        break;
                 }
             }
         }
@@ -1651,10 +1667,12 @@ namespace SEToolbox.ViewModels
         {
             foreach (IStructureViewBase structure in structures)
             {
-                if (structure.DataModel.ClassType == ClassType.SmallShip ||
-                    structure.DataModel.ClassType == ClassType.LargeShip)
+                switch (structure.DataModel.ClassType)
                 {
-                    ((StructureCubeGridViewModel)structure).ConvertToStationExecuted();
+                    case ClassType.SmallShip:
+                    case ClassType.LargeShip:
+                        ((StructureCubeGridViewModel)structure).ConvertToStationExecuted();
+                        break;
                 }
             }
         }
@@ -1664,10 +1682,12 @@ namespace SEToolbox.ViewModels
             int count = 0;
             foreach (var structure in structures)
             {
-                if (structure.DataModel.ClassType == ClassType.SmallShip ||
-                    structure.DataModel.ClassType == ClassType.LargeShip)
+                switch (structure.DataModel.ClassType)
                 {
-                    count += ((StructureCubeGridViewModel)structure).SetInertiaTensor(state);
+                    case ClassType.SmallShip:
+                    case ClassType.LargeShip:
+                        count += ((StructureCubeGridViewModel)structure).SetInertiaTensor(state);
+                        break;
                 }
             }
             return count;
@@ -1714,7 +1734,7 @@ namespace SEToolbox.ViewModels
         {
             foreach (var viewModel in viewModels)
             {
-                var structure = (StructureCharacterViewModel)viewModel;
+                var structure = viewModel as IStructureBase;
                 ISaveFileDialog saveFileDialog = _saveFileDialogFactory();
                 string filter = AppConstants.SandboxObjectExportFilter;
                 string displayName = null;
@@ -1722,34 +1742,42 @@ namespace SEToolbox.ViewModels
                 string partname = string.IsNullOrEmpty(displayName) ? structure.EntityId.ToString() : displayName.Replace("|", "_").Replace("\\", "_").Replace("/", "_"); ;
                 ClassType classType = ClassType.Unknown;
                 string title = null;
-                string fileName = string.Format($"{classType}_{description}");
+                string fileName = $"{classType}_{description}";
                 string res = null;
-                switch (viewModel)
+                switch (structure)
                 {
-                    case StructureVoxelViewModel voxelStructure:
-                        filter = AppConstants.VoxelFilter;
-                        title = Res.DialogExportVoxelTitle;
-                        fileName = $"{voxelStructure.Name}{Interop.Asteroids.MyVoxelMapBase.FileExtension.V2}";
+                    case IStructureBase when viewModel is StructureVoxelViewModel voxelStructure &&
+                         filter == AppConstants.VoxelFilter &&
+                         classType == voxelStructure.ClassType &&
+                         title == Res.DialogExportVoxelTitle &&
+                         fileName == $"{voxelStructure.Name}{Interop.Asteroids.MyVoxelMapBase.FileExtension.V2}":
                         break;
                     case IStructureBase when viewModel is StructureCharacterViewModel characterStructure &&
-                        classType == characterStructure.ClassType && 
+                        filter == AppConstants.SandboxObjectExportFilter &&
+                        classType == characterStructure.ClassType &&
                         displayName == characterStructure.DisplayName &&
                         description == characterStructure.Description:
                     case IStructureBase when viewModel is StructureFloatingObjectViewModel floatingObjectStructure &&
-                        classType == floatingObjectStructure.ClassType && 
-                        displayName == floatingObjectStructure.DisplayName &&
-                        description == floatingObjectStructure.Description:
+                         filter == AppConstants.SandboxObjectExportFilter &&
+                         classType == floatingObjectStructure.ClassType &&
+                         displayName == floatingObjectStructure.DisplayName &&
+                         description == floatingObjectStructure.Description:
                     case IStructureBase when viewModel is StructureMeteorViewModel meteorStructure &&
-                        classType == meteorStructure.ClassType && displayName == meteorStructure.DisplayName && 
-                        description == meteorStructure.Description:
+                         filter == AppConstants.SandboxObjectExportFilter &&
+                         classType == meteorStructure.ClassType &&
+                         displayName == meteorStructure.DisplayName &&
+                         description == meteorStructure.Description:
+
                         title = string.Format(Res.DialogExportSandboxObjectTitle, classType, displayName, description);
                         fileName = $"{classType}_{description}";
                         break;
                     case IStructureBase when viewModel is StructureCubeGridViewModel cubeGridStructure &&
-                        classType == cubeGridStructure.ClassType:
-                        fileName = $"{classType}_{cubeGridStructure.DisplayName}";
+                         filter == AppConstants.SandboxObjectExportFilter &&
+                         classType == cubeGridStructure.ClassType &&
+                         fileName == $"{classType}_{partname}":
                         break;
                     case IStructureBase when viewModel is StructureInventoryBagViewModel && res == Res.ClsExportInventoryBag:
+
                     case IStructureBase when viewModel is StructurePlanetViewModel && res == Res.ClsExportPlanet:
                     case IStructureBase when viewModel is StructureUnknownViewModel && res == Res.ClsExportUnknown:
                         _dialogService.ShowMessageBox(this, res, Res.ClsExportTitleFailed, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
@@ -1764,7 +1792,7 @@ namespace SEToolbox.ViewModels
                 saveFileDialog.FileName = fileName;
                 saveFileDialog.OverwritePrompt = true;
                 string FileName = saveFileDialog.FileName;
-                var ent = structure.DataModel.EntityBase;
+                var ent = structure.EntityBase;
                 string prefix = ent.EntityId.ToString();
 
                 if (_dialogService.ShowSaveFileDialog(this, saveFileDialog) == DialogResult.OK)
@@ -1775,16 +1803,21 @@ namespace SEToolbox.ViewModels
                             _dataModel.SaveEntity(characterStructure.DataModel.EntityBase, FileName);
                             break;
                         case StructureVoxelViewModel voxelStructure:
-                            StructureVoxelModel asteroid = (StructureVoxelModel)voxelStructure.DataModel;
+                            StructureVoxelModel asteroid = voxelStructure.DataModel as StructureVoxelModel;
                             string sourceFile = asteroid.SourceVoxelFilePath ?? asteroid.VoxelFilePath;
-                            using (var stream = File.Open(sourceFile, FileMode.Open, FileAccess.Read))
-                            using (var targetStream = File.Open(FileName, FileMode.Create, FileAccess.Write))
-                                stream.CopyToAsync(targetStream);
+                            using (var sourceStream = File.Open(sourceFile, FileMode.Open, FileAccess.Read, FileShare.Read))
+                            using (var targetStream = File.Open(FileName, FileMode.Create, FileAccess.Write, FileShare.None))
+                            {
+                                sourceStream.CopyToAsync(targetStream);
+                            }
                             break;
+
                         case StructureCubeGridViewModel cubeGridStructure:
                             MyObjectBuilder_CubeGrid cloneEntity = (MyObjectBuilder_CubeGrid)cubeGridStructure.DataModel.EntityBase.Clone();
                             if (blankOwnerAndMedBays)
+                            {
                                 ClearMedicalRoomAndOwners(cloneEntity);
+                            }
                             // Remove all pilots.
                             cloneEntity.RemoveHierarchyCharacter();
                             _dataModel.SaveEntity(cloneEntity, FileName);
@@ -1793,6 +1826,7 @@ namespace SEToolbox.ViewModels
                             ent == inventoryBagViewModel.DataModel.EntityBase &&
                             prefix == "exportedInventoryBag" &&
                             res == Res.ClsExportInventoryBag:
+
                         case IStructureBase when viewModel is StructurePlanetViewModel planetViewModel &&
                             ent == planetViewModel.DataModel.EntityBase &&
                             prefix == "exportedPlanet" &&
@@ -1800,6 +1834,7 @@ namespace SEToolbox.ViewModels
                             string name = ent.EntityId.ToString();
                             ExportEntity(ent, $"{prefix}_", name, res);
                             break;
+
                         case StructureUnknownViewModel _:
                         default:
                             _dialogService.ShowMessageBox(this, Res.ClsExportTitleFailed, Res.ClsExportTitleFailed, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
@@ -1814,8 +1849,8 @@ namespace SEToolbox.ViewModels
             string fileName = ent.EntityId.ToString();
 
             string exportedFileName = $"{prefix}_{entName}{fileName}.xml";
-            using var stream = new FileStream(exportedFileName, FileMode.Create, FileAccess.Write);
-            MyObjectBuilderSerializerKeen.SerializeXML(stream, ent);
+            using var fileStream = new FileStream(exportedFileName, FileMode.Create, FileAccess.Write);
+            MyObjectBuilderSerializerKeen.SerializeXML(fileStream, ent);
             _dialogService.ShowMessageBox(this, res, Res.ClsExportTitleFailed, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
         }
 
@@ -1827,7 +1862,7 @@ namespace SEToolbox.ViewModels
             cloneEntity.CubeBlocks.ToList().ForEach(c => { c.Owner = 0; c.ShareMode = MyOwnershipShareModeEnum.None; });
         }
 
-        public void ExportPrefabObjectToFile(bool blankOwnerAndMedBays, params IStructureViewBase[] viewModels)
+        public void ExportPrefabObjectToFile(bool clearOwnerAndMedBays, params IStructureViewBase[] viewModels)
         {
             ISaveFileDialog saveFileDialog = _saveFileDialogFactory();
             saveFileDialog.Filter = AppConstants.PrefabObjectFilter;
@@ -1845,7 +1880,7 @@ namespace SEToolbox.ViewModels
                 MyObjectBuilder_PrefabDefinition prefab;
                 prefab = new MyObjectBuilder_PrefabDefinition();
                 prefab.Id.TypeId = new MyObjectBuilderType(typeof(MyObjectBuilder_PrefabDefinition));
-                prefab.Id.SubtypeId = Path.GetFileNameWithoutExtension(saveFileDialog.FileName);
+                prefab.Id.SubtypeName = Path.GetFileNameWithoutExtension(saveFileDialog.FileName);
 
                 List<MyObjectBuilder_CubeGrid> grids = [];
 
@@ -1855,7 +1890,7 @@ namespace SEToolbox.ViewModels
                     {
                         MyObjectBuilder_CubeGrid cloneEntity = (MyObjectBuilder_CubeGrid)viewModel.DataModel.EntityBase.Clone();
 
-                        if (blankOwnerAndMedBays)
+                        if (clearOwnerAndMedBays)
                         {
                             // Clear Medical room, SteamId and Owners.
                             ClearMedicalRoomAndOwners(cloneEntity);
@@ -1871,13 +1906,17 @@ namespace SEToolbox.ViewModels
                 definition.Prefabs[0] = prefab;
 
                 if (isBinaryFile)
+                {
                     SpaceEngineersApi.WriteSpaceEngineersFilePB(definition, saveFileDialog.FileName, false);
+                }
                 else
+                {
                     SpaceEngineersApi.WriteSpaceEngineersFile(definition, saveFileDialog.FileName);
+                }
             }
         }
 
-        public void ExportSpawnGroupObjectToFile(bool blankOwnerAndMedBays, params IStructureViewBase[] viewModels)
+        public void ExportSpawnGroupObjectToFile(bool clearOwnerAndMedBays, params IStructureViewBase[] viewModels)
         {
             string defaultName = null;
             bool hasGrids = false;
@@ -1885,9 +1924,10 @@ namespace SEToolbox.ViewModels
             var firstCubeViewModel = viewModels.OfType<StructureCubeGridViewModel>().FirstOrDefault();
             var firstVoxelViewModel = viewModels.OfType<StructureVoxelViewModel>().FirstOrDefault();
             if (defaultName != null && hasGrids && hasVoxels)
-
+            {
                 hasGrids = firstCubeViewModel != null;
-            hasVoxels = firstVoxelViewModel != null;
+                hasVoxels = firstVoxelViewModel != null;
+            }
             defaultName = hasGrids ? firstCubeViewModel.DataModel.DisplayName : (hasVoxels ? firstVoxelViewModel.DataModel.DisplayName : null);
             defaultName ??= "";
             defaultName = defaultName.Replace(' ', '_') ?? string.Empty;
@@ -1909,7 +1949,7 @@ namespace SEToolbox.ViewModels
                 };
                 var prefab = new MyObjectBuilder_PrefabDefinition();
                 prefab.Id.TypeId = new MyObjectBuilderType(typeof(MyObjectBuilder_PrefabDefinition));
-                prefab.Id.SubtypeId = name;
+                prefab.Id.SubtypeName = name;
 
                 MyObjectBuilder_Definitions spawngroupDefinition = new()
                 {
@@ -1918,7 +1958,7 @@ namespace SEToolbox.ViewModels
                 MyObjectBuilder_SpawnGroupDefinition spawngroup;
                 spawngroup = new MyObjectBuilder_SpawnGroupDefinition();
                 spawngroup.Id.TypeId = new MyObjectBuilderType(typeof(MyObjectBuilder_SpawnGroupDefinition));
-                spawngroup.Id.SubtypeId = name;
+                spawngroup.Id.SubtypeName = name;
                 spawngroup.Icons = [@"Textures\GUI\Icons\Fake.dds"];
                 spawngroup.IsEncounter = false;
                 spawngroup.IsPirate = false;
@@ -1942,7 +1982,7 @@ namespace SEToolbox.ViewModels
                             isGrid1PositionSet = true;
                         }
 
-                        if (blankOwnerAndMedBays)
+                        if (clearOwnerAndMedBays)
                         {
                             ClearMedicalRoomAndOwners(cloneEntity);
                         }
@@ -1952,40 +1992,25 @@ namespace SEToolbox.ViewModels
 
                         grids.Add(cloneEntity);
 
-                        switch (minimum)
-                        {
-                            case Vector3 value when value.X > cloneEntity.PositionAndOrientation.Value.Position.X:
-                                minimum.X = (float)cloneEntity.PositionAndOrientation.Value.Position.X;
-                                break;
-                            case Vector3 value when value.Y > cloneEntity.PositionAndOrientation.Value.Position.Y:
-                                minimum.Y = (float)cloneEntity.PositionAndOrientation.Value.Position.Y;
-                                break;
-                            case Vector3 value when value.Z > cloneEntity.PositionAndOrientation.Value.Position.Z:
-                                minimum.Z = (float)cloneEntity.PositionAndOrientation.Value.Position.Z;
-                                break;
 
-                        }
+                        minimum = Vector3.Min(minimum, new Vector3((float)cloneEntity.PositionAndOrientation.Value.Position.X,
+                                                                  (float)cloneEntity.PositionAndOrientation.Value.Position.Y,
+                                                                  (float)cloneEntity.PositionAndOrientation.Value.Position.Z));
+
 
                     }
                     else if (viewModel is StructureVoxelViewModel)
                     {
-                        switch (minimum)
-                        {
-                            case Vector3 value when value.X > viewModel.DataModel.PositionAndOrientation.Value.Position.X:
-                                minimum.X = (float)viewModel.DataModel.PositionAndOrientation.Value.Position.X;
-                                break;
-                            case Vector3 value when value.Y > viewModel.DataModel.PositionAndOrientation.Value.Position.Y:
-                                minimum.Y = (float)viewModel.DataModel.PositionAndOrientation.Value.Position.Y;
-                                break;
-                            case Vector3 value when value.Z > viewModel.DataModel.PositionAndOrientation.Value.Position.Z:
-                                minimum.Z = (float)viewModel.DataModel.PositionAndOrientation.Value.Position.Z;
-                                break;
-                        }
+                        minimum = Vector3.Min(minimum, new Vector3((float)viewModel.DataModel.PositionAndOrientation.Value.Position.X,
+                                                                       (float)viewModel.DataModel.PositionAndOrientation.Value.Position.Y,
+                                                                       (float)viewModel.DataModel.PositionAndOrientation.Value.Position.Z));
                     }
                 }
 
                 if (minimum == Vector3.MaxValue)
+                {
                     return;
+                }
 
                 prefab.CubeGrids = [.. grids];
                 prefabDefinition.Prefabs[0] = prefab;
@@ -1996,7 +2021,9 @@ namespace SEToolbox.ViewModels
                 {
                     if (viewModel is StructureVoxelViewModel)
                     {
-                        Vector3 pos = new(viewModel.DataModel.PositionAndOrientation.Value.Position.X, viewModel.DataModel.PositionAndOrientation.Value.Position.Y, viewModel.DataModel.PositionAndOrientation.Value.Position.Z);
+                        Vector3 pos = new(viewModel.DataModel.PositionAndOrientation.Value.Position.X,
+                                          viewModel.DataModel.PositionAndOrientation.Value.Position.Y,
+                                          viewModel.DataModel.PositionAndOrientation.Value.Position.Z);
 
                         // This is to set up the position values for "spawnAtOrigin", used by the game.
                         // See Sandbox.Game.World.MyPrefabManager.CreateGridsFromPrefab()
@@ -2019,17 +2046,21 @@ namespace SEToolbox.ViewModels
                         // note, there aren't any checks for existing files here.
                         string destinationFile = Path.Combine(directory, viewModel.DataModel.DisplayName + ".vx2");
 
-                        if (voxel.SourceVoxelFilePath != null && File.Exists(voxel.SourceVoxelFilePath))
+                        if (File.Exists(voxel?.SourceVoxelFilePath))
+                        {
                             File.Copy(voxel.SourceVoxelFilePath, destinationFile, true);
+                        }
                         else
+                        {
                             File.Copy(voxel.VoxelFilePath, destinationFile, true);
+                        }
                     }
                 }
 
                 if (hasGrids)
                 {
                     spawngroup.Prefabs = [
-                        new()
+                        new ()
                         {
                             SubtypeId = name,
                             Position = Vector3.Zero,
@@ -2038,16 +2069,24 @@ namespace SEToolbox.ViewModels
                     ];
 
                     if (hasVoxels)
+                    {
                         spawngroup.Prefabs[0].PlaceToGridOrigin = true;
+                    }
                     if (isBinaryFile)
+                    {
                         SpaceEngineersApi.WriteSpaceEngineersFilePB(prefabDefinition, saveFileDialog.FileName, false);
+                    }
                     else
+                    {
                         SpaceEngineersApi.WriteSpaceEngineersFile(prefabDefinition, saveFileDialog.FileName);
+                    }
                 }
 
                 spawngroupDefinition.SpawnGroups[0] = spawngroup;
                 if (voxels.Count > 0)
+                {
                     spawngroup.Voxels = [.. voxels];
+                }
 
                 string spawnGroupFile = Path.Combine(directory, "SpawnGroup " + name + ".sbc");
                 SpaceEngineersApi.WriteSpaceEngineersFile(spawngroupDefinition, spawnGroupFile);
@@ -2082,7 +2121,7 @@ namespace SEToolbox.ViewModels
                 MyObjectBuilder_ShipBlueprintDefinition prefab;
                 prefab = new MyObjectBuilder_ShipBlueprintDefinition();
                 prefab.Id.TypeId = new MyObjectBuilderType(typeof(MyObjectBuilder_ShipBlueprintDefinition));
-                prefab.Id.SubtypeId = model.BlueprintName;
+                prefab.Id.SubtypeName = model.BlueprintName;
                 prefab.DisplayName = "SEToolbox Export";  // Appears as AuthorName in game for the highlighted blueprint.
                 prefab.OwnerSteamId = ActiveWorld?.Checkpoint?.AllPlayersData?.Dictionary.Where(p => p.Value != null)
                                                                                          .Select(p => p.Value.SteamID)
@@ -2113,7 +2152,6 @@ namespace SEToolbox.ViewModels
                             Up = p.Up
                         };
 
-                        // Call to ToArray() to force Linq to update the value.
 
                         // Clear BuiltBy.
                         cloneEntity.CubeBlocks.Select(c => { c.BuiltBy = 0; return c; }).ToArray();
@@ -2135,7 +2173,9 @@ namespace SEToolbox.ViewModels
                 }
 
                 if (minimum == Vector3.MaxValue)
+                {
                     minimum = Vector3.Zero;
+                }
 
                 prefab.CubeGrids = [.. grids];
                 new MyObjectBuilder_Definitions()
@@ -2145,7 +2185,9 @@ namespace SEToolbox.ViewModels
 
                 var blueprintPath = Path.Combine(localBlueprintsFolder, model.BlueprintName);
                 if (!Directory.Exists(blueprintPath))
+                {
                     Directory.CreateDirectory(blueprintPath);
+                }
 
                 SpaceEngineersApi.WriteSpaceEngineersFile(new MyObjectBuilder_Definitions()
                 {
@@ -2207,7 +2249,7 @@ namespace SEToolbox.ViewModels
 
                         bld.AppendFormat($"// XYZ= ({b.Min.X}, {b.Min.Y}, {b.Min.Z})   Orientation = ({b.BlockOrientation.Forward}, {b.BlockOrientation.Up})  {b.SubtypeName}    CubeType.{cubeType}\r\n");
                     }
-                    SConsole.Write(bld.ToString());
+                    Log.WriteLine(bld.ToString());
                 }
             }
         }
@@ -2316,7 +2358,7 @@ namespace SEToolbox.ViewModels
         #endregion
     }
 
-   // internal class ScriptEditorViewModel(ExplorerModel dataModel)
+    // internal class ScriptEditorViewModel(ExplorerModel dataModel)
     //{
 
     //}

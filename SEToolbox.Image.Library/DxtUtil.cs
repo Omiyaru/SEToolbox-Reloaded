@@ -49,7 +49,6 @@ using System.Linq;
 
 namespace SEToolbox.ImageLibrary
 {
-
     internal static class DxtUtil
     {
         #region Internal Static Methods
@@ -64,44 +63,36 @@ namespace SEToolbox.ImageLibrary
         {
             byte[] imageData = new byte[width * height * 4];
 
-            using (BinaryReader imageReader = new(imageStream))
-            {
-                int blockCountX = (width + 3) / 4;
-                int blockCountY = (height + 3) / 4;
+            using BinaryReader imageReader = new(imageStream);
 
-                for (int y = 0; y < blockCountY; y++)
+            int blockCountX = (width + 3) / 4;
+            int blockCountY = (height + 3) / 4;
+
+            for (int y = 0; y < blockCountY; y++)
+            {
+                for (int x = 0; x < blockCountX; x++)
                 {
-                    for (int x = 0; x < blockCountX; x++)
-                    {
-                        DecompressDxt1Block(imageReader, x, y, blockCountX, width, height, imageData);
-                    }
+                    DecompressDxt1Block(imageReader, x, y, blockCountX, width, height, imageData);
                 }
             }
 
             return imageData;
         }
 
-        internal static byte[] DecompressDxt3(byte[] imageData, int width, int height)
-        {
-            using MemoryStream imageStream = new(imageData);
-            return DecompressDxt3(imageStream, width, height);
-        }
-
         internal static byte[] DecompressDxt3(Stream imageStream, int width, int height)
         {
             byte[] imageData = new byte[width * height * 4];
 
-            using (BinaryReader imageReader = new(imageStream))
-            {
-                int blockCountX = (width + 3) / 4;
-                int blockCountY = (height + 3) / 4;
+            using BinaryReader imageReader = new(imageStream);
 
-                for (int y = 0; y < blockCountY; y++)
+            int blockCountX = (width + 3) / 4;
+            int blockCountY = (height + 3) / 4;
+
+            for (int y = 0; y < blockCountY; y++)
+            {
+                for (int x = 0; x < blockCountX; x++)
                 {
-                    for (int x = 0; x < blockCountX; x++)
-                    {
-                        DecompressDxt3Block(imageReader, x, y, blockCountX, width, height, imageData);
-                    }
+                    DecompressDxt3Block(imageReader, x, y, blockCountX, width, height, imageData);
                 }
             }
 
@@ -118,26 +109,25 @@ namespace SEToolbox.ImageLibrary
         {
             byte[] imageData = new byte[width * height * 4];
 
-            using (BinaryReader imageReader = new(imageStream))
-            {
-                int blockCountX = (width + 3) / 4;
-                int blockCountY = (height + 3) / 4;
+            using BinaryReader imageReader = new(imageStream);
 
-                for (int y = 0; y < blockCountY; y++)
+            int blockCountX = (width + 3) / 4;
+            int blockCountY = (height + 3) / 4;
+
+            for (int y = 0; y < blockCountY; y++)
+            {
+                for (int x = 0; x < blockCountX; x++)
                 {
-                    for (int x = 0; x < blockCountX; x++)
+                     switch (dxgiFormat)
                     {
-                        switch (dxgiFormat)
-                        {
-                            case ImageTextureUtil.DXGI_FORMAT.DXGI_FORMAT_BC7_TYPELESS:
-                            case ImageTextureUtil.DXGI_FORMAT.DXGI_FORMAT_BC7_UNORM:
-                            case ImageTextureUtil.DXGI_FORMAT.DXGI_FORMAT_BC7_UNORM_SRGB:
-                                DecompressBc7Block(imageReader, x, y, blockCountX, width, height, imageData, dxgiFormat);
-                                break;
-                            default:
-                                DecompressDxt5Block(imageReader, x, y, blockCountX, width, height, imageData);
-                                break;
-                        }
+                        case ImageTextureUtil.DXGI_FORMAT.DXGI_FORMAT_BC7_TYPELESS:
+                        case ImageTextureUtil.DXGI_FORMAT.DXGI_FORMAT_BC7_UNORM:
+                        case ImageTextureUtil.DXGI_FORMAT.DXGI_FORMAT_BC7_UNORM_SRGB:
+                            DecompressBc7Block(imageReader, x, y, blockCountX, width, height, imageData, dxgiFormat);
+                            break;
+                        default:
+                            DecompressDxt5Block(imageReader, x, y, blockCountX, width, height, imageData);
+                            break;
                     }
                 }
             }
@@ -225,19 +215,25 @@ namespace SEToolbox.ImageLibrary
                     if ((px < width) && (py < height))
                     {
                         int offset = ((py * width) + px) << 2;
-                        imageData[offset] = r;
-                        imageData[offset + 1] = g;
-                        imageData[offset + 2] = b;
-                        imageData[offset + 3] = a;
+                        int[] colors = [r, g, b, a];
+                        var count = Enumerable.Range(0, 4)
+                                              .Select(i => imageData[offset + i])
+                                              .Select(i => colors[i]).ToArray();
                     }
                 }
             }
         }
 
+        internal static byte[] DecompressDxt3(byte[] imageData, int width, int height)
+        {
+            using MemoryStream imageStream = new(imageData);
+            return DecompressDxt3(imageStream, width, height);
+        }
+
 
         private static void DecompressDxt3Block(BinaryReader imageReader, int x, int y, int blockCountX, int width, int height, byte[] imageData)
         {
-            
+
             byte[] byteArray = new byte[8];
             imageReader.Read(byteArray, 0, 8);
 
@@ -252,22 +248,23 @@ namespace SEToolbox.ImageLibrary
             int alphaIndex = 0;
             for (int blockY = 0; blockY < 4; blockY++)
             {
-                byte r = 0, g = 0, b = 0;
+              
                 for (int blockX = 0; blockX < 4; blockX++)
-                {
+                {  
+                    byte r = 0, g = 0, b = 0;
                     uint index = (lookupTable >> 2 * (4 * blockY + blockX)) & 0x03;
-                
+
                     List<byte> bytelist = [];
                     for (int i = 0; i < byteArray.Length; i++)
                     {
-                        
-                        byte bA = (byte)((byteArray[i] & 0x0F) | ((byteArray[i] & 0xF0) >> 4));
-                        byte bB = (byte)((byteArray[i] & 0xF0) | ((byteArray[i] & 0x0F) << 4));
-                        bytelist.Add(bA);
-                        bytelist.Add(bB);
-                        
+                        byte byteA = (byte)((byteArray[i] & 0x0F) | ((byteArray[i] & 0xF0) >> 4));
+                        byte byteB = (byte)((byteArray[i] & 0xF0) | ((byteArray[i] & 0x0F) << 4));
+                        bytelist.Add(byteA);
+                        bytelist.Add(byteB);
+
                     }
-                    byte a = new(); 
+                    
+                    byte a = new();
                     ++alphaIndex;
 
                     switch (index)
@@ -299,10 +296,11 @@ namespace SEToolbox.ImageLibrary
                     if ((px < width) && (py < height))
                     {
                         int offset = ((py * width) + px) << 2;
-                        imageData[offset] = r;
-                        imageData[offset + 1] = g;
-                        imageData[offset + 2] = b;
-                        imageData[offset + 3] = a;
+                        int[] colors = [r, g, b, a];
+                        var count = Enumerable.Range(0, 4)
+                                              .Select(i => imageData[offset + i])
+                                              .Select(i => colors[i])
+                                              .ToArray();
                     }
                 }
             }
@@ -347,7 +345,7 @@ namespace SEToolbox.ImageLibrary
             {
                 alphaMask += (ulong)imageReader.ReadByte() << alphaShift[shift];
             }
-           
+
 
             ushort c0 = imageReader.ReadUInt16();
             ushort c1 = imageReader.ReadUInt16();
@@ -367,7 +365,7 @@ namespace SEToolbox.ImageLibrary
 
                     uint alphaIndex = (uint)((alphaMask >> (3 * (4 * blockY + blockX))) & 0x07);
                     byte a = (byte)new[]
-                          {
+                    {
                             alpha0,
                             alpha1,
                             (byte)(((8 - alphaIndex) * alpha0 + (alphaIndex - 1) * alpha1) / 7),
@@ -401,10 +399,11 @@ namespace SEToolbox.ImageLibrary
                     if ((px < width) && (py < height))
                     {
                         int offset = ((py * width) + px) << 2;
-                        imageData[offset] = r;
-                        imageData[offset + 1] = g;
-                        imageData[offset + 2] = b;
-                        imageData[offset + 3] = a;
+                        int[] colors = [r, g, b, a];
+                        var count = Enumerable.Range(0, 4)
+                                              .Select(i => imageData[offset + i])
+                                              .Select(i => colors[i])
+                                              .ToArray();
                     }
                 }
             }
@@ -466,7 +465,10 @@ namespace SEToolbox.ImageLibrary
 
                 LDRColorA[] c = new LDRColorA[BC7_MAX_REGIONS << 1];
                 for (int i = 0; i < BC7_MAX_REGIONS << 1; i++)
+                {
                     c[i] = new LDRColorA();
+                }
+
                 LDRColorA RGBAPrec = ms_aInfo[uMode].RGBAPrec;
                 LDRColorA RGBAPrecWithP = ms_aInfo[uMode].RGBAPrecWithP;
 
@@ -474,7 +476,8 @@ namespace SEToolbox.ImageLibrary
 
                 for (int i = 0; i < uNumEndPts; i++)
                 {
-                    var color = new {
+                    var color = new
+                    {
                         Red = uStartBit + RGBAPrec.r > 128,
                         Green = uStartBit + RGBAPrec.g > 128,
                         Blue = uStartBit + RGBAPrec.b > 128,
@@ -614,11 +617,14 @@ namespace SEToolbox.ImageLibrary
                         outPixel.b = (byte)Math.Round(255f * D3DX_SRGB_to_FLOAT(outPixel.b), 0);
                     }
 
-                    imageData[dataOffset] = outPixel.r;
-                    imageData[dataOffset + 1] = outPixel.g;
-                    imageData[dataOffset + 2] = outPixel.b;
-                    imageData[dataOffset + 3] = outPixel.a;
 
+                      int[] colors = [outPixel.r, outPixel.g, outPixel.b, outPixel.a];
+                        var count = Enumerable.Range(0, 4)
+                                              .Select(i => imageData[dataOffset + i])
+                                              .Select(i => colors[i])
+                                              .ToArray();
+
+               
                     //pOut[i] = HDRColorA(outPixel);
                     //outPixels[i]= new HDRColorA(outPixel.r, outPixel.g, outPixel.b, outPixel.a);
                 }
@@ -657,7 +663,6 @@ namespace SEToolbox.ImageLibrary
         };
 
         /// <summary>
-
         /// Mode 1: Color only, 2 Subsets, RGBP 6661 (shared P-bit), 3-bit indecies, 64 partitions
         /// Mode 2: Color only, 3 Subsets, RGB 555, 2-bit indecies, 64 partitions 
         /// Mode 3: Color only, 2 Subsets, RGBP 7771 (unique P-bit), 2-bits indecies, 64 partitions
@@ -668,41 +673,24 @@ namespace SEToolbox.ImageLibrary
         /// </summary>
         private static readonly ModeInfo[] ms_aInfo =
         [
-            //Mode0
-            new ModeInfo { uPartitions = 2, uPartitionBits = 4, uPBits = 6,uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 3, uIndexPrec2 = 0,
-                            RGBAPrec = new LDRColorA(4, 4, 4, 0), RGBAPrecWithP = new LDRColorA(5, 5, 5, 0) },
-            //Mode1
-            new ModeInfo { uPartitions = 1, uPartitionBits = 6, uPBits = 2, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 3, uIndexPrec2 = 0,
-                            RGBAPrec = new LDRColorA(6, 6, 6, 0), RGBAPrecWithP = new LDRColorA(7, 7, 7, 0) },
-            //Mode2
-            new ModeInfo { uPartitions = 2, uPartitionBits = 6, uPBits = 0, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 2, uIndexPrec2 = 0,
-                            RGBAPrec = new LDRColorA(5, 5, 5, 0), RGBAPrecWithP = new LDRColorA(5, 5, 5, 0) },
-            //Mode3
-            new ModeInfo { uPartitions = 1, uPartitionBits = 6, uPBits = 4, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 2, uIndexPrec2 = 0,
-                            RGBAPrec = new LDRColorA(7, 7, 7, 0), RGBAPrecWithP = new LDRColorA(8, 8, 8, 0) },
-            //Mode4
-            new ModeInfo { uPartitions = 0, uPartitionBits = 0, uPBits = 0, uRotationBits = 2, uIndexModeBits = 1, uIndexPrec = 2, uIndexPrec2 = 3,
-                            RGBAPrec = new LDRColorA(5, 5, 5, 6), RGBAPrecWithP = new LDRColorA(5, 5, 5, 6) },
-            //Mode5
-            new ModeInfo { uPartitions = 0, uPartitionBits = 0, uPBits = 0, uRotationBits = 2, uIndexModeBits = 0, uIndexPrec = 2, uIndexPrec2 = 2,
-                            RGBAPrec = new LDRColorA(7, 7, 7, 8), RGBAPrecWithP = new LDRColorA(7, 7, 7, 8) },
-            //Mode6
-            new ModeInfo { uPartitions = 0, uPartitionBits = 0, uPBits = 2, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 4, uIndexPrec2 = 0,
-                            RGBAPrec = new LDRColorA(7, 7, 7, 7), RGBAPrecWithP = new LDRColorA(8, 8, 8, 8) },
-            //Mode7
-            new ModeInfo { uPartitions = 1, uPartitionBits = 6, uPBits = 4, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 2, uIndexPrec2 = 0,
-                            RGBAPrec = new LDRColorA(5, 5, 5, 5), RGBAPrecWithP = new LDRColorA(6, 6, 6, 6) },
+            new ModeInfo { uPartitions = 2, uPartitionBits = 4, uPBits = 6, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 3, uIndexPrec2 = 0, RGBAPrec = new LDRColorA(4, 4, 4, 0), RGBAPrecWithP = new(5, 5, 5, 0) },
+            new ModeInfo { uPartitions = 1, uPartitionBits = 6, uPBits = 2, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 3, uIndexPrec2 = 0, RGBAPrec = new LDRColorA(6, 6, 6, 0), RGBAPrecWithP = new(7, 7, 7, 0) },
+            new ModeInfo { uPartitions = 2, uPartitionBits = 6, uPBits = 0, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 2, uIndexPrec2 = 0, RGBAPrec = new LDRColorA(5, 5, 5, 0), RGBAPrecWithP = new(5, 5, 5, 0) },
+            new ModeInfo { uPartitions = 1, uPartitionBits = 6, uPBits = 4, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 2, uIndexPrec2 = 0, RGBAPrec = new LDRColorA(7, 7, 7, 0), RGBAPrecWithP = new (8, 8, 8, 0) },
+            new ModeInfo { uPartitions = 0, uPartitionBits = 0, uPBits = 0, uRotationBits = 2, uIndexModeBits = 1, uIndexPrec = 2, uIndexPrec2 = 3, RGBAPrec = new LDRColorA(5, 5, 5, 6), RGBAPrecWithP = new(5, 5, 5, 6) },
+            new ModeInfo { uPartitions = 0, uPartitionBits = 0, uPBits = 0, uRotationBits = 2, uIndexModeBits = 0, uIndexPrec = 2, uIndexPrec2 = 2, RGBAPrec = new LDRColorA(7, 7, 7, 8), RGBAPrecWithP = new(7, 7, 7, 8) },
+            new ModeInfo { uPartitions = 0, uPartitionBits = 0, uPBits = 2, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 4, uIndexPrec2 = 0, RGBAPrec = new LDRColorA(7, 7, 7, 7), RGBAPrecWithP = new(8, 8, 8, 8) },
+            new ModeInfo { uPartitions = 1, uPartitionBits = 6, uPBits = 4, uRotationBits = 0, uIndexModeBits = 0, uIndexPrec = 2, uIndexPrec2 = 0, RGBAPrec = new LDRColorA(5, 5, 5, 5), RGBAPrecWithP = new(6, 6, 6, 6) },
         ];
 
         // Partition, Shape, Fixup
         static readonly uint[][][] g_aFixUp =
         [
             // No fix-ups for 1st subset for BC6H or BC7
+           [..Enumerable.Repeat(new uint[3], 64)],
 
-        //[Enumerable.Repeat(0u, BC67_WEIGHT_MAX).SelectMany(_ =>[0, 0, 0 }).ToArray()],
-        
-            [.. Enumerable.Repeat(new uint[4],16)],
-            
+            // BC6H/BC7 Partition Set Fixup[s for 2 Subsets, 16)], // BC6H/BC7 Partition Set Fixup[s for 1 Subset,32)],// BC6H/BC7 Partition Set Fixup[s for 2 Subsets, 16)], // BC6H/BC7 Partition Set Fixup[s for 1 Subset,32)],
+
             [   // BC6H/BC7 Partition Set Fixup[s for 2 Subsets
                 [0,15, 0],[0,15, 0],[0,15, 0],[0,15, 0],
                 [0,15, 0],[0,15, 0],[0,15, 0],[0,15, 0],
@@ -953,7 +941,10 @@ namespace SEToolbox.ImageLibrary
         private static T GetBits<T>(ref int uStartBit, int uNumBits)
         {
             if (uNumBits == 0)
+            {
                 return default;
+            }
+
             BitArray newBits = new(uNumBits);
 
             for (int i = 0; i < uNumBits; i++)
@@ -1122,22 +1113,14 @@ namespace SEToolbox.ImageLibrary
         // D3DX_DXGIFormatConvert.inl
         private static float D3DX_SRGB_to_FLOAT_inexact(float srgb)
         {
-            float linear;
-            if (srgb <= 0.04045f)
-                linear = srgb / 12.92f;
-            else
-                linear = (float)Math.Pow((srgb + 0.055f) / 1.055f, 2.4f);
+            float linear = srgb <= 0.04045f ? srgb / 12.92f : (float)Math.Pow((srgb + 0.055f) / 1.055f, 2.4f);
             return linear;
         }
 
         // https://gamedevdaily.io/the-srgb-learning-curve-773b7f68cf7a
         private static float D3DX_FLOAT_to_SRGB(float linear)
         {
-            float srgb;
-            if (linear < 0.0031308f)
-                srgb = linear * 12.92f;
-            else
-                srgb = 1.055f * (float)Math.Pow(linear, 1.0f / 2.4f) - 0.055f;
+            float srgb = linear < 0.0031308f ? linear * 12.92f : 1.055f * (float)Math.Pow(linear, 1.0f / 2.4f) - 0.055f;
             return srgb;
         }
 

@@ -9,9 +9,10 @@
 //------------------------------------------------------------------------------
 using System;
 
+
 namespace SEToolbox.Properties
 {
- 
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -39,9 +40,9 @@ namespace SEToolbox.Properties
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Resources.ResourceManager ResourceManager
+        public static global::System.Resources.ResourceManager ResourceManager 
         {
-            get => resourceMan ?? (resourceMan = new global::System.Resources.ResourceManager("SEToolbox.Properties.ImageResources", typeof(ImageResources).Assembly));
+            get => resourceMan ??= (resourceMan = new global::System.Resources.ResourceManager("SEToolbox.Properties.ImageResources", typeof(ImageResources).Assembly));
         }
 
         /// <summary>
@@ -66,9 +67,9 @@ namespace SEToolbox.Properties
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap add2
+        public static System.Drawing.Bitmap add
         {
-            get => (System.Drawing.Bitmap)ResourceManager.GetObject("add2", resourceCulture);
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("add", resourceCulture);
         }
 
         /// <summary>
@@ -98,10 +99,11 @@ namespace SEToolbox.Properties
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap book_open2
+        public static System.Drawing.Bitmap book_open
         {
-            get => (System.Drawing.Bitmap)ResourceManager.GetObject("book_open2", resourceCulture);
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("book_open", resourceCulture);
         }
+
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
@@ -145,9 +147,9 @@ namespace SEToolbox.Properties
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap delete2
+        public static System.Drawing.Bitmap delete
         {
-            get => (System.Drawing.Bitmap)ResourceManager.GetObject("delete2", resourceCulture);
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("delete", resourceCulture);
         }
 
         /// <summary>
@@ -484,8 +486,6 @@ namespace SEToolbox.Properties
         public static System.Drawing.Bitmap icecube
         {
             get => (System.Drawing.Bitmap)ResourceManager.GetObject("icecube", resourceCulture);
-
-
         }
 
         /// <summary>
@@ -531,17 +531,17 @@ namespace SEToolbox.Properties
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap navigate_left2
+        public static System.Drawing.Bitmap navigate_left
         {
-            get => (System.Drawing.Bitmap)ResourceManager.GetObject("navigate_left2", resourceCulture);
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("navigate_left", resourceCulture);
         }
 
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap navigate_right2
+        public static System.Drawing.Bitmap navigate_right
         {
-            get => (System.Drawing.Bitmap)ResourceManager.GetObject("navigate_right2", resourceCulture);
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("navigate_right", resourceCulture);
         }
 
         /// <summary>
@@ -571,9 +571,9 @@ namespace SEToolbox.Properties
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap replace2
+        public static System.Drawing.Bitmap replace
         {
-            get => (System.Drawing.Bitmap)ResourceManager.GetObject("replace2", resourceCulture);
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("replace", resourceCulture);
         }
 
         /// <summary>
@@ -677,7 +677,7 @@ namespace SEToolbox.Properties
         /// </summary>
         public static System.Drawing.Bitmap ToolboxSplash
         {
-            get => (System.Drawing.Bitmap)ResourceManager.GetObject("ToolboxSplash", resourceCulture);
+            get => (System.Drawing.Bitmap)ResourceManager.GetObject("Toolbox_splash" + "_" + resourceCulture.TwoLetterISOLanguageName ?? resourceCulture.Name, resourceCulture);
         }
 
         /// <summary>
@@ -721,4 +721,3 @@ namespace SEToolbox.Properties
         }
     }
 }
-

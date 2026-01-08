@@ -4,7 +4,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Weapons;
 using Sandbox.ModAPI.Weapons;
-using VRage.Game.ObjectBuilders; 
+using VRage.Game.ObjectBuilders;
 
 using VRage.Game;
 using VRage.Game.ModAPI;
@@ -18,7 +18,11 @@ namespace SEToolbox.Interop
     public class SpaceEngineersTypes
     {
 
-        public MOBTypes Types { get; private set; }
+        public MOBTypes Types
+        {
+            get => _mobTypes;
+            private set => _mobTypes = value;
+        }
 
         public static class MOBTypeIds
         {
@@ -35,9 +39,9 @@ namespace SEToolbox.Interop
             public static readonly MOBTypes Cockpit = new(typeof(MyObjectBuilder_Cockpit));
             public static readonly MOBTypes Thrust = new(typeof(MyObjectBuilder_Thrust));
             public static readonly MOBTypes CubeBlock = new(typeof(MyObjectBuilder_CubeBlock));
-        }           
-            /// <summary>
-            /// future use??
+        }
+        /// <summary>
+        /// future use??
         public static class MOBTypeWeaponIds
         {
             public static readonly MOBTypes HandheldTool = new(typeof(IMyHandheldGunObject<MyToolBase>));
@@ -45,7 +49,7 @@ namespace SEToolbox.Interop
             public static readonly MOBTypes HandheldDevice = new(typeof(IMyHandheldGunObject<MyDeviceBase>));
             public static readonly MOBTypes AutomaticRifle = new(typeof(MyObjectBuilder_AutomaticRifle));
             public static readonly MOBTypes ObjectAutomaticRifleGun = new(typeof(IMyAutomaticRifleGun));
-            public static readonly MOBTypes GunObject    = new(typeof(IMyGunObject<MyGunBase>));
+            public static readonly MOBTypes GunObject = new(typeof(IMyGunObject<MyGunBase>));
             public static readonly MOBTypes MissileGunObject = new(typeof(IMyMissileGunObject));
             public static readonly MOBTypes PhysicalGunObject = new(typeof(MyObjectBuilder_PhysicalGunObject));
 
@@ -61,6 +65,6 @@ namespace SEToolbox.Interop
         public static readonly UserDataPath BaseDedicatedServerHostPath;
 
         public static readonly UserDataPath BaseDedicatedServerServicePath;
-      
+        private MOBTypes _mobTypes;
     }
 }

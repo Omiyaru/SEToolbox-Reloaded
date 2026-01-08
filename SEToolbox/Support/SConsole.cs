@@ -1,237 +1,284 @@
+using Microsoft.VisualBasic;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
+using System.Text;
 
 namespace SEToolbox.Support
 {
     public class SConsole
     {
         #region Imports
-        [DllImport("kernel32.dll", SetLastError = true, EntryPoint = "AttachConsole")]  // [return: MarshalAs(UnmanagedType.Bool)]
+        [DllImport("kernel32.dll", SetLastError = true, EntryPoint = "AttachConsole")]
         private static extern bool AttachConsole(IntPtr processId);
+
         [DllImport("kernel32.dll", SetLastError = true, EntryPoint = "AllocConsole")]
         private static extern bool AllocConsole();
-
         #endregion
 
-      #region Properties
-        private static readonly int ATTACH_PARENT_PROCESS = Process.GetCurrentProcess().Id;
+        #region Properties
+        private static readonly nint ATTACH_PARENT_PROCESS = Process.GetCurrentProcess().Id;
         private static readonly Redirector redirector = new();
-        private static readonly nint dwProcessId = Process.GetCurrentProcess().Id > 0 ? ATTACH_PARENT_PROCESS : 0;
-
         private static bool _isAttached = EnsureAttachment();
-
         #endregion
 
-        #region Internal Methods    
-      
-
-        internal static string GetFileLink([CallerFilePath] string filePath = "")
+        #region Init
+        public SConsole()
         {
-            if (File.Exists(filePath))
+            Init(); 
+        }
+        public static void Init()
+        {
+            _isAttached = EnsureAttachment();
+        }
+        private static bool EnsureAttachment()
+        {
+            AllocConsole();
+            return AttachConsole(ATTACH_PARENT_PROCESS);
+        }
+        #endregion
+
+        #region Methods
+        public static string ReadLine() => redirector.ReadLine();
+
+        public static void WriteLine(params object[] values)
+        {
+            bool isDebugEvent = DebugEvent.GetDebugEvent(new StackFrame(1)).Item1 != TraceEventType.Information;
+
+            if (_isAttached)
             {
-                return $"file://{Path.GetFullPath(filePath).Replace('\\', '/')}";
+                if (isDebugEvent)
+                {
+                    foreach (var value in values)
+                    {
+                        redirector.WriteLine(DebugEvent.GetDebugTrace(value as string));
+                    }
+                }
+                else
+                {
+                    if (values?.Length > 0 || values is IList<object>)
+                    {
+                        redirector.WriteLine(string.Join(Environment.NewLine, values));
+                    }
+                }
             }
-            return string.Empty;
-        }
-        
-        internal static string GetDebugTrace(string message, [CallerFilePath] string filePath = "", [CallerMemberName] string caller = "")
-        {
-            var frame = new StackFrame(1);
-            string position = $"{frame.GetFileLineNumber()}, {frame.GetFileColumnNumber()}";
-            string link = GetFileLink(filePath);
-            string output = $"{link}: {Environment.NewLine}{message}{Environment.NewLine} Details: at {caller}, {position}{Environment.NewLine}{new StackTrace(frame)}";
-            return output ?? string.Empty;
-        }
-
-        #region Methods
-
-        [Conditional("DEBUG")]
-        public static void WriteLine(string message, [CallerMemberName] string caller = "")
-        {
-            string debugTrace = GetDebugTrace(message);
-            redirector.WriteLine(debugTrace);
-
-        }
-        #endregion
-
-        #region Methods
-     
-        public static void WriteLine()
-        {
-            redirector.WriteLine();
-        }
-        public static void WriteLink([CallerFilePath] string filePath = "")
-        {
-            string fileLink = GetFileLink(filePath);
-            redirector.WriteLine($"File link: {fileLink}");
         }
 
         public static void Write<T>(params T[] values)
         {
-            if (values != null && values.Length > 0 && _isAttached)
-                redirector.Write(string.Join("\t", values));
+            if (values?.Length > 0 && _isAttached)
+            {
+                redirector.Write(values);
+            }
         }
 
         #endregion
+    }
+    #region Redirector
+    public class Redirector : TextWriter
+    {
+        public override Encoding Encoding => Encoding.UTF8;
+        private readonly TextWriter _redirectorWriter = Console.Out;
+        private readonly TextReader _redirectorReader = Console.In;
 
-        public static void Init()
+        public Redirector()
         {
-            _isAttached = true;
-            if (redirector != null && _isAttached)
-            {
-                redirector.WriteLine(redirector);
-            }
-            Console.CancelKeyPress += (sender, e) => e.Cancel = true;
+            _redirectorWriter = new StreamWriter(Console.OpenStandardOutput(), Encoding.UTF8);
+            _redirectorReader = new StreamReader(Console.OpenStandardInput(), Encoding.UTF8);
+
         }
 
-        private static bool EnsureAttachment()
+        public override void Flush()
         {
-
-            if (dwProcessId == 0 || dwProcessId != ATTACH_PARENT_PROCESS || dwProcessId != Process.GetCurrentProcess().Id)
+            try
             {
-                return false;
-            }
-            AllocConsole();
-            return AttachConsole(dwProcessId);
-        }
-
-        #endregion
-
-        #region Redirector
-
-        public sealed class Redirector : TextWriter
-        {
-            private static readonly StreamWriter _redirector = new(Console.OpenStandardOutput(), Encoding.UTF8) { AutoFlush = true };
-
-            public override Encoding Encoding => Encoding.UTF8;
-            public override void Close() => Flush();
-
-            public override void Flush()
-            {
-                try
+                var output = WriteOutput();
+                if (!string.IsNullOrWhiteSpace(output))
                 {
-                    var output = Output();
-                    if (!string.IsNullOrWhiteSpace(output))
-                    {
-                        Console.ForegroundColor = ConsoleColor.White;
-                        WriteLine(output);
-                        Console.ResetColor();
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    WriteLine($"An error occurred while flushing: {ex.Message}");
-                }
-            }
-
-            public override void Write(string value) => Write(value);
-            public void Write<T>(T value)
-            {
-                try
-                {
-                    Output($"{value}");
-                }
-                catch (Exception ex)
-                {
-                    Output($"An error occurred while writing: {ex.Message}");
-                }
-            }
-            public override void WriteLine(string value) => WriteLine(value);
-            public void WriteLine<T>(params T[] values)
-            {
-                var frame = new StackFrame(1);
-                var output =  string.Empty;
-                var valueContains = values.Any(v => v.ToString().Contains(typeof(Exception).Name) || v.GetType().IsSubclassOf(typeof(Exception)));
-                var exeption = valueContains ? values.FirstOrDefault() as Exception : null;
-                try
-                {
-                    var severity = Severity.GetSeverity(frame);
-                    var traceEventType = severity.Item1;
-                    var color = severity.Item2;
-                    if (values != null && valueContains)
-                        output += $"{traceEventType}: {exeption}{Environment.NewLine}{GetDebugTrace(exeption?.Message ?? string.Empty)}";
-                    var consoleColor = Console.ForegroundColor;
-                    if (color != default)
-                    {
-                        Console.ForegroundColor = color;
-                    }
-                    if (traceEventType != TraceEventType.Verbose)
-                    {
-                         Output(output, values);
-                    }
-                    else
-                    {
-                        Output(output);
-                    }
+                    Console.ForegroundColor = ConsoleColor.White;
+                    _redirectorWriter.WriteLine(output);
                     Console.ResetColor();
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while flushing: {ex.Message}");
+            }
+        }
 
-                catch (Exception ex)
+        public void Write<T>(params T[] values)
+        {
+            foreach (var value in values)
+            {
+                _redirectorWriter.Write(value?.ToString());
+            }
+        }
+
+        public override void WriteLine() => WriteLine<object>(string.Empty);
+
+        public void WriteLine<T>(params T[] values)
+        {
+            var exception = DebugEvent.CheckException(values);
+            var debugEvent = DebugEvent.GetDebugEvent(new StackFrame(1));
+            var message = values.OfType<string>().FirstOrDefault();
+            var color = debugEvent.Item2;
+            var output = string.Empty;
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(output))
                 {
-                   Output($"An error occurred while writing a line: {ex.Message}");
+                    if (exception != null && debugEvent.Item1 != TraceEventType.Information)
+                    {
+                        Console.ForegroundColor = color;
+                        output = $"{debugEvent.Item1}: {exception}{Environment.NewLine}{DebugEvent.GetDebugTrace(exception?.Message ?? message ?? string.Empty)}";
+                        WriteLineOutput(DebugEvent.CheckException(values), output);
+
+                        Console.ResetColor();
+                    }
+                    else if (exception == null)
+                    {
+                        output = $"{message}";
+                        Console.ForegroundColor = color;
+                        _redirectorWriter.Write(output);
+                        Console.ResetColor();
+                        WriteLineOutput(DebugEvent.CheckException(values));
+                    }
                 }
             }
-            public string Output() => $"{_redirector}";
-            public object Output(params object[] values) => $"{values}";
-            public string Output<T>( params T[] values) => $"{values}";
-           
+            catch (Exception ex)
+            {
+                _redirectorWriter.WriteLine($"An error occurred while writing a line: {ex.Message}");
+            }
+        }
 
-            #endregion
+        public string ReadLine()
+        {
+            return _redirectorReader.ReadLine();
+        }
+
+        public string WriteOutput()
+        {
+            lock (_redirectorWriter)
+            {
+                _redirectorWriter.Flush();
+            }
+            return _redirectorWriter.ToString();
+        ;
+        }
+
+        public void WriteLineOutput(params object[] values)
+        {
+            var output = string.Empty;
+
+            foreach (var value in values)
+            {
+                output += value?.ToString();
+            }
+
+            output += Environment.NewLine;
+            lock (_redirectorWriter)
+            {
+                _redirectorWriter.Flush();
+            }
+            _redirectorWriter.WriteLine(output);
+
+
         }
     }
+    #endregion
 
-    #region Severity
-
-    public static class Severity
+    #region Debug Events
+    public class DebugEvent
     {
-        private static readonly Dictionary<string, (TraceEventType, ConsoleColor)> _severityDictionary =
-            new(StringComparer.OrdinalIgnoreCase)
-            {
-                    { "Critical",(TraceEventType.Critical, ConsoleColor.DarkRed) },
-                    { "Error", (TraceEventType.Error, ConsoleColor.Red) },
-                    { "Warning", (TraceEventType.Warning, ConsoleColor.Yellow) },
-                    { "Info", (TraceEventType.Information, ConsoleColor.Green) },
-                    { "Debug",(TraceEventType.Verbose, ConsoleColor.Gray) }
-            };
-
-        private static readonly Dictionary<string, (TraceEventType, ConsoleColor)> _severityCache =
-                new(StringComparer.OrdinalIgnoreCase);
-
-        public static (TraceEventType, ConsoleColor) GetSeverity(StackFrame frame)
+        private static readonly Dictionary<string, (TraceEventType, ConsoleColor)> _eventCache = new(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, (TraceEventType, ConsoleColor)> EventDictionary = new(StringComparer.OrdinalIgnoreCase)
         {
-            if (frame == null)
+                { "Critical", (TraceEventType.Critical, ConsoleColor.DarkRed)},
+                { "Error", (TraceEventType.Error, ConsoleColor.Red) },
+                { "Warning", (TraceEventType.Warning, ConsoleColor.Yellow) },
+                { "Info", (TraceEventType.Information, ConsoleColor.Green) },
+                { "Debug", (TraceEventType.Verbose, ConsoleColor.Gray) }
+        };
+
+
+
+        public DebugEvent()
+        {
+            foreach (var pair in EventDictionary)
+            {
+                _eventCache.Add(pair.Key, pair.Value);
+            }
+        }
+
+        internal static string GetFileLink([CallerFilePath] string filePath = "")
+        {
+            var path = Path.GetFullPath(filePath).Replace('\\', '/');//.Replace(" ", "%20");
+            return File.Exists(filePath) ? $"file://{path}" : string.Empty;
+        }
+
+        internal static string ObfuscatePathLink(string path)
+        {
+            var uri = new Uri(path);
+            var filePath = uri.LocalPath;
+            var fileLink = GetFileLink(filePath);
+            var obfuscatedPath = filePath.Replace(@"\", @"%5C");
+            return fileLink.Replace(filePath, obfuscatedPath);
+        }
+
+
+        public static (TraceEventType, ConsoleColor) GetDebugEvent(StackFrame frame)
+        {
+            if (frame == null || frame.GetMethod() == null)
             {
                 throw new ArgumentNullException(nameof(frame), "Frame cannot be null.");
             }
 
             var methodName = frame.GetMethod().Name;
-            string declaringTypeName = string.Empty;
-            if (_severityDictionary.TryGetValue(methodName, out _))
+            return _eventCache.TryGetValue(methodName, out var result) ? result : default;
+        }
+        public static Exception CheckException(params object[] messages)
+        {
+            var firstString = messages.OfType<string>().FirstOrDefault();
+            var firstException = messages.OfType<Exception>().FirstOrDefault();
+            var containsException = messages.Any(m => m.ToString().Contains(typeof(Exception).Name) || messages.Any(m => m.ToString().Contains(typeof(Exception).FullName)));
+
+
+            if (firstException != null && firstException is AggregateException aggregateException)
             {
-                declaringTypeName = frame.GetMethod().DeclaringType.Name;
+                var innerExceptions = aggregateException.InnerExceptions.Select(e => e.ToString());
+                messages = [.. messages, .. innerExceptions];
             }
 
-            if (_severityDictionary.TryGetValue(declaringTypeName, out var result))
+            return firstException ?? (containsException ? new Exception(firstString) : null);
+        }
+        internal static string GetDebugTrace(string message, [CallerFilePath] string filePath = "", [CallerMemberName] string caller = "")
+        {
+            try
+            {
+                var frame = new StackFrame(1, true);
+                var fileName = frame.GetFileName() ?? string.Empty;
+                var lineNumber = frame.GetFileLineNumber();
+                var columnNumber = frame.GetFileColumnNumber();
+                var position = $"{fileName}({lineNumber}, {columnNumber})";
+                var link = GetFileLink(filePath);
 
-                _severityCache.Add(methodName, result);
-            return result;
-
-            throw new InvalidOperationException($"Severity for {methodName} cannot be found.");
-
+                var trace = new StackTrace(frame);
+                return $"{message} {Environment.NewLine} at {position}: {caller}{Environment.NewLine} {link}: {Environment.NewLine}{trace}{Environment.NewLine}";
+            }
+            catch
+            {
+                return string.Empty;
+            }
         }
     }
 }
-
     #endregion
+
 
 

@@ -154,10 +154,15 @@ namespace SEToolbox.ViewModels
 
         public void GenerateExecuted()
         {
-            IsBusy = true;
-            _dataModel.GenerateReport();
-            ReportHtml = _dataModel.CreateHtmlReport();
-            IsBusy = false;
+            Action<bool> action = (b) => 
+            {
+                _dataModel.GenerateReport();
+                ReportHtml = _dataModel.CreateHtmlReport();
+                IsBusy = false;
+            };
+            action(IsBusy = true); 
+
+          
         }
 
         public bool ExportCanExecute()

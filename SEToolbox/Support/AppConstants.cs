@@ -7,7 +7,7 @@ namespace SEToolbox.Support
 {
     internal static class AppConstants
     {
-        internal static Dictionary<string, string> SupportedLanguages = new()
+        internal static Dictionary<string, string> SupportedLanguages = new(StringComparer.OrdinalIgnoreCase)
         {
             // The following local code must match those from the game, or they will be considered new.
             {"en", "flag_great_britain"},
@@ -47,7 +47,7 @@ namespace SEToolbox.Support
                                             $"{Res.DialogLightwaveFiles} (*.lwo)|*.lwo|" +
                                             $"{Res.DialogWavefrontFiles} (*.obj)|*.obj;*.objx|" +
                                             $"{Res.DialogStereoLithographyFiles} (*.stl)|*.stl|" +
-                                            $"{Res.DialogOFFFiles} (*.off)|*.off";
+                                            $"{Res.DialogOffFiles} (*.off)|*.off";
         public static string PrefabObjectFilter => $"{Res.DialogSandboxPrefabXmlFiles} (*.sbc)|*.sbc|" +
                                                    $"{Res.DialogSandboxPrefabBinaryFiles} (*.sbc{SpaceEngineersConsts.ProtobuffersExtension})|*.sbc{SpaceEngineersConsts.ProtobuffersExtension}";
         public static string SandboxFilter => $"{Res.DialogSandboxFiles} |Sandbox.sbc";
@@ -186,7 +186,10 @@ namespace SEToolbox.Support
 
 
    // Updated: Now supports registration of custom fill types at runtime.
-   //moved to AsteroidFillTypes.cs
+   //moved to cref AsteroidFillTypes.cs
+
+
+   
     public enum ReportType
     {
         Unknown,
