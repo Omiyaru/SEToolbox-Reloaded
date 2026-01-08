@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Markup;
+using SEToolbox.Support;
 
 
 namespace SEToolbox.Models
@@ -60,73 +62,69 @@ namespace SEToolbox.Models
             var propertyNames = parameters.OfType<string>().ToArray();
             var actionIndex = Array.IndexOf(parameters, actionToInvoke);
             var propertyNameIndex = Array.IndexOf(parameters, propertyName);
-            var invokeBeforePropertySet = actionIndex < propertyNameIndex;
+            bool? invokeBefore = actionIndex < propertyNameIndex;
 
-            if (invokeBeforePropertySet)
+            var ati = actionToInvoke;
+            var pn = propertyName;
+            var values = value as IEnumerable<T>;
+            var enumerable = field is IEnumerable<T> && value is IEnumerable<T> && propertyNames?.Length > 0;
+            var dict = (field, value) as IDictionary<T, T>;
+            var valuesList = values?.ToList() ?? new List<T>();
+            var internalAction = actionToInvoke;
+            var ib = invokeBefore;
+            var opc = OnPropertyChanged;
+            var lst = ib is not null ? ib is true ? dict.Keys.ToList() : dict.Values.ToList() : valuesList?.Count > 0 || enumerable ? valuesList : null;
+            Action<T, T, Action> action = (ib, ati) switch
             {
-                actionToInvoke?.Invoke();
-            }
-            field = value;
+               (not null, not null) => (f, v, a) => { a = ib is true ? a = () => { ati?.Invoke(); f = v; }
+                                                                     : a = () => { f = v; ati?.Invoke(); };  },
 
-            if (!invokeBeforePropertySet)
-            {
-                actionToInvoke?.Invoke();
-            }
-
-            if (field is IEnumerable<T> && value is IEnumerable<T> values &&  propertyNames?.Length > 0)
-            {
-                for (var i = 0; i < values.Count(); i++)
-                {
-                    OnPropertyChanged(propertyNames[i]);
-                }
-                return;
-            }
-            
-
-            if (!string.IsNullOrEmpty(propertyName))
-            {
-                OnPropertyChanged(propertyName);
-            }
+                (not null,  null) when ib is not null &&  pn is not null => (f, v, a) => a = ib is true ? a = () => { f = v; opc(pn); }
+                                                                                                        : a = () => { f = v; opc(pn); },
+                (_ or null, not null) when lst is not null => (f, v, a) => 
+                { 
+                   lst.ForEach(i => Conditional.Coalesced(ib is true, a = () => { ati?.Invoke(); f = v; opc(pn); }, a = () => { f = v; opc(pn); ati?.Invoke(); }));
+                },
+                (null, null) when lst is not null => (f, v, _) => { lst.ForEach(i => f = v); },
+                (null, null) when pn is not null => (f, v, _) => { f = v; opc(pn); },
+                (_, null) when pn is null => (_, _, _) => throw new Exception(" Property name cannot be null."),
+                 _ or (_, null) or (null, _) or (null, null) => (f, v, _) => { f = v; opc(pn); },  
+            };
+            action(field, value, internalAction);
         }
-
         public void SetValue<T>(T field, T value, params object[] parameters) => SetValue(field, value, parameters);
 
         public void SetValue<T>(ref T field, T value, params object[] parameters)
         {
-
             if (parameters.Length > 1)
             {
-                var actionToInvoke = parameters.OfType<Action>().FirstOrDefault(); 
+                var actionToInvoke = parameters.OfType<Action>().FirstOrDefault();
                 var actionIndex = Array.IndexOf(parameters, actionToInvoke);
-                var propertyNameIndex = Array.IndexOf(parameters, field);
-                bool? invokeBefore = actionIndex < propertyNameIndex;
-                var propertyNames = parameters.OfType<string>().ToArray();
+                var values = value as IEnumerable<T>;
+                var pairIndex = Array.IndexOf(parameters, field);
+                bool? invokeBefore = actionIndex < pairIndex;
+                var enumerable = field is IEnumerable<T> && value is IEnumerable<T>;
+                var dict = (field, value) as IDictionary<T, T>;
+                var valuesList = values?.ToList() ?? new List<T>();
+                var ati = actionToInvoke;
+                var ib = invokeBefore;
+                var lst = ib is not null ? ib is true ? dict.Keys.ToList() : dict.Values.ToList() : valuesList?.Count > 0 || enumerable ? valuesList : null;
 
-                if (actionToInvoke != null)
+                Action<T, T, Action> action = (ib, ati) switch
                 {
-                    if (invokeBefore == true)
-                    {
-                        actionToInvoke?.Invoke();
-                    }
+                    (not null, not null) => (f, v, a) => { a = ib is true ? a = () => { ati?.Invoke(); f = v; }
+                                                                          : a = () => { f = v; ati?.Invoke(); }; },
+                    _ when lst is not null => (f, v, a) => { lst.ForEach(_ => a = ib is true ? a = () => { ati?.Invoke(); f = v; }
+                                                                                             : a = () => { f = v; ati?.Invoke(); }); 
+                    },
+                    (_, null) when lst is not null => (f, v, _) => { lst.ForEach(i => f = v); },
+                    (_, null) when ati is null => (f, v, _) => { f = v; },
+                    (_, null) or (null, _) or (null, null) => (f, v, _) => { f = v; },
+                };
 
-                    field = value;
-                    if (invokeBefore == false)
-                    {
-                        actionToInvoke?.Invoke();
-                    }
-                }
-                if (actionToInvoke != null && propertyNames == null)
-                {
-                    field = value;
-                    actionToInvoke?.Invoke();
-                }
-                else
-                {
-                    field = value;
-                }
+                action(field, value, actionToInvoke);
             }
         }
-
 
         #endregion
 
@@ -141,14 +139,11 @@ namespace SEToolbox.Models
         public event PropertyChangedEventHandler PropertyChanged
         {
             add => _propertyChanged += value;
-            remove { if (_propertyChanged != null)
-                {
-                    _propertyChanged -= value;
-                }
-            }
-        }
+            remove => _ = _propertyChanged != null ? _propertyChanged -= value : null;
 
-        #endregion
+        }
     }
+        #endregion
 }
+
 
