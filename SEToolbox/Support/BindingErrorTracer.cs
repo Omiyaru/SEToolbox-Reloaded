@@ -10,6 +10,7 @@ using System.Linq;
 using System.Windows.Markup;
 using System.Windows.Input;
 using System.ComponentModel;
+using System.IO;
 
 
 
@@ -19,7 +20,7 @@ namespace SEToolbox.Support
     {   
         
         private static  BindingErrorTraceListener Listener = new();
-
+        
         public static void SetTrace()
         {
             SetTrace(SourceLevels.Error, TraceOptions.None);
@@ -34,6 +35,7 @@ namespace SEToolbox.Support
             }
             Listener.TraceOutputOptions = options;
             PresentationTraceSources.DataBindingSource.Switch.Level = level;
+            Console.WriteLine("Binding Error Trace Set");
             Debug.WriteLine("Binding Error Trace Set");
         }
 
@@ -51,8 +53,9 @@ namespace SEToolbox.Support
 
         private readonly StringBuilder _Message = new();
      
-        private BindingErrorTraceListener()
+        public BindingErrorTraceListener()
         {
+            _Message = new StringBuilder();
         }
 
         public override void Write(string message)
@@ -71,8 +74,9 @@ namespace SEToolbox.Support
                     new Action(() =>
                     {
                         GetBindingError(new object(), new RoutedEventArgs());
-                        MessageBox.Show(bindingError, "Binding Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        //MessageBox.Show(bindingError, "Binding Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         Debug.WriteLine(bindingError, "Binding Error");
+                        Console.WriteLine(bindingError, "Binding Error");
                     }), DispatcherPriority.Normal, null, bindingError, "Binding Error");
                 throw new InvalidOperationException("Too many binding errors logged. See binding error log.");
             }
@@ -115,6 +119,7 @@ namespace SEToolbox.Support
             typeof(ItemsControl),
             typeof(IInputElement),
             typeof(DataTemplate),
+            typeof(BindingExpression),
             typeof(ItemsControl),
             typeof(EventHandler),
             //typeof(MultiBinding),
@@ -128,7 +133,7 @@ namespace SEToolbox.Support
             typeof(IAddChild),
             typeof(EventArgs),
             typeof(Binding),
-            typeof(Control),
+            typeof(System.Windows.Controls.Control),
             //typeof(Trigger),
             typeof(Style),
 
@@ -137,18 +142,20 @@ namespace SEToolbox.Support
         public void GetBindingError(object sender, RoutedEventArgs e)
         {
             if (sender is not DependencyObject dependencyObject)
+            {
                 return;
+            }
 
             var dataContext = GetDataContext(dependencyObject);
             if (dataContext == DependencyProperty.UnsetValue)
+            {
                 return;
+            }
 
-            if (dependencyObject is FrameworkContentElement frameworkContentElement)
-
-                 frameworkContentElement.GetValue(FrameworkContentElement.DataContextProperty);
-
-            if (FrameworkElement.DataContextProperty == null)
-                throw new InvalidOperationException("FrameworkElement.DataContextProperty is null.");
+            if (dataContext == null)
+            {
+                Debug.WriteLine($"Binding Error: {dataContext}" + " " + Environment.NewLine + new StackTrace());
+            }
 
             var bindingExpression = BindingOperations.GetBindingExpression(dependencyObject, (DependencyProperty)dataContext);
             if (bindingExpression?.ValidationErrors.Count > 0)
@@ -157,15 +164,15 @@ namespace SEToolbox.Support
                 {
                     var errorFeature = WPFFeatures.FirstOrDefault(fn => error.ErrorContent.ToString().Contains(fn.Name));
                     LogValidationError(error.ErrorContent as string);
-                    Debug.WriteLine($"Binding Error: {error.ErrorContent} {errorFeature?.Name} {dataContext} " + (error.ErrorContent as string) + " " + new StackTrace());
+                    Log.WriteLine($"Binding Error: {error.ErrorContent} {errorFeature?.Name} {dataContext} " + (error.ErrorContent as string));
                 }
             }
         }
+        
 
 
         private object GetDataContext(DependencyObject dependencyObject)
-        {
- 
+        {   
             return dependencyObject is FrameworkElement frameworkElement
                 ? frameworkElement.GetValue(FrameworkElement.DataContextProperty)
                 : DependencyProperty.UnsetValue;
@@ -178,8 +185,10 @@ namespace SEToolbox.Support
                 ? $"WPF Error: {errorFeature.Name}"
                 : validationError;
 
-            Debug.WriteLine(errorMessage);
-            //write to file
+            Debug.WriteLine(errorMessage + Environment.NewLine + new StackTrace());
+            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BindingErrors.log");
+            var content = $"Binding Error: {errorMessage} {DateTime.Now}{Environment.NewLine}{new StackTrace()}{Environment.NewLine}";
+            File.AppendAllText(path, content);
         }
 
     }

@@ -25,7 +25,6 @@ float4 Main(float2 uv : TEXCOORD) : COLOR
 	float4 finalColor;
 	float maxColor;
 	float minColor;
-	float gColor;
 	float grayColor;
 
 	float4 srcColor = tex2D(implicitInputSampler, texuv);
@@ -38,27 +37,12 @@ float4 Main(float2 uv : TEXCOORD) : COLOR
 	{
 		// Desaturate algorithm.  Replicates the Photoshop Desaturate filter.
 		// should acount for the Alfa now
+		float maxRgb = max(max(srcColor.r, srcColor.g), srcColor.b);
+		float minRGB = min(min(srcColor.r, srcColor.g), srcColor.b);
 
-		maxColor = srcColor.r;
-		if (maxColor < srcColor.g)
-			maxColor = srcColor.g;
-		if (maxColor < srcColor.b)
-			maxColor = srcColor.b;
-
-		minColor = srcColor.r;
-		if (minColor > srcColor.g)
-			minColor = srcColor.g;
-		if (minColor > srcColor.b)
-			minColor = srcColor.b;
-
-		
-		float4 luminance = float4(0.2126f * srcColor.r + 0.7152f * srcColor.g + 0.0722f * srcColor.b, 0.2126f * srcColor.r + 0.7152f * srcColor.g + 0.0722f * srcColor.b, 0.2126f * srcColor.r + 0.7152f * srcColor.g + 0.0722f * srcColor.b, srcColor.a);
-		
-		// Convert RGB to Grayscale
-		float3 rgb = float3(srcColor.rgb);
-		float grayColor = 0.299f * rgb.r + 0.587f * rgb.g + 0.114f * rgb.b;
-		float luminanceGray = luminance.r * 0.299f + luminance.g * 0.587f + luminance.b * 0.114f;
-		float finalGray = luminanceGray < grayColor ? luminanceGray : grayColor;
+		float luminance = dot(float3(0.2126f, 0.7152f, 0.0722f), srcColor.rgb);
+		float luminanceGray = luminance * srcColor.a;
+		float finalGray = luminanceGray < maxRgb ? luminanceGray : maxRgb;
 		finalColor = float4(finalGray, finalGray, finalGray, srcColor.a);
 	}
 	return finalColor;

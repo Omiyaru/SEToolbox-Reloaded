@@ -124,7 +124,7 @@
                 </MenuItem>
                 <MenuItem Header="{lex:Loc CtlVoxelMnuRotate}" Style="{StaticResource ToolBarTopMenuitem}">
                     <MenuItem.Icon>
-                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=replace2}" />
+                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=replace}" />
                     </MenuItem.Icon>
                     <MenuItem Command="{Binding RotateAsteroidPitchPositiveCommand}" Header="{lex:Loc CtlVoxelMnuRotatePitchPositive}" />
                     <MenuItem Command="{Binding RotateAsteroidPitchNegativeCommand}" Header="{lex:Loc CtlVoxelMnuRotatePitchNegative}" />

@@ -70,6 +70,19 @@ namespace ToolboxTest
             Assert.AreEqual(9431, lengthNew, "File size must match.");
         }
 
+        private Dictionary<string, long> assetNames = new()
+        {
+                {"Stone_04", 59954503},
+                {"Iron_02", 55380508},
+                {"Magnesium_01", 55380508},
+                {"Platinum_01", 9756991},
+                {"Gold_01", 3448256},
+                {"Nickel_01", 60253},
+                {"Uraninite_01", 1377765},
+                {"Silver_01", 4602677},
+                {"Cobalt_01", 2446253},
+                {"Silicon_01", 38760}
+        };
         [TestMethod, TestCategory("UnitTest")]
         public void VoxelLoadSaveVx2_V1()
         {
@@ -86,39 +99,15 @@ namespace ToolboxTest
 
             Dictionary<string, long> assetNameCount = voxelMap.RefreshAssets();
 
-            Assert.AreEqual(147470221, voxelMap.VoxCells, "VoxCells count should be equal.");
 
+            Assert.AreEqual(147470221, voxelMap.VoxCells, "VoxCells count should be equal.");
             Assert.AreEqual(10, assetNameCount.Count, "Asset count should be equal.");
 
-            Assert.IsTrue(assetNameCount.ContainsKey("Stone_04"), "Stone_04 asset should exist.");
-            Assert.AreEqual(59954503, assetNameCount["Stone_04"], "Stone_04 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Iron_02"), "Iron_02 asset should exist.");
-            Assert.AreEqual(55380508, assetNameCount["Iron_02"], "Iron_02 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Magnesium_01"), "Magnesium_01 asset should exist.");
-            Assert.AreEqual(10404255, assetNameCount["Magnesium_01"], "Magnesium_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Platinum_01"), "Platinum_01 asset should exist.");
-            Assert.AreEqual(9756991, assetNameCount["Platinum_01"], "Platinum_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Gold_01"), "Gold_01 asset should exist.");
-            Assert.AreEqual(3448256, assetNameCount["Gold_01"], "Gold_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Nickel_01"), "Nickel_01 asset should exist.");
-            Assert.AreEqual(60253, assetNameCount["Nickel_01"], "Nickel_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Uraninite_01"), "Uraninite_01 asset should exist.");
-            Assert.AreEqual(1377765, assetNameCount["Uraninite_01"], "Uraninite_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Silver_01"), "Silver_01 asset should exist.");
-            Assert.AreEqual(4602677, assetNameCount["Silver_01"], "Silver_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Cobalt_01"), "Cobalt_01 asset should exist.");
-            Assert.AreEqual(2446253, assetNameCount["Cobalt_01"], "Cobalt_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Silicon_01"), "Silicon_01 asset should exist.");
-            Assert.AreEqual(38760, assetNameCount["Silicon_01"], "Silicon_01 count should be equal.");
+            foreach (var item in assetNames)
+            {
+                Assert.IsTrue(assetNameCount.ContainsKey(item.Key), $"{item.Key} asset should exist.");
+                Assert.AreEqual(item.Value, assetNameCount[item.Key], $"{item.Key} count should be equal.");
+            }
 
             voxelMap.Save(fileNew);
 
@@ -149,35 +138,11 @@ namespace ToolboxTest
 
             Assert.AreEqual(10, assetNameCount.Count, "Asset count should be equal.");
 
-            Assert.IsTrue(assetNameCount.ContainsKey("Stone_04"), "Stone_04 asset should exist.");
-            Assert.AreEqual(59954503, assetNameCount["Stone_04"], "Stone_04 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Iron_02"), "Iron_02 asset should exist.");
-            Assert.AreEqual(55380508, assetNameCount["Iron_02"], "Iron_02 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Magnesium_01"), "Magnesium_01 asset should exist.");
-            Assert.AreEqual(10404255, assetNameCount["Magnesium_01"], "Magnesium_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Platinum_01"), "Platinum_01 asset should exist.");
-            Assert.AreEqual(9756991, assetNameCount["Platinum_01"], "Platinum_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Gold_01"), "Gold_01 asset should exist.");
-            Assert.AreEqual(3448256, assetNameCount["Gold_01"], "Gold_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Nickel_01"), "Nickel_01 asset should exist.");
-            Assert.AreEqual(60253, assetNameCount["Nickel_01"], "Nickel_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Uraninite_01"), "Uraninite_01 asset should exist.");
-            Assert.AreEqual(1377765, assetNameCount["Uraninite_01"], "Uraninite_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Silver_01"), "Silver_01 asset should exist.");
-            Assert.AreEqual(4602677, assetNameCount["Silver_01"], "Silver_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Cobalt_01"), "Cobalt_01 asset should exist.");
-            Assert.AreEqual(2446253, assetNameCount["Cobalt_01"], "Cobalt_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Silicon_01"), "Silicon_01 asset should exist.");
-            Assert.AreEqual(38760, assetNameCount["Silicon_01"], "Silicon_01 count should be equal.");
+            foreach (var item in assetNames)
+            {
+                Assert.IsTrue(assetNameCount.ContainsKey(item.Key), $"{item.Key} asset should exist.");
+                Assert.AreEqual(item.Value, assetNameCount[item.Key], $"{item.Key} count should be equal.");
+            }
 
             voxelMap.Save(fileNew);
 
@@ -208,35 +173,11 @@ namespace ToolboxTest
 
             Assert.AreEqual(10, assetNameCount.Count, "Asset count should be equal.");
 
-            Assert.IsTrue(assetNameCount.ContainsKey("Stone_04"), "Stone_04 asset should exist.");
-            Assert.AreEqual(59954503, assetNameCount["Stone_04"], "Stone_04 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Iron_02"), "Iron_02 asset should exist.");
-            Assert.AreEqual(55380508, assetNameCount["Iron_02"], "Iron_02 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Magnesium_01"), "Magnesium_01 asset should exist.");
-            Assert.AreEqual(10404255, assetNameCount["Magnesium_01"], "Magnesium_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Platinum_01"), "Platinum_01 asset should exist.");
-            Assert.AreEqual(9756991, assetNameCount["Platinum_01"], "Platinum_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Gold_01"), "Gold_01 asset should exist.");
-            Assert.AreEqual(3448256, assetNameCount["Gold_01"], "Gold_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Nickel_01"), "Nickel_01 asset should exist.");
-            Assert.AreEqual(60253, assetNameCount["Nickel_01"], "Nickel_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Uraninite_01"), "Uraninite_01 asset should exist.");
-            Assert.AreEqual(1377765, assetNameCount["Uraninite_01"], "Uraninite_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Silver_01"), "Silver_01 asset should exist.");
-            Assert.AreEqual(4602677, assetNameCount["Silver_01"], "Silver_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Cobalt_01"), "Cobalt_01 asset should exist.");
-            Assert.AreEqual(2446253, assetNameCount["Cobalt_01"], "Cobalt_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Silicon_01"), "Silicon_01 asset should exist.");
-            Assert.AreEqual(38760, assetNameCount["Silicon_01"], "Silicon_01 count should be equal.");
+            foreach (var item in assetNames)
+            {
+                Assert.IsTrue(assetNameCount.ContainsKey(item.Key), $"{item.Key} asset should exist.");
+                Assert.AreEqual(item.Value, assetNameCount[item.Key], $"{item.Key} count should be equal.");
+            }
 
             voxelMap.Save(fileNew);
 
@@ -266,12 +207,21 @@ namespace ToolboxTest
             Assert.AreEqual(139716285, voxelMap.VoxCells, "VoxCells count should be equal.");
 
             Assert.AreEqual(7, assetNameCount.Count, "Asset count should be equal.");
+            Dictionary<string, long> assetNames = new()
+            {
+                { "Stone_04", 110319366 },
+                { "Platinum_01", 17876016 }
+            };
 
-            Assert.IsTrue(assetNameCount.ContainsKey("Stone_04"), "Stone_04 asset should exist.");
-            Assert.AreEqual(110319366, assetNameCount["Stone_04"], "Stone_04 count should be equal.");
 
-            Assert.IsTrue(assetNameCount.ContainsKey("Platinum_01"), "Platinum_01 asset should exist.");
-            Assert.AreEqual(17876016, assetNameCount["Platinum_01"], "Platinum_01 count should be equal.");
+            if (!assetNameCount.ContainsKey("Stone_01"))
+            {
+                foreach (var item in assetNames)
+                {
+                    Assert.IsTrue(assetNameCount.ContainsKey(item.Key), $"{item.Key} asset should exist.");
+                    Assert.AreEqual(item.Value, assetNameCount[item.Key], $"{item.Key} count should be equal.");
+                }
+            }
 
             long lengthOriginal = new FileInfo(redShipCrashedAsteroidPath).Length;
             Assert.AreEqual(109192, lengthOriginal, "File size must match.");
@@ -330,8 +280,8 @@ namespace ToolboxTest
             VRage.Game.MyVoxelMaterialDefinition goldMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Gold"));
             Assert.IsNotNull(goldMaterial, "Gold material should exist.");
 
-            const string fileOriginal = @".\TestAssets\asteroid0moon4.vx2";
-            const string fileNew = @".\TestOutput\asteroid0moon4_gold.vx2";
+            const string fileOriginal = @".\TestAssets\asteroid_0_moon4.vx2";
+            const string fileNew = @".\TestOutput\asteroid_0_moon4_gold.vx2";
 
             MyVoxelBuilder.ConvertAsteroid(fileOriginal, fileNew, stoneMaterial.Id.SubtypeName, goldMaterial.Id.SubtypeName);
 
@@ -348,6 +298,7 @@ namespace ToolboxTest
 
             Dictionary<string, long> assetNameCountOriginal = voxelMapOriginal.RefreshAssets();
 
+
             Assert.AreEqual(10654637, voxelMapOriginal.VoxCells, "VoxCells count should be equal.");
             Assert.AreEqual(1, assetNameCountOriginal.Count, "Asset count should be equal.");
             Assert.IsTrue(assetNameCountOriginal.ContainsKey("Stone_05"), "Stone_05 asset should exist.");
@@ -359,7 +310,6 @@ namespace ToolboxTest
             Assert.IsTrue(voxelMapNew.IsValid, "Voxel format must be valid.");
 
             Dictionary<string, long> assetNameCountNew = voxelMapNew.RefreshAssets();
-
             Assert.AreEqual(10654637, voxelMapNew.VoxCells, "VoxCells count should be equal.");
             Assert.AreEqual(1, assetNameCountNew.Count, "Asset count should be equal.");
             Assert.IsTrue(assetNameCountNew.ContainsKey("Gold_01"), "Gold_01 asset should exist.");
@@ -398,44 +348,41 @@ namespace ToolboxTest
 
             Assert.AreEqual(2040, voxelMap.VoxCells, "VoxCells count should be equal.");
             Assert.AreEqual(8, assetNameCount.Count, "Asset count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Iron_01"), "Iron_01 asset should exist.");
-            Assert.AreEqual(255, assetNameCount["Iron_01"], "Iron_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Platinum_01"), "Platinum_01 asset should exist.");
-            Assert.AreEqual(255, assetNameCount["Platinum_01"], "Platinum_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Uraninite_01"), "Uraninite_01 asset should exist.");
-            Assert.AreEqual(255, assetNameCount["Uraninite_01"], "Uraninite_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Silver_01"), "Silver_01 asset should exist.");
-            Assert.AreEqual(255, assetNameCount["Silver_01"], "Silver_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Gold_01"), "Gold_01 asset should exist.");
-            Assert.AreEqual(255, assetNameCount["Gold_01"], "Gold_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Silicon_01"), "Silicon_01 asset should exist.");
-            Assert.AreEqual(255, assetNameCount["Silicon_01"], "Silicon_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Cobalt_01"), "Cobalt_01 asset should exist.");
-            Assert.AreEqual(255, assetNameCount["Cobalt_01"], "Cobalt_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Magnesium_01"), "Magnesium_01 asset should exist.");
-            Assert.AreEqual(255, assetNameCount["Magnesium_01"], "Magnesium_01 count should be equal.");
+            List<string> assetNames =
+            [
+                "Iron_01",
+                "Magnesium_01",
+                "Platinum_01",
+                "Uraninite_01",
+                "Silver_01",
+                "Gold_01",
+                "Silicon_01",
+                "Cobalt_01",
+            ];
+            foreach (var item in assetNames)
+            {
+                Assert.IsTrue(assetNameCount.ContainsKey(item), $"{item} asset should exist.");
+                Assert.AreEqual(255, assetNameCount[item], $"{item} count should be equal.");
+            }
         }
 
         [TestMethod, TestCategory("UnitTest")]
         public void VoxelMaterialAssetsRandom()
         {
+            Dictionary<string, string> materialNames = new()
+            {
+                {"Stone_05", "Stone" },
+                {"Gold", "Gold" },
+                {"Uraninite_01", "Uranium" },
+            };
             var materials = SpaceEngineersResources.VoxelMaterialDefinitions;
             Assert.IsTrue(materials.Count > 0, "Materials should exist. Has the developer got Space Engineers installed?");
+            foreach (var item in materialNames)
+            {
+                VRage.Game.MyVoxelMaterialDefinition material = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains($"{item.Key}"));
+                Assert.IsNotNull(material, $"{item.Value} material should exist.");
+            }
 
-            VRage.Game.MyVoxelMaterialDefinition stoneMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Stone_05"));
-            Assert.IsNotNull(stoneMaterial, "Stone material should exist.");
-            VRage.Game.MyVoxelMaterialDefinition goldMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Gold"));
-            Assert.IsNotNull(goldMaterial, "Gold material should exist.");
-            VRage.Game.MyVoxelMaterialDefinition uraniumMaterial = materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Uraninite_01"));
-            Assert.IsNotNull(uraniumMaterial, "Uranium material should exist.");
 
             const string fileOriginal = @".\TestAssets\Arabian_Border_7.vx2";
 
@@ -460,12 +407,12 @@ namespace ToolboxTest
             double[] distribution = [double.NaN, .5, .25];
 
             byte[] materialSelection = [
-                SpaceEngineersResources.GetMaterialIndex(stoneMaterial.Id.SubtypeName),
-                SpaceEngineersResources.GetMaterialIndex(goldMaterial.Id.SubtypeName),
-                SpaceEngineersResources.GetMaterialIndex(uraniumMaterial.Id.SubtypeName)
+                SpaceEngineersResources.GetMaterialIndex(materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Stone_05")).Id.SubtypeName),
+                SpaceEngineersResources.GetMaterialIndex(materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Gold")).Id.SubtypeName),
+                SpaceEngineersResources.GetMaterialIndex(materials.FirstOrDefault(m => m.Id.SubtypeName.Contains("Uraninite_01")).Id.SubtypeName)
             ];
 
-            List<byte> newMaterialAssetDistributiuon = [];
+            List<byte> newMaterialAssetDistribution = [];
 
             int count;
 
@@ -474,19 +421,23 @@ namespace ToolboxTest
                 count = (int)Math.Floor(distribution[i] * materialAssets.Count); // Round down.
 
                 for (int j = 0; j < count; j++)
-                    newMaterialAssetDistributiuon.Add(materialSelection[i]);
+                {
+                    newMaterialAssetDistribution.Add(materialSelection[i]);
+                }
             }
 
-            count = materialAssets.Count - newMaterialAssetDistributiuon.Count;
+            count = materialAssets.Count - newMaterialAssetDistribution.Count;
 
             for (int j = 0; j < count; j++)
-                newMaterialAssetDistributiuon.Add(materialSelection[0]);
+            {
+                newMaterialAssetDistribution.Add(materialSelection[0]);
+            }
 
             // Randomize the distribution.
-            newMaterialAssetDistributiuon.Shuffle();
+            newMaterialAssetDistribution.Shuffle();
 
             // Update the materials in the voxel.
-            voxelMap.SetVoxelMaterialList(newMaterialAssetDistributiuon);
+            voxelMap.SetVoxelMaterialList(newMaterialAssetDistribution);
             assetNameCount = voxelMap.RefreshAssets();
 
             Assert.AreEqual(8538122, voxelMap.VoxCells, "VoxCells count should be equal.");
@@ -494,15 +445,17 @@ namespace ToolboxTest
 
             // due to randomization distribution acting a little differently depending on how the octree fills,
             // we need test for 1 percent less than target value.
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Stone_05"), "Stone_05 asset should exist.");
-            Assert.IsTrue(assetNameCount["Stone_05"] > 0.24 * voxelMap.VoxCells, "Stone_05 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Gold_01"), "Gold_01 asset should exist.");
-            Assert.IsTrue(assetNameCount["Gold_01"] > 0.49 * voxelMap.VoxCells, "Gold_01 count should be equal.");
-
-            Assert.IsTrue(assetNameCount.ContainsKey("Uraninite_01"), "Uraninite_01 asset should exist.");
-            Assert.IsTrue(assetNameCount["Uraninite_01"] > 0.24 * voxelMap.VoxCells, "Uraninite_01 count should be equal.");
+            Dictionary<string, double> assets = new()
+            {
+                {"Stone_05", 0.24 },
+                {"Gold_01", 0.49},
+               { "Uraninite_01", 0.24 }
+            };
+            foreach (var item in assets)
+            {
+                Assert.IsTrue(assetNameCount.ContainsKey(item.Key), $"{item} asset should exist.");
+                Assert.IsTrue(assetNameCount[item.Key] > item.Value * voxelMap.VoxCells, $"{item} count should be equal.");
+            }
         }
 
         [TestMethod, TestCategory("UnitTest")]
@@ -528,7 +481,7 @@ namespace ToolboxTest
                     double[] distribution = [double.NaN, .99,];
                     byte[] materialSelection = [0, SpaceEngineersResources.GetMaterialIndex(material.Id.SubtypeName)];
 
-                    List<byte> newDistributiuon = [];
+                    List<byte> newDistribution = [];
 
                     int count;
 
@@ -537,17 +490,21 @@ namespace ToolboxTest
                         count = (int)Math.Floor(distribution[i] * materialAssets.Count); // Round down.
 
                         for (int j = 0; j < count; j++)
-                            newDistributiuon.Add(materialSelection[i]);
+                        {
+                            newDistribution.Add(materialSelection[i]);
+                        }
                     }
 
-                    count = materialAssets.Count - newDistributiuon.Count;
+                    count = materialAssets.Count - newDistribution.Count;
 
                     for (int j = 0; j < count; j++)
-                        newDistributiuon.Add(materialSelection[0]);
+                    {
+                        newDistribution.Add(materialSelection[0]);
+                    }
 
-                    newDistributiuon.Shuffle();
+                    newDistribution.Shuffle();
 
-                    voxelMap.SetVoxelMaterialList(newDistributiuon);
+                    voxelMap.SetVoxelMaterialList(newDistribution);
                     voxelMap.Save(fileNewVoxel);
                 }
             }
@@ -579,18 +536,22 @@ namespace ToolboxTest
 
             Assert.AreEqual(984, lengthNew, "New file size must match.");
 
-            Assert.AreEqual(16, voxelMap.Size.X, "Voxel Bounding size must match.");
-            Assert.AreEqual(16, voxelMap.Size.Y, "Voxel Bounding size must match.");
-            Assert.AreEqual(16, voxelMap.Size.Z, "Voxel Bounding size must match.");
+            for (int i = 0; i < voxelMap.Size.Length(); i++)
+            {
+                Assert.AreEqual(16, voxelMap.Size[i], "Voxel Bounding size must match.");
+            }
 
-            Assert.AreEqual(size, voxelMap.BoundingContent.Size.X + 1, "Voxel Content size must match.");
-            Assert.AreEqual(size, voxelMap.BoundingContent.Size.Y + 1, "Voxel Content size must match.");
-            Assert.AreEqual(size, voxelMap.BoundingContent.Size.Z + 1, "Voxel Content size must match.");
+            for (int i = 0; i < voxelMap.BoundingContent.Size.Length(); i++)
+            {
+                Assert.AreEqual(size, voxelMap.BoundingContent.Size[i] + 1, "Voxel Content size must match.");
+            }
 
             // Centered in the middle of 1 and 8.   1234-(4.5)-5678
-            Assert.AreEqual(4.5, voxelMap.ContentCenter.X, "Voxel Center must match.");
-            Assert.AreEqual(4.5, voxelMap.ContentCenter.Y, "Voxel Center must match.");
-            Assert.AreEqual(4.5, voxelMap.ContentCenter.Z, "Voxel Center must match.");
+            double[] vectors = [voxelMap.ContentCenter.X, voxelMap.ContentCenter.Y, voxelMap.ContentCenter.Z];
+            for (int i = 0; i < vectors.Length; i++)
+            {
+                Assert.AreEqual(4.5, vectors[i], "Voxel Center must match.");
+            }
 
 
             long voxels = (long)size * size * size * 255;
@@ -626,18 +587,22 @@ namespace ToolboxTest
 
             Assert.AreEqual(909, lengthNew, "New file size must match.");
 
-            Assert.AreEqual(16, voxelMap.Size.X, "Voxel Bounding size must match.");
-            Assert.AreEqual(16, voxelMap.Size.Y, "Voxel Bounding size must match.");
-            Assert.AreEqual(16, voxelMap.Size.Z, "Voxel Bounding size must match.");
+            for (int i = 0; i < voxelMap.Size.Length(); i++)
+            {
+                Assert.AreEqual(16, voxelMap.Size[i], "Voxel Bounding size must match.");
+            }
 
-            Assert.AreEqual(size, voxelMap.BoundingContent.Size.X + 1, "Voxel Content size must match.");
-            Assert.AreEqual(size, voxelMap.BoundingContent.Size.Y + 1, "Voxel Content size must match.");
-            Assert.AreEqual(size, voxelMap.BoundingContent.Size.Z + 1, "Voxel Content size must match.");
+            for (int i = 0; i < voxelMap.BoundingContent.Size.Length(); i++)
+            {
+                Assert.AreEqual(size, voxelMap.BoundingContent.Size[i] + 1, "Voxel Content size must match.");
+            }
 
             // Centered in the middle of 1 and 8.   1234-(4.5)-5678
-            Assert.AreEqual(4.5, voxelMap.ContentCenter.X, "Voxel Center must match.");
-            Assert.AreEqual(4.5, voxelMap.ContentCenter.Y, "Voxel Center must match.");
-            Assert.AreEqual(4.5, voxelMap.ContentCenter.Z, "Voxel Center must match.");
+            double[] vectors = [voxelMap.ContentCenter.X, voxelMap.ContentCenter.Y, voxelMap.ContentCenter.Z];
+            for (int i = 0; i < vectors.Length; i++)
+            {
+                Assert.AreEqual(4.5, vectors[i], "Voxel Center must match.");
+            }
 
             long voxels = (long)size * size * size * 255;
             Assert.AreEqual(voxels, voxelMap.VoxCells, "VoxCells count should be equal.");
@@ -670,18 +635,22 @@ namespace ToolboxTest
 
             Assert.AreEqual(1337, lengthNew, "New file size must match.");
 
-            Assert.AreEqual(64, voxelMap.Size.X, "Voxel Bounding size must match.");
-            Assert.AreEqual(64, voxelMap.Size.Y, "Voxel Bounding size must match.");
-            Assert.AreEqual(64, voxelMap.Size.Z, "Voxel Bounding size must match.");
+            for (int i = 0; i < voxelMap.Size.Length(); i++)
+            {
+                Assert.AreEqual(64, voxelMap.Size[i], "Voxel Bounding size must match.");
+            }
 
-            Assert.AreEqual(7, voxelMap.BoundingContent.Size.X + 1, "Voxel Content size must match.");
-            Assert.AreEqual(7, voxelMap.BoundingContent.Size.Y + 1, "Voxel Content size must match.");
-            Assert.AreEqual(7, voxelMap.BoundingContent.Size.Z + 1, "Voxel Content size must match.");
+            for (int i = 0; i < voxelMap.BoundingContent.Size.Length(); i++)
+            {
+                Assert.AreEqual(7, voxelMap.BoundingContent.Size[i] + 1, "Voxel Content size must match.");
+            }
 
-            // Centered in the middle of the 64x64x64 cell.
-            Assert.AreEqual(32, voxelMap.ContentCenter.X, "Voxel Center must match.");
-            Assert.AreEqual(32, voxelMap.ContentCenter.Y, "Voxel Center must match.");
-            Assert.AreEqual(32, voxelMap.ContentCenter.Z, "Voxel Center must match.");
+            // Centered in the middle of the 256x256x256 cell.
+            double[] vectors = [voxelMap.ContentCenter.X, voxelMap.ContentCenter.Y, voxelMap.ContentCenter.Z];
+            for (int i = 0; i < vectors.Length; i++)
+            {
+                Assert.AreEqual(32, vectors[i], "Voxel Center must match.");
+            }
         }
 
         [TestMethod, TestCategory("UnitTest")]
@@ -714,14 +683,17 @@ namespace ToolboxTest
 
             Dictionary<string, long> assetNameCount = voxelMap.RefreshAssets();
 
-            Assert.AreEqual(81, voxelMap.BoundingContent.Size.X + 1, "Voxel Content size must match.");
-            Assert.AreEqual(81, voxelMap.BoundingContent.Size.Y + 1, "Voxel Content size must match.");
-            Assert.AreEqual(81, voxelMap.BoundingContent.Size.Z + 1, "Voxel Content size must match.");
+            for (int i = 0; i < voxelMap.BoundingContent.Size.Length(); i++)
+            {
+                Assert.AreEqual(81, voxelMap.BoundingContent.Size[i] + 1, "Voxel Content size must match.");
+            }
 
-            // Centered in the middle of the 512x512x512 cell.
-            Assert.AreEqual(64, voxelMap.ContentCenter.X, "Voxel Center must match.");
-            Assert.AreEqual(64, voxelMap.ContentCenter.Y, "Voxel Center must match.");
-            Assert.AreEqual(64, voxelMap.ContentCenter.Z, "Voxel Center must match.");
+            // Centered in the middle of the 256x256x256 cell.
+            double[] vectors = [voxelMap.ContentCenter.X, voxelMap.ContentCenter.Y, voxelMap.ContentCenter.Z];
+            for (int i = 0; i < vectors.Length; i++)
+            {
+                Assert.AreEqual(64, vectors[i], "Voxel Center must match.");
+            }
 
             Assert.AreEqual(1, assetNameCount.Count, "Asset count should be equal.");
 
@@ -775,18 +747,22 @@ namespace ToolboxTest
 
             //Assert.AreEqual(2392621, lengthNew, "New file size must match.");
 
-            Assert.AreEqual(512, voxelMap.Size.X, "Voxel Bounding size must match.");
-            Assert.AreEqual(512, voxelMap.Size.Y, "Voxel Bounding size must match.");
-            Assert.AreEqual(512, voxelMap.Size.Z, "Voxel Bounding size must match.");
+            for (int i = 0; i < voxelMap.Size.Length(); i++)
+            {
+                Assert.AreEqual(512, voxelMap.Size[i], "Voxel Bounding size must match.");
+            }
 
-            Assert.AreEqual(501, voxelMap.BoundingContent.Size.X + 1, "Voxel Content size must match.");
-            Assert.AreEqual(501, voxelMap.BoundingContent.Size.Y + 1, "Voxel Content size must match.");
-            Assert.AreEqual(501, voxelMap.BoundingContent.Size.Z + 1, "Voxel Content size must match.");
+            for (int i = 0; i < voxelMap.BoundingContent.Size.Length(); i++)
+            {
+                Assert.AreEqual(501, voxelMap.BoundingContent.Size[i] + 1, "Voxel Content size must match.");
+            }
 
-            // Centered in the middle of the 512x512x512 cell.
-            Assert.AreEqual(256, voxelMap.ContentCenter.X, "Voxel Center must match.");
-            Assert.AreEqual(256, voxelMap.ContentCenter.Y, "Voxel Center must match.");
-            Assert.AreEqual(256, voxelMap.ContentCenter.Z, "Voxel Center must match.");
+            // Centered in the middle of the 256x256x256 cell.
+            double[] vectors = [voxelMap.ContentCenter.X, voxelMap.ContentCenter.Y, voxelMap.ContentCenter.Z];
+            for (int i = 0; i < vectors.Length; i++)
+            {
+                Assert.AreEqual(256, vectors[i], "Voxel Center must match.");
+            }
         }
 
         // This is ignored, because the test takes too long to run.
@@ -805,14 +781,12 @@ namespace ToolboxTest
             {
                 e.Volume = 0x00;
 
-                if (e.CoordinatePoint.X > 0 && e.CoordinatePoint.Y > 0 && e.CoordinatePoint.Z > 0
-                    && e.CoordinatePoint.X < size.X - 1 && e.CoordinatePoint.Y < size.Y - 1 && e.CoordinatePoint.Z < size.Z - 1)
+                if (e.CoordinatePoint.X > 0 && e.CoordinatePoint.Y > 0 && e.CoordinatePoint.Z > 0 &&
+                     e.CoordinatePoint.X < size.X - 1 && e.CoordinatePoint.Y < size.Y - 1 && e.CoordinatePoint.Z < size.Z - 1 && 
+                    (e.CoordinatePoint.Z == 5 && (e.CoordinatePoint.X % 2 == 0) && (e.CoordinatePoint.Y % 2 == 0) ||
+                    (e.CoordinatePoint.Z == 6 && ((e.CoordinatePoint.X + 1) % 2 == 0) && ((e.CoordinatePoint.Y + 1) % 2 == 0))))
                 {
-                    if (e.CoordinatePoint.Z == 5 && (e.CoordinatePoint.X % 2 == 0) && (e.CoordinatePoint.Y % 2 == 0))
-                        e.Volume = 0x92;
-
-                    if (e.CoordinatePoint.Z == 6 && ((e.CoordinatePoint.X + 1) % 2 == 0) && ((e.CoordinatePoint.Y + 1) % 2 == 0))
-                        e.Volume = 0x92;
+                    e.Volume = 0x92;
                 }
             }
 
@@ -823,22 +797,25 @@ namespace ToolboxTest
             voxelMap.Save(fileNew);
 
             long lengthNew = new FileInfo(fileNew).Length;
-
+            int[] ints = [1024, 1024, 64];
             // Multi threading does not produce a consistant volume across the cells in the voxel, so the actual file content can vary!!
-            Assert.IsTrue(lengthNew > 77000, "New file size must match.");
+            for (int i = 0; i < voxelMap.Size.Length(); i++)
+            {
+                Assert.AreEqual(ints[i], voxelMap.Size[i], "Voxel Bounding size must match.");
+            }
+            ints = [1022, 1022, 2];
 
-            Assert.AreEqual(1024, voxelMap.Size.X, "Voxel Bounding size must match.");
-            Assert.AreEqual(1024, voxelMap.Size.Y, "Voxel Bounding size must match.");
-            Assert.AreEqual(64, voxelMap.Size.Z, "Voxel Bounding size must match.");
-
-            Assert.AreEqual(1022, voxelMap.BoundingContent.Size.X + 1, "Voxel Content size must match.");
-            Assert.AreEqual(1022, voxelMap.BoundingContent.Size.Y + 1, "Voxel Content size must match.");
-            Assert.AreEqual(2, voxelMap.BoundingContent.Size.Z + 1, "Voxel Content size must match.");
-
-            // Centered in the middle of the 512x512x512 cell.
-            Assert.AreEqual(511.5, voxelMap.ContentCenter.X, "Voxel Center must match.");
-            Assert.AreEqual(511.5, voxelMap.ContentCenter.Y, "Voxel Center must match.");
-            Assert.AreEqual(5.5, voxelMap.ContentCenter.Z, "Voxel Center must match.");
+            for (int i = 0; i < voxelMap.BoundingContent.Size.Length(); i++)
+            {
+                Assert.AreEqual(ints[i], voxelMap.BoundingContent.Size[i] + 1, "Voxel Content size must match.");
+            }
+            double[] doubles = [511.5, 511.5, 5.5];
+            // Centered in the middle of the 256x256x256 cell.
+            double[] vectors = [voxelMap.ContentCenter.X, voxelMap.ContentCenter.Y, voxelMap.ContentCenter.Z];
+            for (int i = 0; i < vectors.Length; i++)
+            {
+                Assert.AreEqual(doubles[i], vectors[i], "Voxel Center must match.");
+            }
         }
 
         [TestMethod, TestCategory("UnitTest")]
@@ -855,33 +832,33 @@ namespace ToolboxTest
 
             Vector3I size = new(length, length, length);
 
-            int[][] buildparams = 
-            			[
-                			[min, 0],
-                			[min + 1, 1],
-                			[max, 0],
-                			[max - 1, -1]
-            			];
+            int[][] buildparams =
+            [
+                [min, 0],
+                [min + 1, 1],
+                [max, 0],
+                [max - 1, -1]
+            ];
 
             void CellAction(ref MyVoxelBuilderArgs e)
             {
                 e.Volume = 0x00;
 
-                if (e.CoordinatePoint.X > 0 && e.CoordinatePoint.Y > 0 && e.CoordinatePoint.Z > 0
-                    && e.CoordinatePoint.X < size.X - 1 && e.CoordinatePoint.Y < size.Y - 1 && e.CoordinatePoint.Z < size.Z - 1
-                    && e.CoordinatePoint.X >= min && e.CoordinatePoint.Y >= min && e.CoordinatePoint.Z >= min
-                    && e.CoordinatePoint.X <= max && e.CoordinatePoint.Y <= max && e.CoordinatePoint.Z <= max)
+                
+                if (e.CoordinatePoint.X >= min && e.CoordinatePoint.X <= max
+                    && e.CoordinatePoint.Y >= min && e.CoordinatePoint.Y <= max
+                    && e.CoordinatePoint.Z >= min && e.CoordinatePoint.Z <= max)
                 {
+                    
+                    var point = e.CoordinatePoint;
                     foreach (int[] t in buildparams)
                     {
-                        if (e.CoordinatePoint.X == t[0] && ((e.CoordinatePoint.Z + t[1]) % 2 == 0) && ((e.CoordinatePoint.Y + t[1]) % 2 == 0))
+                        if ((point.X == t[0] && (point.Z + t[1]) % 2 == 0 && (point.Y + t[1]) % 2 == 0)
+                            || (point.Y == t[0] && (point.X + t[1]) % 2 == 0 && (point.Z + t[1]) % 2 == 0)
+                            || (point.Z == t[0] && (point.X + t[1]) % 2 == 0 && (point.Y + t[1]) % 2 == 0))
+                        {
                             e.Volume = 0x92;
-
-                        if (e.CoordinatePoint.Y == t[0] && ((e.CoordinatePoint.X + t[1]) % 2 == 0) && ((e.CoordinatePoint.Z + t[1]) % 2 == 0))
-                            e.Volume = 0x92;
-
-                        if (e.CoordinatePoint.Z == t[0] && ((e.CoordinatePoint.X + t[1]) % 2 == 0) && ((e.CoordinatePoint.Y + t[1]) % 2 == 0))
-                            e.Volume = 0x92;
+                        }
                     }
                 }
             }
@@ -897,19 +874,24 @@ namespace ToolboxTest
             // Multi threading does not produce a consistant volume across the cells in the voxel, so the actual file content can vary!!
             Assert.IsTrue(lengthNew > 44000, "New file size must match.");
 
-            Assert.AreEqual(256, voxelMap.Size.X, "Voxel Bounding size must match.");
-            Assert.AreEqual(256, voxelMap.Size.Y, "Voxel Bounding size must match.");
-            Assert.AreEqual(256, voxelMap.Size.Z, "Voxel Bounding size must match.");
-
-            Assert.AreEqual(249, voxelMap.BoundingContent.Size.X + 1, "Voxel Content size must match.");
-            Assert.AreEqual(249, voxelMap.BoundingContent.Size.Y + 1, "Voxel Content size must match.");
-            Assert.AreEqual(249, voxelMap.BoundingContent.Size.Z + 1, "Voxel Content size must match.");
+            for (int i = 0; i < voxelMap.Size.Length(); i++)
+            {
+                Assert.AreEqual(256, voxelMap.Size[i], "Voxel Bounding size must match.");
+            }
+            for (int i = 0; i < voxelMap.BoundingContent.Size.Length(); i++)
+            {
+                Assert.AreEqual(249, voxelMap.BoundingContent.Size[i] + 1, "Voxel Content size must match.");
+            }
 
             // Centered in the middle of the 256x256x256 cell.
-            Assert.AreEqual(128, voxelMap.ContentCenter.X, "Voxel Center must match.");
-            Assert.AreEqual(128, voxelMap.ContentCenter.Y, "Voxel Center must match.");
-            Assert.AreEqual(128, voxelMap.ContentCenter.Z, "Voxel Center must match.");
+            double[] vectors = [voxelMap.ContentCenter.X, voxelMap.ContentCenter.Y, voxelMap.ContentCenter.Z];
+            for (int i = 0; i < vectors.Length; i++)
+            {
+                Assert.AreEqual(128, vectors[i], "Voxel Center must match.");
+            }
         }
+
+
 
         [TestMethod, TestCategory("UnitTest")]
         public void Voxel3DImportStl()
@@ -935,14 +917,23 @@ namespace ToolboxTest
 
             voxelMap.Save(voxelFile);
 
-            Assert.AreEqual(50, voxelMap.BoundingContent.Size.X + 1, "Voxel Content size must match.");
-            Assert.AreEqual(46, voxelMap.BoundingContent.Size.Y + 1, "Voxel Content size must match.");
-            Assert.AreEqual(70, voxelMap.BoundingContent.Size.Z + 1, "Voxel Content size must match.");
-
-            Assert.AreEqual(30.5, voxelMap.ContentCenter.X, "Voxel Center must match.");
-            Assert.AreEqual(28.5, voxelMap.ContentCenter.Y, "Voxel Center must match.");
-            Assert.AreEqual(40.5, voxelMap.ContentCenter.Z, "Voxel Center must match.");
-
+            int[] ints = [50, 46, 70];
+            for (int i = 0; i < voxelMap.BoundingContent.Size.Length(); i++)
+            {
+                if (voxelMap.BoundingContent.Size[i] != ints[i])
+                {
+                    Assert.AreEqual(i, voxelMap.BoundingContent.Size[i] + 1, "Voxel Content size must match.");
+                }
+            }
+            double[] doubles = [30.5, 28.5, 40.5];
+            double[] vectors = [voxelMap.ContentCenter.X, voxelMap.ContentCenter.Y, voxelMap.ContentCenter.Z];
+            for (int i = 0; i < vectors.Length; i++)
+            {
+                if (vectors[i] != doubles[i])
+                {
+                    Assert.AreEqual(doubles[i], vectors[i], "Voxel Center must match.");
+                }
+            }
             Assert.AreEqual(18710790, voxelMap.VoxCells, "Voxel cells must match.");
         }
 
@@ -963,11 +954,11 @@ namespace ToolboxTest
 
                 watch.Stop();
 
-                SConsole.WriteLine($"FileName:\t{name}.vx2");
-                SConsole.WriteLine($"Load Time:\t{watch.Elapsed}");
-                SConsole.WriteLine($"Valid:\t{voxelMap.IsValid}");
-                SConsole.WriteLine($"Bounding Size:\t{voxelMap.Size.X} x {voxelMap.Size.Y} x {voxelMap.Size.Z} blocks");
-                SConsole.WriteLine("");
+                Debug.WriteLine($"FileName:\t{name}.vx2");
+                Debug.WriteLine($"Load Time:\t{watch.Elapsed}");
+                Debug.WriteLine($"Valid:\t{voxelMap.IsValid}");
+                Debug.WriteLine($"Bounding Size:\t{voxelMap.Size.X} x {voxelMap.Size.Y} x {voxelMap.Size.Z} blocks");
+                Debug.WriteLine("");
             }
         }
 
@@ -1061,7 +1052,7 @@ namespace ToolboxTest
         [TestMethod, TestCategory("UnitTest")]
         public void FetchVoxelV1DetailPreview()
         {
-            const string fileOriginal = @".\TestAssets\asteroid0moon4.vox";
+            const string fileOriginal = @".\TestAssets\asteroid_0_moon4.vox";
 
             Vector3I size = MyVoxelMap.LoadVoxelSize(fileOriginal);
 
@@ -1132,16 +1123,16 @@ namespace ToolboxTest
                     && e.CoordinatePoint.X >= min && e.CoordinatePoint.Y >= min && e.CoordinatePoint.Z >= min
                     && e.CoordinatePoint.X <= max && e.CoordinatePoint.Y <= max && e.CoordinatePoint.Z <= max)
                 {
+                    int x = e.CoordinatePoint.X;
+                    int y = e.CoordinatePoint.Y;
+                    int z = e.CoordinatePoint.Z;
+
                     foreach (int[] t in buildparams)
                     {
-                        if (e.CoordinatePoint.X == t[0] && ((e.CoordinatePoint.Z + t[1]) % 2 == 0) && ((e.CoordinatePoint.Y + t[1]) % 2 == 0))
+                        if (((x + t[1]) % 2 == 0) && ((z + t[1]) % 2 == 0) && (x == t[0] || y == t[0] || z == t[0]))
+                        {
                             e.Volume = 0x92;
-
-                        if (e.CoordinatePoint.Y == t[0] && ((e.CoordinatePoint.X + t[1]) % 2 == 0) && ((e.CoordinatePoint.Z + t[1]) % 2 == 0))
-                            e.Volume = 0x92;
-
-                        if (e.CoordinatePoint.Z == t[0] && ((e.CoordinatePoint.X + t[1]) % 2 == 0) && ((e.CoordinatePoint.Y + t[1]) % 2 == 0))
-                            e.Volume = 0x92;
+                        }
                     }
                 }
             }

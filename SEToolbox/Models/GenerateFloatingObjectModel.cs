@@ -52,7 +52,7 @@ namespace SEToolbox.Models
         public MyPositionAndOrientation CharacterPosition
         {
             get => _characterPosition;
-            set => SetProperty(ref _characterPosition, value, nameof(CharacterPosition));
+            set => SetValue(ref _characterPosition, value, nameof(CharacterPosition));
         }
 
         public ObservableCollection<ComponentItemModel> StockItemList
@@ -149,38 +149,40 @@ namespace SEToolbox.Models
 
             foreach (MyComponentDefinition componentDefinition in SpaceEngineersResources.ComponentDefinitions)
             {
-                MyBlueprintDefinitionBase bp = SpaceEngineersApi.GetBlueprint(componentDefinition.Id.TypeId, componentDefinition.Id.SubtypeName);
+                MyBlueprintDefinitionBase bluePrint = SpaceEngineersApi.GetBlueprint(componentDefinition.Id.TypeId, componentDefinition.Id.SubtypeName);
                 list.Add(new ComponentItemModel
                 {
                     Name = componentDefinition.DisplayNameText,
                     TypeId = componentDefinition.Id.TypeId,
-                    SubtypeId = componentDefinition.Id.SubtypeName,
+                    SubtypeName = componentDefinition.Id.SubtypeName,
                     Mass = componentDefinition.Mass,
                     TextureFile = componentDefinition.Icons == null ? null : SpaceEngineersCore.GetDataPathOrDefault(componentDefinition.Icons.First(), Path.Combine(contentPath, componentDefinition.Icons.First())),
                     Volume = componentDefinition.Volume * SpaceEngineersConsts.VolumeMultiplier,
                     Accessible = componentDefinition.Public,
-                    Time = bp != null ? TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds) : (TimeSpan?)null,
+                    Time = bluePrint != null ? TimeSpan.FromSeconds(bluePrint.BaseProductionTimeInSeconds) : (TimeSpan?)null,
                 });
             }
 
-            foreach (MyPhysicalItemDefinition physicalItemDefinition in SpaceEngineersResources.PhysicalItemDefinitions)
+            foreach (MyPhysicalItemDefinition physItemDef in SpaceEngineersResources.PhysicalItemDefinitions)
             {
-                if (physicalItemDefinition.Id.TypeId == typeof(MyObjectBuilder_TreeObject) ||
-                    physicalItemDefinition.Id.SubtypeName == "CubePlacerItem" ||
-                    physicalItemDefinition.Id.SubtypeName == "WallPlacerItem")
+                if (physItemDef.Id.TypeId == typeof(MyObjectBuilder_TreeObject) ||
+                    physItemDef.Id.SubtypeName == "CubePlacerItem" ||
+                    physItemDef.Id.SubtypeName == "WallPlacerItem")
+                {
                     continue;
+                }
 
-                MyBlueprintDefinitionBase bp = SpaceEngineersApi.GetBlueprint(physicalItemDefinition.Id.TypeId, physicalItemDefinition.Id.SubtypeName);
+                MyBlueprintDefinitionBase bluePrint = SpaceEngineersApi.GetBlueprint(physItemDef.Id.TypeId, physItemDef.Id.SubtypeName);
                 list.Add(new ComponentItemModel
                 {
-                    Name = physicalItemDefinition.DisplayNameText,
-                    TypeId = physicalItemDefinition.Id.TypeId,
-                    SubtypeId = physicalItemDefinition.Id.SubtypeName,
-                    Mass = physicalItemDefinition.Mass,
-                    Volume = physicalItemDefinition.Volume * SpaceEngineersConsts.VolumeMultiplier,
-                    TextureFile = physicalItemDefinition.Icons == null ? null : SpaceEngineersCore.GetDataPathOrDefault(physicalItemDefinition.Icons.First(), Path.Combine(contentPath, physicalItemDefinition.Icons.First())),
-                    Accessible = physicalItemDefinition.Public,
-                    Time = bp != null ? TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds) : (TimeSpan?)null,
+                    Name = physItemDef.DisplayNameText,
+                    TypeId = physItemDef.Id.TypeId,
+                    SubtypeName = physItemDef.Id.SubtypeName,
+                    Mass = physItemDef.Mass,
+                    Volume = physItemDef.Volume * SpaceEngineersConsts.VolumeMultiplier,
+                    TextureFile = physItemDef.Icons == null ? null : SpaceEngineersCore.GetDataPathOrDefault(physItemDef.Icons.First(), Path.Combine(contentPath, physItemDef.Icons.First())),
+                    Accessible = physItemDef.Public,
+                    Time = bluePrint != null ? TimeSpan.FromSeconds(bluePrint.BaseProductionTimeInSeconds) : (TimeSpan?)null,
                 });
             }
 
@@ -197,7 +199,7 @@ namespace SEToolbox.Models
                 {
                     Name = cubeDefinition.DisplayNameText,
                     TypeId = cubeDefinition.Id.TypeId,
-                    SubtypeId = cubeDefinition.Id.SubtypeName,
+                    SubtypeName = cubeDefinition.Id.SubtypeName,
                     CubeSize = cubeDefinition.CubeSize,
                     TextureFile = cubeDefinition.Icons == null ? null : Path.Combine(contentPath, cubeDefinition.Icons.First()),
                     Accessible = !string.IsNullOrEmpty(cubeDefinition.Model),
@@ -219,18 +221,20 @@ namespace SEToolbox.Models
             }
             else
             {
-                IsUnique = StockItem.TypeId != SETypes.MOBTypeIds.Ore &&
-                           StockItem.TypeId != SETypes.MOBTypeIds.Ingot &&
-                           StockItem.TypeId != SETypes.MOBTypeIds.Component &&
-                           StockItem.TypeId != SETypes.MOBTypeIds.AmmoMagazine &&
-                           StockItem.TypeId != SETypes.MOBTypeIds.PhysicalGunObject;
-
-                IsInt = !IsUnique;
+                
+                 IsUnique = StockItem.TypeId == SETypes.MOBTypeIds.AmmoMagazine &&
+                            StockItem.TypeId == SETypes.MOBTypeIds.PhysicalGunObject &&
+                            StockItem.TypeId == SETypes.MOBTypeIds.OxygenContainerObject;
+                           
+                    // var isNotUnique = StockItem.TypeId != SETypes.MOBTypeIds.Ore &&
+                    //                   StockItem.TypeId != SETypes.MOBTypeIds.Ingot &&
+                    //                   StockItem.TypeId != SETypes.MOBTypeIds.Component;
+                IsInt = !IsUnique;// && isNotUnique;
 
                 IsDecimal = StockItem.TypeId == SETypes.MOBTypeIds.Ore ||
                             StockItem.TypeId == SETypes.MOBTypeIds.Ingot ||
                             StockItem.TypeId == SETypes.MOBTypeIds.AmmoMagazine;
-
+                            
                 if (IsUnique)
                 {
                     Mass = UniqueUnits * StockItem.Mass;

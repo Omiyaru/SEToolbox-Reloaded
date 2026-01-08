@@ -479,7 +479,6 @@ namespace SEToolbox.Controls
                 {
                     Aspect aspect = (Aspect)Activator.CreateInstance(type);
                     AspectGroup aspectGroup = new(aspect.Header) { aspect };
-
                     Add(aspectGroup);
                 }
             }

@@ -10,8 +10,6 @@ namespace SEToolbox.Views
         public ControlCharacter()
         {
             InitializeComponent();
-
-
         }
     }
 }

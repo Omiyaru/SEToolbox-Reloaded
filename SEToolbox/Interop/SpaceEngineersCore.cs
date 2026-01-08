@@ -66,9 +66,9 @@ namespace SEToolbox.Interop
 
         public static string GetDataPathOrDefault(string key, string defaultValue)
         {
-            if (_propertyCache.TryGetValue(key, out var propertyGetter))
+            if (_propertyCache.TryGetValue(key, out var property))
             {
-                return propertyGetter(_singleton) ?? defaultValue;
+                return property(_singleton) ?? defaultValue;
             }
             if (UserDataPath.PathMap.TryGetValue(key, out var propertyName))
             {
@@ -86,8 +86,6 @@ namespace SEToolbox.Interop
         {
             if (_singleton != null)
             {
-                SConsole.Init();
-
                 InitializePaths();
                 InitializeSteamService();
                 FetchSteamMods();
@@ -100,7 +98,7 @@ namespace SEToolbox.Interop
         /// </summary>
         public static void LoadDefinitions()
         {
-            SConsole.WriteLine("Init MyTexts.");
+            Log.WriteLine("Initializing MyTexts.");
 
             typeof(MyTexts).TypeInitializer.Invoke(null, null); // For tests
 
@@ -112,13 +110,14 @@ namespace SEToolbox.Interop
         SEResources _stockDefinitions;
         List<string> _manageDeleteVoxelList;
         MyCommonProgramStartup _startup = new([]);
-        private IMyGameService _steamService = MySteamGameService.Create(Sandbox.Engine.Platform.Game.IsDedicated, AppIdGame);
+          private IMyGameService _steamService;
         const uint testAppId = 480; //steams spacewar test app id , Testing - im not sure if this is needed so setoolbox doesnt intefere with Space Engineers playtime
         const uint AppIdGame = 244850; // Game
         const uint AppIdDedicatedServer = 298740; // Dedicated Server
-
+      
         public void InitializePaths()
         {
+            Log.WriteLine("Loading Space Engineers core.");
             if (_startup != null)
             {
                 string contentPath = ToolboxUpdater.GetApplicationContentPath();
@@ -151,59 +150,46 @@ namespace SEToolbox.Interop
         //  since we don't want to be doing this all the while SEToolbox is running,
         // offloads after we are done fetching the mods.
         private void InitializeSteamService()
-        {
+        {       
             try
-            {
-
-                _steamService = MySteamGameService.Create(Sandbox.Engine.Platform.Game.IsDedicated, AppIdGame | AppIdDedicatedServer);
-                
+            {   
+                Log.WriteLine("Initializing Steam service.");
+                _steamService = CreateSteamService();// MySteamGameService.Create(Sandbox.Engine.Platform.Game.IsDedicated, AppIdGame);// | AppIdDedicatedServer);
                 MyServiceManager.Instance.AddService(_steamService);
 
-                SConsole.WriteLine("Initializing VRage platform.");
+                Log.WriteLine("Initializing VRage platform.");
                 MyVRage.Init(new ToolboxPlatform());
                 MyVRage.Platform.Init();
-            }
 
+            }
             catch (Exception ex)
             {
-                SConsole.WriteLine($"Error initializing Steam service: {ex.Message} fallling back to local implementation.");
-                CreateSteamService();
-
+                Log.WriteLine($"Error initializing Steam service: {ex.Message}");   
             };
         }
 
         private void FetchSteamMods()
-        {
+        {   
+            Log.WriteLine("Creating Ugc service.");
             if (_steamService == null)
             {
                 throw new InvalidOperationException("_steamService is null");
             }
 
-            try
-            {
-                IMyUGCService ugc = MySteamUgcService.Create(AppIdGame, _steamService) ?? throw new InvalidOperationException("UGC service is null");
-                MyServiceManager.Instance.AddService(ugc);
-                MyGameService.WorkshopService.AddAggregate(ugc);
-                MyServiceManager.Instance.AddService(MyGameService.WorkshopService);
+            IMyUGCService ugc = MySteamUgcService.Create(AppIdGame, _steamService) ?? throw new InvalidOperationException("UGC service is null");
+            MyServiceManager.Instance.AddService(ugc);
+            MyGameService.WorkshopService.AddAggregate(ugc);
+            MyServiceManager.Instance.AddService(MyGameService.WorkshopService);
+            Log.WriteLine("Fetching user specific data.");
 
-                SConsole.WriteLine("Fetching user specific data.");
-
-                MFS.InitUserSpecific(_steamService.UserId.ToString(), SpaceEngineersConsts.Folders.SavesFolder);
-                MyGameService.WorkshopService.Update();
-            }
-            catch (Exception ex)
-            {
-                SConsole.WriteLine($"Error fetching Steam mods: {ex.Message}");
-            }
+            MFS.InitUserSpecific(_steamService.UserId.ToString(), SpaceEngineersConsts.Folders.SavesFolder);
+            MyGameService.WorkshopService.Update();
         }
 
         private void ShutDownSteamService()
         {
-            if (_steamService != null)
-            {
-                IMyGameService steamGameService = MyServiceManager.Instance.GetService<IMyGameService>();
-                steamGameService.ShutDown();
-            }
+            IMyGameService steamGameService = MyServiceManager.Instance.GetService<IMyGameService>();
+            steamGameService?.ShutDown();
         }
 
         //todo ??
@@ -221,8 +207,8 @@ namespace SEToolbox.Interop
         private void LoadSandboxGame()
         {
 
-            var myConfig = new MyConfig("SpaceEngineers.cfg");
-            SConsole.WriteLine($"Loading config: {myConfig}");
+             var myConfig = new MyConfig("SpaceEngineers.cfg");
+            Log.WriteLine($"Loading config: {myConfig}");
 
             if (myConfig != null)
             {
@@ -230,14 +216,14 @@ namespace SEToolbox.Interop
                 MySandboxGame.Config.Load();
             }
 
-            SConsole.WriteLine("Setting Up MyPerGameSettings.");
+            Log.WriteLine("Setting Up Per-Game Settings.");
 
             SpaceEngineersGame.SetupPerGameSettings();
             MyPerGameSettings.UpdateOrchestratorType = null;
             //MySandboxGame.InitMultithreading();
-            SConsole.WriteLine("Initializing Multithreading.");
+            Log.WriteLine("Initializing Multithreading.");
             InitMultithreading();
-            SConsole.WriteLine("Initializing MyRenderProxy.");
+            Log.WriteLine("Initializing MyRenderProxy.");
 
             // Needed for MyRenderProxy.Log access in MyFont.LogWriteLine() and likely other things.
             //Todo Static patching
@@ -245,16 +231,19 @@ namespace SEToolbox.Interop
             MyRenderProxy.Initialize(new MyNullRender());
             InitSandboxGame();
 
-            SConsole.WriteLine("Loading localization.");
+            Log.WriteLine("Loading localization.");
 
             // Reapply CurrentUICulture after MySandboxGame creation
             string languageCode = GlobalSettings.Default.LanguageCode;
             if (!string.IsNullOrWhiteSpace(languageCode))
+            {
                 Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfoByIetfLanguageTag(languageCode);
+            }
+
             SpaceEngineersApi.LoadLocalization();
 
 
-            SConsole.WriteLine("Initializing MySession.");
+            Log.WriteLine("Initializing MySession.");
             // Create an empty instance of MySession for use by low level code.
             SGW_MySession session = (SGW_MySession)GetUninitializedObject(typeof(SGW_MySession));
 
@@ -279,17 +268,14 @@ namespace SEToolbox.Interop
 
             session.RegisterComponent(heightmapSystem, heightmapSystem.UpdateOrder, heightmapSystem.Priority);
             session.RegisterComponent(planets, planets.UpdateOrder, planets.Priority);
-
             heightmapSystem.LoadData();
             planets.LoadData();
 
             //session.RegisterComponent(voxelDestructionSystem, voxelDestructionSystem.UpdateOrder, voxelDestructionSystem.Priority);
             // Load the definitions 
-            SConsole.WriteLine("Loading definitions.");
-            var stockDefinitions = new SEResources();
+            Log.WriteLine("Loading definitions.");
+            SEResources stockDefinitions = new();
             stockDefinitions.LoadDefinitions();
-
-            // Store the variables for later use
             _stockDefinitions = stockDefinitions;
             _manageDeleteVoxelList = [];
             // EnableProtobufCloning();
@@ -305,18 +291,12 @@ namespace SEToolbox.Interop
             ReflUtil.SetFieldValue<MOBSerializerKeen>("ENABLE_PROTOBUFFERS_CLONING", false);
             FieldInfo _protobufCloningField = ReflUtil.GetField<MOBSerializerKeen>("ENABLE_PROTOBUFFERS_CLONING", BindingFlags.NonPublic | BindingFlags.Static, false);
             var _protobufCloningOriginalValue = (bool?)null;
+            var originalBoolValue = (bool?)_protobufCloningField?.GetValue(null);
             if (_protobufCloningField != null)
             {
-                var originalBoolValue = (bool?)_protobufCloningField.GetValue(null);
-                if (setValue)
-                {
-                    _protobufCloningField?.SetValue(null, true);
-                }
-                else
-                {
-                    _protobufCloningField?.SetValue(null, originalBoolValue.Value && _protobufCloningOriginalValue.Value);
-                }
+                _protobufCloningField?.SetValue(null, setValue || originalBoolValue.GetValueOrDefault() && _protobufCloningOriginalValue.GetValueOrDefault());
             }
+            
         }
 
         // Re-implement most of MySteamService constructor (with adjustments) to
@@ -325,28 +305,29 @@ namespace SEToolbox.Interop
         {
             //return MySteamGameService.Create(Sandbox.Engine.Platform.Game.IsDedicated, AppId);
 
-            var appIdStr = AppIdGame.ToString() ?? AppIdDedicatedServer.ToString();
+            var appIdStr = AppIdGame.ToString();//?? AppIdDedicatedServer.ToString();
             Environment.SetEnvironmentVariable("SteamAppId", appIdStr);
             Environment.SetEnvironmentVariable("SteamGameId", appIdStr);
 
             // isDedicated: true skips the initialization that is done here instead.
-            var service = MySteamGameService.Create(isDedicated: true, AppIdGame | AppIdDedicatedServer);
+            var service = MySteamGameService.Create(isDedicated: true, AppIdGame);//| AppIdDedicatedServer);
             var serviceType = service.GetType();
 
             var steamAppId = (AppId_t)AppIdGame;
 
             //if (SteamAPI.RestartAppIfNecessary(steamAppId))
-            //SConsole.WriteLine("SteamAPI.RestartAppIfNecessary returned true.");
+            //Log.WriteLine("SteamAPI.RestartAppIfNecessary returned true.");
             bool isActive = SteamAPI.Init();
             serviceType.GetProperty("IsActive").SetValue(service, isActive);
 
             if (!isActive)
-                SConsole.WriteLine("Failed to initialize Steam service.");
+            {
+                Log.WriteLine("Failed to initialize Steam service.");
+            }
 
             IMyInventoryService serviceInstance;
 
             const ulong OFFLINE_STEAM_ID = 1234567891011uL;
-
 
             if (isActive)
             {
@@ -373,19 +354,16 @@ namespace SEToolbox.Interop
                 serviceType.GetProperty(nameof(IMyGameService.UserId)).SetValue(service, OFFLINE_STEAM_ID);
                 serviceInstance = new MyNullInventoryService();
             }
-
-            MyServiceManager.Instance.AddService(serviceInstance);
+                MyServiceManager.Instance.AddService(serviceInstance);
 
             if (!isActive)
             {
-                var errMsg = """
-                    Failed to initialize Steam API. Please ensure Steam is running and re-launch SEToolbox.
-                    You can try to continue anyway but modded worlds may not work correctly.
-                    """;
-                MessageBox.Show(errMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string errMsg = "Failed to initialize Steam API. Please ensure Steam is running and re-launch SEToolbox./n" +
+                                "You can try to continue anyway but modded worlds may not work correctly.";
+                Log.WriteLine(errMsg);
+                  MessageBox.Show(errMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             return service;
-
         }
 
         static void InitMultithreading()
@@ -396,7 +374,7 @@ namespace SEToolbox.Interop
 
         static void InitSandboxGame()
         {
-            SConsole.WriteLine("Initializing SandboxGame");
+            Log.WriteLine("Initializing SandboxGame");
 
             // If this is causing an exception then there is a missing dependency.
             // gameTemp instance gets captured in MySandboxGame.Static
@@ -417,11 +395,11 @@ namespace SEToolbox.Interop
 
             RegisterAssemblies();
 
-            SConsole.WriteLine("Initializing MyGlobalTypeMetadata.");
+            Log.WriteLine("Initializing MyGlobalTypeMetadata.");
 
             VRage.Game.ObjectBuilder.MyGlobalTypeMetadata.Static.Init();
 
-            SConsole.WriteLine("Preallocating");
+            Log.WriteLine("Preallocating");
 
             Preallocate();
         }
@@ -437,11 +415,14 @@ namespace SEToolbox.Interop
 
         static void RegisterAssemblies()
         {
-            SConsole.WriteLine("Registering Assemblies");
+            Log.WriteLine("Registering Assemblies");
             MyPlugins.RegisterGameAssemblyFile(MyPerGameSettings.GameModAssembly);
 
             if (MyPerGameSettings.GameModBaseObjBuildersAssembly != null)
+            {
                 MyPlugins.RegisterBaseGameObjectBuildersAssemblyFile(MyPerGameSettings.GameModBaseObjBuildersAssembly);
+            }
+
             MyPlugins.RegisterGameObjectBuildersAssemblyFile(MyPerGameSettings.GameModObjBuildersAssembly);
             MyPlugins.RegisterSandboxAssemblyFile(MyPerGameSettings.SandboxAssembly);
             MyPlugins.RegisterSandboxGameAssemblyFile(MyPerGameSettings.SandboxGameAssembly);
@@ -464,20 +445,15 @@ namespace SEToolbox.Interop
             ForceStaticCtor(types);
             PreloadTypesFrom(typeof(MySandboxGame).Assembly);
 
-
             static void PreloadTypesFrom(Assembly assembly)
             {
-                if (assembly == null)
-                    return;
-
-                IEnumerable<Type> types = from type in assembly.GetTypes()
+                IEnumerable<Type> types = from type in assembly?.GetTypes()
                                           where Attribute.IsDefined(type, typeof(PreloadRequiredAttribute))
                                           select type;
 
-                SConsole.WriteLine($"Preloading {types.Count().GetType()} types from {assembly.FullName}");
+                Log.WriteLine($"Preloading {types.Count().GetType()} types from {assembly.FullName}");
                 ForceStaticCtor(types);
             }
-
 
             static void ForceStaticCtor(IEnumerable<Type> types)
             {
@@ -485,8 +461,10 @@ namespace SEToolbox.Interop
                 {
                     foreach (Type type in types)
                     {
-                        if (type != null)
+                        if (type != null) 
+                        { 
                             RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+                        }
                     }
                 }
             }
@@ -498,4 +476,3 @@ namespace SEToolbox.Interop
         }
     }
 }
-

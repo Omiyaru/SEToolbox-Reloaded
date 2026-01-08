@@ -24,7 +24,7 @@
     </i:Interaction.Triggers>
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <converters:EnumToResouceConverter x:Key="EnumToResourceConverter"/>
+        <converters:EnumToResourceConverter x:Key="EnumToResourceConverter"/>
         <converters:BusyMouseConverter x:Key="BusyMouseConverter" />
         <converters:ResourceToImageConverter x:Key="ResourceToImageConverter"/>
         <converters:DistanceConverter x:Key="DistanceConverter"/>
@@ -165,7 +165,7 @@
                     </MenuItem.Icon>
                     <MenuItem Header="{lex:Loc WnExplorerMnuSelectionDelete}" Command="{Binding DeleteObjectCommand}">
                         <MenuItem.Icon>
-                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=delete2}"/>
+                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=delete}"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <Separator/>
@@ -203,7 +203,7 @@
                             <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=wrench}"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="{lex:Loc WnExplorerMnuSelectionResetSpeed}"  Command="{Binding ResetVelocityCommand}" ToolTip="{lex:Loc WnExplorerMnuSelectionResetSpeedTooltip}">
+                    <MenuItem Header="{lex:Loc WnExplorerMnuSelectionResetSpeed}" Command="{Binding ResetVelocityCommand}" ToolTip="{lex:Loc WnExplorerMnuSelectionResetSpeedTooltip}">
                         <MenuItem.Icon>
                             <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=media_stop}" />
                         </MenuItem.Icon>
@@ -280,18 +280,18 @@
                         </MenuItem.Resources>
                         <MenuItem.ItemContainerStyle>
                             <Style TargetType="MenuItem">
-                                <Setter Property="Header" Value="{Binding Path=Name}" />
+                                <Setter Property="Header" Value="{Binding Path=Name}"/>
                                 <Setter Property="Command" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=MenuItem}, Path=DataContext.SetLanguageCommand}" />
                                 <Setter Property="CommandParameter" Value="{Binding Path=IetfLanguageTag}" />
-                                <Setter Property="Icon" Value="{StaticResource MenuIcon}" />
+                                <Setter Property="Icon" Value="{StaticResource MenuIcon}"/>
                             </Style>
                         </MenuItem.ItemContainerStyle>
                     </MenuItem>
                     <MenuItem Command="{Binding OpenSettingsCommand}" Header="{lex:Loc WnExplorerMnuOptionsSettings}" />
-                    <Separator />
+                    <Separator/>
                     <MenuItem Command="{Binding OpenDocumentationLinkCommand}" Header="{lex:Loc WnExplorerMnuOptionsDocumentation}">
                         <MenuItem.Icon>
-                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=book_open2}"/>
+                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=book_open}"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Command="{Binding OpenSupportLinkCommand}" Header="{lex:Loc WnExplorerMnuOptionsSupport}">
@@ -304,7 +304,7 @@
                             <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=server_to_client}"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    <Separator />
+                    <Separator/>
                     <MenuItem Command="{Binding AboutCommand}" Header="{lex:Loc WnExplorerMnuOptionsAbout}">
                         <MenuItem.Icon>
                             <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=about}"/>
@@ -333,7 +333,7 @@
                     </Button>
                     <Separator />
                     <Button Command="{Binding DeleteObjectCommand}" ToolTip="{lex:Loc WnExplorerMnuToolDeleteTooltip}">
-                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=delete2}"/>
+                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=delete}"/>
                     </Button>
                 </ToolBar>
             </ToolBarPanel>
@@ -358,11 +358,11 @@
                 </StatusBarItem>
                 <Separator />
                 <StatusBarItem>
-                    <!--  placeholder to maintain correct height for text  -->
+                    <!-- placeholder to maintain correct height for text -->
                     <TextBlock />
                 </StatusBarItem>
                 <!--<StatusBarItem HorizontalAlignment="Right" Margin="0,0,20,0">
-                    <controls:BusyIndicator Mode= "Spinner"/> ControlBusyState
+                    <controls:BusyIndicator Mode= "Spinner"/> ControlBusyState>
                 </StatusBarItem>-->
                 <StatusBarItem HorizontalAlignment="Right" Margin="0,0,20,0">
                     <ProgressBar Value="{Binding Progress}" Maximum="{Binding MaximumProgress}" Width="100" Height="12" Visibility="{Binding ShowProgress, Converter={StaticResource BooleanToVisibilityConverter}}" />
@@ -373,15 +373,15 @@
                     <Style TargetType="Grid">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding DataContext.ActiveWorld, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Value="{x:Null}">
-                                <Setter Property="IsEnabled" Value="False" />
+                                <Setter Property="IsEnabled" Value="False"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" MinWidth="40" />
-                    <ColumnDefinition Width="4" />
-                    <ColumnDefinition Width="*" MinWidth="40" />
+                    <ColumnDefinition Width="*" MinWidth="40"/>
+                    <ColumnDefinition Width="4"/>
+                    <ColumnDefinition Width="*" MinWidth="40"/>
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0">
                     <TabControl>
@@ -457,7 +457,7 @@
                                     <KeyBinding Key="Delete" Command="{Binding DeleteObjectCommand}" />
                                 </ListView.InputBindings>
                                 <i:Interaction.Behaviors>
-                                    <!--  This custom behavior that synchronizes the selected items with the view models collection  -->
+                                    <!-- This custom behavior that synchronizes the selected items with the view models collection  -->
                                     <commands:SynchronizeSelectedItems Selections="{Binding Selections}"/>
                                     <commands:ListBoxDropBehavior AllowDropToSource="False" ShowDropIndicator="False" DropType="{x:Type interfaces:IStructureBase}"/>
                                 </i:Interaction.Behaviors>
@@ -465,7 +465,7 @@
                                     <ContextMenu >
                                         <MenuItem Header="{lex:Loc WnExplorerContextDelete}" Command="{Binding DeleteObjectCommand}">
                                             <MenuItem.Icon>
-                                                <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=delete2}" />
+                                                <Image Width="16" Height="16" Source="{Binding Converter={StaticResource ResourceToImageConverter}, ConverterParameter=delete}" />
                                             </MenuItem.Icon>
                                         </MenuItem>
                                         <MenuItem Header="{lex:Loc WnExplorerContextCopyGps}" Command="{Binding CopyObjectGpsCommand}">
@@ -574,20 +574,9 @@
                         <views:ControlUnknown />
                     </DataTemplate>
                 </ContentControl.Resources>
-                <ContentControl.Style>
-                    <Style TargetType="ContentControl">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding DataContext.IsMultipleSelections, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Value="True">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ContentControl.Style>
-            </ContentControl>
+                    </ContentControl>
 
-        <ContentControl x:Name="MultipleSelectionControl" Visibility="{Binding DataContext.IsMultipleSelections, Converter={StaticResource BooleanToVisibilityConverter}}">
-        <views:ControlMultiple />
-    </ContentControl>
+                    <views:ControlMultiple />
                 </Grid>
             </Grid>
         </DockPanel>

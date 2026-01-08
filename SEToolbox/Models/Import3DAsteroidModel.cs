@@ -45,7 +45,7 @@ namespace SEToolbox.Models
         private bool _saveWhenFinsihed;
         private bool _shutdownWhenFinished;
         private bool _runInLowPrioity;
-        //private bool _pauseWhenFinished;
+        private bool _pauseWhenFinished;
 
         #endregion
 
@@ -77,6 +77,7 @@ namespace SEToolbox.Models
 
         #region Properties
 
+       
         public string FileName
         {
             get => _fileName;
@@ -258,8 +259,7 @@ namespace SEToolbox.Models
 
         public double RotateRoll
         {
-            get => _rotateRoll; 
-
+            get => _rotateRoll;
             set => SetProperty(ref _rotateRoll, value, nameof(RotateRoll));
         }
 
@@ -273,6 +273,12 @@ namespace SEToolbox.Models
         {
             get => _saveWhenFinsihed;
             set => SetProperty(ref _saveWhenFinsihed, value, nameof(SaveWhenFinsihed));
+        }
+
+        public  bool PauseWhenFinished
+        {
+            get => _pauseWhenFinished;
+            set => SetProperty(ref _pauseWhenFinished, value, nameof(PauseWhenFinished));
         }
 
         public bool ShutdownWhenFinished

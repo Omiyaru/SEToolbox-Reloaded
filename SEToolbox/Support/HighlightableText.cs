@@ -26,7 +26,7 @@
 //             }
 //             catch (Exception ex) when (!(ex is ArgumentNullException || ex is NullReferenceException))
 //             {
-//                 SConsole.WriteLine($"An error occurred while highlighting: {ex.Message}");
+//                 Log.WriteLine($"An error occurred while highlighting: {ex.Message}");
 //             }
 //         }
 

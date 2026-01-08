@@ -1,12 +1,10 @@
 ﻿using Sandbox;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
-using Sandbox.Game;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens;
 using SEToolbox.Support;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,16 +16,15 @@ using System.Threading.Tasks;
 using VRage.Game;
 using VRage.GameServices;
 using static VRage.Game.MyObjectBuilder_Checkpoint;
-using SEConsts = SEToolbox.Interop.SpaceEngineersConsts;
 
 namespace SEToolbox.Interop
 {
     public class SpaceEngineersWorkshop
     {
         public static MyGuiScreenDownloadMods m_downloadScreen;
-        public static Dictionary<WorkshopId, MyWorkshopItem> m_workshopItems = new();
-        public static List<ModItem> m_modItems = new();
-        public List<WorkshopId> m_workshopIds = new();
+        public static Dictionary<WorkshopId, MyWorkshopItem> m_workshopItems = [];
+        public static List<ModItem> m_modItems = [];
+        public List<WorkshopId> m_workshopIds = [];
         public static IMyGameServer m_gameServer;
         //GetWorkshopIdFromLocalMod
 
@@ -53,13 +50,14 @@ namespace SEToolbox.Interop
         public static MyWorkshop.ResultData DownloadWorldModsBlocking(List<ModItem> mods, MyWorkshop.CancelToken cancelToken)
         {
             if (!MyGameService.IsActive)
+            {
                 return default;
+            }
 
             MyWorkshop.ResultData ret = default;
 
-            Task task = Task.Factory.StartNew(() => 
-                ret = DownloadWorldModsBlockingInternal(mods, cancelToken)
-            );
+            Task task = Task.Factory.StartNew(() =>
+                ret = DownloadWorldModsBlockingInternal(mods, cancelToken));
 
             while (!task.IsCompleted)
             {
@@ -73,7 +71,7 @@ namespace SEToolbox.Interop
 
         public static MyWorkshop.ResultData DownloadWorldModsBlockingInternal(List<ModItem> mods, MyWorkshop.CancelToken cancelToken)
         {
-            SConsole.WriteLine("Starting to download world mods:");
+            Log.WriteLine("Starting to download world mods:");
             MySandboxGame.Log.IncreaseIndent();
 
             MyWorkshop.ResultData resultData = default;
@@ -81,7 +79,7 @@ namespace SEToolbox.Interop
 
             if (mods == null || mods.Count == 0)
             {
-                SConsole.WriteLine("No mods to download");
+                Log.WriteLine("No mods to download");
                 resultData.Result = MyGameServiceCallResult.OK;
 
                 return resultData;
@@ -96,21 +94,14 @@ namespace SEToolbox.Interop
 
             foreach (var mod in mods)
             {
-                if (availableServices.TryGetValue(mod.PublishedServiceName, out var aggregate))
+                if (availableServices.TryGetValue(mod.PublishedServiceName, out var aggregate) && aggregate.IsConsoleCompatible)
                 {
-                    if (aggregate.IsConsoleCompatible)
-                    {
 
-                        modList.Add(new WorkshopId(mod.PublishedFileId, mod.PublishedServiceName));
-                    }
-                    else if (Sandbox.Engine.Platform.Game.IsDedicated && MySandboxGame.ConfigDedicated.AutodetectDependencies)
-                    {
-                        SConsole.WriteLine("Local mods are not allowed in multiplayer.");
-                        failedDownloads.Add(new WorkshopId(mod.PublishedFileId, mod.PublishedServiceName));
-                    }
+                    modList.Add(new WorkshopId(mod.PublishedFileId, mod.PublishedServiceName));
                 }
-                else
+                else if (Sandbox.Engine.Platform.Game.IsDedicated && MySandboxGame.ConfigDedicated.AutodetectDependencies)
                 {
+                    Log.WriteLine("Local mods are not allowed in multiplayer.");
                     failedDownloads.Add(new WorkshopId(mod.PublishedFileId, mod.PublishedServiceName));
                 }
             }
@@ -122,7 +113,8 @@ namespace SEToolbox.Interop
                 foreach (var failedDownload in failedDownloads)
                 {
                     sb.AppendLine(failedDownload.ToString());
-                    SConsole.WriteLine(sb.ToString());
+                    MySandboxGame.Log.WriteLineAndConsole(sb.ToString());
+                    Log.WriteLine(sb.ToString());
                 }
                 if (availableServices.Count == 0 || availableServices.All(x => !x.Value.IsConsoleCompatible || modList.Count == 0))
                 {
@@ -145,20 +137,19 @@ namespace SEToolbox.Interop
             }
 
             resultData = DownloadModsBlocking(mods, modList, cancelToken);
-
-            SConsole.WriteLine("Finished downloading world mods");
+            
+            Log.WriteLine("Finished downloading world mods");
 
             if (cancelToken != null)
+            {
                 resultData.Cancel |= cancelToken.Cancel;
+            }
 
             return resultData;
         }
 
-
         static void AddModDependencies(List<ModItem> mods, List<WorkshopId> workshopIds)
         {
-           
-
             var modsToProcess = mods.Where(x => !x.IsDependency && x.PublishedFileId != 0L)
                                     .Select(x => new WorkshopId(x.PublishedFileId, x.PublishedServiceName))
                                     .ToHashSet();
@@ -170,32 +161,29 @@ namespace SEToolbox.Interop
             {
                 mods.Add(mod);
                 if (!workshopIds.Contains(new WorkshopId(mod.PublishedFileId, mod.PublishedServiceName)))
+                {
                     workshopIds.Add(new WorkshopId(mod.PublishedFileId, mod.PublishedServiceName));
+                }
             }
         }
 
         static MyWorkshop.ResultData DownloadModsBlocking(List<ModItem> mods, List<WorkshopId> workshopIds, MyWorkshop.CancelToken cancelToken)
         {
-            if (mods == null)
-                throw new ArgumentNullException(nameof(mods));
-            if (workshopIds == null)
-                throw new ArgumentNullException(nameof(workshopIds));
-
-
+            
             var modsToDownload = mods.Where(x => workshopIds.ToDictionary(x => x.Id)
                                      .TryGetValue(x.PublishedFileId, out _))
                                      .ToList();
 
             if (modsToDownload.Count == 0)
             {
-                SConsole.WriteLine("No mods to download");
+                Log.WriteLine("No mods to download");
                 return new(MyGameServiceCallResult.OK, false);
             }
 
             var items = new List<MyWorkshopItem>(modsToDownload.Count);
             if (!MyWorkshop.GetItemsBlockingUGC(workshopIds, items) || items.Count != modsToDownload.Count)
             {
-                SConsole.WriteLine("Failed to obtain workshop item details");
+                Log.WriteLine("Failed to obtain workshop item details");
                 return new(MyGameServiceCallResult.Fail, false);
             }
 
@@ -206,7 +194,7 @@ namespace SEToolbox.Interop
 
             if (result.Result != MyGameServiceCallResult.OK)
             {
-                SConsole.WriteLine($"Downloading mods failed, Result: {result.Result}");
+                Log.WriteLine($"Downloading mods failed, Result: {result.Result}");
             }
             else
             {
@@ -224,7 +212,10 @@ namespace SEToolbox.Interop
 
         static void FixModServiceName(List<ModItem> mods)
         {
-            if (mods == null) throw new ArgumentNullException(nameof(mods));
+            if (mods == null)
+            {
+                throw new ArgumentNullException(nameof(mods));
+            }
 
             string serviceName = MyGameService.GetDefaultUGC().ServiceName;
             for (int i = 0; i < mods.Count; i++)
@@ -270,7 +261,8 @@ namespace SEToolbox.Interop
         //         }
         //         catch (Exception ex)
         //         {
-        //             MySandboxGame.Log.WriteLine($"Error while querying workshop items: {ex.Message}");
+                   
+        //            SConsole.WriteLine($"Error while querying workshop items: {ex.Message}");
         //             return MyGameServiceCallResult.Fail;
         //         }
 
@@ -288,8 +280,6 @@ namespace SEToolbox.Interop
         //         var success = tasks.All(t => t.Result == MyGameServiceCallResult.OK);
         //         return success ? (MyGameServiceCallResult.OK, results) : (MyGameServiceCallResult.Fail, results);
         //     }
-
-
 
     }
 }

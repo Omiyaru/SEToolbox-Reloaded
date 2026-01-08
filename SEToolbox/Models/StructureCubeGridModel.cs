@@ -1,8 +1,12 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.ModAPI;
+
 using SEToolbox.Interop;
 using SEToolbox.Support;
+
+using SpaceEngineers.Game.Entities.Blocks;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,15 +16,17 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows.Media.Media3D;
 using System.Windows.Threading;
+
 using VRage;
 using VRage.Game;
 using VRage.Game.ObjectBuilders.Components;
 using VRage.ObjectBuilders;
 using VRage.Utils;
+
 using VRageMath;
+
 using IDType = VRage.MyEntityIdentifier.ID_OBJECT_TYPE;
 using Res = SEToolbox.Properties.Resources;
-using SpaceEngineers.Game.Entities.Blocks;
 
 namespace SEToolbox.Models
 {
@@ -178,7 +184,6 @@ namespace SEToolbox.Models
         public bool IsDamaged
         {
             //check if any block is damaged per its IntegrityPercent
-
             get => CubeGrid.CubeBlocks.Any(cube => cube.IntegrityPercent < 1);
         }
 
@@ -189,7 +194,7 @@ namespace SEToolbox.Models
 
         public int SkeletonCount
         {
-            get => CubeGrid.Skeleton.Count > 0 ? CubeGrid.Skeleton.Count : 0;
+            get => CubeGrid.Skeleton?.Count > 0 ? CubeGrid.Skeleton.Count : 0;
         }
 
         public override double LinearVelocity
@@ -206,7 +211,6 @@ namespace SEToolbox.Models
         public TimeSpan TimeToProduce
         {
             get => _timeToProduce;
-
             set => SetProperty(ref _timeToProduce, value, nameof(TimeToProduce));
         }
 
@@ -224,7 +228,6 @@ namespace SEToolbox.Models
         public string CockpitOrientation
         {
             get => _cockpitOrientation;
-
             set => SetProperty(ref _cockpitOrientation, value, nameof(CockpitOrientation));
         }
 
@@ -243,7 +246,6 @@ namespace SEToolbox.Models
         public List<CubeAssetModel> ComponentAssets
         {
             get => _componentAssets;
-
             set => SetProperty(ref _componentAssets, value, nameof(ComponentAssets));
 
         }
@@ -254,7 +256,6 @@ namespace SEToolbox.Models
         public List<OreAssetModel> IngotAssets
         {
             get => _ingotAssets;
-
             set => SetProperty(ref _ingotAssets, value, nameof(IngotAssets));
         }
 
@@ -271,35 +272,30 @@ namespace SEToolbox.Models
         public string ActiveComponentFilter
         {
             get => _activeComponentFilter;
-
             set => SetProperty(ref _activeComponentFilter, value, nameof(ActiveComponentFilter));
         }
 
         public string ComponentFilter
         {
             get => _componentFilter;
-
             set => SetProperty(ref _componentFilter, value, nameof(ComponentFilter));
         }
 
         public ObservableCollection<CubeItemModel> CubeList
         {
             get => _cubeList;
-
             set => SetProperty(ref _cubeList, value, nameof(CubeList));
         }
 
         public bool IsSubsSystemNotReady
         {
             get => _isSubsSystemNotReady;
-
             set => SetProperty(ref _isSubsSystemNotReady, value, nameof(IsSubsSystemNotReady));
         }
 
         public bool IsConstructionNotReady
         {
             get => _isConstructionNotReady;
-
             set => SetProperty(ref _isConstructionNotReady, value, nameof(IsConstructionNotReady));
         }
 
@@ -348,7 +344,7 @@ namespace SEToolbox.Models
                 MyCubeBlockDefinition cubeDefinition = SpaceEngineersApi.GetCubeDefinition(block.TypeId, CubeGrid.GridSizeEnum, block.SubtypeName);
 
                 // definition is null when the block no longer exists in the Cube definitions. Ie, Ladder, or a Mod that was removed.
-                if (cubeDefinition == null || (cubeDefinition.Size.X == 1 && cubeDefinition.Size.Y == 1 && cubeDefinition.Size.Z == 1))
+                if (cubeDefinition == null || cubeDefinition.Size == Vector3I.One)
                 {
                     max.X = Math.Max(max.X, block.Min.X);
                     max.Y = Math.Max(max.Y, block.Min.Y);
@@ -366,13 +362,11 @@ namespace SEToolbox.Models
                 MyCubeBlockDefinition cubeBlockDefinition = SpaceEngineersApi.GetCubeDefinition(block.TypeId, CubeGrid.GridSizeEnum, block.SubtypeName);
 
                 float cubeMass = 0;
-                if (cubeBlockDefinition != null)
+
+                foreach (MyCubeBlockDefinition.Component component in cubeBlockDefinition?.Components)
                 {
-                    foreach (MyCubeBlockDefinition.Component component in cubeBlockDefinition.Components)
-                    {
-                        float componentMass = component.Definition.Mass * component.Count;
-                        cubeMass += componentMass;
-                    }
+                    float componentMass = component.Definition.Mass * component.Count;
+                    cubeMass += componentMass;
                 }
 
                 totalMass += cubeMass;
@@ -382,17 +376,14 @@ namespace SEToolbox.Models
             MyObjectBuilder_CubeBlock[] cockpits = [.. CubeGrid.CubeBlocks.Where(b => b is MyObjectBuilder_Cockpit)];
             if (cockpits.Length > 0)
             {
-                int count = cockpits.Count(b => b.BlockOrientation.Forward == cockpits[0].BlockOrientation.Forward && b.BlockOrientation.Up == cockpits[0].BlockOrientation.Up);
-                if (cockpits.Length == count)
-                {
-                    // All cockpits share the same orientation.
-                    cockpitOrientation = $"{Res.ClsCockpitOrientationForward}={cockpits[0].BlockOrientation.Forward} ({GetAxisIndicator(cockpits[0].BlockOrientation.Forward)}), Up={cockpits[0].BlockOrientation.Up} ({GetAxisIndicator(cockpits[0].BlockOrientation.Up)})";
-                }
-                else
-                {
-                    // multiple cockpits are present, and do not share a common orientation.
-                    cockpitOrientation = Res.ClsCockpitOrientationMixed;
-                }
+                int count = cockpits.Count(b => b.BlockOrientation.Forward == cockpits[0].BlockOrientation.Forward &&
+                                                b.BlockOrientation.Up == cockpits[0].BlockOrientation.Up);
+                bool allSameOrientation = cockpits.All(b => b.BlockOrientation.Forward == cockpits[0].BlockOrientation.Forward &&
+                                                            b.BlockOrientation.Up == cockpits[0].BlockOrientation.Up);
+                string orientAxisForward  = $"{cockpits[0].BlockOrientation.Forward} ({GetAxisIndicator(cockpits[0].BlockOrientation.Forward)})";
+                string orientAxisUp = $"{cockpits[0].BlockOrientation.Up} ({GetAxisIndicator(cockpits[0].BlockOrientation.Up)})";
+
+                cockpitOrientation = allSameOrientation ? $"{Res.ClsCockpitOrientationForward} = {orientAxisForward}, {Res.ClsCockpitOrientationUp} = {orientAxisUp}" : Res.ClsCockpitOrientationMixed;
             }
             CockpitOrientation = cockpitOrientation;
 
@@ -402,7 +393,9 @@ namespace SEToolbox.Models
             scale.Z++;
 
             if (CubeGrid.CubeBlocks.Count == 0)
+            {
                 scale = new System.Windows.Media.Media3D.Vector3D();
+            }
 
             Min = min;
             Max = max;
@@ -421,37 +414,29 @@ namespace SEToolbox.Models
             DisplayName = CubeGrid.DisplayName;
 
             // Add Beacon or Antenna detail for the Description.
-            MyObjectBuilder_CubeBlock[] broadcasters = [.. CubeGrid.CubeBlocks.Where(b => b.SubtypeName == SubtypeId.LargeBlockBeacon.ToString()
-                || b.SubtypeName == SubtypeId.SmallBlockBeacon.ToString()
-                || b.SubtypeName == SubtypeId.LargeBlockRadioAntenna.ToString()
-                || b.SubtypeName == SubtypeId.SmallBlockRadioAntenna.ToString())];
+            MyObjectBuilder_CubeBlock[] broadcasters = [.. CubeGrid.CubeBlocks.Where(b => b is MyObjectBuilder_Beacon || b is MyObjectBuilder_RadioAntenna)];
+            float broadcastRadius = Math.Max(CubeGrid.CubeBlocks.OfType<MyObjectBuilder_Beacon>().Max(b => b.BroadcastRadius), CubeGrid.CubeBlocks.OfType<MyObjectBuilder_RadioAntenna>().Max(b => b.BroadcastRadius));
             string broadcastNames = string.Empty;
             if (broadcasters.Length > 0)
             {
-                string[] beaconNames = [.. broadcasters.Where(b => b is MyObjectBuilder_Beacon).Select(b => ((MyObjectBuilder_Beacon)b).CustomName ?? "Beacon")];
-                string[] antennaNames = [.. broadcasters.Where(b => b is MyObjectBuilder_RadioAntenna).Select(b => ((MyObjectBuilder_RadioAntenna)b).CustomName ?? "Antenna")];
+                var beacons = broadcasters.OfType<MyObjectBuilder_Beacon>();
+                var antennas = broadcasters.OfType<MyObjectBuilder_RadioAntenna>();
+
+                string[] beaconNames = [.. beacons.Select(b => b.CustomName ?? "Beacon")];
+                string[] antennaNames = [.. antennas.Select(a => a.CustomName ?? "Antenna")];
                 broadcastNames = string.Join("|", beaconNames.Concat(antennaNames).OrderBy(s => s));
             }
 
-            if (CubeGrid.CubeBlocks.Count == 1)
-            {
-                if (CubeGrid.CubeBlocks.First() is MyObjectBuilder_Wheel)
+            if (CubeGrid.CubeBlocks.Count == 1 && CubeGrid.CubeBlocks.First() is MyObjectBuilder_Wheel)
                 {
-                    MyObjectBuilder_CubeGrid grid = (MyObjectBuilder_CubeGrid)ExplorerModel.Default.FindConnectedTopBlock<MyObjectBuilder_MotorSuspension>(CubeGrid.CubeBlocks[0].EntityId);
-
-                    if (grid == null)
-                        Description = Res.ClsCubeGridWheelDetached;
-                    else
-                        Description = string.Format(Res.ClsCubeGridWheelAttached, grid.DisplayName);
+                    MyObjectBuilder_CubeGrid grid = ExplorerModel.Default.FindConnectedTopBlock<MyObjectBuilder_MotorSuspension>(CubeGrid.CubeBlocks[0].EntityId);
+                 Description = grid == null ? Res.ClsCubeGridWheelDetached : string.Format(Res.ClsCubeGridWheelAttached, grid.DisplayName);
                     return;
-                }
+  
             }
 
-            if (string.IsNullOrEmpty(broadcastNames))
-                Description = string.Format($"{Scale.X}x{Scale.Y}x{Scale.Z}");
-            else
+           Description =  string.IsNullOrEmpty(broadcastNames) ? $"{Scale.X}x{Scale.Y}x{Scale.Z}": $"{broadcastNames} {Scale.X}x{Scale.Y}x{Scale.Z}";
 
-                Description = $"{broadcastNames} {Scale.X}x{Scale.Y}x{Scale.Z}";
 
             bool reflectorsOn = CubeGrid.CubeBlocks.OfType<MyObjectBuilder_ReflectorLight>().Any(light => light.Enabled);
 
@@ -464,7 +449,7 @@ namespace SEToolbox.Models
             }
 
             float totalReactorOutput = 0;
-            foreach (IMyPowerProducer reactor in CubeGrid.CubeBlocks.OfType<IMyPowerProducer>())
+            foreach (IMyPowerProducer reactor in CubeGrid.CubeBlocks.OfType<IMyReactor>())
             {
                 totalReactorOutput += reactor.CurrentOutput;
             }
@@ -472,8 +457,9 @@ namespace SEToolbox.Models
             int thrustCount = CubeGrid.CubeBlocks.OfType<MyObjectBuilder_Thrust>().Count();
             int gyroCount = CubeGrid.CubeBlocks.OfType<MyObjectBuilder_Gyro>().Count();
             float totalFuelTime = 0;
+          
             foreach (IMyPowerProducer block in CubeGrid.CubeBlocks.OfType<IMyPowerProducer>())
-
+            {
                 _ = block switch
                 {
                     IMyPowerProducer when block is IMyReactor reactor => totalFuelTime += reactor.CurrentOutput,
@@ -483,14 +469,16 @@ namespace SEToolbox.Models
                     _ => totalFuelTime += 0
 
                 };
-
+            }
 
             decimal totalFuel = 0;
-            decimal totalPower = 0;
-
+            decimal totalPower = 0;    
             foreach (IMyPowerProducer block in CubeGrid.CubeBlocks.OfType<IMyPowerProducer>())
             {
-                if (block == null) continue;
+                if (block == null)
+                {
+                    continue;
+                }
 
                 float currentOutput = block.CurrentOutput;
 
@@ -505,19 +493,20 @@ namespace SEToolbox.Models
 
                 totalPower += (decimal)currentOutput;
             }
-
-            // Report
-            SConsole.WriteLine($"Reflectors On: {reflectorsOn}");
-            SConsole.WriteLine($"Mass: {Mass} Kg");
-            SConsole.WriteLine($"Speed: {speed} m/s");
-            SConsole.WriteLine($"Power Usage: {totalPowerUsage}%");
-            SConsole.WriteLine($"Reactors: {totalReactorOutput} GW");
-            SConsole.WriteLine($"Thrusts: {thrustCount}");
-            SConsole.WriteLine($"Gyros: {gyroCount}");
-            SConsole.WriteLine($"Fuel Time: {totalFuelTime} sec");
+            /// 
+            // Report for debugging
+            // Log.WriteLine($"CubeGrid: {DisplayName}");
+            // Log.WriteLine($"Description: {Description}");
+            // Log.WriteLine($"Reflectors On: {reflectorsOn}");
+            // Log.WriteLine($"Mass: {Mass} Kg");
+            // Log.WriteLine($"Speed: {speed} m/s");
+            // Log.WriteLine($"Power Usage: {totalPowerUsage}%");
+            // Log.WriteLine($"Reactors: {totalReactorOutput} GW");
+            // Log.WriteLine($"Thrusts: {thrustCount}");
+            // Log.WriteLine($"Gyros: {gyroCount}");
+            // Log.WriteLine($"Fuel Time: {totalFuelTime} sec");
 
         }
-
 
 
         public override void InitializeAsync()
@@ -559,32 +548,30 @@ namespace SEToolbox.Models
                             string blockTexture = null;
                             int pcu = 0;
 
-                            if (cubeBlockDefinition != null)
+
+                            foreach (MyCubeBlockDefinition.Component component in cubeBlockDefinition?.Components)
                             {
-                                foreach (MyCubeBlockDefinition.Component component in cubeBlockDefinition.Components)
+                                SpaceEngineersApi.AccumulateCubeBlueprintRequirements(component.Definition.Id.SubtypeName, component.Definition.Id.TypeId, component.Count, ingotRequirements, out TimeSpan componentTime);
+                                timeTaken += componentTime;
+
+                                float componentMass = component.Definition.Mass * component.Count;
+                                float componentVolume = component.Definition.Volume * SpaceEngineersConsts.VolumeMultiplier * component.Count;
+                                cubeMass += componentMass;
+
+                                string componentName = component.Definition.Id.SubtypeName;
+                                if (componentAssetDict.ContainsKey(componentName))
                                 {
-                                    SpaceEngineersApi.AccumulateCubeBlueprintRequirements(component.Definition.Id.SubtypeName, component.Definition.Id.TypeId, component.Count, ingotRequirements, out TimeSpan componentTime);
-                                    timeTaken += componentTime;
-
-                                    float componentMass = component.Definition.Mass * component.Count;
-                                    float componentVolume = component.Definition.Volume * SpaceEngineersConsts.VolumeMultiplier * component.Count;
-                                    cubeMass += componentMass;
-
-                                    string componentName = component.Definition.Id.SubtypeName;
-                                    if (componentAssetDict.ContainsKey(componentName))
-                                    {
-                                        componentAssetDict[componentName].Count += component.Count;
-                                        componentAssetDict[componentName].Mass += componentMass;
-                                        componentAssetDict[componentName].Volume += componentVolume;
-                                        componentAssetDict[componentName].Time += componentTime;
-                                    }
-                                    else
-                                    {
-                                        string componentTexture = SpaceEngineersCore.GetDataPathOrDefault(component.Definition.Icons.First(), Path.Combine(contentPath, component.Definition.Icons.First()));
-                                        CubeAssetModel m = new() { Name = component.Definition.DisplayNameText, Mass = componentMass, Volume = componentVolume, Count = component.Count, Time = componentTime, TextureFile = componentTexture };
-                                        componentAssets.Add(m);
-                                        componentAssetDict.Add(componentName, m);
-                                    }
+                                    componentAssetDict[componentName].Count += component.Count;
+                                    componentAssetDict[componentName].Mass += componentMass;
+                                    componentAssetDict[componentName].Volume += componentVolume;
+                                    componentAssetDict[componentName].Time += componentTime;
+                                }
+                                else
+                                {
+                                    string componentTexture = SpaceEngineersCore.GetDataPathOrDefault(component.Definition.Icons.First(), Path.Combine(contentPath, component.Definition.Icons.First()));
+                                    CubeAssetModel m = new() { Name = component.Definition.DisplayNameText, Mass = componentMass, Volume = componentVolume, Count = component.Count, Time = componentTime, TextureFile = componentTexture };
+                                    componentAssets.Add(m);
+                                    componentAssetDict.Add(componentName, m);
                                 }
 
                                 blockTime = TimeSpan.FromSeconds(cubeBlockDefinition.IntegrityPointsPerSec != 0 ? cubeBlockDefinition.MaxIntegrity / cubeBlockDefinition.IntegrityPointsPerSec : 0);
@@ -612,28 +599,33 @@ namespace SEToolbox.Models
 
                         foreach (KeyValuePair<string, BlueprintRequirement> kvp in ingotRequirements)
                         {
-                            SpaceEngineersApi.AccumulateCubeBlueprintRequirements(kvp.Value.SubtypeId, kvp.Value.Id.TypeId, kvp.Value.Amount, oreRequirements, out TimeSpan ingotTime);
-                            MyDefinitionBase mydb = MyDefinitionManager.Static.GetDefinition(kvp.Value.Id);
-                            if (mydb.Id.TypeId.IsNull)
+                            SpaceEngineersApi.AccumulateCubeBlueprintRequirements(kvp.Value.SubtypeName, kvp.Value.Id.TypeId, kvp.Value.Amount, oreRequirements, out TimeSpan ingotTime);
+                            MyDefinitionBase myDefBase = MyDefinitionManager.Static.GetDefinition(kvp.Value.Id);
+                            if (myDefBase.Id.TypeId.IsNull)
+                            {
                                 continue;
-                            MyPhysicalItemDefinition pd = (MyPhysicalItemDefinition)mydb;
-                            string componentTexture = SpaceEngineersCore.GetDataPathOrDefault(pd.Icons.First(), Path.Combine(contentPath, pd.Icons.First()));
-                            double volume = (double)kvp.Value.Amount * pd.Volume * SpaceEngineersConsts.VolumeMultiplier;
-                            OreAssetModel ingotAsset = new() { Name = pd.DisplayNameText, Amount = kvp.Value.Amount, Mass = (double)kvp.Value.Amount * pd.Mass, Volume = volume, Time = ingotTime, TextureFile = componentTexture };
+                            }
+
+                            MyPhysicalItemDefinition physItemDef = (MyPhysicalItemDefinition)myDefBase;
+                            string componentTexture = SpaceEngineersCore.GetDataPathOrDefault(physItemDef.Icons.First(), Path.Combine(contentPath, physItemDef.Icons.First()));
+                            double volume = (double)kvp.Value.Amount * physItemDef.Volume * SpaceEngineersConsts.VolumeMultiplier;
+                            OreAssetModel ingotAsset = new() { Name = physItemDef.DisplayNameText, Amount = kvp.Value.Amount, Mass = (double)kvp.Value.Amount * physItemDef.Mass, Volume = volume, Time = ingotTime, TextureFile = componentTexture };
                             ingotAssets.Add(ingotAsset);
                             timeTaken += ingotTime;
                         }
 
                         foreach (KeyValuePair<string, BlueprintRequirement> kvp in oreRequirements)
                         {
-                            if (MyDefinitionManager.Static.GetDefinition(kvp.Value.Id) is MyPhysicalItemDefinition pd)
-                                if (pd != null)
+                            if (MyDefinitionManager.Static.GetDefinition(kvp.Value.Id) is MyPhysicalItemDefinition physItemDef)
+                            {
+                                if (physItemDef != null)
                                 {
-                                    string componentTexture = SpaceEngineersCore.GetDataPathOrDefault(pd.Icons.First(), Path.Combine(contentPath, pd.Icons.First()));
-                                    double volume = (double)kvp.Value.Amount * pd.Volume * SpaceEngineersConsts.VolumeMultiplier;
-                                    OreAssetModel oreAsset = new() { Name = pd.DisplayNameText, Amount = kvp.Value.Amount, Mass = (double)kvp.Value.Amount * pd.Mass, Volume = volume, TextureFile = componentTexture };
+                                    string componentTexture = SpaceEngineersCore.GetDataPathOrDefault(physItemDef.Icons.First(), Path.Combine(contentPath, physItemDef.Icons.First()));
+                                    double volume = (double)kvp.Value.Amount * physItemDef.Volume * SpaceEngineersConsts.VolumeMultiplier;
+                                    OreAssetModel oreAsset = new() { Name = physItemDef.DisplayNameText, Amount = kvp.Value.Amount, Mass = (double)kvp.Value.Amount * physItemDef.Mass, Volume = volume, TextureFile = componentTexture };
                                     oreAssets.Add(oreAsset);
                                 }
+                            }
                         }
 
                         _dispatcher.Invoke(DispatcherPriority.Input, (Action)delegate
@@ -689,10 +681,9 @@ namespace SEToolbox.Models
 
             foreach (MyObjectBuilder_CubeBlock cube in CubeGrid.CubeBlocks.Where(e => e is MyObjectBuilder_Cockpit))
             {
-                if (cube.ComponentContainer?.Components?.FirstOrDefault(e => e.TypeId == "MyHierarchyComponentBase")?.Component is MyObjectBuilder_HierarchyComponentBase hierarchyBase)
+                if (cube.ComponentContainer?.Components?.FirstOrDefault(e => e.TypeId == "MyHierarchyComponentBase")?.Component is MyObjectBuilder_HierarchyComponentBase hierarchyBase && hierarchyBase.Children.Any(e => e is MyObjectBuilder_Character))
                 {
-                    if (hierarchyBase.Children.Any(e => e is MyObjectBuilder_Character))
-                        list.Add((MyObjectBuilder_Cockpit)cube);
+                    list.Add((MyObjectBuilder_Cockpit)cube);
                 }
             }
 
@@ -701,10 +692,8 @@ namespace SEToolbox.Models
 
         public void RepairAllDamage()
         {
-            if (CubeGrid.Skeleton == null)
-                CubeGrid.Skeleton = [];
-            else
-                CubeGrid.Skeleton.Clear();
+            CubeGrid.Skeleton ??= [];
+            CubeGrid.Skeleton.Clear();
 
             foreach (MyObjectBuilder_CubeBlock cube in CubeGrid.CubeBlocks)
             {
@@ -712,8 +701,7 @@ namespace SEToolbox.Models
                 // No need to set bones for individual blocks like rounded armor, as this is taken from the definition within the game itself.
             }
 
-            OnPropertyChanged(nameof(IsDamaged));
-            OnPropertyChanged(nameof(DamageCount));
+            OnPropertyChanged(nameof(IsDamaged), nameof(DamageCount));
         }
 
         public void ResetLinearVelocity()
@@ -737,8 +725,12 @@ namespace SEToolbox.Models
 
         public void ReverseVelocity()
         {
-            CubeGrid.LinearVelocity = new Vector3(CubeGrid.LinearVelocity.X * -1, CubeGrid.LinearVelocity.Y * -1, CubeGrid.LinearVelocity.Z * -1);
-            CubeGrid.AngularVelocity = new Vector3(CubeGrid.AngularVelocity.X * -1, CubeGrid.AngularVelocity.Y * -1, CubeGrid.AngularVelocity.Z * -1);
+            CubeGrid.LinearVelocity = new Vector3(CubeGrid.LinearVelocity.X * -1,
+                                                  CubeGrid.LinearVelocity.Y * -1,
+                                                  CubeGrid.LinearVelocity.Z * -1);
+            CubeGrid.AngularVelocity = new Vector3(CubeGrid.AngularVelocity.X * -1,
+                                                   CubeGrid.AngularVelocity.Y * -1,
+                                                   CubeGrid.AngularVelocity.Z * -1);
             OnPropertyChanged(nameof(LinearVelocity));
         }
 
@@ -757,7 +749,9 @@ namespace SEToolbox.Models
         {
             bool changes = false;
             foreach (MyObjectBuilder_CubeBlock cube in CubeGrid.CubeBlocks)
+            {
                 changes |= CubeItemModel.ConvertFromLightToHeavyArmor(cube);
+            }
 
             if (changes)
             {
@@ -773,7 +767,9 @@ namespace SEToolbox.Models
         {
             bool changes = false;
             foreach (MyObjectBuilder_CubeBlock cube in CubeGrid.CubeBlocks)
+            {
                 changes |= CubeItemModel.ConvertFromHeavyToLightArmor(cube);
+            }
 
             if (changes)
             {
@@ -805,17 +801,14 @@ namespace SEToolbox.Models
 
         public int SetInertiaTensor(bool state)
         {
-            int count = 0;
 
+            int count = 0;
             foreach (MyObjectBuilder_CubeBlock cube in CubeGrid.CubeBlocks)
             {
-                if (cube is MyObjectBuilder_MechanicalConnectionBlock mechanicalBlock)
+                if (cube is MyObjectBuilder_MechanicalConnectionBlock mechanicalBlock && mechanicalBlock?.ShareInertiaTensor != state)
                 {
-                    if (mechanicalBlock.ShareInertiaTensor != state)
-                    {
-                        count++;
-                        mechanicalBlock.ShareInertiaTensor = state;
-                    }
+                    count++;
+                    mechanicalBlock.ShareInertiaTensor = state;
                 }
             }
 
@@ -834,17 +827,16 @@ namespace SEToolbox.Models
         public void RotateStructure(VRageMath.Quaternion quaternion)
         {
             // Rotate the ship/station in specified direction.
-            VRageMath.Quaternion o = CubeGrid.PositionAndOrientation.Value.ToQuaternion() * quaternion;
-            o.Normalize();
-            MyPositionAndOrientation p = new(o.ToMatrix());
+            VRageMath.Quaternion orient = CubeGrid.PositionAndOrientation.Value.ToQuaternion() * quaternion;
+            orient.Normalize();
+            MyPositionAndOrientation pos = new(orient.ToMatrix());
 
             CubeGrid.PositionAndOrientation = new MyPositionAndOrientation
             {
                 Position = CubeGrid.PositionAndOrientation.Value.Position,
-                Forward = p.Forward,
-                Up = p.Up
+                Forward = pos.Forward,
+                Up = pos.Up
             };
-
             UpdateGeneralFromEntityBase();
         }
 
@@ -854,7 +846,7 @@ namespace SEToolbox.Models
             {
                 MyCubeBlockDefinition definition = SpaceEngineersApi.GetCubeDefinition(cube.TypeId, CubeGrid.GridSizeEnum, cube.SubtypeName);
 
-                if (definition.Size.X == 1 && definition.Size.Y == 1 && definition.Size.Z == 1)
+                if (definition.Size == Vector3I.One)
                 {
                     // rotate position around origin.
                     cube.Min = Vector3I.Transform(cube.Min.ToVector3I(), quaternion);
@@ -865,75 +857,72 @@ namespace SEToolbox.Models
                     Vector3I orientSize = definition.Size.Add(-1).Transform(cube.BlockOrientation).Abs();
 
                     Vector3I min = Vector3I.Transform(cube.Min.ToVector3I(), quaternion);
-                    Vector3I blockMax = new(cube.Min.X + orientSize.X, cube.Min.Y + orientSize.Y, cube.Min.Z + orientSize.Z);
+                    Vector3I blockMax = new(cube.Min.X + orientSize.X,
+                                            cube.Min.Y + orientSize.Y,
+                                            cube.Min.Z + orientSize.Z);
                     Vector3I max = Vector3I.Transform(blockMax, quaternion);
 
-                    cube.Min = new SerializableVector3I(Math.Min(min.X, max.X), Math.Min(min.Y, max.Y), Math.Min(min.Z, max.Z));
+                    cube.Min = new SerializableVector3I(Math.Min(min.X, max.X),
+                                                        Math.Min(min.Y, max.Y),
+                                                        Math.Min(min.Z, max.Z));
                 }
+                VRageMath.Quaternion quat = quaternion * cube.BlockOrientation.ToQuaternion();
+                quat.Normalize();
+                cube.BlockOrientation = new SerializableBlockOrientation(ref quat);
 
-                // rotate BlockOrientation.
-                VRageMath.Quaternion q = quaternion * cube.BlockOrientation.ToQuaternion();
-                q.Normalize();
-                cube.BlockOrientation = new SerializableBlockOrientation(ref q);
+                RotateGroupings(quaternion);
+                RotateSkeleton(quaternion);
+                RotateConveyorLines(quaternion);
+                NormalizeRotation(quaternion);
+                UpdateGeneralFromEntityBase();
             }
+        }
 
-            // Rotate Groupings.
+        private void RotateGroupings(VRageMath.Quaternion quaternion)
+        {
             foreach (MyObjectBuilder_BlockGroup group in CubeGrid.BlockGroups)
             {
-                for (int i = 0; i < group.Blocks.Count; i++)
-                {
-                    // The Group location is in the center of the cube.
-                    // It doesn't have to be exact though, as it appears SE is just doing a location test of whatever object is at that location.
-                    group.Blocks[i] = Vector3I.Transform(group.Blocks[i], quaternion);
-                }
+                group.Blocks = [.. group.Blocks.Select(b => Vector3I.Transform(b, quaternion))];
             }
+        }
 
-            // Rotate Bones if Skeleton is not null
-            if (CubeGrid.Skeleton != null)
+        private void RotateSkeleton(VRageMath.Quaternion quaternion)
+        {
+
+            for (int i = 0; i < CubeGrid.Skeleton?.Count; i++)
             {
-                for (int i = 0; i < CubeGrid.Skeleton.Count; i++)
-                {
-                    BoneInfo bone = CubeGrid.Skeleton[i];
-                    bone.BonePosition = Vector3I.Transform(bone.BonePosition, quaternion);
-                    bone.BoneOffset = bone.BoneOffset.Transform(VRageMath.Quaternion.Inverse(quaternion));
-                    CubeGrid.Skeleton[i] = bone; // Reassign the modified bone back to the collection
-                }
+                BoneInfo bone = CubeGrid.Skeleton[i];
+                bone.BonePosition = Vector3I.Transform(bone.BonePosition, quaternion);
+                bone.BoneOffset = bone.BoneOffset.Transform(VRageMath.Quaternion.Inverse(quaternion));
+                CubeGrid.Skeleton[i] = bone; // Reassign the modified bone back to the collection
             }
+        }
 
-
-            // Rotate ConveyorLines
-            if (CubeGrid.ConveyorLines != null)
+        private void RotateConveyorLines(VRageMath.Quaternion quaternion)
+        {
+            var newLines = CubeGrid.ConveyorLines.Select(line => new MyObjectBuilder_ConveyorLine
             {
-                foreach (MyObjectBuilder_ConveyorLine ConveyorLine in CubeGrid.ConveyorLines)
-                {
-                    ConveyorLine.StartPosition = Vector3I.Transform(ConveyorLine.StartPosition, quaternion);
-                    ConveyorLine.EndPosition = Vector3I.Transform(ConveyorLine.EndPosition, quaternion);
+                StartPosition = Vector3I.Transform(line.StartPosition, quaternion),
+                StartDirection = Base6Directions.GetDirection(Vector3.Transform(Base6Directions.GetVector(line.StartDirection), quaternion)),
+                EndPosition = Vector3I.Transform(line.EndPosition, quaternion),
+                EndDirection = Base6Directions.GetDirection(Vector3.Transform(Base6Directions.GetVector(line.EndDirection), quaternion))
+            }).ToList();
+            CubeGrid.ConveyorLines = newLines;
+        }
 
-                    {
-                        Vector3 startDirectionVector = Base6Directions.GetVector(ConveyorLine.StartDirection);
-                        startDirectionVector = Vector3.Transform(startDirectionVector, quaternion);
-                        ConveyorLine.StartDirection = Base6Directions.GetDirection(startDirectionVector);
-
-                        Vector3 endDirectionVector = Base6Directions.GetVector(ConveyorLine.EndDirection);
-                        endDirectionVector = Vector3.Transform(endDirectionVector, quaternion);
-                        ConveyorLine.EndDirection = Base6Directions.GetDirection(endDirectionVector);
-                    }
-                }
-            }
-
+        private void NormalizeRotation(VRageMath.Quaternion quaternion)
+        {
             // Rotate the ship also to maintain the appearance that it has not changed.
-            VRageMath.Quaternion o = CubeGrid.PositionAndOrientation.Value.ToQuaternion() * VRageMath.Quaternion.Inverse(quaternion);
-            o.Normalize();
-            MyPositionAndOrientation p = new(o.ToMatrix());
+            VRageMath.Quaternion orient = CubeGrid.PositionAndOrientation.Value.ToQuaternion() * VRageMath.Quaternion.Inverse(quaternion);
+            orient.Normalize();
+            MyPositionAndOrientation pos = new(orient.ToMatrix());
 
             CubeGrid.PositionAndOrientation = new MyPositionAndOrientation
             {
                 Position = CubeGrid.PositionAndOrientation.Value.Position,
-                Forward = p.Forward,
-                Up = p.Up
+                Forward = pos.Forward,
+                Up = pos.Up
             };
-
-            UpdateGeneralFromEntityBase();
         }
 
         public void ConvertToShip()
@@ -941,12 +930,24 @@ namespace SEToolbox.Models
             CubeGrid.IsStatic = false;
             UpdateGeneralFromEntityBase();
         }
-        List<SubtypeId> armorTypes = new List<SubtypeId> { SubtypeId.LargeRoundArmor_Corner, SubtypeId.LargeRoundArmor_Slope, SubtypeId.LargeRoundArmor_CornerInv };
+        List<SubTypeId> armorTypes =
+        [
+            SubTypeId.LargeRoundArmor_Corner,
+            SubTypeId.LargeRoundArmor_Slope,
+            SubTypeId.LargeRoundArmor_CornerInv,
+
+            SubTypeId.SmallBlockArmorSlope,
+            SubTypeId.SmallBlockArmorCorner,
+            SubTypeId.SmallBlockArmorCornerInv
+            
+        ];
         public bool ConvertToCornerArmor()
         {
             int count = 0;
             foreach (var block in armorTypes)
-                count += CubeGrid.CubeBlocks.Where(c => c.SubtypeName == block.ToString()).Count();
+            {
+                count += CubeGrid.CubeBlocks.Count(c => c.SubtypeName == block.ToString());
+            }
             return count > 0;
         }
 
@@ -954,100 +955,81 @@ namespace SEToolbox.Models
         {
             int count = 0;
             foreach (var block in armorTypes)
-                count += CubeGrid.CubeBlocks.Where(c => c.SubtypeName == block.ToString()).Count();
+            {
+                count += CubeGrid.CubeBlocks.Count(c => c.SubtypeName == block.ToString());
+            }
             return count > 0;
         }
 
         #region Mirror
 
         public bool MirrorModel(bool usePlane, bool oddMirror)
-        {
-            (Mirror xMirror, Mirror yMirror, Mirror zMirror) = (Mirror.None, Mirror.None, Mirror.None);
-            (int xAxis, int yAxis, int zAxis) = (0, 0, 0);
+        {   
+            var mirror = Mirror.None;
+            var axisValue = 0;
+            var (xMirror, xAxis, yMirror ,yAxis, zMirror, zAxis) = (Mirror.None, 0, Mirror.None, 0, Mirror.None, 0);
             int count = 0;
 
             if (!usePlane)
             {
-                // Find mirror Axis.
-                if (!CubeGrid.XMirroxPlane.HasValue && !CubeGrid.YMirroxPlane.HasValue && !CubeGrid.ZMirroxPlane.HasValue)
+                // Find mirror Axis.    
+                
+                var (min, max) = (CubeGrid.CubeBlocks.Min(c => c.Min), CubeGrid.CubeBlocks.Max(c => c.Min));
+                var axisValues =  CubeGrid.CubeBlocks.GroupBy(c => c.Min).Select(c => c).ToArray();
+                int[] cubeCounts = [.. CubeGrid.CubeBlocks.GroupBy(c => c.Min).Select(c => c.Count())];
+                        
+                var maxIndex = cubeCounts.ToList().IndexOf(cubeCounts.Max());
+            
+            Mirror[] mirrorTypes = [Mirror.EvenDown, Mirror.EvenUp, Mirror.Odd];
+           
+                for (int i = 0; i < cubeCounts.Length; i++)
                 {
-                    // Find the largest contiguous exterior surface to use as the mirror.
-
-                    (int minX, int maxX) = (CubeGrid.CubeBlocks.Min(c => c.Min.X), CubeGrid.CubeBlocks.Max(c => c.Min.X));
-                    (int minY, int maxY) = (CubeGrid.CubeBlocks.Min(c => c.Min.Y), CubeGrid.CubeBlocks.Max(c => c.Min.Y));
-                    (int minZ, int maxZ) = (CubeGrid.CubeBlocks.Min(c => c.Min.Z), CubeGrid.CubeBlocks.Max(c => c.Min.Z));
-
-                    int[] cubeCounts =
-                    [
-                        CubeGrid.CubeBlocks.Count(c => c.Min.X == minX),
-                        CubeGrid.CubeBlocks.Count(c => c.Min.Y == minY),
-                        CubeGrid.CubeBlocks.Count(c => c.Min.Z == minZ),
-                        CubeGrid.CubeBlocks.Count(c => c.Min.X == maxX),
-                        CubeGrid.CubeBlocks.Count(c => c.Min.Y == maxY),
-                        CubeGrid.CubeBlocks.Count(c => c.Min.Z == maxZ)
-                    ];
-
-
-                    int[] axis = [minX, minY, minZ, maxX, maxY, maxZ];
-                    Mirror[] mirrorTypes = [Mirror.EvenDown, Mirror.EvenUp, Mirror.Odd];
-
-                    for (int i = 0; i < cubeCounts.Length; i++)
+                    if (cubeCounts[i] > maxIndex && mirrorTypes[i] != Mirror.None) 
                     {
-                        if (cubeCounts[i] > cubeCounts.Max())
-                        {
-                            if (i < 3) // Min values
-                            {
-                                xMirror = oddMirror ? Mirror.Odd : mirrorTypes[0];
-                                xAxis = axis[i];
-                            }
-                            else // Max values
-                            {
-                                xMirror = oddMirror ? Mirror.Odd : mirrorTypes[1];
-                                xAxis = axis[i];
-                            }
+                        
+          
+                            mirror = oddMirror ? Mirror.Odd : mirrorTypes[maxIndex];
                             break;
-                        }
                     }
-
-
-                    MyObjectBuilder_CubeBlock[] cubes = [.. MirrorCubes(this, false, xMirror, xAxis, yMirror, yAxis, zMirror, zAxis)];
+                }    
+     
+                 MyObjectBuilder_CubeBlock[] cubes = [.. MirrorCubes(this, false, xMirror, xAxis, yMirror, yAxis, zMirror, zAxis)];
                     CubeGrid.CubeBlocks.AddRange(cubes);
                     count += cubes.Length;
 
-                    UpdateGeneralFromEntityBase();
-                    OnPropertyChanged(nameof(BlockCount));
-                    return count > 0;
-                }
-                int mirrorAxis = 0;
-                Mirror mirror = Mirror.None;
-                MyObjectBuilder_CubeBlock[] cubeBlock = null;
+            UpdateGeneralFromEntityBase();
+            OnPropertyChanged(nameof(BlockCount));
+                
+            return count > 0;
+        }
 
-                switch (true)
-                {
+          
+            MyObjectBuilder_CubeBlock[] cubeBlock = null;
 
-                    case var _ when CubeGrid.XMirroxPlane.HasValue &&
-                    mirror == (CubeGrid.XMirroxOdd ? Mirror.Odd : Mirror.EvenDown) &&
-                    mirrorAxis == CubeGrid.XMirroxPlane.Value.X &&
-                    cubeBlock == MirrorCubes(this, true, xMirror, xAxis, Mirror.None, 0, Mirror.None, 0).ToArray():
-                    case var _ when CubeGrid.YMirroxPlane.HasValue &&
-                    mirror == (CubeGrid.YMirroxOdd ? Mirror.EvenDown : Mirror.Odd) &&
-                    mirrorAxis == CubeGrid.YMirroxPlane.Value.Y &&
-                    cubeBlock == MirrorCubes(this, true, Mirror.None, 0, yMirror, yAxis, Mirror.None, 0).ToArray():
-                    case var _ when CubeGrid.ZMirroxPlane.HasValue &&
-                     mirror == (CubeGrid.ZMirroxOdd ? Mirror.EvenDown : Mirror.Odd) &&
-                    mirrorAxis == CubeGrid.ZMirroxPlane.Value.Z &&
-                    cubeBlock == MirrorCubes(this, true, Mirror.None, 0, Mirror.None, 0, zMirror, zAxis).ToArray():
-                        
-                        CubeGrid.CubeBlocks.AddRange(cubeBlock);
-                        count += cubeBlock.Length;
-                        MirrorBlockGroups(CubeGrid, xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
-                        MirrorConveyorLines(CubeGrid, xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
-                        break;
-                }
+            switch (true)
+            {
+                case var _ when CubeGrid.XMirroxPlane.HasValue &&
+                                mirror == (CubeGrid.XMirroxOdd ? Mirror.Odd : Mirror.EvenDown) &&
+                                axisValue == CubeGrid.XMirroxPlane.Value.X &&
+                                cubeBlock == MirrorCubes(this, true, xMirror, xAxis, Mirror.None, 0, Mirror.None, 0).ToArray():
+                ///
+                case var _ when CubeGrid.YMirroxPlane.HasValue &&
+                                mirror == (CubeGrid.YMirroxOdd ? Mirror.EvenDown : Mirror.Odd) &&
+                                axisValue == CubeGrid.YMirroxPlane.Value.Y &&
+                ///
+                                cubeBlock == MirrorCubes(this, true, Mirror.None, 0, yMirror, yAxis, Mirror.None, 0).ToArray():
+                case var _ when CubeGrid.ZMirroxPlane.HasValue && mirror == (CubeGrid.ZMirroxOdd ? Mirror.EvenDown : Mirror.Odd) &&
+                                axisValue == CubeGrid.ZMirroxPlane.Value.Z &&
+                                cubeBlock == MirrorCubes(this, true, Mirror.None, 0, Mirror.None, 0, zMirror, zAxis).ToArray():
+                    ///
 
+                    CubeGrid.CubeBlocks.AddRange(cubeBlock);
+                    count += cubeBlock.Length;
+                    MirrorBlockGroups(CubeGrid, xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
+                    MirrorConveyorLines(CubeGrid, xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
+                    break;
             }
-
-
+            
             UpdateGeneralFromEntityBase();
             OnPropertyChanged(nameof(BlockCount));
             return count > 0;
@@ -1055,66 +1037,64 @@ namespace SEToolbox.Models
 
         public void MirrorBlockGroups(MyObjectBuilder_CubeGrid CubeGrid, Mirror xMirror, int xAxis, Mirror yMirror, int yAxis, Mirror zMirror, int zAxis)
         {
-            if (CubeGrid.BlockGroups != null)
+            foreach (MyObjectBuilder_BlockGroup group in CubeGrid.BlockGroups)
             {
-                foreach (MyObjectBuilder_BlockGroup group in CubeGrid.BlockGroups)
+                MyObjectBuilder_BlockGroup mirroredGroup = new()
                 {
-                    MyObjectBuilder_BlockGroup mirroredGroup = new()
-                    {
-                        Name = group.Name + "_Mirrored",
-                        Blocks = [.. group.Blocks.Select(pos => {
-                                MyObjectBuilder_CubeBlock block = CubeGrid.CubeBlocks.FirstOrDefault(b => b.Min.X == pos.X && b.Min.Y == pos.Y && b.Min.Z == pos.Z);
+                    Name = group.Name + "_Mirrored",
+                    Blocks = [.. group.Blocks.Select(pos => {
+                                MyObjectBuilder_CubeBlock block = CubeGrid.CubeBlocks.FirstOrDefault(b => b.Min.ToVector3I() == pos);
                                 return block != null ? MirrorCube(block, xMirror, xAxis, yMirror, yAxis, zMirror, zAxis).Min.ToVector3I() : pos;
                             })]
-                    };
-                    CubeGrid.BlockGroups.Add(mirroredGroup);
-                }
+                };
+                CubeGrid.BlockGroups?.Add(mirroredGroup);
+
             }
         }
 
         private void MirrorConveyorLines(MyObjectBuilder_CubeGrid CubeGrid, Mirror xMirror, int xAxis, Mirror yMirror, int yAxis, Mirror zMirror, int zAxis)
         {
             // Mirror ConveyorLines
-            if (CubeGrid.ConveyorLines != null)
+
+            foreach (MyObjectBuilder_ConveyorLine conveyorLine in CubeGrid.ConveyorLines)
             {
-                foreach (MyObjectBuilder_ConveyorLine conveyorLine in CubeGrid.ConveyorLines)
+                MyObjectBuilder_ConveyorLine mirroredLine = new()
                 {
-                    MyObjectBuilder_ConveyorLine mirroredLine = new()
-                    {
-                        StartPosition = MirrorPosition(conveyorLine.StartPosition, xMirror, xAxis, yMirror, yAxis, zMirror, zAxis),
-                        EndPosition = MirrorPosition(conveyorLine.EndPosition, xMirror, xAxis, yMirror, yAxis, zMirror, zAxis),
-                        ConveyorLineType = conveyorLine.ConveyorLineType,
-                    };
-                    CubeGrid.ConveyorLines.Add(mirroredLine);
-                }
+                    StartPosition = MirrorPosition(conveyorLine.StartPosition, xMirror, xAxis, yMirror, yAxis, zMirror, zAxis),
+                    EndPosition = MirrorPosition(conveyorLine.EndPosition, xMirror, xAxis, yMirror, yAxis, zMirror, zAxis),
+                    ConveyorLineType = conveyorLine.ConveyorLineType,
+                };
+                CubeGrid.ConveyorLines?.Add(mirroredLine);
             }
-
         }
-
-        // Helper method to mirror a block
-        private MyObjectBuilder_CubeBlock MirrorCube(MyObjectBuilder_CubeBlock block, Mirror xMirror, int xAxis, Mirror yMirror, int yAxis, Mirror zMirror, int zAxis)
-        {
-            MyObjectBuilder_CubeBlock newBlock = block.Clone() as MyObjectBuilder_CubeBlock;
-            newBlock.EntityId = block.EntityId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
-            switch (block)
+       
+       private static MyObjectBuilder_CubeBlock UpdateEntityId(MyObjectBuilder_CubeBlock newBlock, MyObjectBuilder_CubeBlock block)
+       {
+        newBlock ??=  new MyObjectBuilder_CubeBlock() ?? block.Clone() as MyObjectBuilder_CubeBlock;
+        switch (block)
             {
-                case MyObjectBuilder_MotorBase motorBlock:
-                    ((MyObjectBuilder_MotorBase)newBlock).RotorEntityId = motorBlock.RotorEntityId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
-                    break;
-                case MyObjectBuilder_PistonBase pistonBlock:
-                    ((MyObjectBuilder_PistonBase)newBlock).TopBlockId = pistonBlock.TopBlockId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
+                case MyObjectBuilder_CubeBlock when block.EntityId == ((MyObjectBuilder_MotorBase)newBlock).RotorEntityId:
+                case MyObjectBuilder_CubeBlock when block.EntityId == ((MyObjectBuilder_PistonBase)newBlock).TopBlockId:
+                    newBlock.EntityId = block.EntityId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
                     break;
                 default:
                     break;
             }
-
-            MyCubeBlockDefinition definition = SpaceEngineersApi.GetCubeDefinition(block.TypeId, CubeGrid.GridSizeEnum, block.SubtypeName);
+            return newBlock;
+        }
+        // Helper method to mirror a block
+        private static MyObjectBuilder_CubeBlock MirrorCube(MyObjectBuilder_CubeBlock block, Mirror xMirror, int xAxis, Mirror yMirror, int yAxis, Mirror zMirror, int zAxis)
+        {   
+            MyObjectBuilder_CubeBlock newBlock = block.Clone() as MyObjectBuilder_CubeBlock;
+            UpdateEntityId(newBlock, block);
+            MyObjectBuilder_CubeGrid cubeGrid = new();
+            MyCubeBlockDefinition definition = SpaceEngineersApi.GetCubeDefinition(block.TypeId, cubeGrid.GridSizeEnum, block.SubtypeName);
             MirrorCubeOrientation(definition, block.BlockOrientation, xMirror, yMirror, zMirror, out MyCubeBlockDefinition mirrorDefinition, out newBlock.BlockOrientation);
 
             newBlock.SubtypeName = mirrorDefinition.Id.SubtypeName;
 
             SerializableVector3I min, max;
-            if (definition.Size.X == 1 && definition.Size.Y == 1 && definition.Size.Z == 1)
+            if (definition.Size == Vector3I.One)
             {
                 newBlock.Min = block.Min.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
                 _ = newBlock.Min;
@@ -1123,25 +1103,26 @@ namespace SEToolbox.Models
             {
                 Vector3I orientSize = definition.Size.Add(-1).Transform(block.BlockOrientation).Abs();
                 min = block.Min.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
-                SerializableVector3I blockMax = new(block.Min.X + orientSize.X, block.Min.Y + orientSize.Y, block.Min.Z + orientSize.Z);
+
+                SerializableVector3I blockMax = new(block.Min.X + orientSize.X,
+                                                    block.Min.Y + orientSize.Y,
+                                                    block.Min.Z + orientSize.Z
+                                                    );
                 max = blockMax.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
 
                 newBlock.Min = new SerializableVector3I(xMirror != Mirror.None ? max.X : min.X,
                                                         yMirror != Mirror.None ? max.Y : min.Y,
                                                         zMirror != Mirror.None ? max.Z : min.Z
-                );
+                                                        );
             }
-
             return newBlock;
         }
         // Helper method to mirror a position
 
         private static Vector3I MirrorPosition(Vector3I position, Mirror xMirror, int xAxis, Mirror yMirror, int yAxis, Mirror zMirror, int zAxis)
         {
-            Vector3I mirroredPosition = new(
-                xMirror == Mirror.None ? position.X : xAxis - position.X,
-                yMirror == Mirror.None ? position.Y : yAxis - position.Y,
-                zMirror == Mirror.None ? position.Z : zAxis - position.Z
+            Vector3I axis = new(xAxis, yAxis, zAxis);
+            Vector3I mirroredPosition = ((xMirror,yMirror, zMirror) == (Mirror.None, Mirror.None, Mirror.None) ? position : axis - position                 
             );
             return mirroredPosition;
         }
@@ -1150,32 +1131,22 @@ namespace SEToolbox.Models
         {
             List<MyObjectBuilder_CubeBlock> blocks = [];
 
-            if (xMirror == Mirror.None && yMirror == Mirror.None && zMirror == Mirror.None)
+            if ((xMirror , yMirror, zMirror) == (Mirror.None, Mirror.None, Mirror.None))
+            {
                 return blocks;
+            }
 
             foreach (MyObjectBuilder_CubeBlock block in viewModel.CubeGrid.CubeBlocks)
             {
-                MyObjectBuilder_CubeBlock newBlock = block.Clone() as MyObjectBuilder_CubeBlock;
-                newBlock.EntityId = block.EntityId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
-                switch (block)
-                {
-                    case MyObjectBuilder_MotorBase motorBlock:
-                        ((MyObjectBuilder_MotorBase)newBlock).RotorEntityId = motorBlock.RotorEntityId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
-                        break;
-                    case MyObjectBuilder_PistonBase pistonBlock:
-                        ((MyObjectBuilder_PistonBase)newBlock).TopBlockId = pistonBlock.TopBlockId == 0 ? 0 : SpaceEngineersApi.GenerateEntityId(IDType.ENTITY);
-                        break;
-                    default:
-                        break;
-                }
-
+                MyObjectBuilder_CubeBlock newBlock = MirrorCube(block, xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
+                UpdateEntityId(newBlock, block);
                 MyCubeBlockDefinition definition = SpaceEngineersApi.GetCubeDefinition(block.TypeId, viewModel.GridSize, block.SubtypeName);
                 MirrorCubeOrientation(definition, block.BlockOrientation, xMirror, yMirror, zMirror, out MyCubeBlockDefinition mirrorDefinition, out newBlock.BlockOrientation);
 
                 newBlock.SubtypeName = mirrorDefinition.Id.SubtypeName;
 
                 SerializableVector3I min, max;
-                if (Conditional.Equals(1, definition.Size.X, definition.Size.Y, definition.Size.Z))
+                if (definition.Size.Equals(new Vector3I(1,1,1)))
                 {
                     newBlock.Min = block.Min.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
                     max = newBlock.Min;
@@ -1183,54 +1154,50 @@ namespace SEToolbox.Models
                 else
                 {
                     Vector3I orientSize = definition.Size.Add(-1).Transform(block.BlockOrientation).Abs();
-                                              min = block.Min.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
-                    SerializableVector3I blockMax = new(block.Min.X + orientSize.X, block.Min.Y + orientSize.Y, block.Min.Z + orientSize.Z);
-                                              max = blockMax.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
+                    min = block.Min.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
+                    SerializableVector3I blockMax = block.Min + orientSize;
+                    max = blockMax.Mirror(xMirror, xAxis, yMirror, yAxis, zMirror, zAxis);
 
-                    newBlock.Min = new SerializableVector3I(
-                        xMirror != Mirror.None ? max.X : min.X,
-                        yMirror != Mirror.None ? max.Y : min.Y,
-                        zMirror != Mirror.None ? max.Z : min.Z
-                    );
+                    newBlock.Min = new(xMirror != Mirror.None ? max.X : min.X,
+                                       yMirror != Mirror.None ? max.Y : min.Y,
+                                       zMirror != Mirror.None ? max.Z : min.Z
+                                       );
                 }
 
-                // Don't place a block if one already exists there in the mirror.
-                if (integrate && viewModel.CubeGrid.CubeBlocks.Any(b => b.Min.X == newBlock.Min.X && b.Min.Y == newBlock.Min.Y && b.Min.Z == newBlock.Min.Z /*|| b.Max == newBlock.Min*/))  // TODO: check cubeblock size.
-                    continue;
+                    if (viewModel.CubeGrid.CubeBlocks.Any(b => b.Min == newBlock.Min) && blocks.Any(b => b.Min == newBlock.Min))
+                    {
+                        continue;
+                    }
 
-                blocks.Add(newBlock);
-            }
-            return blocks;
-        }
+                    blocks.Add(newBlock);
+                }
+                return blocks;
+            } 
 
         private static void MirrorCubeOrientation(MyCubeBlockDefinition definition, SerializableBlockOrientation orientation, Mirror xMirror, Mirror yMirror, Mirror zMirror, out MyCubeBlockDefinition mirrorDefinition, out SerializableBlockOrientation mirrorOrientation)
         {
             // Determine the mirrored block definition
-            mirrorDefinition = string.IsNullOrEmpty(definition.MirroringBlock)
-                ? definition
-                : SpaceEngineersApi.GetCubeDefinition(definition.Id.TypeId, definition.CubeSize, definition.MirroringBlock);
+            mirrorDefinition = string.IsNullOrEmpty(definition.MirroringBlock) ? definition : SpaceEngineersApi.GetCubeDefinition(definition.Id.TypeId, definition.CubeSize, definition.MirroringBlock);
 
             // Create the source matrix from the block orientation
             Matrix sourceMatrix = Matrix.CreateFromDir(Base6Directions.GetVector(orientation.Forward),
-                                                       Base6Directions.GetVector(orientation.Up)
-            );
+                                                       Base6Directions.GetVector(orientation.Up));
 
             Vector3 mirrorNormal = xMirror != Mirror.None ? Vector3.Right :
                                    yMirror != Mirror.None ? Vector3.Up :
                                    zMirror != Mirror.None ? Vector3.Forward : Vector3.Zero;
 
 
-            var blockMirrorAxis = GetBlockMirrorAxis(sourceMatrix, mirrorNormal);
+            var blockMirrorAxis = GetBlockMirrorAxis(mirrorNormal);
             var blockMirrorOption = GetBlockMirrorOption(definition, blockMirrorAxis);
             Matrix targetMatrix = CalculateTargetMatrix(blockMirrorOption, sourceMatrix);
 
-            mirrorOrientation = new SerializableBlockOrientation(
-                Base6Directions.GetForward(ref targetMatrix),
-                Base6Directions.GetUp(ref targetMatrix)
+            mirrorOrientation = new SerializableBlockOrientation(Base6Directions.GetForward(ref targetMatrix),
+                                                                 Base6Directions.GetUp(ref targetMatrix)
             );
         }
 
-        private static MySymmetryAxisEnum GetBlockMirrorAxis(Matrix sourceMatrix, Vector3 mirrorNormal)
+        private static MySymmetryAxisEnum GetBlockMirrorAxis(Vector3 mirrorNormal)
         {
             return mirrorNormal switch
             {

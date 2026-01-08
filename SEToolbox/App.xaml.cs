@@ -15,7 +15,7 @@ using SEToolbox.Support;
 using SEToolbox.Views;
 using WPFLocalizeExtension.Engine;
 using Res = SEToolbox.Properties.Resources;
-
+using SEConsts = SEToolbox.Interop.SpaceEngineersConsts;
 namespace SEToolbox
 {
 
@@ -27,23 +27,19 @@ namespace SEToolbox
         private CoreToolbox _toolboxApplication;
         private static readonly GlobalSettings settings = GlobalSettings.Default;
         private void OnStartup(object sender, StartupEventArgs e)
-        {
-            bool appendLog = Enumerable.Contains(e.Args, "/appendlog");
-
-            // Log.Init("./log.txt", appendLog);
+        { 
+             bool appendLog = Enumerable.Contains(e.Args, "/appendlog");
+             
+            Log.Init("./log.txt", appendLog);
+            
+            Log.WriteLine("Starting.");
             SConsole.Init();
-            SConsole.WriteLine($"Starting. {Loader.WriteProgressDots()}");
-
-
-            //TException.InitializeListeners();
-            //BindingErrorTraceListener.SetTrace();
-            SConsole.Init();
-            PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Error;
-            SConsole.WriteLine("Binding Error Trace Set");
-
-
+                
+            // Initialize GlobalSettings
+            Log.WriteLine("Loading settings.");
+            BindingErrorTraceListener.SetTrace();
             PresentationTraceSources.DataBindingSource.Listeners.Add(new ConsoleTraceListener());
-
+            settings.Load();
             HandleReset();
             ClearBinCache();
             ConfigureLocalization();
@@ -58,7 +54,7 @@ namespace SEToolbox
         {
             if ((NativeMethods.GetKeyState(System.Windows.Forms.Keys.ShiftKey) & KeyStates.Down) == KeyStates.Down)
             {
-                SConsole.WriteLine("Restting global settings.");
+                Log.WriteLine("Resetting global settings.");
                 // Reset User Settings when Shift is held down during start up.
                 settings.Reset();
                 settings.PromptUser = true;
@@ -68,7 +64,7 @@ namespace SEToolbox
         private static void ClearBinCache()
         {
             // Clear app bin cache.
-            SConsole.WriteLine($"Clearing bin cache{Loader.WriteProgressDots()}");
+            Log.WriteLine("Clearing bin cache");
             string binCache = ToolboxUpdater.GetBinCachePath();
             if (Directory.Exists(binCache))
             {
@@ -78,7 +74,7 @@ namespace SEToolbox
                 }
                 catch (Exception ex)
                 {
-                    SConsole.WriteLine($"SEToolbox: Could not delete binCache. {ex.Message}");
+                    Log.WriteLine($"SEToolbox: Could not delete binCache. {ex.Message}");
                 }
             }
         }
@@ -88,39 +84,38 @@ namespace SEToolbox
             CultureInfo culture;
             try
             {
-                SConsole.WriteLine($"Configuring localization{Loader.WriteProgressDots()}");
+                Log.WriteLine($"Configuring localization");
                 culture = !string.IsNullOrWhiteSpace(settings.LanguageCode)
                           ? CultureInfo.GetCultureInfoByIetfLanguageTag(settings.LanguageCode)
                           : CultureInfo.CurrentUICulture;
             }
             catch (Exception ex)
             {
-                SConsole.WriteLine($"SEToolbox: Could not set language from GlobalSettings. {ex.Message}");
+                Log.WriteLine($"SEToolbox: Could not set language from GlobalSettings. {ex.Message}");
                 culture = CultureInfo.CurrentUICulture;
             }
 
             LocalizeDictionary.Instance.SetCurrentThreadCulture = false;
             LocalizeDictionary.Instance.Culture = culture ?? throw new NullReferenceException("Culture cannot be null");
-
             Thread.CurrentThread.CurrentUICulture = culture;
 
-            SConsole.WriteLine($"Language: {LocalizeDictionary.Instance.Culture.Name}");
+            Log.WriteLine($"Language: {LocalizeDictionary.Instance.Culture.Name}");
         }
 
         private static void InitializeSplashScreen()
         {
-            SConsole.WriteLine("Showing splash screen.");
+            Log.WriteLine("Showing splash screen.");
             Splasher.Splash = new WindowSplashScreen();
             Splasher.ShowSplash();
         }
 
         private static void CheckForUpdates(string[] args)
         {
-            SConsole.WriteLine($"Checking for updates{Loader.WriteProgressDots()}");
-
+            Log.WriteLine($"Checking for updates.");
+            //int version = SEConsts.GetToolboxVersion();
             string delimiter = "/" ?? "-";
             ApplicationRelease update = CodeRepositoryReleases.CheckForUpdates(GlobalSettings.GetAppVersion());
-            if (args.Length == 0 || (args.Length == 1 && args[0].Equals($"{delimiter}U", StringComparison.OrdinalIgnoreCase)) && update != null)
+            if (args.Any(a => a.Equals($"{delimiter}U", StringComparison.OrdinalIgnoreCase)) && update != null)
             {
                 var dialogResult = MessageBox.Show(
                             string.IsNullOrEmpty(update.Notes)
@@ -128,26 +123,27 @@ namespace SEToolbox
                           : string.Format(Res.DialogNewVersionNotesMessage, update.Version, update.Notes),
                             Res.DialogNewVersionTitle, MessageBoxButton.YesNo, MessageBoxImage.Information);
 
-                SConsole.WriteLine($"Found update: {update.Version}");
-                if (dialogResult == MessageBoxResult.Yes)
+
+                Log.WriteLine($"Found update: {update.Version}");
+                switch (dialogResult)
                 {
-                    SConsole.WriteLine($"Opening release URL: {update.Link}");
-                    Process.Start(update.Link);
-                    settings.IgnoreUpdateVersion = null;
-                    Current.Shutdown();
-                }
-                else if (dialogResult == MessageBoxResult.No)
-                {
-                    SConsole.WriteLine($"Ignoring update: {update.Version}");
-                    settings.IgnoreUpdateVersion = update.Version.ToString();
+                    case MessageBoxResult.Yes:
+                        Log.WriteLine($"Opening release URL: {update.Link}");
+                        Process.Start(update.Link);
+                        settings.Save();
+                        Current.Shutdown();
+                        return;
+                    case MessageBoxResult.No:
+                        Log.WriteLine($"Ignoring update: {update.Version}");
+                        settings.IgnoreUpdateVersion = update.Version.ToString();
+                        break;
                 }
             }
         }
 
-
         private static void ConfigureServices()
         {
-            SConsole.WriteLine($"Configuring Service Locator.{Loader.WriteProgressDots()}");
+            Log.WriteLine("Configuring ServiceLocator.");
             ServiceLocator.RegisterSingleton<IDialogService, DialogService>();
             ServiceLocator.Register<IOpenFileDialog, OpenFileDialogViewModel>();
             ServiceLocator.Register<ISaveFileDialog, SaveFileDialogViewModel>();
@@ -161,31 +157,31 @@ namespace SEToolbox
         }
 
         private void InitializeToolboxApplication(string[] args)
-        {
+        {   
+         
             _toolboxApplication = new CoreToolbox();
             string message = string.Empty;
 
-            SConsole.WriteLine($"Initializing {nameof(CoreToolbox)}{Loader.WriteProgressDots()}");
+            Log.WriteLine($"Initializing {nameof(CoreToolbox)}");
             switch (_toolboxApplication)
             {
-
                 case CoreToolbox when _toolboxApplication.Init(args):
                     _toolboxApplication.Load(args);
-                    SConsole.WriteLine($"{nameof(CoreToolbox)} started successfully.");
-                    return;
+                    Log.WriteLine($"{nameof(CoreToolbox)} started successfully.");
+                    break;
                 case CoreToolbox when _toolboxApplication == null && message.Contains("Could not start"):// args.Length == 0
                 case CoreToolbox when !_toolboxApplication.Init(args) && message.Contains("Could not initialize"):
                 case CoreToolbox when !_toolboxApplication.Load(args) && message.Contains("Could not load"):
                 default:
-                    SConsole.WriteLine($"SEToolbox: {message} {nameof(CoreToolbox)}. Aborting.");
+                    Log.WriteLine($"SEToolbox: {message} {nameof(CoreToolbox)}. Aborting.");
                     Current.Shutdown();
-                    break;
+                    break;   
             }
         }
 
         private void OnExit(object sender, ExitEventArgs e)
         {
-            SConsole.WriteLine("Shutting down.");
+            Log.WriteLine("Shutting down.");
             CoreToolbox.ExitApplication();
         }
 
@@ -196,16 +192,16 @@ namespace SEToolbox
                 Exception exception = e.Exception;
                 while (exception != null)
                 {
-                    SConsole.WriteLine(exception.Message);
-                    exception = exception.InnerException;
+                    Debug.WriteLine(exception.Message);
+                    exception = exception.InnerException ?? exception.GetBaseException();
                 }
             }
 
-            SConsole.WriteLine($"Unhandled exception occurred: {e.Exception.Message}");
+            Log.WriteLine($"Unhandled exception occurred: {e.Exception.Message}");
             const int ClipbrdECannotOpenError = unchecked((int)0x800401D0);
             const int COMError = unchecked(-2147221040);
 
-            if (e.Exception is COMException comException && comException != null && comException.ErrorCode == COMError && comException.ErrorCode == ClipbrdECannotOpenError)
+            if (e.Exception is COMException comException && comException?.ErrorCode is COMError or ClipbrdECannotOpenError)
             {
                 try
                 {
@@ -219,10 +215,12 @@ namespace SEToolbox
                 e.Handled = true;
                 return;
             }
+             Log.WriteLine(e.Exception);
 
             string message = e.Exception is ToolboxException ? e.Exception.Message : string.Format(Res.DialogUnhandledExceptionMessage, e.Exception.Message + $"{new StackTrace(e.Exception, true)}");
 
-            SConsole.WriteLine(message);
+            Debug.WriteLine(message);
+            
             MessageBox.Show(message, string.Format(Res.DialogUnhandledExceptionTitle, GlobalSettings.GetAppVersion()), MessageBoxButton.OK, MessageBoxImage.Error);
 
             TempFileUtil.Dispose();

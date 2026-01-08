@@ -17,16 +17,17 @@ namespace SEToolbox.Services
 
         internal void UpdateDropIndicator(UIElement adornedElement, bool isAboveElement)
         {
-            if (adorner != null && !shouldCreateNewAdorner)
+        	//exit if nothing changed
+            if (!shouldCreateNewAdorner && adorner?.AdornedElement == adornedElement && adorner.IsAboveElement == isAboveElement)
             {
-                //exit if nothing changed
-                if (adorner.AdornedElement == adornedElement && adorner.IsAboveElement == isAboveElement)
-                    return;
+                return;
             }
             Clear();
             //draw new adorner
-            adorner = new ListBoxDropAdorner(adornedElement, adornerLayer);
-            adorner.IsAboveElement = isAboveElement;
+            adorner = new ListBoxDropAdorner(adornedElement, adornerLayer)
+            {
+                IsAboveElement = isAboveElement
+            };
             adorner.Update();
             shouldCreateNewAdorner = false;
         }
@@ -36,11 +37,8 @@ namespace SEToolbox.Services
         /// </summary>
         internal void Clear()
         {
-            if (adorner != null)
-            {
-                adorner.Remove();
-                shouldCreateNewAdorner = true;
-            }
+            adorner?.Remove();
+            shouldCreateNewAdorner = adorner == null;
         }
     }
 }

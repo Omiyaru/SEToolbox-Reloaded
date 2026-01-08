@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!--
-    Microsoft ResX Schema
-
+  <!-- 
+    Microsoft ResX Schema 
+    
     Version 2.0
-
-    The primary goals of this format is to allow a simple XML format
-    that is mostly human readable. The generation and parsing of the
-    various data types are done through the TypeConverter classes
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
     associated with the data types.
-
+    
     Example:
-
+    
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-
-    There are any number of "resheader" rows that contain simple
+                
+    There are any number of "resheader" rows that contain simple 
     name/value pairs.
-
-    Each data row contains a name, and value. The row also contains a
-    type or mimetype. Type corresponds to a .NET class that support
-    text/value conversion through the TypeConverter architecture.
-    Classes that don't support this are serialized and stored with the
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
     mimetype set.
-
-    The mimetype is used for serialized objects, and tells the
-    ResXResourceReader how to depersist the object. This is currently not
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
     extensible. For a given mimetype the value must be set accordingly:
-
-    Note - application/x-microsoft.net.object.binary.base64 is the format
-    that the ResXResourceWriter will generate, however the reader can
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
     read any of the formats listed below.
-
+    
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-
+    
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array
+    value   : The object must be serialized into a byte array 
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -125,8 +125,6 @@
   </data>
   <data name="ClassType_LargeStation" xml:space="preserve">
     <value>Große Station</value>
-  <data name="ClassType_LargeStation" xml:space="preserve">
-    <value>Große Station</value>
   </data>
   <data name="DialogImageFiles" xml:space="preserve">
     <value>Bilddatei</value>
@@ -135,22 +133,10 @@
     <value>Bild zum importieren auswählen</value>
   </data>
   <data name="ImportModelClassType_LargeShip" xml:space="preserve">
-    <value>großes Schiff</value>
+    <value>Großes Schiff</value>
   </data>
   <data name="ImportModelClassType_SmallShip" xml:space="preserve">
-    <value>kleines Schiff</value>
-  </data>
-  <data name="ClassType_FloatingObject" xml:space="preserve">
-    <value>Schwebendes Objekt</value>
-  </data>
-  <data name="DialogAllSupportedFiles" xml:space="preserve">
-    <value>Alle unterstützen Dateien</value>
-  </data>
-  <data name="ImportModelClassType_LargeShip" xml:space="preserve">
-    <value>großes Schiff</value>
-  </data>
-  <data name="ImportModelClassType_SmallShip" xml:space="preserve">
-    <value>kleines Schiff</value>
+    <value>Kleines Schiff</value>
   </data>
   <data name="ClassType_FloatingObject" xml:space="preserve">
     <value>Schwebendes Objekt</value>
@@ -169,7 +155,7 @@
     <value>Asteroiden Datei</value>
   </data>
   <data name="DialogImportVoxelTitle" xml:space="preserve">
-    <value>Asteroid zum importieren auswählen</value>
+    <value>Asteroiden zum importieren auswählen</value>
   </data>
   <data name="ExceptionState_NoApplication" xml:space="preserve">
     <value>Space Engineers Installation nicht gefunden. Du musst Space Engineers auf deinem Computer installert haben um SEToolbox zu verwenden.</value>
@@ -177,17 +163,40 @@
   <data name="ExceptionState_NoDirectory" xml:space="preserve">
     <value>Das Space Engineers Verzeichnis ("{0}") wurde nicht gefunden. Du musst Space Engineers auf deinem Computer installert haben um SEToolbox zu verwenden.</value>
   </data>
-  <data name="Boolean_False" xml:space="preserve">
-    <value>Nein</value>
+  <data name="CtlCubeDetail" xml:space="preserve">
+    <value>Name: {0}
+Typ: {1}
+Gesteuert: {2}
+Schaden: {3}
+Geschwindigkeit: {4:#,##0.000} m/s
+Distanz: {5:#,##0.0} m
+Maßstab: {6} x {7} x {8} Blöcke
+Größe: {9} m x {10} m x {11} m
+Masse: {12:#,##0.00} kg
+Blöcke: {13:#,##0}
+Position: {14}, {15}, {16}
+PCU: {17:#,##0}
+Gesamtproduktionszeit: {18:dd} Tage, {18:hh} Stunden, {18:mm:ss.ff}
+
+Konstruktionsanforderungen:
+Würfel Anzahl Masse Produktionszeit PCU
+{19}
+
+Komponenten Anzahl Masse Volumen Produktionszeit
+{20}
+
+Barren Menge Masse Volumen Produktionszeit
+{21}
+
+Erz Menge Masse Volumen
+{22}</value>
   </data>
-  <data name="Boolean_True" xml:space="preserve">
-    <value>Ja</value>
-  </data>
-  <data name="ExceptionState_NoApplication" xml:space="preserve">
-    <value>Space Engineers Installation nicht gefunden. Du musst Space Engineers auf deinem Computer installert haben um SEToolbox zu verwenden.</value>
-  </data>
-  <data name="ExceptionState_NoDirectory" xml:space="preserve">
-    <value>Das Space Engineers Verzeichnis ("{0}") wurde nicht gefunden. Du musst Space Engineers auf deinem Computer installert haben um SEToolbox zu verwenden.</value>
+  <data name="FloatingDetail" xml:space="preserve">
+    <value>Type:  {0}
+Distance:  {1:#,##0.0} m
+Volumen:  {2:#,##0.000} L
+Masse:  {3:#,##0.00} kg
+Units:  {4:#,##0.####}</value>
   </data>
   <data name="Boolean_False" xml:space="preserve">
     <value>Nein</value>
@@ -200,40 +209,28 @@
   </data>
   <data name="DialogHtmlFiles" xml:space="preserve">
     <value>Html Dateien</value>
-  <data name="DialogHtmlFiles" xml:space="preserve">
-    <value>Html Dateien</value>
   </data>
   <data name="DialogTextFiles" xml:space="preserve">
-    <value>Text Dateien</value>
+    <value>Text dateien</value>
   </data>
   <data name="DialogXmlFiles" xml:space="preserve">
     <value>XML Dateien</value>
   </data>
-  <data name="BtBrowseAppTip" xml:space="preserve">
-    <value>Anwendung suchen</value>
-  <data name="BtBrowseAppTip" xml:space="preserve">
+  <data name="BtnBrowseAppTip" xml:space="preserve">
     <value>Anwendung suchen</value>
   </data>
-  <data name="WnLocateAppBtnCancel" xml:space="preserve">
-    <value>Abbrechen</value>
   <data name="WnLocateAppBtnCancel" xml:space="preserve">
     <value>Abbrechen</value>
   </data>
   <data name="WnLocateAppBtnContinue" xml:space="preserve">
     <value>Weiter</value>
-  <data name="WnLocateAppBtnContinue" xml:space="preserve">
-    <value>Weiter</value>
   </data>
-  <data name="SaveWorldType_Local" xml:space="preserve">
-    <value>Lokaler Benutzer</value>
   <data name="SaveWorldType_Local" xml:space="preserve">
     <value>Lokaler Benutzer</value>
   </data>
   <data name="SaveWorldType_Custom" xml:space="preserve">
     <value>Benutzerdefiniert</value>
   </data>
-  <data name="DialogOldSEVersionTitle" xml:space="preserve">
-    <value>Nicht kompatibel mit alter Version von Space Engineers.</value>
   <data name="DialogOldSEVersionTitle" xml:space="preserve">
     <value>Nicht kompatibel mit alter Version von Space Engineers.</value>
   </data>
@@ -275,13 +272,10 @@
   </data>
   <data name="AsteroidFillType_None" xml:space="preserve">
     <value>Keine Änderung</value>
-  <data name="AsteroidFillType_None" xml:space="preserve">
-    <value>Keine Änderung</value>
   </data>
   <data name="InventoryBagDetail" xml:space="preserve">
-    <value>Art: {0} Entfernung: {1:#,##0.0} m</value>
-  <data name="InventoryBagDetail" xml:space="preserve">
-    <value>Art: {0} Entfernung: {1:#,##0.0} m</value>
+    <value>Art: {0}
+Entfernung: {1:#,##0.0} m</value>
   </data>
   <data name="WnExplorerColCubes" xml:space="preserve">
     <value>Blöcke</value>
@@ -365,10 +359,13 @@
     <value>Reparieren</value>
   </data>
   <data name="WnExplorerMnuToolCopyGpsTooltip" xml:space="preserve">
-    <value>GPS kopieren</value>
+    <value>GPS Kopieren</value>
   </data>
   <data name="WnExplorerMnuToolOpenTooltip" xml:space="preserve">
     <value>Öffnen</value>
+  </data>
+  <data name="WnExplorerMnuToolRepairTooltip" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
   </data>
   <data name="WnExplorerMnuToolSaveTooltip" xml:space="preserve">
     <value>Speichern</value>
@@ -394,23 +391,11 @@
   <data name="WnLoadColSaved" xml:space="preserve">
     <value>Gespeichert</value>
   </data>
-  <data name="CtlUnsavedStateTitle" xml:space="preserve">
-    <value>Nicht gesichert</value>
+  <data name="GlobalSIMassKilogram" xml:space="preserve">
+    <value>kg</value>
   </data>
-  <data name="WnAboutBtnClose" xml:space="preserve">
-    <value>Schließen</value>
-  </data>
-  <data name="WnAboutTxtCreatedBy" xml:space="preserve">
-    <value>Erstellt von:</value>
-  </data>
-  <data name="WnLoadBtnOpen" xml:space="preserve">
-    <value>_Öffnen</value>
-  </data>
-  <data name="WnLoadBtnRepair" xml:space="preserve">
-    <value>_Reparieren</value>
-  </data>
-  <data name="WnLoadColSaved" xml:space="preserve">
-    <value>Gespeichert</value>
+  <data name="GlobalSIVolumeLitre" xml:space="preserve">
+    <value>L</value>
   </data>
   <data name="WnGenFloatBtnCreate" xml:space="preserve">
     <value>Erstellen</value>
@@ -422,7 +407,7 @@
     <value>Volumen:</value>
   </data>
   <data name="WnProgressTxtTimeRemain" xml:space="preserve">
-    <value>Time remaining:</value>
+    <value>Verbleibende Zeit:</value>
   </data>
   <data name="CtlCubeMnuConvertToShip" xml:space="preserve">
     <value>Zu Schiff</value>
@@ -447,6 +432,15 @@
   </data>
   <data name="CtlCubeTxtSpeed" xml:space="preserve">
     <value>Geschwindigkeit:</value>
+  </data>
+  <data name="GlobalSIDistanceKilometre" xml:space="preserve">
+    <value>km</value>
+  </data>
+  <data name="GlobalSIDistanceMetre" xml:space="preserve">
+    <value>m</value>
+  </data>
+  <data name="GlobalSIVelocityMetresPerSecond" xml:space="preserve">
+    <value>m/s</value>
   </data>
   <data name="CtlCubeColColor" xml:space="preserve">
     <value>Farbe</value>
@@ -511,6 +505,9 @@
   <data name="WnComponentsColComponentBuildTime" xml:space="preserve">
     <value>Bauzeit</value>
   </data>
+  <data name="WnComponentsColComponentMass" xml:space="preserve">
+    <value>Masse</value>
+  </data>
   <data name="WnComponentsColMaterialOreName" xml:space="preserve">
     <value>Erz Name</value>
   </data>
@@ -528,6 +525,9 @@
   </data>
   <data name="ClassType_SmallStation" xml:space="preserve">
     <value>Kleine Station</value>
+  </data>
+  <data name="ImportModelClassType_SmallStation" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
   </data>
   <data name="CtlCubeColBuiltBy" xml:space="preserve">
     <value>Gebaut von</value>
@@ -577,6 +577,9 @@
   <data name="CtlInventoryColVolume" xml:space="preserve">
     <value>Volumen (L)</value>
   </data>
+  <data name="CtlMeteorMnuMaxAtPlayer" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
   <data name="CtlMeteorMnuResetSpeedTooltip" type="System.Resources.ResXNullRef, System.Windows.Forms">
     <value />
   </data>
@@ -586,17 +589,38 @@
   <data name="CtlMeteorMnuSpeed" xml:space="preserve">
     <value>Geschwindigkeit</value>
   </data>
+  <data name="CtlMeteorMass" xml:space="preserve">
+    <value>Masse:</value>
+  </data>
   <data name="CtlMeteorType" xml:space="preserve">
     <value>Art:</value>
   </data>
+  <data name="CtlMeteorVolume" xml:space="preserve">
+    <value>Volumen:</value>
+  </data>
+  <data name="CtlPlanetDistance" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
   <data name="CtlVoxelBoundingSizeValue" xml:space="preserve">
     <value>{0} x {1} x {2} blocks</value>
+  </data>
+  <data name="CtlVoxelColVolume" xml:space="preserve">
+    <value>Volumen</value>
   </data>
   <data name="CtlVoxelDistance" xml:space="preserve">
     <value>Distanz:</value>
   </data>
   <data name="CtlVoxelMnuExtract" xml:space="preserve">
     <value>Extrahieren</value>
+  </data>
+  <data name="CtlVoxelTitle" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="CtlVoxelVolume" xml:space="preserve">
+    <value>Volumen</value>
+  </data>
+  <data name="GlobalSIVolumeCubicMetre" xml:space="preserve">
+    <value>m³</value>
   </data>
   <data name="WnChangeOwnerBtnCancel" xml:space="preserve">
     <value>Abbrechen</value>
@@ -606,6 +630,9 @@
   </data>
   <data name="WnChangeOwnerLabelPlayer" xml:space="preserve">
     <value>Spieler:</value>
+  </data>
+  <data name="WnGroupMoveColNewDistance" xml:space="preserve">
+    <value>Neue Distanz:</value>
   </data>
   <data name="WnGroupMoveTxtOffsetX" xml:space="preserve">
     <value>X</value>
@@ -676,9 +703,12 @@
   <data name="WnImportImageImgPreviewTooltip" xml:space="preserve">
     <value>Vorschau</value>
   </data>
+  <data name="WnImportImageLabelArmor" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
   <data name="WnImportImageLabelImage" xml:space="preserve">
     <value>Bild:</value>
-    <comment>Specify file for image</comment>
+    <comment>Datei für Bild angeben</comment>
   </data>
   <data name="WnImportImageLabelNewHeight" xml:space="preserve">
     <value>Höhe:</value>
@@ -702,13 +732,13 @@
     <value>Schließen</value>
   </data>
   <data name="WnResourceReportBtnHtmlFile" xml:space="preserve">
-    <value>.html Datei</value>
+    <value>.html datei</value>
   </data>
   <data name="WnResourceReportBtnTextFile" xml:space="preserve">
-    <value>.txt Datei</value>
+    <value>.txt datei</value>
   </data>
   <data name="WnResourceReportBtnXmlFile" xml:space="preserve">
-    <value>.xml Datei</value>
+    <value>.xml datei</value>
   </data>
   <data name="WnSelectCubeBtnCancel" xml:space="preserve">
     <value>Abbrechen</value>
@@ -729,10 +759,10 @@
     <value>Abbrechen</value>
   </data>
   <data name="ClsRepairFoundSetPlayer" xml:space="preserve">
-    <value>* Found and Set new active Player.</value>
+    <value>* Neuen aktiven Spieler gefunden und festgelegt.</value>
   </data>
   <data name="ClsRepairReplacedBlockGroup" xml:space="preserve">
-    <value>* Replaced BlockGroup item.</value>
+    <value>* Ersetzte BlockGroup-Element.</value>
   </data>
   <data name="ClsRepairSavedChanges" xml:space="preserve">
     <value>* Änderungen gespeichert</value>
@@ -788,6 +818,12 @@
   <data name="WnImportAsteroidModelTabQualitySpeed" xml:space="preserve">
     <value>Qualität/Geschwindigkeit</value>
   </data>
+  <data name="WnSettingsBtnApplicationPath" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="WnSettingsBtnCustomVoxelPath" xml:space="preserve">
+    <value>...</value>
+  </data>
   <data name="ClsErrorApplication" xml:space="preserve">
     <value>Anwendung:</value>
   </data>
@@ -796,6 +832,12 @@
   </data>
   <data name="ClsErrorFiles" xml:space="preserve">
     <value>Dateien:</value>
+  </data>
+  <data name="ClsReportColAsteroid" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="ClsReportColBlockCount" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
   </data>
   <data name="ClsReportColOreName" xml:space="preserve">
     <value>Erz Name</value>
@@ -809,6 +851,9 @@
   <data name="ClsReportSaveWorld" xml:space="preserve">
     <value>Sichere Welt:</value>
   </data>
+  <data name="ClsReportColMass" xml:space="preserve">
+    <value>Masse</value>
+  </data>
   <data name="ClsReportColTime" xml:space="preserve">
     <value>Zeit</value>
   </data>
@@ -819,7 +864,7 @@
     <value>Alle Gegenstände</value>
   </data>
   <data name="GlobalTimeDays" xml:space="preserve">
-    <value>Tage</value>
+    <value>tage</value>
   </data>
   <data name="WnProgressTitle" xml:space="preserve">
     <value>Bearbeiten...</value>
@@ -829,7 +874,7 @@
   </data>
   <data name="ClsCharacterDead" xml:space="preserve">
     <value>tod</value>
-    <comment>Character state.</comment>
+    <comment>Zustand des Charakters.</comment>
   </data>
   <data name="ClsExportInventoryBag" type="System.Resources.ResXNullRef, System.Windows.Forms">
     <value />
@@ -843,8 +888,14 @@
   <data name="DialogAllFiles" xml:space="preserve">
     <value>Alle Dateien</value>
   </data>
-  <data name="DialogOFFFiles" xml:space="preserve">
+  <data name="DialogOffFiles" xml:space="preserve">
     <value>Aus</value>
+  </data>
+  <data name="DialogStereoLithographyFiles" xml:space="preserve">
+    <value>StereoLithography</value>
+  </data>
+  <data name="DialogWavefrontFiles" xml:space="preserve">
+    <value>Wavefront</value>
   </data>
   <data name="CtlCharacterHydrogen" xml:space="preserve">
     <value>Wasserstoff</value>
@@ -852,8 +903,8 @@
   <data name="ClsCubeGridWheelDetached" xml:space="preserve">
     <value>Reifen</value>
   </data>
-  <data name="ClsExplorerGridChangesMade" xml:space="preserve">
-    <value>ClsExplorerGrid Änderungen Vornehmen</value>
+  <data name="ClsExplorerGridChangesMade" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
   </data>
   <data name="ClsExplorerTitleChangesMade" type="System.Resources.ResXNullRef, System.Windows.Forms">
     <value />
@@ -871,13 +922,19 @@
     <value>Fehler:</value>
   </data>
   <data name="WnExplorerMnuJoinedGrids" xml:space="preserve">
-    <value>_Joined Grids</value>
+    <value>_Verbundene Gitter</value>
   </data>
   <data name="WnBlueprintDialogBtnCancel" xml:space="preserve">
     <value>Abbrechen</value>
   </data>
   <data name="WnBlueprintDialogBtnOkay" xml:space="preserve">
     <value>OK</value>
+  </data>
+  <data name="CtlComponentColMass" xml:space="preserve">
+    <value>Masse (</value>
+  </data>
+  <data name="CtlComponentColMinedOreRatio" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
   </data>
   <data name="DirApplicationName" xml:space="preserve">
     <value>SEToolbox</value>

@@ -1,13 +1,10 @@
-﻿
-using SEToolbox.Interop;
+﻿using SEToolbox.Interop;
 using SEToolbox.Interop.Asteroids;
 using SEToolbox.Models;
 using SEToolbox.Services;
 using SEToolbox.Support;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Windows.Input;
 using VRage;
 using VRage.Game;
@@ -177,8 +174,8 @@ namespace SEToolbox.ViewModels
                     Vector3D max = Vector3D.Max(
                         SelectionLeft.WorldAabb.Min + SelectionLeft.InflatedContentBounds.Max - offsetPosLeft,
                         SelectionRight.WorldAabb.Min + SelectionRight.InflatedContentBounds.Max - offsetPosRight) + paddCells;
-                    posOffset = GetPosOffset(minLeft, minRight, offsetPosLeft, offsetPosRight);
-                    asteroidSize = MyVoxelBuilder.CalcRequiredSize((max - min).RoundToVector3I());
+                        posOffset = GetPosOffset(minLeft, minRight, offsetPosLeft, offsetPosRight);
+                        asteroidSize = MyVoxelBuilder.CalcRequiredSize((max - min).RoundToVector3I());
                     break;
                 case VoxelMergeType.UnionMaterialLeftToRight:
                 case VoxelMergeType.SubtractVolumeLeftFromRight:
@@ -259,9 +256,7 @@ namespace SEToolbox.ViewModels
                     break;
                 case VoxelMergeType.SubtractVolumeLeftFromRight:
                 case VoxelMergeType.SubtractVolumeRightFromLeft:
-                    SubtractAsteroidVolumeFrom(
-                        ref newAsteroid,
-                        min,
+                    SubtractAsteroidVolumeFrom(ref newAsteroid, min,
                         VoxelMergeType == VoxelMergeType.SubtractVolumeRightFromLeft ? SelectionRight : SelectionLeft,
                         VoxelMergeType == VoxelMergeType.SubtractVolumeLeftFromRight ? SelectionLeft : SelectionRight,
                         VoxelMergeType == VoxelMergeType.SubtractVolumeRightFromLeft ? minRight : minLeft,
@@ -311,8 +306,8 @@ namespace SEToolbox.ViewModels
             PRange.ProcessRange(block, (content.Max - content.Min + 1) / 64);
 
             cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
-                MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
-                MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
+                                     MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
+                                     MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
 
             cache.Resize(cacheSize);
             asteroid.Storage.ReadRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, block, block + cacheSize - 1);
@@ -335,7 +330,9 @@ namespace SEToolbox.ViewModels
                 byte existingVolume = newCache.Content(ref p);
 
                 if (volume > existingVolume)
+                {
                     newCache.Content(ref p, volume);
+                }
 
                 // Overwrites secondary material with primary.
                 newCache.Material(ref p, material);
@@ -372,7 +369,6 @@ namespace SEToolbox.ViewModels
             string fileNameSecondary = modelSecondary.SourceVoxelFilePath ?? modelSecondary.VoxelFilePath;
             string fileNamePrimary = modelPrimary.SourceVoxelFilePath ?? modelPrimary.VoxelFilePath;
 
-
             Vector3I newBlock;
             Vector3I cacheSize;
 
@@ -386,8 +382,8 @@ namespace SEToolbox.ViewModels
             MyStorageData cache = new();
 
             cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
-                MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
-                MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
+                                     MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
+                                     MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
 
             cache.Resize(cacheSize);
 
@@ -397,7 +393,6 @@ namespace SEToolbox.ViewModels
 
             newAsteroid.Storage.WriteRange(cache, MyStorageDataTypeFlags.ContentAndMaterial, newBlock, newBlock + cacheSize - 1);
 
-
             asteroid.Load(fileNameSecondary);
 
             content = modelSecondary.InflatedContentBounds;
@@ -406,8 +401,8 @@ namespace SEToolbox.ViewModels
 
 
             cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
-                MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
-                MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
+                                     MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
+                                     MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
 
             cache.Resize(cacheSize);
 
@@ -429,10 +424,7 @@ namespace SEToolbox.ViewModels
             {
                 byte existingVolume = newCache.Content(ref p);
 
-                if (existingVolume - volume < 0)
-                    volume = 0;
-                else
-                    volume = (byte)(existingVolume - volume);
+                volume = existingVolume - volume < 0 ? (byte)0 : (byte)(existingVolume - volume);
 
                 newCache.Content(ref p, volume);
             }
@@ -464,8 +456,8 @@ namespace SEToolbox.ViewModels
             MyStorageData cache = new();
 
             cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
-                MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
-                MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
+                                     MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
+                                     MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
 
             cache.Resize(cacheSize);
 
@@ -482,8 +474,8 @@ namespace SEToolbox.ViewModels
             PRange.ProcessRange(block, (content.Max - content.Min + 1) / 64);
             cache = new();
             cacheSize = new Vector3I(MathHelper.Min(content.Max.X, block.X + 63) - block.X + 1,
-                MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
-                MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
+                                     MathHelper.Min(content.Max.Y, block.Y + 63) - block.Y + 1,
+                                     MathHelper.Min(content.Max.Z, block.Z + 63) - block.Z + 1);
 
             cache.Resize(cacheSize);
 

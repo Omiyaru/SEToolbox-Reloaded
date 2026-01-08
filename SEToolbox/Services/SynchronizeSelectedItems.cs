@@ -25,6 +25,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Xaml.Behaviors;
+using System.Linq;
+using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
 
 namespace SEToolbox.Services
@@ -38,11 +41,10 @@ namespace SEToolbox.Services
     public class SynchronizeSelectedItems : Behavior<ListBox>
     {
         public static readonly DependencyProperty SelectionsProperty =
-            DependencyProperty.Register(
-                "Selections",
-                typeof(IList),
-                typeof(SynchronizeSelectedItems),
-                new PropertyMetadata(null, OnSelectionsPropertyChanged));
+            DependencyProperty.Register("Selections",
+                                        typeof(IList),
+                                        typeof(SynchronizeSelectedItems),
+                                        new PropertyMetadata(null, OnSelectionsPropertyChanged));
 
         private bool _updating;
         private WeakEventHandler<SynchronizeSelectedItems, object, NotifyCollectionChangedEventArgs> _currentWeakHandler;
@@ -50,7 +52,7 @@ namespace SEToolbox.Services
         public IList Selections
         {
             get => (IList)GetValue(SelectionsProperty);
-			set => SetValue(SelectionsProperty, value);
+            set => SetValue(SelectionsProperty, value);
         }
 
         protected override void OnAttached()
@@ -70,32 +72,24 @@ namespace SEToolbox.Services
 
         private static void OnSelectionsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var behavior = (SynchronizeSelectedItems)d;
+            var behavior = d as SynchronizeSelectedItems;
 
-            if (behavior != null)
+            behavior?._currentWeakHandler?.Detach();
+            behavior._currentWeakHandler = null;
+
+            if (e.NewValue is INotifyCollectionChanged notifyCollectionChanged)
             {
-                if (behavior._currentWeakHandler != null)
-                {
-                    behavior._currentWeakHandler.Detach();
-                    behavior._currentWeakHandler = null;
-                }
-
-                if (e.NewValue != null)
-                {
-                    if (e.NewValue is INotifyCollectionChanged notifyCollectionChanged)
-                    {
-                        behavior._currentWeakHandler =
-                            new WeakEventHandler<SynchronizeSelectedItems, object, NotifyCollectionChangedEventArgs>(
-                                behavior,
-                                (instance, sender, args) => instance.OnSelectionsCollectionChanged(sender, args),
-                                (listener) => notifyCollectionChanged.CollectionChanged -= listener.OnEvent);
-                        notifyCollectionChanged.CollectionChanged += behavior._currentWeakHandler.OnEvent;
-                    }
-
-                    behavior.UpdateSelectedItems();
-                }
+                behavior._currentWeakHandler =
+                    new WeakEventHandler<SynchronizeSelectedItems, object, NotifyCollectionChangedEventArgs>(
+                        behavior,
+                        (instance, sender, args) => instance.OnSelectionsCollectionChanged(sender, args),
+                        (listener) => notifyCollectionChanged.CollectionChanged -= listener.OnEvent);
+                notifyCollectionChanged.CollectionChanged += behavior._currentWeakHandler.OnEvent;
             }
+
+            behavior.UpdateSelectedItems();
         }
+
 
         private void OnSelectedItemsChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -104,22 +98,14 @@ namespace SEToolbox.Services
 
         private void UpdateSelections(SelectionChangedEventArgs e)
         {
-            ExecuteIfNotUpdating(
-                () =>
-                {
-                    if (Selections != null)
-                    {
-                        foreach (object item in e.AddedItems)
-                        {
-                            Selections.Add(item);
-                        }
-
-                        foreach (object item in e.RemovedItems)
-                        {
-                            Selections.Remove(item);
-                        }
-                    }
-                });
+            ExecuteIfNotUpdating(() =>
+            {
+                if (Selections != null)
+                {   
+                    e.AddedItems.OfType<object>().ForEach(item => Selections.Add(item));
+                    e.RemovedItems.OfType<object>().ForEach(item => Selections.Remove(item));
+                }
+            });
         }
 
         private void OnSelectionsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -129,18 +115,15 @@ namespace SEToolbox.Services
 
         private void UpdateSelectedItems()
         {
-            ExecuteIfNotUpdating(
-                () =>
+            ExecuteIfNotUpdating(() =>
+            {
+                if (AssociatedObject != null)
                 {
-                    if (AssociatedObject != null)
-                    {
-                        AssociatedObject.SelectedItems.Clear();
-                        foreach (object item in Selections ?? new object[0])
-                        {
-                            AssociatedObject.SelectedItems.Add(item);
-                        }
-                    }
-                });
+                    AssociatedObject?.SelectedItems.Clear();
+                    Selections?.OfType<object>().ForEach(item => AssociatedObject.SelectedItems.Add(item));
+                }
+
+            });
         }
 
         private void ExecuteIfNotUpdating(Action execute)

@@ -10,7 +10,10 @@ namespace SEToolbox.Support
         public static void MakeClearDirectory(string folder)
         {
             if (Directory.Exists(folder))
+            {
                 Directory.Delete(folder, true);
+            }
+
             Directory.CreateDirectory(folder);
         }
 
@@ -19,13 +22,15 @@ namespace SEToolbox.Support
             // Low memory, fast extract.
             using FileStream compressedByteStream = new(sourceFileName, FileMode.Open);
             if (File.Exists(destinationFileName))
+            {
                 File.Delete(destinationFileName);
+            }
 
             using FileStream outStream = new(destinationFileName, FileMode.CreateNew);
             // GZipStream requires using. Do not optimize the stream.
             using GZipStream zip = new(compressedByteStream, CompressionMode.Decompress);
             zip.CopyTo(outStream);
-            SConsole.WriteLine($"Decompressed from {compressedByteStream.Length:#,###0} bytes to {outStream.Length:#,###0} bytes.");
+            Log.WriteLine($"Decompressed from {compressedByteStream.Length:#,###0} bytes to {outStream.Length:#,###0} bytes.");
         }
 
         /// <summary>
@@ -38,10 +43,10 @@ namespace SEToolbox.Support
         {
             using FileStream compressedByteStream = new(sourceFileName, FileMode.Open);
             using GZipStream zip = new(compressedByteStream, CompressionMode.Decompress);
-            byte[] arr = new byte[numberBytes];
-            int bytesRead = zip.Read(arr, 0, numberBytes);
+            byte[] newBytes = new byte[numberBytes];
+            int bytesRead = zip.Read(newBytes, 0, numberBytes);
             byte[] result = new byte[bytesRead];
-            Array.Copy(arr, 0, result, 0, bytesRead);
+            Array.Copy(newBytes, 0, result, 0, bytesRead);
             return result;
         }
 
@@ -50,15 +55,17 @@ namespace SEToolbox.Support
             // Low memory, fast compress.
             using FileStream originalByteStream = new(sourceFileName, FileMode.Open);
             if (File.Exists(destinationFileName))
+            {
                 File.Delete(destinationFileName);
+            }
 
             using FileStream compressedByteStream = new(destinationFileName, FileMode.CreateNew);
             // GZipStream requires using. Do not optimize the stream.
-            using (GZipStream compressionStream = new(compressedByteStream, CompressionMode.Compress, true))
-            {
-                originalByteStream.CopyTo(compressionStream);
-            }
-            SConsole.WriteLine($"Compressed from {originalByteStream.Length:#,###0} bytes to {compressedByteStream.Length:#,###0} bytes.");
+            using GZipStream compressionStream = new(compressedByteStream, CompressionMode.Compress, true);
+
+            originalByteStream.CopyTo(compressionStream);
+
+            Log.WriteLine($"Compressed from {originalByteStream.Length:#,###0} bytes to {compressedByteStream.Length:#,###0} bytes.");
         }
 
         /// <summary>
@@ -71,9 +78,9 @@ namespace SEToolbox.Support
             try
             {
                 using FileStream stream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                int b1 = stream.ReadByte();
-                int b2 = stream.ReadByte();
-                return b1 == 0x1f && b2 == 0x8b;
+                int byte1 = stream.ReadByte();
+                int byte2 = stream.ReadByte();
+                return byte1 == 0x1f && byte2 == 0x8b;
             }
             catch
             {

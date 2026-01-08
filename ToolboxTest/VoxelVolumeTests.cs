@@ -126,7 +126,7 @@ namespace ToolboxTest
             System.Timers.Timer timer = new(2000);
             timer.Elapsed += delegate
             {
-                SConsole.WriteLine("Cancelling!!!");
+                Log.WriteLine("Cancelling!!!");
                 cts.Cancel();
                 timer.Stop();
             };
@@ -229,7 +229,7 @@ namespace ToolboxTest
             _timer = new Stopwatch();
             _timer.Start();
 
-            SConsole.WriteLine($"{_percent}%  {_counter:#,##0}/{_maximumProgress:#,##0}  {_timer.Elapsed}/Estimating");
+            Debug.WriteLine($"{_percent}%  {_counter:#,##0}/{_maximumProgress:#,##0}  {_timer.Elapsed}/Estimating");
         }
 
         public static void IncrementProgress()
@@ -244,13 +244,13 @@ namespace ToolboxTest
                 TimeSpan estimate = new(p == 0 ? 0 : (long)((double)elapsed.Ticks / ((double)p / 100f)));
                 _percent = p;
 
-                SConsole.WriteLine($"{_percent}%  {_counter:#,##0}/{_maximumProgress:#,##0}  {elapsed}/{estimate}");
+                Debug.WriteLine($"{_percent}%  {_counter:#,##0}/{_maximumProgress:#,##0}  {elapsed}/{estimate}");
             }
         }
 
         public static void CompleteProgress()
         {
-            SConsole.WriteLine("Complete Step finished.");
+            Debug.WriteLine("Complete Step finished.");
         }
 
         #endregion

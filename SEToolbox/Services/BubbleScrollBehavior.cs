@@ -23,8 +23,10 @@ namespace SEToolbox.Services
         {
             e.Handled = true;
             RoutedEvent routedEvent = UIElement.MouseWheelEvent;
-            MouseWheelEventArgs e2 = new(e.MouseDevice, e.Timestamp, e.Delta);
-            e2.RoutedEvent = routedEvent;
+            MouseWheelEventArgs e2 = new(e.MouseDevice, e.Timestamp, e.Delta)
+            {
+                RoutedEvent = routedEvent
+            };
             AssociatedObject.RaiseEvent(e2);
         }
     }

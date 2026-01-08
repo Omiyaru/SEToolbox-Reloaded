@@ -4,6 +4,7 @@
     using System;
     using System.Drawing;
     using System.Drawing.Imaging;
+    using System.Globalization;
     using System.IO;
     using System.Runtime.InteropServices;
     using System.Windows.Media;
@@ -50,7 +51,7 @@
             DDSCAPS2_VOLUME = 0x200000,
         }
 
-        internal enum DDSType
+        internal enum DDSType // FORMAT
         {
             DDS_A8R8G8B8 = 0,
             DDS_A1R5G5B5 = 1,
@@ -67,7 +68,7 @@
             DDS_UNKNOWN
         }
 
-        internal enum DDS_FOURCC : uint
+        internal enum DDS_FOURCC : uint // COMPRESSION
         {
             DXT1 = 0x31545844,
             DXT3 = 0x33545844,
@@ -222,33 +223,33 @@
         [StructLayout(LayoutKind.Sequential)]
         internal struct DDS_PIXELFORMAT
         {
-            internal UInt32 dwSize;
-            internal UInt32 dwFlags;
-            internal UInt32 dwFourCC;
-            internal UInt32 dwRGBBitCount;
-            internal UInt32 dwRBitMask;
-            internal UInt32 dwGBitMask;
-            internal UInt32 dwBBitMask;
-            internal UInt32 dwABitMask;
+            internal uint dwSize;
+            internal uint dwFlags;
+            internal uint dwFourCC;
+            internal uint dwRGBBitCount;
+            internal uint dwRbitMask;
+            internal uint dwGbitMask;
+            internal uint dwBbitMask;
+            internal uint dwAbitMask;
         };
 
         [StructLayout(LayoutKind.Sequential)]
         internal unsafe struct DDS_HEADER
         {
-            internal UInt32 dwSize;
-            internal UInt32 dwFlags;
-            internal UInt32 dwHeight;
-            internal UInt32 dwWidth;
-            internal UInt32 dwPitchOrLinearSize;
-            internal UInt32 dwDepth;
-            internal UInt32 dwMipMapCount;
-            internal fixed UInt32 dwReserved1[11];
+            internal uint dwSize;
+            internal uint dwFlags;
+            internal uint dwHeight;
+            internal uint dwWidth;
+            internal uint dwPitchOrLinearSize;
+            internal uint dwDepth;
+            internal uint dwMipMapCount;
+            internal fixed uint dwReserved1[11];
             internal DDS_PIXELFORMAT ddspf;
-            internal UInt32 dwCaps;
-            internal UInt32 dwCaps2;
-            internal UInt32 dwCaps3;
-            internal UInt32 dwCaps4;
-            internal UInt32 dwReserved2;
+            internal uint dwCaps;
+            internal uint dwCaps2;
+            internal uint dwCaps3;
+            internal uint dwCaps4;
+            internal uint dwReserved2;
 
             /// <summary>
             /// The size of the <see cref="DDS_HEADER"/> type, in bytes.
@@ -286,6 +287,27 @@
 
         #endregion
 
+        #region  Resscale Bitmap
+
+        public static object RescaleBitmap(string filename, int width, int height)
+        {
+            using var bitmap = (Bitmap)Image.FromFile(filename, true);
+            var resizedBitmap = new Bitmap(width, height);
+            var outputBitmap = bitmap ?? resizedBitmap;
+
+            if (width > 0 && height > 0)
+            {
+                outputBitmap = new Bitmap(width, height);
+                using var graphics = Graphics.FromImage(outputBitmap);
+                graphics.DrawImage(bitmap, 0, 0, width, height);
+                if (bitmap == resizedBitmap)
+                {
+                    return bitmap;
+                }
+            }
+            return outputBitmap;
+        }
+
         #region CreateImage
 
         // For WPF display.
@@ -298,37 +320,22 @@
         public static ImageSource CreateImage(string filename, int depthSlice, int width, int height, bool ignoreAlpha = false, IPixelEffect effect = null)
         {
             var extension = Path.GetExtension(filename).ToLower();
-
-            if (extension == ".png")
+            using var stream = File.OpenRead(filename);
+            return Path.GetExtension(filename).ToLower() switch
             {
-                // TODO: rescale the bitmap to specified width/height.
-                try
-                {
-                    return ImageHelper.ConvertBitmapToBitmapImage((Bitmap)Image.FromFile(filename, true));
-                }
-                catch { return null; }
-            }
-            else if (extension == ".dds")
-            {
-                using (var stream = File.OpenRead(filename))
-                {
-                    return CreateImage(stream, depthSlice, width, height, ignoreAlpha, effect);
-                }
-            }
-
-            return null;
+                ".png" =>  (ImageSource)RescaleBitmap(filename, width, height),                  // If the file is a PNG, read it from disk directly into a BitmapImage.
+                ".dds" => CreateImage(stream, depthSlice, width, height, ignoreAlpha, effect),
+                _ => null 
+            };
         }
+        #endregion
 
         public static ImageSource CreateImage(Stream stream, int depthSlice, int width, int height, bool ignoreAlpha = false, IPixelEffect effect = null)
         {
-            if (stream == null)
-                return null;
-
-            uint fourCC = 0;
-            DXGI_FORMAT dxgiFormat;
-            var pixelChannel = ReadTextureFile(stream, depthSlice, ref width, ref height, out fourCC, out dxgiFormat);
-            if (pixelChannel == null)
-                return null;
+            stream ??= null;
+        
+            var pixelChannel = ReadTextureFile(stream, depthSlice, ref width, ref height, out uint fourCC, out DXGI_FORMAT dxgiFormat);
+            pixelChannel ??= null;
             try
             {
                 return DxtUtilTexture.DecompressTextureToImageSource(pixelChannel, width, height, ignoreAlpha, effect, fourCC, dxgiFormat);
@@ -355,43 +362,38 @@
 
         public static Bitmap CreateBitmap(Stream stream, string filename, int depthSlice = 0, int width = -1, int height = -1, bool ignoreAlpha = false)
         {
-            if (stream == null)
-                return null;
+            stream ??= null;
 
-            var extension = Path.GetExtension(filename)?.ToLower();
-
-            if (extension == ".png")
+            return Path.GetExtension(filename)?.ToLower() switch
             {
-                // TODO: rescale the bitmap to specified width/height.
-                return (Bitmap)Image.FromFile(filename, true);
-            }
-            if (extension == ".dds")
-            {
-                uint fourCC = 0;
-                DXGI_FORMAT dxgiFormat;
-                var pixelChannel = ReadTextureFile(stream, depthSlice, ref width, ref height, out fourCC, out dxgiFormat);
-                if (pixelChannel == null)
-                    return null;
-                try
-                {
-                    return DxtUtilTexture.DecompressTextureToBitmap(pixelChannel, width, height, ignoreAlpha, fourCC, dxgiFormat);
-                }
-                catch
-                {
-                    return null;
-                }
-            }
-            return null;
+                ".png" => (Bitmap)RescaleBitmap(filename, width, height),
+                ".dds" => ReadDdsTexture(stream, depthSlice, ref width, ref height, ignoreAlpha),
+                _ => null
+            };
         }
+
 
         public static string GetTextureToBase64(Stream stream, string filename, int width, int height, bool ignoreAlpha = false)
         {
-            using (var bmp = CreateBitmap(stream, filename, 0, width, height, ignoreAlpha))
+            using var bmp = CreateBitmap(stream, filename, 0, width, height, ignoreAlpha);
+            var converter = new ImageConverter();
+            return Convert.ToBase64String((byte[])converter.ConvertTo(bmp, typeof(byte[])));
+        }
+
+        public static Bitmap ReadDdsTexture(Stream stream, int depthSlice, ref int width, ref int height, bool ignoreAlpha = false)
+        {
+            var pixelChannel = ReadTextureFile(stream, depthSlice, ref width, ref height, out uint fourCC, out DXGI_FORMAT dxgiFormat);
+            pixelChannel ??= null;
+            try
             {
-                var converter = new ImageConverter();
-                return Convert.ToBase64String((byte[])converter.ConvertTo(bmp, typeof(byte[])));
+                return DxtUtilTexture.DecompressTextureToBitmap(pixelChannel, width, height, ignoreAlpha, fourCC, dxgiFormat);
+            }
+            catch
+            {
+                return null;
             }
         }
+
 
         #endregion
 
@@ -414,19 +416,23 @@
                 var header = MarshalTo<DDS_HEADER>(reader.ReadBytes(DDS_HEADER.SizeInBytes));
                 fourCC = header.ddspf.dwFourCC;
 
-                UInt32 bytesPerPixel;
-                UInt32 dwPitchOrLinearSize;
+                uint bytesPerPixel,
+                     dwPitchOrLinearSize;
 
                 var slices = 1;
                 if (((DDSCAPS2)header.dwCaps2 & DDSCAPS2.DDSCAPS2_CUBEMAP) != 0)
+                {
                     slices = 6;
+                }
 
                 bytesPerPixel = header.dwPitchOrLinearSize / (header.dwWidth * header.dwHeight);
 
                 var c = header.dwCaps2;
                 var mipCount = (int)header.dwMipMapCount;
                 if (mipCount == 0)
+                {
                     mipCount = 1;
+                }
 
                 if (header.ddspf.dwFlags == (uint)PixelFormatFlags.FourCC && fourCC == (uint)DDS_FOURCC.DX10)
                 {
@@ -457,9 +463,9 @@
                         case DXGI_FORMAT.DXGI_FORMAT_BC7_UNORM:
                         case DXGI_FORMAT.DXGI_FORMAT_BC7_UNORM_SRGB:
                             // The block-size is 8 bytes for DXT1, BC1, and BC4 formats, and 16 bytes for other block-compressed formats.
-                            UInt32 blockSize = 8;
+                            uint blockSize = 8;
                             // For block-compressed formats, compute the pitch as:
-                            dwPitchOrLinearSize = Math.Max(1, ((header.dwWidth + 3) / 4)) * blockSize;
+                            dwPitchOrLinearSize = Math.Max(1, (header.dwWidth + 3) / 4) * blockSize;
                             break;
 
                         case DXGI_FORMAT.DXGI_FORMAT_R8G8_B8G8_UNORM:
@@ -510,14 +516,23 @@
                             {
                                 // hack for VRage.Compression.MyStreamWrapper
                                 for (int i = 0; i < size; i++)
+                                {
                                     reader.BaseStream.ReadByte();
+                                }
                             }
                         }
 
-                        w = w >> 1;
-                        h = h >> 1;
-                        if (w == 0) w = 1;
-                        if (h == 0) h = 1;
+                        w >>= 1;
+                        h >>= 1;
+                        if (w == 0)
+                        {
+                            w = 1;
+                        }
+
+                        if (h == 0)
+                        {
+                            h = 1;
+                        }
                     }
 
                     reader.BaseStream.Seek(27, SeekOrigin.Current);
@@ -534,131 +549,134 @@
 
         #endregion
 
-        private static uint BitsPerPixel(DXGI_FORMAT fmt)
+        private static uint BitsPerPixel(DXGI_FORMAT format)
         {
-            switch (fmt)
+            return format switch
             {
-                case DXGI_FORMAT.DXGI_FORMAT_R32G32B32A32_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_R32G32B32A32_FLOAT:
-                case DXGI_FORMAT.DXGI_FORMAT_R32G32B32A32_UINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R32G32B32A32_SINT:
-                    return 128;
+                DXGI_FORMAT.DXGI_FORMAT_R32G32B32A32_FLOAT or
+                DXGI_FORMAT.DXGI_FORMAT_R32G32B32A32_SINT or
+                DXGI_FORMAT.DXGI_FORMAT_R32G32B32A32_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_R32G32B32A32_UINT => 128,
+                DXGI_FORMAT.DXGI_FORMAT_R32G32B32_FLOAT or
+                DXGI_FORMAT.DXGI_FORMAT_R32G32B32_SINT or
+                DXGI_FORMAT.DXGI_FORMAT_R32G32B32_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_R32G32B32_UINT => 96,
+                DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_FLOAT or
+                DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_UINT or
+                DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_SNORM or
+                DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_SINT or
+                DXGI_FORMAT.DXGI_FORMAT_R32G32_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_R32G32_FLOAT or
+                DXGI_FORMAT.DXGI_FORMAT_R32G32_UINT or
+                DXGI_FORMAT.DXGI_FORMAT_R32G32_SINT or
+                DXGI_FORMAT.DXGI_FORMAT_R32G8X24_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_D32_FLOAT_S8X24_UINT or
+                DXGI_FORMAT.DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_X32_TYPELESS_G8X24_UINT => 64,
+                DXGI_FORMAT.DXGI_FORMAT_R10G10B10A2_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_R10G10B10A2_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_R10G10B10A2_UINT or
+                DXGI_FORMAT.DXGI_FORMAT_R11G11B10_FLOAT or
+                DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM_SRGB or
+                DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UINT or
+                DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_SNORM or
+                DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_SINT or
+                DXGI_FORMAT.DXGI_FORMAT_R16G16_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_R16G16_FLOAT or
+                DXGI_FORMAT.DXGI_FORMAT_R16G16_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_R16G16_UINT or
+                DXGI_FORMAT.DXGI_FORMAT_R16G16_SNORM or
+                DXGI_FORMAT.DXGI_FORMAT_R16G16_SINT or
+                DXGI_FORMAT.DXGI_FORMAT_R32_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_D32_FLOAT or
+                DXGI_FORMAT.DXGI_FORMAT_R32_FLOAT or
+                DXGI_FORMAT.DXGI_FORMAT_R32_UINT or
+                DXGI_FORMAT.DXGI_FORMAT_R32_SINT or
+                DXGI_FORMAT.DXGI_FORMAT_R24G8_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_D24_UNORM_S8_UINT or
+                DXGI_FORMAT.DXGI_FORMAT_R24_UNORM_X8_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_X24_TYPELESS_G8_UINT or
+                DXGI_FORMAT.DXGI_FORMAT_R9G9B9E5_SHAREDEXP or
+                DXGI_FORMAT.DXGI_FORMAT_R8G8_B8G8_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_G8R8_G8B8_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_B8G8R8X8_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_UNORM_SRGB or
+                DXGI_FORMAT.DXGI_FORMAT_B8G8R8X8_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_B8G8R8X8_UNORM_SRGB => 32,
+                DXGI_FORMAT.DXGI_FORMAT_R8G8_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_R8G8_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_R8G8_UINT or
+                DXGI_FORMAT.DXGI_FORMAT_R8G8_SNORM or
+                DXGI_FORMAT.DXGI_FORMAT_R8G8_SINT or
+                DXGI_FORMAT.DXGI_FORMAT_R16_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_R16_FLOAT or
+                DXGI_FORMAT.DXGI_FORMAT_D16_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_R16_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_R16_UINT or
+                DXGI_FORMAT.DXGI_FORMAT_R16_SNORM or
+                DXGI_FORMAT.DXGI_FORMAT_R16_SINT or
+                DXGI_FORMAT.DXGI_FORMAT_B5G6R5_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_B5G5R5A1_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_B4G4R4A4_UNORM => 16,
+             
 
-                case DXGI_FORMAT.DXGI_FORMAT_R32G32B32_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_R32G32B32_FLOAT:
-                case DXGI_FORMAT.DXGI_FORMAT_R32G32B32_UINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R32G32B32_SINT:
-                    return 96;
+                DXGI_FORMAT.DXGI_FORMAT_R1_UNORM => 1,
+                DXGI_FORMAT.DXGI_FORMAT_BC1_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB or
+                DXGI_FORMAT.DXGI_FORMAT_BC4_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_BC4_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_BC4_SNORM => 4,
+                DXGI_FORMAT.DXGI_FORMAT_BC2_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_BC2_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_BC2_UNORM_SRGB or
+                DXGI_FORMAT.DXGI_FORMAT_BC3_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_BC3_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_BC3_UNORM_SRGB or
+                DXGI_FORMAT.DXGI_FORMAT_BC5_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_BC5_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_BC5_SNORM or
+                DXGI_FORMAT.DXGI_FORMAT_BC6H_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_BC6H_UF16 or
+                DXGI_FORMAT.DXGI_FORMAT_BC6H_SF16 or
+                DXGI_FORMAT.DXGI_FORMAT_BC7_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_BC7_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_BC7_UNORM_SRGB or
+                DXGI_FORMAT.DXGI_FORMAT_R8_TYPELESS or
+                DXGI_FORMAT.DXGI_FORMAT_R8_UNORM or
+                DXGI_FORMAT.DXGI_FORMAT_R8_UINT or
+                DXGI_FORMAT.DXGI_FORMAT_R8_SNORM or
+                DXGI_FORMAT.DXGI_FORMAT_R8_SINT or 
+                DXGI_FORMAT.DXGI_FORMAT_A8_UNORM => 8,
+                // DXGI_FORMAT.DXGI_FORMAT_AYUV or
+                // DXGI_FORMAT.DXGI_FORMAT_Y410 or
+                // DXGI_FORMAT.DXGI_FORMAT_Y416 or
+                // DXGI_FORMAT.DXGI_FORMAT_NV12 or
+                // DXGI_FORMAT.DXGI_FORMAT_P010 or
+                // DXGI_FORMAT.DXGI_FORMAT_Y416 or
+                // DXGI_FORMAT.DXGI_FORMAT_NV12 or
+                // DXGI_FORMAT.DXGI_FORMAT_P010 or
+                // DXGI_FORMAT.DXGI_FORMAT_P016 or
+                // DXGI_FORMAT.DXGI_FORMAT_420_OPAQUE or
+                // DXGI_FORMAT.DXGI_FORMAT_YUY2 or
+                // DXGI_FORMAT.DXGI_FORMAT_Y210 or
+                // DXGI_FORMAT.DXGI_FORMAT_Y216 or
+                // DXGI_FORMAT.DXGI_FORMAT_NV11 or
+                // DXGI_FORMAT.DXGI_FORMAT_AI44 or
+                // DXGI_FORMAT.DXGI_FORMAT_IA44 or
+                // DXGI_FORMAT.DXGI_FORMAT_P8 or
+                // DXGI_FORMAT.DXGI_FORMAT_A8P8 => 8,
+                // DXGI_FORMAT.DXGI_FORMAT_UNKNOWN => 0,
 
-                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_FLOAT:
-                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_UINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_SNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_SINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R32G32_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_R32G32_FLOAT:
-                case DXGI_FORMAT.DXGI_FORMAT_R32G32_UINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R32G32_SINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R32G8X24_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_X32_TYPELESS_G8X24_UINT:
-                    return 64;
-
-                case DXGI_FORMAT.DXGI_FORMAT_R10G10B10A2_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_R10G10B10A2_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_R10G10B10A2_UINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R11G11B10_FLOAT:
-                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
-                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_SNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_SINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R16G16_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_R16G16_FLOAT:
-                case DXGI_FORMAT.DXGI_FORMAT_R16G16_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_R16G16_UINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R16G16_SNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_R16G16_SINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R32_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_D32_FLOAT:
-                case DXGI_FORMAT.DXGI_FORMAT_R32_FLOAT:
-                case DXGI_FORMAT.DXGI_FORMAT_R32_UINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R32_SINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R24G8_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_D24_UNORM_S8_UINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R24_UNORM_X8_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_X24_TYPELESS_G8_UINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R9G9B9E5_SHAREDEXP:
-                case DXGI_FORMAT.DXGI_FORMAT_R8G8_B8G8_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_G8R8_G8B8_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_B8G8R8X8_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
-                case DXGI_FORMAT.DXGI_FORMAT_B8G8R8X8_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
-                    return 32;
-
-                case DXGI_FORMAT.DXGI_FORMAT_R8G8_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_R8G8_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_R8G8_UINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R8G8_SNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_R8G8_SINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R16_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_R16_FLOAT:
-                case DXGI_FORMAT.DXGI_FORMAT_D16_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_R16_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_R16_UINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R16_SNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_R16_SINT:
-                case DXGI_FORMAT.DXGI_FORMAT_B5G6R5_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_B5G5R5A1_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_B4G4R4A4_UNORM:
-                    return 16;
-
-                case DXGI_FORMAT.DXGI_FORMAT_R8_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_R8_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_R8_UINT:
-                case DXGI_FORMAT.DXGI_FORMAT_R8_SNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_R8_SINT:
-                case DXGI_FORMAT.DXGI_FORMAT_A8_UNORM:
-                    return 8;
-
-                case DXGI_FORMAT.DXGI_FORMAT_R1_UNORM:
-                    return 1;
-
-                case DXGI_FORMAT.DXGI_FORMAT_BC1_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB:
-                case DXGI_FORMAT.DXGI_FORMAT_BC4_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_BC4_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_BC4_SNORM:
-                    return 4;
-
-                case DXGI_FORMAT.DXGI_FORMAT_BC2_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_BC2_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_BC2_UNORM_SRGB:
-                case DXGI_FORMAT.DXGI_FORMAT_BC3_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_BC3_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_BC3_UNORM_SRGB:
-                case DXGI_FORMAT.DXGI_FORMAT_BC5_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_BC5_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_BC5_SNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_BC6H_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_BC6H_UF16:
-                case DXGI_FORMAT.DXGI_FORMAT_BC6H_SF16:
-                case DXGI_FORMAT.DXGI_FORMAT_BC7_TYPELESS:
-                case DXGI_FORMAT.DXGI_FORMAT_BC7_UNORM:
-                case DXGI_FORMAT.DXGI_FORMAT_BC7_UNORM_SRGB:
-                    return 8;
-
-                default:
-                    return 0;
-            }
+                _ => 0,
+            };
         }
 
         #region WriteImage
@@ -666,36 +684,22 @@
         public static void WriteImage(Bitmap image, string filename)
         {
             if (image == null)
-                return;
-
-            string extension = Path.GetExtension(filename)?.ToUpper();
-
-            switch (extension)
             {
-                case ".GIF":
-                    image.Save(filename, ImageFormat.Gif);
-                    break;
-
-                case ".BMP":
-                    image.Save(filename, ImageFormat.Bmp);
-                    break;
-
-                case ".PNG":
-                    image.Save(filename, ImageFormat.Png);
-                    break;
-
-                case ".TIF":
-                case ".TIFF":
-                    image.Save(filename, ImageFormat.Tiff);
-                    break;
-
-                case ".JPEG":
-                case ".JPG":
-                    image.Save(filename, ImageFormat.Jpeg);
-                    break;
-                default:
-                    throw new NotImplementedException("That file extension is not a valid export image format.");
+                return;
             }
+
+            string extension = Path.GetExtension(filename)?.ToLower();
+
+            image.Save(filename, extension switch
+            {
+                ".GIF" => ImageFormat.Gif,
+                ".BMP" => ImageFormat.Bmp,
+                ".PNG" => ImageFormat.Png,
+                ".TIF" or ".TIFF" => ImageFormat.Tiff,
+                ".JPEG" or ".JPG" => ImageFormat.Jpeg,
+                _ => throw new NotImplementedException($"That file extension '{extension}' is not a valid export image format."),
+            });
+
         }
 
         #endregion
@@ -713,23 +717,22 @@
         {
             var result = new Bitmap(image1.Width, image1.Height);
 
-            using (var graphics = Graphics.FromImage(result))
+            using Graphics graphics = Graphics.FromImage(result);
+
+            //set the resize quality modes to high quality
+            graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+            graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+            // Apply any fill.
+            if (backgroundFill != null)
             {
-                //set the resize quality modes to high quality
-                graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-
-                // Apply any fill.
-                if (backgroundFill != null)
-                {
-                    graphics.FillRectangle(backgroundFill, 0, 0, image1.Width, image1.Height);
-                }
-
-                //draw the image into the target bitmap
-                graphics.DrawImage(image1, 0, 0, result.Width, result.Height);
-                graphics.DrawImage(image2, 0, 0, result.Width, result.Height);
+                graphics.FillRectangle(backgroundFill, 0, 0, image1.Width, image1.Height);
             }
+
+            //draw the image into the target bitmap
+            graphics.DrawImage(image1, 0, 0, result.Width, result.Height);
+            graphics.DrawImage(image2, 0, 0, result.Width, result.Height);
 
             return result;
         }

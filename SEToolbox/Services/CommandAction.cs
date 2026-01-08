@@ -11,11 +11,31 @@ namespace SEToolbox.Services
     {
         #region Dependency Properties
 
-        public static readonly DependencyProperty CommandProperty = DependencyProperty.Register("Command", typeof(ICommand), typeof(CommandAction), new PropertyMetadata(null, OnCommandChanged));
-        public static readonly DependencyProperty CommandParameterProperty = DependencyProperty.Register("CommandParameter", typeof(object), typeof(CommandAction), new PropertyMetadata());
-        public static readonly DependencyProperty CommandTargetProperty = DependencyProperty.Register("CommandTarget", typeof(IInputElement), typeof(CommandAction), new PropertyMetadata());
-        public static readonly DependencyProperty SyncOwnerIsEnabledProperty = DependencyProperty.Register("SyncOwnerIsEnabled", typeof(bool), typeof(CommandAction), new PropertyMetadata());
-        public static readonly DependencyProperty EventArgsProperty = DependencyProperty.Register("EventArgs", typeof(bool), typeof(CommandAction), new PropertyMetadata());
+        public static readonly DependencyProperty CommandProperty = 
+                               DependencyProperty.Register("Command",
+                                                          typeof(ICommand), 
+                                                          typeof(CommandAction), 
+                                                          new PropertyMetadata(null, OnCommandChanged));
+        public static readonly DependencyProperty CommandParameterProperty = 
+                               DependencyProperty.Register("CommandParameter", 
+                                                            typeof(object),
+                                                            typeof(CommandAction), 
+                                                            new PropertyMetadata());
+        public static readonly DependencyProperty CommandTargetProperty = 
+                                DependencyProperty.Register("CommandTarget", 
+                                                            typeof(IInputElement), 
+                                                            typeof(CommandAction), 
+                                                            new PropertyMetadata());
+        public static readonly DependencyProperty SyncOwnerIsEnabledProperty = 
+                               DependencyProperty.Register("SyncOwnerIsEnabled", 
+                                                            typeof(bool), 
+                                                            typeof(CommandAction), 
+                                                            new PropertyMetadata());
+        public static readonly DependencyProperty EventArgsProperty = 
+                               DependencyProperty.Register("EventArgs", 
+                                                            typeof(bool),
+                                                            typeof(CommandAction),
+                                                            new PropertyMetadata());
 
         #endregion
 
@@ -85,20 +105,17 @@ namespace SEToolbox.Services
         #region Overrides
 
         [DebuggerStepThrough]
-        protected override void Invoke(object o)
+        protected override void Invoke(object obj)
         {
             if (Command is RoutedCommand routedCommand)
             {
-                routedCommand.Execute(EventArgs ? o : CommandParameter, CommandTarget);
+                routedCommand.Execute(EventArgs ? obj : CommandParameter, CommandTarget);
             }
             else
             {
-                Command.Execute(EventArgs ? o : CommandParameter);
-             
+                Command.Execute(EventArgs ? obj : CommandParameter); 
             }
-
         }
-        
 
         #endregion
 
@@ -114,7 +131,6 @@ namespace SEToolbox.Services
             {
                 HookupCommandCanExecuteChangedEventHandler(comNew);
             }
-
         }
 
         private void HookupCommandCanExecuteChangedEventHandler(ICommand command)
@@ -132,12 +148,14 @@ namespace SEToolbox.Services
 
         private void UpdateCanExecute()
         {
-                bool canExecute = Command is RoutedCommand routedCommand
-                    ? routedCommand.CanExecute(CommandParameter, CommandTarget)
-                    : Command.CanExecute(CommandParameter);
+                IsEnabled = Command is RoutedCommand routedCommand
+                                            ? routedCommand.CanExecute(CommandParameter, CommandTarget)
+                                            : Command.CanExecute(CommandParameter);
 
-                if (Target != null && SyncOwnerIsEnabled)
-                    Target.IsEnabled = canExecute;
+                if (SyncOwnerIsEnabled)
+            {
+                Target?.IsEnabled = IsEnabled;
+            }
         }
 
         #endregion

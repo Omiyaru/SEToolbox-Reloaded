@@ -34,10 +34,12 @@ namespace SEToolbox.ViewModels
             _colorDialogFactory = colorDialogFactory;
 
             if (dataModel.Inventory == null)
+            {
                 return;
+            }
             Inventory = new InventoryEditorViewModel(this, dataModel.Inventory);
 
-            DataModel.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
+            DataModel.PropertyChanged += delegate(object sender, PropertyChangedEventArgs e)
             {
                 // Will bubble property change events from the Model to the ViewModel.
                 OnPropertyChanged(e.PropertyName);
@@ -109,8 +111,7 @@ namespace SEToolbox.ViewModels
         {
             get => DataModel.Dampeners;
             set => SetValue(DataModel.Dampeners, value, () =>
-                   MainViewModel.IsModified = true);  
-  
+                   MainViewModel.IsModified = true);
         }
 
         public override double LinearVelocity

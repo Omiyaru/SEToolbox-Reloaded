@@ -19,12 +19,11 @@ namespace SEToolbox.Interop
 
             // If the high-order bit is 1, the key is down
             // otherwise, it is up.
-            if ((retVal & 0x8000) == 0x8000)
-                state |= KeyStates.Down;
+            state = (retVal & 0x8000) == 0x8000 ? state | KeyStates.Down : state & ~KeyStates.Down;
 
             // If the low-order bit is 1, the key is toggled.
-            if ((retVal & 1) == 1)
-                state |= KeyStates.Toggled;
+            state = (retVal & 1) == 1 ? state | KeyStates.Toggled : state & ~KeyStates.Toggled;
+           
 
             return state;
         }

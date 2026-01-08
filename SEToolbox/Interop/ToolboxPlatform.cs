@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Management;
-using System.Reflection;
+using System.Windows.Forms;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -73,7 +74,7 @@ namespace SEToolbox.Interop
     {
         private static Action _onSuspending;
         private static Action<string> _onSystemProtocolActivated;
-        private static float? _forcedUiRatio;
+        private static readonly float? _forcedUiRatio;
         public float CPUCounter => throw new NotImplementedException();
         public float RAMCounter => throw new NotImplementedException();
         public float GCMemory => throw new NotImplementedException();
@@ -85,16 +86,16 @@ namespace SEToolbox.Interop
 
         public bool IsScriptCompilationSupported => throw new NotImplementedException();
 
-        string IVRageSystem.Clipboard
+       string IVRageSystem.Clipboard
         {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
+            get =>  throw new NotImplementedException();
+            set =>  throw new NotImplementedException();
         }
 
         public bool IsAllocationProfilingReady => throw new NotImplementedException(); //false;
         public bool IsSingleInstance => throw new NotImplementedException(); // false;
         public bool IsRemoteDebuggingSupported => throw new NotImplementedException(); //false;
-        public SimulationQuality SimulationQuality => throw new NotImplementedException(); //SimulationQuality.VeryLow | SimulationQuality.Low | SimulationQuality.Normal;
+        public SimulationQuality SimulationQuality => throw new NotImplementedException(); //SimulationQuality.VeryLow || SimulationQuality.Low || SimulationQuality.Normal;
 
         public bool IsDeprecatedOS => throw new NotImplementedException(); // false;
         public bool IsMemoryLimited => throw new NotImplementedException(); // false;
@@ -112,26 +113,16 @@ namespace SEToolbox.Interop
 
         public float? ForcedUiRatio
         {
-            get
-            {
-                if (_forcedUiRatio == null)
-                {
-                    var primaryMonitorSize = System.Windows.Forms.SystemInformation.PrimaryMonitorSize;
-                    _forcedUiRatio = primaryMonitorSize.Width / (float)primaryMonitorSize.Height;
-                }
-
-                return _forcedUiRatio;
-            }
+            get => _forcedUiRatio == null ? SystemInformation.PrimaryMonitorSize.Width / (float)SystemInformation.PrimaryMonitorSize.Height : _forcedUiRatio;
         }
 
-       
+
 
         public event Action<string> OnSystemProtocolActivated
         {
             add => _onSystemProtocolActivated += value;
             remove => _onSystemProtocolActivated -= value;
         }
-
 
         public event Action LeaveSession
         {
@@ -199,23 +190,15 @@ namespace SEToolbox.Interop
 
         public List<string> GetProcessesLockingFile(string path)
         {
-            var processes = new List<string>();
-            var searchQuery = string.Format($"SELECT ProcessId, ExecutablePath FROM Win32_Process WHERE Handle = '{path.Replace(@"\", @"\\")}'");
-            var search = new ManagementObjectSearcher(searchQuery);
-            var results = search.Get();
-            foreach (ManagementObject result in results.Cast<ManagementObject>())
-            {
-                try
-                {
-                    var processId = result["ProcessId"];
-                    var executablePath = result["ExecutablePath"];
-                    processes.Add($"{processId} - {executablePath}");
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
-            }
+            var processName = Path.GetFileNameWithoutExtension(path);
+            var processIds = Process.GetProcessesByName(processName)
+                                    .Select(process => process.Id)
+                                    .ToHashSet();
+
+            var processes = Process.GetProcesses()
+                                    .Where(process => processIds.Contains(process.Id))
+                                    .Select(process => $"{process.Id} - {process.ProcessName}")
+                                    .ToList();
             return processes;
         }
 
@@ -229,12 +212,15 @@ namespace SEToolbox.Interop
             return (ulong)Process.GetCurrentProcess().WorkingSet64;
         }
         
-        public void LogEnvironmentInformation()
+      public void LogEnvironmentInformation() 
         {
             //Log relevant environment information
-            SConsole.WriteLine($"OS: {GetOsName()}, CPU: {GetInfoCPU(out uint freq, out uint cores)}");
-            Debugger.Log(0, null, $"OS: {GetOsName()}, CPU: {GetInfoCPU(out freq, out cores)}"); // Log to external debugger.
-
+            var osName = GetOsName();
+            var cpuInfo = GetInfoCPU(out uint freq, out uint cores);
+            var logMessage = $"OS: {osName}, CPU: {cpuInfo} cores";
+            Log.WriteLine(logMessage);
+            Debugger.Log(0, null, logMessage); // Log to external debugger.
+            Console.WriteLine($"CPU frequency: {freq}, Number of cores: {cores}");
         }
         
         public void LogToExternalDebugger(string message)
@@ -271,26 +257,27 @@ namespace SEToolbox.Interop
             ThreadPool.SetMinThreads(minWorkerThreads, minCompletionPortThreads);
             ThreadPool.SetMaxThreads(maxWorkerThreads, maxCompletionPortThreads);
 
-            SConsole.WriteLine($"ThreadPool Min/Max Worker Threads: {minWorkerThreads}/{maxWorkerThreads}");
-            SConsole.WriteLine($"ThreadPool Min/Max Completion Port Threads: {minCompletionPortThreads}/{maxCompletionPortThreads}");
+            Log.WriteLine($"ThreadPool Min/Max Worker Threads: {minWorkerThreads}/{maxWorkerThreads}");
+            Log.WriteLine($"ThreadPool Min/Max Completion Port Threads: {minCompletionPortThreads}/{maxCompletionPortThreads}");
         }
         
         public void LogRuntimeInfo(Action<string> log)
         {
             var runtime = typeof(string).Assembly.GetName();
             log($"Runtime: {runtime.Name} {runtime.Version}");
+            Log.WriteLine( $"Runtime: {runtime.Name} {runtime.Version}");
         }
 
         public void OnSessionStarted(SessionType sessionType) => throw new NotImplementedException();
         public void OnSessionUnloaded() => throw new NotImplementedException();
-
         public int? GetExperimentalPCULimit(int safePCULimit) => throw new NotImplementedException();
-
 
         public void DebuggerBreak()
         {
-            if (Debugger.IsAttached)
+            if (Debugger.IsAttached) 
+            {
                 Debugger.Break();
+            }
         }
         
         public void CollectGC(int generation, GCCollectionMode mode)
@@ -323,7 +310,6 @@ namespace SEToolbox.Interop
         public bool UseParallelRenderInit => throw new NotImplementedException(); // true;
         public bool IsRenderOutputDebugSupported => throw new NotImplementedException(); // false;
         public bool ForceClearGBuffer => throw new NotImplementedException(); // false;
-
 
 
         public event Action OnResuming
@@ -396,12 +382,16 @@ namespace SEToolbox.Interop
             var registered = new HashSet<Type>();
 
             foreach (Type type in types)
+            {
                 RegisterType(type);
+            }
 
             void RegisterType(Type protoType)
             {
                 if (protoType.IsGenericType)
+                {
                     return;
+                }
 
                 if (protoType.BaseType == typeof(object) || protoType.IsValueType)
                 {

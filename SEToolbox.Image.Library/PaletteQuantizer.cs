@@ -28,7 +28,7 @@ namespace SEToolbox.ImageLibrary
         public PaletteQuantizer(ArrayList palette)
             : base(true)
         {
-            _colorMap = new Hashtable();
+            _colorMap = [];
 
             _colors = new Color[palette.Count];
             palette.CopyTo(_colors);
@@ -42,11 +42,13 @@ namespace SEToolbox.ImageLibrary
         protected override byte QuantizePixel(Color32* pixel)
         {
             byte colorIndex = 0;
-            int colorHash = pixel->ARGB;
+            int colorHash = pixel->Argb;
 
             // Check if the color is in the lookup table
             if (_colorMap.ContainsKey(colorHash))
+            {
                 colorIndex = (byte)_colorMap[colorHash];
+            }
             else
             {
                 // Not found - loop through the palette and find the nearest match.
@@ -81,8 +83,8 @@ namespace SEToolbox.ImageLibrary
                         int blueDistance = paletteColor.B - blue;
 
                         int distance = (redDistance * redDistance) +
-                                           (greenDistance * greenDistance) +
-                                           (blueDistance * blueDistance);
+                                       (greenDistance * greenDistance) +
+                                       (blueDistance * blueDistance);
 
                         if (distance < leastDistance)
                         {
@@ -91,12 +93,14 @@ namespace SEToolbox.ImageLibrary
 
                             // And if it's an exact match, exit the loop
                             if (0 == distance)
+                            {
                                 break;
+                            }
                         }
                     }
                 }
 
-                // Now I have the color, pop it into the hashtable for next time
+                // Now I have the color, add it into the hashtable for next time
                 _colorMap.Add(colorHash, colorIndex);
             }
 
@@ -108,12 +112,26 @@ namespace SEToolbox.ImageLibrary
         /// </summary>
         /// <param name="palette">Any old palette, this is overrwritten</param>
         /// <returns>The new color palette</returns>
-        protected override ColorPalette GetPalette(ColorPalette palette)
+        protected override ColorPalette GetPalette(ColorPalette palette, bool clearPalette)
         {
+            if (clearPalette)
+            {
+                for (int index = 0; index < palette.Entries.Length; index++)
+                {
+                    palette.Entries[index] = Color.FromArgb(0, 0, 0, 0);
+                } 
+            }
             for (int index = 0; index < _colors.Length; index++)
+            {
                 palette.Entries[index] = _colors[index];
+            }
 
             return palette;
+        }
+
+        protected override ColorPalette CLearPalette(ColorPalette palette)
+        {
+            return GetPalette(palette, true);
         }
 
         /// <summary>

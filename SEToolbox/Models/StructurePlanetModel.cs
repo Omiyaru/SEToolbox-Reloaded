@@ -31,13 +31,11 @@ namespace SEToolbox.Models
         private BackgroundWorker _asyncWorker;
 
         [NonSerialized]
-        private  MyVoxelMapBase _voxelMap;
+        private MyVoxelMapBase _voxelMap;
 
         [NonSerialized]
         private bool _isLoadingAsync;
         private BoundingBoxI _contentBounds;
-
-
 
         #endregion
 
@@ -48,18 +46,15 @@ namespace SEToolbox.Models
         {
             if (voxelPath != null)
             {
-                VoxelFilePath = Path.Combine(voxelPath, Name +  MyVoxelMapBase.FileExtension.V2);
+                VoxelFilePath = Path.Combine(voxelPath, Name + MyVoxelMapBase.FileExtension.V2);
+                string oldFilePath = Path.Combine(voxelPath, Name + MyVoxelMapBase.FileExtension.V1);
                 string previewFile = VoxelFilePath;
 
-                if (!File.Exists(VoxelFilePath))
+                if (!File.Exists(VoxelFilePath) && File.Exists(oldFilePath))
                 {
-                    string oldFilePath = Path.Combine(voxelPath, Name +  MyVoxelMapBase.FileExtension.V1);
-                    if (File.Exists(oldFilePath))
-                    {
                         SourceVoxelFilePath = oldFilePath;
                         previewFile = oldFilePath;
                         SpaceEngineersCore.ManageDeleteVoxelList.Add(oldFilePath);
-                    }
                 }
 
                 ReadVoxelDetails(previewFile);
@@ -94,13 +89,12 @@ namespace SEToolbox.Models
         }
 
         /// <summary>
-        /// This is the actual file/path for the Voxel file. It may not exist yet.
+        /// This is the actual file/path for the Voxel file.
         /// </summary>
         public string VoxelFilePath
         {
             get => _voxelFilePath;
             set => SetProperty(ref _voxelFilePath, value, nameof(VoxelFilePath));
-            
         }
 
         [XmlIgnore]
@@ -109,11 +103,12 @@ namespace SEToolbox.Models
             get => _contentCenter;
             set => SetProperty(ref _contentCenter, value, nameof(ContentCenter));
         }
-        public BoundingBoxI ContentBounds 
-        { 
+        [XmlIgnore]
+        public BoundingBoxI ContentBounds
+        {
             get => _contentBounds;
-   private set => SetProperty(ref _contentBounds, value, nameof(ContentBounds)) ; }
-
+            private set => SetProperty(ref _contentBounds, value, nameof(ContentBounds));
+        }
 
         [XmlIgnore]
         public Vector3I Size
@@ -199,6 +194,7 @@ namespace SEToolbox.Models
             set => SetProperty(Planet.PlanetGenerator, value, nameof(PlanetGenerator));
         }
 
+        
         private object ContentSize()
         {
             return _voxelMap.BoundingContent;
@@ -233,44 +229,45 @@ namespace SEToolbox.Models
                 _asyncWorker = new BackgroundWorker { WorkerSupportsCancellation = true };
                 _asyncWorker.DoWork += (sender, e) =>
                 {
-                    if (_isLoadingAsync) return;
+                    if (_isLoadingAsync)
+                    {
+                        return;
+                    }
 
-                        _isLoadingAsync = true;
-                        IsBusy = true;
+                    _isLoadingAsync = true;
+                    IsBusy = true;
 
-                        if (Planet != null)
-                        {
-                            _voxelMap.RefreshAssets();
-                            _contentCenter = _voxelMap.ContentCenter;
-                            Center = new Vector3D(
-                                _contentCenter.X + 0.5f + PositionX,
-                                _contentCenter.Y + 0.5f + PositionY,
-                                _contentCenter.Z + 0.5f + PositionZ
-                            );
+                    if (Planet != null)
+                    {
+                        _voxelMap.RefreshAssets();
+                        _contentCenter = _voxelMap.ContentCenter;
+                        Center = new Vector3D(_contentCenter.X + 0.5f + PositionX,
+                                              _contentCenter.Y + 0.5f + PositionY,
+                                              _contentCenter.Z + 0.5f + PositionZ
+                        );
 
-                            Name = Planet.StorageName ?? Name;
-                            Seed = Planet.Seed;
-                            Radius = Planet.Radius;
-                            HasAtmosphere = Planet.HasAtmosphere;
-                            MinimumSurfaceRadius = Planet.MinimumSurfaceRadius;
-                            MaximumHillRadius = Planet.MaximumHillRadius;
-                            AtmosphereRadius = Planet.AtmosphereRadius;
-                            GravityFalloff = Planet.GravityFalloff;
-                            SurfaceGravity = Planet.SurfaceGravity;
-                            SpawnsFlora = Planet.SpawnsFlora;
-                            ShowGPS = Planet.ShowGPS;
-                            PlanetGenerator = Planet.PlanetGenerator;
+                        Name = Planet.StorageName ?? Name;
+                        Seed = Planet.Seed;
+                        Radius = Planet.Radius;
+                        HasAtmosphere = Planet.HasAtmosphere;
+                        MinimumSurfaceRadius = Planet.MinimumSurfaceRadius;
+                        MaximumHillRadius = Planet.MaximumHillRadius;
+                        AtmosphereRadius = Planet.AtmosphereRadius;
+                        GravityFalloff = Planet.GravityFalloff;
+                        SurfaceGravity = Planet.SurfaceGravity;
+                        SpawnsFlora = Planet.SpawnsFlora;
+                        ShowGPS = Planet.ShowGPS;
+                        PlanetGenerator = Planet.PlanetGenerator;
 
-                            ReadVoxelDetails(SourceVoxelFilePath);
-                        }
-                        else
-                        {
-                            throw new NullReferenceException("Planet is null");
-                        }
+                        ReadVoxelDetails(SourceVoxelFilePath);
+                    }
+                    else
+                    {
+                        throw new NullReferenceException("Planet is null");
+                    }
 
-                        IsBusy = false;
-                        _isLoadingAsync = false;
-
+                    IsBusy = false;
+                    _isLoadingAsync = false;
 
                     if (!_asyncWorker.IsBusy)
                     {
@@ -288,36 +285,39 @@ namespace SEToolbox.Models
 
                 // Attempt to abort the file access to the ZipTools zip reader if necessary.
                 FieldInfo field = ReflectionUtil.GetField<ZipArchive>("_reader", BindingFlags.NonPublic | BindingFlags.Static);
-                if (field != null)
-                {
-                    ZipArchive zipReader = (ZipArchive)field.GetValue(null);
-                    zipReader?.Dispose();
-                }
+                ZipArchive zipReader = (ZipArchive)field?.GetValue(null);
+                zipReader?.Dispose();
             }
 
         }
-        
+
         private void ReadVoxelDetails(string fileName)
         {
-            if (fileName != null && File.Exists(fileName) && _voxelMap == null)
+            if (fileName != null && File.Exists(fileName))
             {
-                _voxelMap = new  MyVoxelMapBase();
+                _voxelMap = new MyVoxelMapBase();
                 _voxelMap.Load(fileName);
 
                 Size = _voxelMap.Size;
                 _contentCenter = _voxelMap.ContentCenter;
                 IsValid = _voxelMap.IsValid;
                 OnPropertyChanged(nameof(Size), nameof(IsValid));
-                Center = new Vector3D(_contentCenter.X + 0.5f + PositionX, _contentCenter.Y + 0.5f + PositionY, _contentCenter.Z + 0.5f + PositionZ);
-                WorldAabb = new BoundingBoxD(PositionAndOrientation.Value.Position, PositionAndOrientation.Value.Position + new Vector3D(Size));
+                Center = new Vector3D(_contentCenter.X + 0.5f + PositionX,
+                                      _contentCenter.Y + 0.5f + PositionY,
+                                      _contentCenter.Z + 0.5f + PositionZ);
+                WorldAabb = new BoundingBoxD(PositionAndOrientation.Value.Position,
+                                             PositionAndOrientation.Value.Position + new Vector3D(Size));
             }
         }
 
         public override void RecalcPosition(Vector3D playerPosition)
         {
             base.RecalcPosition(playerPosition);
-            Center = new Vector3D(_contentCenter.X + 0.5f + PositionX, _contentCenter.Y + 0.5f + PositionY, _contentCenter.Z + 0.5f + PositionZ);
-            WorldAabb = new BoundingBoxD(PositionAndOrientation.Value.Position, PositionAndOrientation.Value.Position + new Vector3D(Size));
+            Center = new Vector3D(_contentCenter.X + 0.5f + PositionX, 
+                                 _contentCenter.Y + 0.5f + PositionY, 
+                                 _contentCenter.Z + 0.5f + PositionZ);
+            WorldAabb = new BoundingBoxD(PositionAndOrientation.Value.Position, 
+                                         PositionAndOrientation.Value.Position + new Vector3D(Size));
         }
 
         /// <summary>
@@ -345,28 +345,33 @@ namespace SEToolbox.Models
 
             provider.Init(Planet.Seed, planetDefinition, radius, true);
 
-             MyVoxelMapBase asteroid = new()
+            MyVoxelMapBase asteroid = new()
             {
                 Storage = new MyOctreeStorage(provider, provider.StorageSize)
             };
 
-            string tempFileName = TempFileUtil.NewFileName( MyVoxelMapBase.FileExtension.V2);
+            string tempFileName = TempFileUtil.NewFileName(MyVoxelMapBase.FileExtension.V2);
             asteroid.Save(tempFileName);
             SourceVoxelFilePath = tempFileName;
             UpdateNewSource(asteroid, tempFileName);
-        
-            OnPropertyChanged(nameof(Seed),  nameof(Radius), nameof(AtmosphereRadius), nameof(MinimumSurfaceRadius), nameof(MaximumHillRadius));
+
+            OnPropertyChanged(nameof(Seed), nameof(Radius), nameof(AtmosphereRadius), nameof(MinimumSurfaceRadius), nameof(MaximumHillRadius));
             // Update properties after regeneration
             Size = _voxelMap.Size;
             _contentCenter = _voxelMap.ContentCenter;
             IsValid = _voxelMap.IsValid;
             OnPropertyChanged(nameof(Size), nameof(IsValid));
-            Center = new Vector3D(_contentCenter.X + 0.5f + PositionX, _contentCenter.Y + 0.5f + PositionY, _contentCenter.Z + 0.5f + PositionZ);
-            WorldAabb = new BoundingBoxD(PositionAndOrientation.Value.Position, PositionAndOrientation.Value.Position + new Vector3D(Size));
+            Center = new Vector3D(_contentCenter.X + 0.5f + PositionX,
+                                  _contentCenter.Y + 0.5f + PositionY, 
+                                  _contentCenter.Z + 0.5f + PositionZ);
+            WorldAabb = new BoundingBoxD(PositionAndOrientation.Value.Position, 
+                                         PositionAndOrientation.Value.Position + new Vector3D(Size));
         }
 
         public void UpdateNewSource(MyVoxelMapBase newMap, string fileName)
         {
+
+    
             _voxelMap?.Dispose();
             _voxelMap = newMap;
             SourceVoxelFilePath = fileName;
@@ -375,14 +380,14 @@ namespace SEToolbox.Models
             ContentBounds = _voxelMap.BoundingContent;//
             IsValid = _voxelMap.IsValid;
 
-            OnPropertyChanged(nameof(Size));
-            OnPropertyChanged(nameof(ContentSize));
-            OnPropertyChanged(nameof(IsValid));
-            Center = new Vector3D(_voxelMap.ContentCenter.X + 0.5f + PositionX, _voxelMap.ContentCenter.Y + 0.5f + PositionY, _voxelMap.ContentCenter.Z + 0.5f + PositionZ);
-            WorldAabb = new BoundingBoxD(PositionAndOrientation.Value.Position, PositionAndOrientation.Value.Position + new Vector3D(Size));
+            OnPropertyChanged(nameof(Size), nameof(ContentSize), nameof(IsValid));
+            Center = new Vector3D(_voxelMap.ContentCenter.X + 0.5f + PositionX, 
+                                  _voxelMap.ContentCenter.Y + 0.5f + PositionY, 
+                                  _voxelMap.ContentCenter.Z + 0.5f + PositionZ);
+            WorldAabb = new BoundingBoxD(PositionAndOrientation.Value.Position, 
+                                         PositionAndOrientation.Value.Position + new Vector3D(Size));
         }
 
         #endregion
-
     }
 }

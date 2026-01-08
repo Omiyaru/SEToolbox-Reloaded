@@ -44,7 +44,6 @@ td.right { text-align: right; }";
         private bool _showProgress;
         private double _progress;
         private double _maximumProgress;
-
         private string _saveName = string.Empty;
         private DateTime _generatedDate;
         private IList<IStructureBase> _entities = [];
@@ -91,6 +90,7 @@ td.right { text-align: right; }";
         private List<ShipContent> _allShips = [];
 
         private decimal _totalCubes;
+
         private int _totalPCU;
 
         private readonly object typeId;
@@ -99,9 +99,8 @@ td.right { text-align: right; }";
 
         #endregion
 
-
         #region Ctor
-        
+
         public ResourceReportModel(object typeId)
         {
             this.typeId = typeId ?? throw new ArgumentNullException(nameof(typeId));
@@ -170,11 +169,15 @@ td.right { text-align: right; }";
         public double Progress
         {
             get => _progress;
-            set => SetProperty(ref _progress, value, nameof(Progress), () =>
+            set => SetProperty(ref _progress, value, () =>
             {
-                System.Windows.Forms.Application.DoEvents();
+                if (!_timer.IsRunning || _timer.ElapsedMilliseconds > 100 && _progress == value)
+                {
+                    System.Windows.Forms.Application.DoEvents();
+                }
+
                 _timer.Restart();
-            });
+            }, nameof(Progress));
         }
 
         public double MaximumProgress
@@ -265,7 +268,9 @@ td.right { text-align: right; }";
 
                     string fileName = asteroid.SourceVoxelFilePath;
                     if (string.IsNullOrEmpty(fileName))
+                    {
                         fileName = asteroid.VoxelFilePath;
+                    }
 
                     try
                     {
@@ -280,28 +285,25 @@ td.right { text-align: right; }";
                     if (details != null)
                     {
                         Dictionary<string, long> ores = [];
-                        foreach (KeyValuePair<string, long> kvp in details)
+                        foreach (var (kvp, key) in from KeyValuePair<string, long> kvp in details
+                                                   let bluePrint = SpaceEngineersResources.VoxelMaterialDefinitions.FirstOrDefault(b => b.Id.SubtypeName == kvp.Key && b.Id.TypeId == MOBTypeIds.VoxelMaterialDefinition)
+                                                   where bluePrint != null && bluePrint.CanBeHarvested
+                                                   let defBase = MyDefinitionManager.Static.GetDefinition(MOBTypeIds.Ore, bluePrint.MinedOre)
+                                                   // stock ores require DisplayNameEnum. Modded ores require DisplayNameString.
+                                                   let key = defBase?.DisplayNameEnum != null ? defBase.DisplayNameEnum.Value.String : defBase.DisplayNameString
+                                                   select (kvp, key))
                         {
-                            MyVoxelMaterialDefinition bp = SpaceEngineersResources.VoxelMaterialDefinitions.FirstOrDefault(b => b.Id.SubtypeName == kvp.Key && b.Id.TypeId == MOBTypeIds.VoxelMaterialDefinition);
-
-                            if (bp != null && bp.CanBeHarvested)
+                            if (ores.ContainsKey(key))
                             {
-                                MyDefinitionBase defBase = MyDefinitionManager.Static.GetDefinition(MOBTypeIds.Ore, bp.MinedOre);
-
-                                if (defBase != null)
-                                {
-                                    // stock ores require DisplayNameEnum. Modded ores require DisplayNameString.
-                                    string key = defBase.DisplayNameEnum != null ? defBase?.DisplayNameEnum.Value.String : defBase.DisplayNameString;
-
-                                    if (ores.ContainsKey(key))
-                                        ores[key] += kvp.Value;
-                                    else
-                                        ores.Add(key, kvp.Value);
-                                }
+                                ores[key] += kvp.Value;
+                            }
+                            else
+                            {
+                                ores.Add(key, kvp.Value);
                             }
                         }
 
-                        foreach (KeyValuePair<string, long> kvp in ores)
+                        foreach (var kvp in ores)
                         {
                             if (accumulateOres.ContainsKey(kvp.Key))
                             {
@@ -331,14 +333,10 @@ td.right { text-align: right; }";
                 }
                 else if (entity is StructureFloatingObjectModel floating)
                 {
-                    if (floating.FloatingObject.Item.PhysicalContent.TypeId == MOBTypeIds.Ore || floating.FloatingObject.Item.PhysicalContent.TypeId == MOBTypeIds.Ingot)
-                    {
-                        TallyItems(floating.FloatingObject.Item.PhysicalContent.TypeId, floating.FloatingObject.Item.PhysicalContent.SubtypeName, (decimal)floating.FloatingObject.Item.Amount, contentPath, accumulateUnusedOres, accumulateItems, accumulateComponents);
-                    }
-                    else
-                    {
-                        TallyItems(floating.FloatingObject.Item.PhysicalContent.TypeId, floating.FloatingObject.Item.PhysicalContent.SubtypeName, (decimal)floating.FloatingObject.Item.Amount, contentPath, accumulateUsedOres, accumulateItems, accumulateComponents);
-                    }
+                    var typeId = floating.FloatingObject.Item.PhysicalContent.TypeId;
+                    var isOreOrIngot = typeId == MOBTypeIds.Ore || typeId == MOBTypeIds.Ingot;
+                    var isUsedorUnusedOre = accumulateUsedOres ?? accumulateUnusedOres;
+                    TallyItems(isOreOrIngot ? MOBTypeIds.Ingot : MOBTypeIds.Ore, floating.FloatingObject.Item.PhysicalContent.SubtypeName, (decimal)floating.FloatingObject.Item.Amount, contentPath, isUsedorUnusedOre, accumulateItems, accumulateComponents);
                 }
                 else if (entity is StructureCharacterModel character && !character.IsPilot) // ignore pilots,
                 {
@@ -354,12 +352,12 @@ td.right { text-align: right; }";
                     bool isNpc = ship.CubeGrid.CubeBlocks.Any(e => e is MyObjectBuilder_Cockpit cockpit && cockpit.Autopilot != null);
 
                     int pcuToProduce = 0;
-
-                    foreach (MyObjectBuilder_CubeBlock block in ship.CubeGrid.CubeBlocks)
+                    foreach (var cubeBlockDefinition in from MyObjectBuilder_CubeBlock block in ship.CubeGrid.CubeBlocks
+                                                        let cubeBlockDefinition = SpaceEngineersApi.GetCubeDefinition(block.TypeId, ship.CubeGrid.GridSizeEnum, block.SubtypeName)
+                                                        where cubeBlockDefinition != null
+                                                        select cubeBlockDefinition)
                     {
-                        MyCubeBlockDefinition cubeBlockDefinition = SpaceEngineersApi.GetCubeDefinition(block.TypeId, ship.CubeGrid.GridSizeEnum, block.SubtypeName);
-                        if (cubeBlockDefinition != null)
-                            pcuToProduce += cubeBlockDefinition.PCU;
+                        pcuToProduce += cubeBlockDefinition.PCU;
                     }
 
                     ShipContent shipContent = new()
@@ -383,26 +381,21 @@ td.right { text-align: right; }";
                         // Unconstructed portion.
                         if (block?.ConstructionStockpile.Items.Length > 0)
                         {
-                            foreach (MyObjectBuilder_StockpileItem item in block.ConstructionStockpile.Items)
+                            foreach (var (item, typeId, isNpcOrUsedOre) in from MyObjectBuilder_StockpileItem item in block.ConstructionStockpile.Items
+                                                                           let typeId = item.PhysicalContent.TypeId
+                                                                           let isNpcOrUsedOre = isNpc ? accumulateNpcOres : accumulateUsedOres
+                                                                           select (item, typeId, isNpcOrUsedOre))
                             {
-                                if (isNpc)
-                                {
-                                    TallyItems(item.PhysicalContent.TypeId, item.PhysicalContent.SubtypeName, item.Amount, contentPath, accumulateNpcOres, null, null);
-                                }
-                                else
-                                {
-                                    TallyItems(item.PhysicalContent.TypeId, item.PhysicalContent.SubtypeName, item.Amount, contentPath, accumulateUsedOres, null, null);
-                                }
-
+                                TallyItems(typeId, item.PhysicalContent.SubtypeName, item.Amount, contentPath, isNpcOrUsedOre ?? accumulateUsedOres, null, null);
                                 MyDefinitionBase def = MyDefinitionManager.Static.GetDefinition(item.PhysicalContent.TypeId, item.PhysicalContent.SubtypeName);
                                 float componentMass = 0;
                                 if (def is MyComponentDefinition compDef)
                                 {
                                     componentMass = compDef.Mass * item.Amount;
                                 }
-                                else if (def is MyPhysicalItemDefinition pd)
+                                else if (def is MyPhysicalItemDefinition physDef)
                                 {
-                                    componentMass = pd.Mass * item.Amount;
+                                    componentMass = physDef.Mass * item.Amount;
                                 }
 
                                 cubeMass += componentMass;
@@ -416,10 +409,12 @@ td.right { text-align: right; }";
                                 // break down the components, to get a accurate counted on the number of components actually in the cube.
                                 var componentList = new List<MyComponentDefinition>();
 
-                                foreach (MyCubeBlockDefinition.Component component in cubeBlockDefinition.Components)
+                                foreach (MyCubeBlockDefinition.Component component in cubeBlockDefinition?.Components)
                                 {
                                     for (int i = 0; i < component.Count; i++)
+                                    {
                                         componentList.Add(component.Definition);
+                                    }
                                 }
 
                                 // Round up to nearest whole number.
@@ -429,15 +424,10 @@ td.right { text-align: right; }";
                                 for (int i = 0; i < completeCount; i++)
                                 {
                                     #region Used Ore Value
-
-                                    if (isNpc)
-                                    {
-                                        TallyItems(componentList[i].Id.TypeId, componentList[i].Id.SubtypeName, 1, contentPath, accumulateNpcOres, null, null);
-                                    }
-                                    else
-                                    {
-                                        TallyItems(componentList[i].Id.TypeId, componentList[i].Id.SubtypeName, 1, contentPath, accumulateUsedOres, null, null);
-                                    }
+                                    var typeId = componentList[i].Id.TypeId;
+                                    var isNpcOrUsedOre = isNpc ? accumulateNpcOres : accumulateUsedOres;
+                                    isNpc = isNpcOrUsedOre == accumulateNpcOres;
+                                    TallyItems(componentList[i].Id.TypeId, componentList[i].Id.SubtypeName, 1, contentPath, isNpcOrUsedOre ?? accumulateUsedOres, null, null);
 
                                     #endregion
 
@@ -452,15 +442,9 @@ td.right { text-align: right; }";
                                 {
                                     MyComponentDefinition cd = MyDefinitionManager.Static.GetDefinition(component.Definition.Id) as MyComponentDefinition;
                                     #region Used Ore Value
-
-                                    if (isNpc)
-                                    {
-                                        TallyItems(component.Definition.Id.TypeId, component.Definition.Id.SubtypeName, component.Count, contentPath, accumulateNpcOres, null, null);
-                                    }
-                                    else
-                                    {
-                                        TallyItems(component.Definition.Id.TypeId, component.Definition.Id.SubtypeName, component.Count, contentPath, accumulateUsedOres, null, null);
-                                    }
+                                    var typeId = component.Definition.Id.TypeId;
+                                    var isNpcOrUsedOre = isNpc ? accumulateNpcOres : accumulateUsedOres;
+                                    TallyItems(typeId, component.Definition.Id.SubtypeName, component.Count, contentPath, isNpcOrUsedOre ?? accumulateUsedOres, null, null);
 
                                     #endregion
 
@@ -493,14 +477,12 @@ td.right { text-align: right; }";
                                         }
                                         else
                                         {
-                                            if (item.PhysicalContent.TypeId == MOBTypeIds.Ore || item.PhysicalContent.TypeId == MOBTypeIds.Ingot)
-                                            {
-                                                TallyItems(item.PhysicalContent.TypeId, item.PhysicalContent.SubtypeName, (decimal)item.Amount, contentPath, accumulateUnusedOres, accumulateItems, accumulateComponents);
-                                            }
-                                            else
-                                            {
-                                                TallyItems(item.PhysicalContent.TypeId, item.PhysicalContent.SubtypeName, (decimal)item.Amount, contentPath, accumulateUsedOres, accumulateItems, accumulateComponents);
-                                            }
+                                            MyObjectBuilderType typeId = item.PhysicalContent.TypeId;
+                                            var isOreOrIngot = typeId == MOBTypeIds.Ore || typeId == MOBTypeIds.Ingot;
+                                            var isUsedorUnusedOre = accumulateUsedOres ?? accumulateUnusedOres;
+                                            TallyItems(typeId, item.PhysicalContent.SubtypeName, (decimal)item.Amount, contentPath, isUsedorUnusedOre, accumulateItems, accumulateComponents);
+
+
                                         }
                                     }
                                 }
@@ -508,7 +490,7 @@ td.right { text-align: right; }";
 
                             #endregion
 
-                            #region Character inventories
+                            #region Character Inventories
 
                             FieldInfo[] characterFields = [.. fields.Where(f => f.FieldType == typeof(MyObjectBuilder_Character))];
                             foreach (FieldInfo field in characterFields)
@@ -527,52 +509,51 @@ td.right { text-align: right; }";
 
                         #region Tally Cubes
 
-                        if (cubeBlockDefinition != null)
+
+                        string itemsKey = cubeBlockDefinition?.DisplayNameText;
+                        _totalCubes += 1;
+                        _totalPCU += pcu;
+
+                        if (accumulateCubes.TryGetValue(itemsKey, out ComponentItemModel value))
                         {
-                            string itemsKey = cubeBlockDefinition.DisplayNameText;
-                            _totalCubes += 1;
-                            _totalPCU += pcu;
-
-                            if (accumulateCubes.TryGetValue(itemsKey, out ComponentItemModel value))
-                            {
-                                value.Count += 1;
-                                value.Mass += cubeMass;
-                                value.Time += blockTime;
-                                value.PCU += pcu;
-                            }
-                            else
-                            {
-                                accumulateCubes.Add(itemsKey, new ComponentItemModel { Name = cubeBlockDefinition.DisplayNameText, Count = 1, Mass = cubeMass, TypeId = cubeBlockDefinition.Id.TypeId, SubtypeId = cubeBlockDefinition.Id.SubtypeName, TextureFile = blockTexture, Time = blockTime, PCU = pcu });
-                            }
+                            value.Count += 1;
+                            value.Mass += cubeMass;
+                            value.Time += blockTime;
+                            value.PCU += pcu;
                         }
-
-                        #endregion
+                        else
+                        {
+                            accumulateCubes.Add(itemsKey, new ComponentItemModel { Name = cubeBlockDefinition.DisplayNameText, Count = 1, Mass = cubeMass, TypeId = cubeBlockDefinition.Id.TypeId, SubtypeName = cubeBlockDefinition.Id.SubtypeName, TextureFile = blockTexture, Time = blockTime, PCU = pcu });
+                        }
                     }
+
+                    #endregion
+
 
                     accumulateShips.Add(shipContent);
                 }
+
+                #region Build Lists
+
+                long sum = accumulateOres.Values.ToList().Sum();
+                _untouchedOre = [.. accumulateOres.Select(kvp => new VoxelMaterialAssetModel { MaterialName = SpaceEngineersApi.GetResourceName(kvp.Key), Volume = Math.Round((double)kvp.Value / 255, 7), Percent = kvp.Value / (double)sum })];
+
+                _untouchedOreByAsteroid = accumulateAsteroidOres;
+                _unusedOre = [.. accumulateUnusedOres.Values];
+                _usedOre = [.. accumulateUsedOres.Values];
+                _playerOre = [.. accumulatePlayerOres.Values];
+                _npcOre = [.. accumulateNpcOres.Values];
+                _allCubes = [.. accumulateCubes.Values];
+                _allComponents = [.. accumulateComponents.Values];
+                _allItems = [.. accumulateItems.Values];
+                _allShips = accumulateShips;
+
+                #endregion
+
+                #region Create Report
+                IsReportReady = true;
+                ClearProgress();
             }
-
-            #region Build Lists
-
-            long sum = accumulateOres.Values.ToList().Sum();
-            _untouchedOre = [.. accumulateOres.Select(kvp => new VoxelMaterialAssetModel { MaterialName = SpaceEngineersApi.GetResourceName(kvp.Key), Volume = Math.Round((double)kvp.Value / 255, 7), Percent = kvp.Value / (double)sum })];
-
-            _untouchedOreByAsteroid = accumulateAsteroidOres;
-            _unusedOre = [.. accumulateUnusedOres.Values];
-            _usedOre = [.. accumulateUsedOres.Values];
-            _playerOre = [.. accumulatePlayerOres.Values];
-            _npcOre = [.. accumulateNpcOres.Values];
-            _allCubes = [.. accumulateCubes.Values];
-            _allComponents = [.. accumulateComponents.Values];
-            _allItems = [.. accumulateItems.Values];
-            _allShips = accumulateShips;
-
-            #endregion
-
-            #region Create Report
-            IsReportReady = true;
-            ClearProgress();
         }
 
         #endregion
@@ -580,23 +561,23 @@ td.right { text-align: right; }";
 
         #region Tally Items
 
-        private void TallyItems(MyObjectBuilderType tallyTypeId, string tallySubTypeId, decimal amountDecimal, string contentPath, SortedDictionary<string, OreContent> accumulateOres, SortedDictionary<string, ComponentItemModel> accumulateItems, SortedDictionary<string, ComponentItemModel> accumulateComponents)
+        private void TallyItems(MyObjectBuilderType tallyTypeId, string tallySubTypeName, decimal amountDecimal, string contentPath, SortedDictionary<string, OreContent> accumulateOres, SortedDictionary<string, ComponentItemModel> accumulateItems, SortedDictionary<string, ComponentItemModel> accumulateComponents)
         {
-            if (MyDefinitionManager.Static.GetDefinition(tallyTypeId, tallySubTypeId) is not MyPhysicalItemDefinition pd)
+            if (MyDefinitionManager.Static.GetDefinition(tallyTypeId, tallySubTypeName) is not MyPhysicalItemDefinition physItemDef)
             {
                 // A component, gun, ore that doesn't exist (Depricated by KeenSH, or Mod that isn't loaded).
                 return;
             }
 
-            string componentTexture = SpaceEngineersCore.GetDataPathOrDefault(pd.Icons.First(), Path.Combine(contentPath, pd.Icons.First()));
+            string componentTexture = SpaceEngineersCore.GetDataPathOrDefault(physItemDef.Icons.First(), Path.Combine(contentPath, physItemDef.Icons.First()));
             if (tallyTypeId == MOBTypeIds.Ore)
             {
-                double mass = Math.Round((double)amountDecimal * pd.Mass, 7);
-                double volume = Math.Round((double)amountDecimal * pd.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
+                double mass = Math.Round((double)amountDecimal * physItemDef.Mass, 7);
+                double volume = Math.Round((double)amountDecimal * physItemDef.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
 
                 #region Unused Ore Value
 
-                string unusedKey = tallySubTypeId;
+                string unusedKey = tallySubTypeName;
                 if (accumulateOres.TryGetValue(unusedKey, out OreContent oreValue))
                 {
                     oreValue.Amount += amountDecimal;
@@ -605,16 +586,16 @@ td.right { text-align: right; }";
                 }
                 else
                 {
-                    accumulateOres.Add(unusedKey, value: new OreContent { Name = pd.DisplayNameText, Amount = amountDecimal, Mass = mass, Volume = volume, TextureFile = componentTexture });
+                    accumulateOres.Add(unusedKey, value: new OreContent { Name = physItemDef.DisplayNameText, Amount = amountDecimal, Mass = mass, Volume = volume, TextureFile = componentTexture });
                 }
 
                 #endregion
 
                 #region Tally Items
 
+                string itemsKey = physItemDef.DisplayNameText;
                 if (accumulateItems != null)
                 {
-                    string itemsKey = pd.DisplayNameText;
                     if (accumulateItems.TryGetValue(itemsKey, out ComponentItemModel compValue))
                     {
                         compValue.Count += amountDecimal;
@@ -623,7 +604,7 @@ td.right { text-align: right; }";
                     }
                     else
                     {
-                        accumulateItems.Add(itemsKey, value: new ComponentItemModel { Name = pd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture, Time = TimeSpan.Zero });
+                        accumulateItems.Add(itemsKey, value: new ComponentItemModel { Name = physItemDef.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeName = tallySubTypeName, TextureFile = componentTexture, Time = TimeSpan.Zero });
                     }
                 }
 
@@ -631,34 +612,34 @@ td.right { text-align: right; }";
             }
             else if (tallyTypeId == MOBTypeIds.Ingot)
             {
-                double mass = Math.Round((double)amountDecimal * pd.Mass, 7);
-                double volume = Math.Round((double)amountDecimal * pd.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
-                var bp = SpaceEngineersApi.GetBlueprint(tallyTypeId, tallySubTypeId);
+                double mass = Math.Round((double)amountDecimal * physItemDef.Mass, 7);
+                double volume = Math.Round((double)amountDecimal * physItemDef.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
+                var bluePrint = SpaceEngineersApi.GetBlueprint(tallyTypeId, tallySubTypeName);
                 TimeSpan timeToMake = TimeSpan.Zero;
 
                 // no blueprint, means the item is not built by players, but generated by the environment.
-                if (bp?.Results?.Length != 0)
+                if (bluePrint?.Results?.Length != 0)
                 {
-                    timeToMake = TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds * (double)amountDecimal / (double)bp.Results[0].Amount);
+                    timeToMake = TimeSpan.FromSeconds(bluePrint.BaseProductionTimeInSeconds * (double)amountDecimal / (double)bluePrint.Results[0].Amount);
                 }
 
                 #region Unused Ore Value
 
                 var oreRequirements = new Dictionary<string, BlueprintRequirement>();
-                SpaceEngineersApi.AccumulateCubeBlueprintRequirements(tallySubTypeId, tallyTypeId, amountDecimal, oreRequirements, out _);
+                SpaceEngineersApi.AccumulateCubeBlueprintRequirements(tallySubTypeName, tallyTypeId, amountDecimal, oreRequirements, out _);
 
                 foreach (KeyValuePair<string, BlueprintRequirement> item in oreRequirements)
                 {
-                    TallyItems(item.Value.Id.TypeId, item.Value.SubtypeId, item.Value.Amount, contentPath, accumulateOres, null, null);
+                    TallyItems(item.Value.Id.TypeId, item.Value.SubtypeName, item.Value.Amount, contentPath, accumulateOres, null, null);
                 }
 
                 #endregion
 
-                #region Tally Items
+                #region Tally Items 
 
+                string itemsKey = physItemDef.DisplayNameText;
                 if (accumulateItems != null)
                 {
-                    string itemsKey = pd.DisplayNameText;
                     if (accumulateItems.TryGetValue(itemsKey, out ComponentItemModel value))
                     {
                         value.Count += amountDecimal;
@@ -668,38 +649,36 @@ td.right { text-align: right; }";
                     }
                     else
                     {
-                        accumulateItems.Add(itemsKey, new ComponentItemModel { Name = pd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture, Time = timeToMake });
+                        accumulateItems.Add(itemsKey, new ComponentItemModel { Name = physItemDef.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeName = tallySubTypeName, TextureFile = componentTexture, Time = timeToMake });
                     }
                 }
 
                 #endregion
             }
-            else if (tallyTypeId == MOBTypeIds.AmmoMagazine ||
-                tallyTypeId == MOBTypeIds.PhysicalGunObject ||
-                tallyTypeId == MOBTypeIds.OxygenContainerObject)
+            else if (tallyTypeId == MOBTypeIds.AmmoMagazine || tallyTypeId == MOBTypeIds.PhysicalGunObject || tallyTypeId == MOBTypeIds.OxygenContainerObject)
             {
-                double mass = Math.Round((double)amountDecimal * pd.Mass, 7);
-                double volume = Math.Round((double)amountDecimal * pd.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
-                var bp = SpaceEngineersApi.GetBlueprint(tallyTypeId, tallySubTypeId);
-                TimeSpan timeToMake = TimeSpan.FromSeconds(bp == null ? 0 : bp.BaseProductionTimeInSeconds * (double)amountDecimal);
+                double mass = Math.Round((double)amountDecimal * physItemDef.Mass, 7);
+                double volume = Math.Round((double)amountDecimal * physItemDef.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
+                var bluePrint = SpaceEngineersApi.GetBlueprint(tallyTypeId, tallySubTypeName);
+                TimeSpan timeToMake = TimeSpan.FromSeconds(bluePrint == null ? 0 : bluePrint.BaseProductionTimeInSeconds * (double)amountDecimal);
 
                 #region Unused Ore Value
 
                 var oreRequirements = new Dictionary<string, BlueprintRequirement>();
-                SpaceEngineersApi.AccumulateCubeBlueprintRequirements(tallySubTypeId, tallyTypeId, amountDecimal, oreRequirements, out _);
+                SpaceEngineersApi.AccumulateCubeBlueprintRequirements(tallySubTypeName, tallyTypeId, amountDecimal, oreRequirements, out _);
 
                 foreach (KeyValuePair<string, BlueprintRequirement> item in oreRequirements)
                 {
-                    TallyItems(item.Value.Id.TypeId, item.Value.SubtypeId, item.Value.Amount, contentPath, accumulateOres, null, accumulateComponents);
+                    TallyItems(item.Value.Id.TypeId, item.Value.SubtypeName, item.Value.Amount, contentPath, accumulateOres, null, accumulateComponents);
                 }
 
                 #endregion
 
                 #region Tally Items
 
+                string itemsKey = physItemDef.DisplayNameText;
                 if (accumulateItems != null)
                 {
-                    string itemsKey = pd.DisplayNameText;
                     if (accumulateItems.TryGetValue(itemsKey, out ComponentItemModel value))
                     {
                         value.Count += amountDecimal;
@@ -709,7 +688,7 @@ td.right { text-align: right; }";
                     }
                     else
                     {
-                        accumulateItems.Add(itemsKey, new ComponentItemModel() { Name = pd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture, Time = timeToMake });
+                        accumulateItems.Add(itemsKey, new ComponentItemModel() { Name = physItemDef.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeName = tallySubTypeName, TextureFile = componentTexture, Time = timeToMake });
                     }
                 }
 
@@ -717,32 +696,31 @@ td.right { text-align: right; }";
             }
             else if (tallyTypeId == MOBTypeIds.Component)
             {
-                double mass = Math.Round((double)amountDecimal * pd.Mass, 7);
-                double volume = Math.Round((double)amountDecimal * pd.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
-                MyBlueprintDefinitionBase bp = SpaceEngineersApi.GetBlueprint(tallyTypeId, tallySubTypeId);
+                double mass = Math.Round((double)amountDecimal * physItemDef.Mass, 7);
+                double volume = Math.Round((double)amountDecimal * physItemDef.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
+                MyBlueprintDefinitionBase bluePrint = SpaceEngineersApi.GetBlueprint(tallyTypeId, tallySubTypeName);
                 TimeSpan timeToMake = new();
 
                 // mod provides no blueprint for component.
-                if (bp != null)
-                    timeToMake = TimeSpan.FromSeconds(bp.BaseProductionTimeInSeconds * (double)amountDecimal);
-
+                if (bluePrint != null)
+                {
+                    timeToMake = TimeSpan.FromSeconds(bluePrint.BaseProductionTimeInSeconds * (double)amountDecimal);
+                }
                 #region Unused Ore Value
 
                 var oreRequirements = new Dictionary<string, BlueprintRequirement>();
-                SpaceEngineersApi.AccumulateCubeBlueprintRequirements(tallySubTypeId, tallyTypeId, amountDecimal, oreRequirements, out _);
+                SpaceEngineersApi.AccumulateCubeBlueprintRequirements(tallySubTypeName, tallyTypeId, amountDecimal, oreRequirements, out _);
 
                 foreach (KeyValuePair<string, BlueprintRequirement> item in oreRequirements)
                 {
-                    TallyItems(item.Value.Id.TypeId, item.Value.SubtypeId, item.Value.Amount, contentPath, accumulateOres, null, null);
+                    TallyItems(item.Value.Id.TypeId, item.Value.SubtypeName, item.Value.Amount, contentPath, accumulateOres, null, null);
                 }
 
                 #endregion
-
+                string itemsKey = physItemDef.DisplayNameText;
                 #region Tally Items
-
                 if (accumulateComponents != null)
                 {
-                    string itemsKey = pd.DisplayNameText;
                     if (accumulateComponents.TryGetValue(itemsKey, out ComponentItemModel value))
                     {
                         value.Count += amountDecimal;
@@ -752,21 +730,20 @@ td.right { text-align: right; }";
                     }
                     else
                     {
-                        accumulateComponents.Add(itemsKey, new ComponentItemModel() { Name = pd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture, Time = timeToMake });
+                        accumulateComponents.Add(physItemDef.DisplayNameText, new ComponentItemModel() { Name = physItemDef.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeName = tallySubTypeName, TextureFile = componentTexture, Time = timeToMake });
                     }
                 }
-
                 #endregion
-
             }
+
             else if (typeId is MyObjectBuilderType type && type == MOBTypeIds.CubeBlock)
             {
-                double mass = Math.Round((double)amountDecimal * pd.Mass, 7);
-                double volume = Math.Round((double)amountDecimal * pd.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
+                double mass = Math.Round((double)amountDecimal * physItemDef.Mass, 7);
+                double volume = Math.Round((double)amountDecimal * physItemDef.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
 
                 if (accumulateItems != null)
                 {
-                    string itemsKey = pd.DisplayNameText;
+                    string itemsKey = physItemDef.DisplayNameText;
                     if (accumulateItems.TryGetValue(itemsKey, out ComponentItemModel value))
                     {
                         value.Count += amountDecimal;
@@ -775,18 +752,17 @@ td.right { text-align: right; }";
                     }
                     else
                     {
-                        accumulateItems.Add(itemsKey, new ComponentItemModel() { Name = pd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture });
+                        accumulateItems.Add(itemsKey, new ComponentItemModel() { Name = physItemDef.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeName = tallySubTypeName, TextureFile = componentTexture });
                     }
                 }
             }
             else if (tallyItem != null)
             {
-                double mass = Math.Round((double)amountDecimal * pd.Mass, 7);
-                double volume = Math.Round((double)amountDecimal * pd.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
-
+                double mass = Math.Round((double)amountDecimal * physItemDef.Mass, 7);
+                double volume = Math.Round((double)amountDecimal * physItemDef.Volume * SpaceEngineersConsts.VolumeMultiplier, 7);
+                string itemsKey = physItemDef.DisplayNameText;
                 if (accumulateItems != null)
                 {
-                    string itemsKey = pd.DisplayNameText;
                     if (accumulateItems.TryGetValue(itemsKey, out var value))
                     {
                         value.Count += amountDecimal;
@@ -795,7 +771,7 @@ td.right { text-align: right; }";
                     }
                     else
                     {
-                        accumulateItems.Add(itemsKey, new ComponentItemModel { Name = pd.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeId = tallySubTypeId, TextureFile = componentTexture });
+                        accumulateItems.Add(itemsKey, new ComponentItemModel { Name = physItemDef.DisplayNameText, Count = amountDecimal, Mass = mass, Volume = volume, TypeId = tallyTypeId, SubtypeName = tallySubTypeName, TextureFile = componentTexture });
                     }
                 }
             }
@@ -854,10 +830,10 @@ td.right { text-align: right; }";
             }
             #endregion
 
-           
+
             #region In-Game Assets
 
-             Dictionary<string, (string, List<ComponentItemModel>)> allHeaders = new()
+            Dictionary<string, (string, List<ComponentItemModel>)> allHeaders = new()
             {
                 {Res.ClsReportHeaderAllCubes, (Res.ClsReportColCubeName, _allCubes)},
                 {Res.ClsReportHeaderAllComponents,(Res.ClsReportColComponentName, _allComponents)},
@@ -874,16 +850,19 @@ td.right { text-align: right; }";
             bld.AppendLine($"{_totalCubes:#,##0}\t{_totalPCU:#,##0}");
 
             bld.AppendLine();
-            foreach (var header in allHeaders)
+            foreach (var (header, item) in from header in allHeaders
+                                           from ComponentItemModel item in header.Value.Item2
+                                           select (header, item))
             {
-                foreach (ComponentItemModel item in header.Value.Item2)
+                bld.AppendLine();
+                bld.AppendLine(header.Key);
+                if (header.Key == Res.ClsReportHeaderAllCubes)
                 {
-                    bld.AppendLine();
-                    bld.AppendLine(header.Key);
-                    if (header.Key == Res.ClsReportHeaderAllCubes)
-                        bld.AppendLine($"{Res.ClsReportColCubeName}\t{Res.ClsReportColCount}\t{Res.ClsReportColMass} {Res.GlobalSIMassKilogram}\t{Res.ClsReportColTime}\t{Res.ClsReportColPCU}");
-                    else
-                        bld.AppendFormat($"{item.FriendlyName}\t{item.Count:#,##0}\t{item.Mass:#,##0.000}\t{item.Volume:#,##0.000}\t{item.Time}\r\n");
+                    bld.AppendLine($"{Res.ClsReportColCubeName}\t{Res.ClsReportColCount}\t{Res.ClsReportColMass} {Res.GlobalSIMassKilogram}\t{Res.ClsReportColTime}\t{Res.ClsReportColPCU}");
+                }
+                else
+                {
+                    bld.AppendFormat($"{item.FriendlyName}\t{item.Count:#,##0}\t{item.Mass:#,##0.000}\t{item.Volume:#,##0.000}\t{item.Time}\r\n");
                 }
             }
 
@@ -893,15 +872,12 @@ td.right { text-align: right; }";
 
             bld.AppendLine();
             bld.AppendFormat($"{Res.ClsReportHeadingUntouchedOre}\r\n");
-            bld.AppendFormat($"{Res.ClsReportColAsteroid}\t${Res.ClsReportColOreName}\t{Res.ClsReportColVolume} {Res.GlobalSIVolumeCubicMetre}\r\n");
-
-
-            foreach (AsteroidContent asteroid in _untouchedOreByAsteroid)
+            bld.AppendFormat($"{Res.ClsReportColAsteroid}\t{Res.ClsReportColOreName}\t{Res.ClsReportColVolume} {Res.GlobalSIVolumeCubicMetre}\r\n");
+            foreach (var (asteroid, item) in from AsteroidContent asteroid in _untouchedOreByAsteroid
+                                             from VoxelMaterialAssetModel item in asteroid.UntouchedOreList ?? []
+                                             select (asteroid, item))
             {
-                foreach (VoxelMaterialAssetModel item in asteroid.UntouchedOreList ?? [])
-                {
-                    bld.AppendFormat($"{asteroid.Name}\t{item.MaterialName}\t{item.Volume:#,##0.000}\r\n");
-                }
+                bld.AppendFormat($"{asteroid.Name}\t{item.MaterialName}\t{item.Volume:#,##0.000}\r\n");
             }
 
             #endregion
@@ -923,22 +899,22 @@ td.right { text-align: right; }";
 
         #endregion
 
-        # region Dictionary Headers 
-       private readonly Dictionary<string, (string,List<OreContent>)> oreHeaders = new()
-            {
-            
-                {Res.ClsReportHeaderUnusedUnrefinedOre, ("unused", _unusedOre)},
-                {Res.ClsReportHeaderUnusedRefinerdOre, ("used" , _usedOre)},
-                {Res.ClsReportHeaderUsedPlayerOre, ("player", _playerOre)},
-                {Res.ClsReportHeaderUsedNpcOre, ("npc", _npcOre)},
-            };
-            
+        #region Dictionary Headers 
+        private readonly Dictionary<string, (string, List<OreContent>)> oreHeaders = new()
+        {
+
+            {Res.ClsReportHeaderUnusedUnrefinedOre, ("unused", _unusedOre)},
+            {Res.ClsReportHeaderUnusedRefinerdOre, ("used" , _usedOre)},
+            {Res.ClsReportHeaderUsedPlayerOre, ("player", _playerOre)},
+            {Res.ClsReportHeaderUsedNpcOre, ("npc", _npcOre)},
+        };
+
         private readonly Dictionary<string, (string, List<ComponentItemModel>)> allHeaders = new()
-            {
-               {Res.ClsReportHeaderAllCubes, ("cubes", _allCubes)},
-               {Res.ClsReportHeaderAllComponents, ("components", _allComponents)},
-               {Res.ClsReportHeaderAllItems, ("items", _allItems)},
-            };
+        {
+            {Res.ClsReportHeaderAllCubes, ("cubes", _allCubes)},
+            {Res.ClsReportHeaderAllComponents, ("components", _allComponents)},
+            {Res.ClsReportHeaderAllItems, ("items", _allItems)},
+        };
         #endregion
 
         #region CreateHtmlReport
@@ -980,7 +956,9 @@ td.right { text-align: right; }";
             foreach (var oreHeader in oreHeaders)
             {
                 if (oreHeader.Value.Item2.Count == 0)
+                {
                     continue;
+                }
 
                 writer.RenderElement("h3", oreHeaders.Keys);
                 writer.BeginTable("1", "3", "0", [Res.ClsReportColOreName, Res.ClsReportColMass + " " + Res.GlobalSIMassKilogram, Res.ClsReportColVolume + " " + Res.GlobalSIVolumeLitre]);
@@ -997,7 +975,7 @@ td.right { text-align: right; }";
                 }
                 writer.EndTable();
             }
-            
+
 
             #endregion
 
@@ -1022,16 +1000,18 @@ td.right { text-align: right; }";
             writer.RenderTagEnd("tr"); // Tr
             writer.EndTable();
 
-          
+
 
             foreach (var header in allHeaders)
             {
                 if (header.Value.Item2.Count == 0)
+                {
                     continue;
+                }
 
                 writer.RenderElement("h3", allHeaders.Keys);
                 writer.BeginTable("1", "3", "0", [Res.ClsReportColIcon, Res.ClsReportColCubeName, Res.ClsReportColCount, Res.ClsReportColMass + " " + Res.GlobalSIMassKilogram, Res.ClsReportColTime, Res.ClsReportColPCU]);
-                foreach(ComponentItemModel item in header.Value.Item2)
+                foreach (ComponentItemModel item in header.Value.Item2)
                 {
                     writer.RenderTagStart("tr");
                     writer.RenderTagStart("td");
@@ -1072,26 +1052,28 @@ td.right { text-align: right; }";
 
             writer.RenderElement("h3", Res.ClsReportHeadingUntouchedOre);
             writer.BeginTable("1", "3", "0", [Res.ClsReportColAsteroid, Res.ClsReportColPosition, Res.ClsReportColOreName, Res.ClsReportColVolume + " " + Res.GlobalSIVolumeCubicMetre]);
-            foreach (AsteroidContent asteroid in _untouchedOreByAsteroid)
+
+            int inx = 0;
+            foreach (var (asteroid, item) in from AsteroidContent asteroid in _untouchedOreByAsteroid
+                                             from VoxelMaterialAssetModel item in asteroid.UntouchedOreList ?? []
+                                             select (asteroid, item))
             {
-                int inx = 0;
-                foreach (VoxelMaterialAssetModel item in asteroid.UntouchedOreList ?? [])
+                writer.RenderTagStart("tr");
+                if (inx == 0)
                 {
-                    writer.RenderTagStart("tr");
-                    if (inx == 0)
-                    {
-                        writer.AddAttribute("rowspan", $"{asteroid.UntouchedOreList.Count}");
-                        writer.RenderElement("td", asteroid.Name);
-                        writer.AddAttribute("rowspan", $"{asteroid.UntouchedOreList.Count}");
-                        writer.RenderElement("td", $"{asteroid.Position.X},{asteroid.Position.Y},{asteroid.Position.Z}");
-                    }
-                    writer.RenderElement("td", item.MaterialName);
-                    writer.AddAttribute("class", "right");
-                    writer.RenderElement("td", $"{item.Volume:#,##0.000}");
-                    writer.RenderTagEnd("tr"); // Tr
-                    inx++;
+                    writer.AddAttribute("rowspan", $"{asteroid.UntouchedOreList.Count}");
+                    writer.RenderElement("td", asteroid.Name);
+                    writer.AddAttribute("rowspan", $"{asteroid.UntouchedOreList.Count}");
+                    writer.RenderElement("td", $"{asteroid.Position.X},{asteroid.Position.Y},{asteroid.Position.Z}");
                 }
+
+                writer.RenderElement("td", item.MaterialName);
+                writer.AddAttribute("class", "right");
+                writer.RenderElement("td", $"{item.Volume:#,##0.000}");
+                writer.RenderTagEnd("tr");// Tr
+                inx++;
             }
+
             writer.EndTable();
 
             #endregion
@@ -1143,17 +1125,74 @@ td.right { text-align: right; }";
 
             StringWriter stringWriter = new();
 
-            using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, settingsDestination))
-            {
-                xmlWriter.WriteStartElement("report");
-                xmlWriter.WriteAttributeString("title", Res.ClsReportTitle);
-                xmlWriter.WriteAttributeString("world", SaveName);
-                xmlWriter.WriteAttributeFormat("date", $"{_generatedDate:o}");
+            using XmlWriter xmlWriter = XmlWriter.Create(stringWriter, settingsDestination);
 
-                #region In-Game Resources
-          
-            
-                foreach (VoxelMaterialAssetModel item in _untouchedOre)
+            xmlWriter.WriteStartElement("report");
+            xmlWriter.WriteAttributeString("title", Res.ClsReportTitle);
+            xmlWriter.WriteAttributeString("world", SaveName);
+            xmlWriter.WriteAttributeFormat("date", $"{_generatedDate:o}");
+
+            #region In-Game Resources
+
+
+            foreach (VoxelMaterialAssetModel item in _untouchedOre)
+            {
+                xmlWriter.WriteStartElement("untouched");
+                xmlWriter.WriteElementFormat("orename", $"{item.MaterialName}");
+                xmlWriter.WriteElementFormat("volume", $"{item.Volume:0.000}");
+                xmlWriter.WriteEndElement();
+            }
+
+            foreach (var (oreContent, item) in from oreContent in oreHeaders.Values
+                                               from item in oreContent.Item2
+                                               select (oreContent, item))
+            {
+                xmlWriter.WriteStartElement(oreContent.Item1);
+                xmlWriter.WriteElementString("name", $"{item.FriendlyName}");
+                xmlWriter.WriteElementString("mass", $"{item.Mass:0.000}");
+                xmlWriter.WriteElementString("volume", $"{item.Volume:0.000}");
+                xmlWriter.WriteEndElement();
+            }
+
+            #endregion
+
+            #region In-Game Assets
+
+
+            foreach (var header in allHeaders)
+            {
+                if (header.Value.Item2.Count == 0)
+                {
+                    continue;
+                }
+                foreach (ComponentItemModel item in header.Value.Item2)
+                {
+                    xmlWriter.WriteStartElement(header.Key);
+                    xmlWriter.WriteElementFormat("friendlyname", $"{item.FriendlyName}");
+                    xmlWriter.WriteElementFormat("name", $"{item.Name}");
+                    xmlWriter.WriteElementFormat("typeid", $"{item.TypeId}");
+                    xmlWriter.WriteElementFormat("SubtypeName", $"{item.SubtypeName}");
+                    xmlWriter.WriteElementFormat("count", $"{item.Count:0}");
+                    xmlWriter.WriteElementFormat("mass", $"{item.Mass:0.000}");
+                    xmlWriter.WriteElementFormat("time", $"{item.Time}");
+                    if (header.Key == "cubes")
+                    {
+                        xmlWriter?.WriteElementFormat("pcu", $"{item.PCU}");
+                    }
+                    xmlWriter.WriteEndElement();
+                }
+
+            }
+            #endregion
+
+            #region Asteroid breakdown
+
+            foreach (AsteroidContent asteroid in _untouchedOreByAsteroid)
+            {
+                xmlWriter.WriteStartElement("asteroids");
+                xmlWriter.WriteAttributeString("name", asteroid.Name);
+
+                foreach (VoxelMaterialAssetModel item in asteroid.UntouchedOreList ?? [])
                 {
                     xmlWriter.WriteStartElement("untouched");
                     xmlWriter.WriteElementFormat("orename", $"{item.MaterialName}");
@@ -1161,76 +1200,19 @@ td.right { text-align: right; }";
                     xmlWriter.WriteEndElement();
                 }
 
-              
-                foreach (var oreContent in oreHeaders.Values)
-                {
-                    foreach (var item in oreContent.Item2)
-                    {
-                        xmlWriter.WriteStartElement(oreContent.Item1);
-                        xmlWriter.WriteElementString("name", $"{item.FriendlyName}");
-                        xmlWriter.WriteElementString("mass", $"{item.Mass:0.000}");
-                        xmlWriter.WriteElementString("volume", $"{item.Volume:0.000}");
-                        xmlWriter.WriteEndElement();
-                    }
-                }
-
-                #endregion
-
-                #region In-Game Assets
-                
-
-                foreach (var header in allHeaders)
-                {
-                    if (header.Value.Item2.Count == 0) 
-                        continue;
-                    foreach (ComponentItemModel item in header.Value.Item2)
-                    {
-                        xmlWriter.WriteStartElement(header.Key);
-                        xmlWriter.WriteElementFormat("friendlyname", $"{item.FriendlyName}");
-                        xmlWriter.WriteElementFormat("name", $"{item.Name}");
-                        xmlWriter.WriteElementFormat("typeid", $"{item.TypeId}");
-                        xmlWriter.WriteElementFormat("subtypeid", $"{item.SubtypeId}");
-                        xmlWriter.WriteElementFormat("count", $"{item.Count:0}");
-                        xmlWriter.WriteElementFormat("mass", $"{item.Mass:0.000}");
-                        xmlWriter.WriteElementFormat("time", $"{item.Time}");
-                        if (header.Key == "cubes")
-                        {
-                            xmlWriter?.WriteElementFormat("pcu", $"{item.PCU}");
-                        }
-                        xmlWriter.WriteEndElement();
-                    }
-
-                }
-                #endregion
-
-                #region Asteroid breakdown
-
-                foreach (AsteroidContent asteroid in _untouchedOreByAsteroid)
-                {
-                    xmlWriter.WriteStartElement("asteroids");
-                    xmlWriter.WriteAttributeString("name", asteroid.Name);
-
-                    foreach (VoxelMaterialAssetModel item in asteroid.UntouchedOreList ?? [])
-                    {
-                        xmlWriter.WriteStartElement("untouched");
-                        xmlWriter.WriteElementFormat("orename", $"{item.MaterialName}");
-                        xmlWriter.WriteElementFormat("volume", $"{item.Volume:0.000}");
-                        xmlWriter.WriteEndElement();
-                    }
-
-                    xmlWriter.WriteEndElement();
-                }
-
-                #endregion
-
-                #region Ship breakdown
-
-                // TODO:
-
-                #endregion
-
                 xmlWriter.WriteEndElement();
             }
+
+            #endregion
+
+            #region Ship breakdown
+
+            // TODO:
+
+            #endregion
+
+            xmlWriter.WriteEndElement();
+
 
             return stringWriter.ToString();
         }
@@ -1267,20 +1249,20 @@ td.right { text-align: right; }";
         internal string CreateHtmlErrorReport(string errorContent)
 
         {
-                using var writer = new StringWriter();
+            using var writer = new StringWriter();
 
-                 #region Header
+            #region Header
 
-                writer.BeginDocument($"{Res.ClsReportTitle} - {_saveName}", CssStyle);
+            writer.BeginDocument($"{Res.ClsReportTitle} - {_saveName}", CssStyle);
 
-                #endregion
-                writer.RenderElement("h1", Res.ClsReportTitle);
-                writer.RenderElement("p", $"{Res.ClsReportDate}{_generatedDate}");
-                writer.RenderElement("p", $"{Res.ClsReportError}{errorContent}");
-                writer.EndDocument();
+            #endregion
+            writer.RenderElement("h1", Res.ClsReportTitle);
+            writer.RenderElement("p", $"{Res.ClsReportDate}{_generatedDate}");
+            writer.RenderElement("p", $"{Res.ClsReportError}{errorContent}");
+            writer.EndDocument();
 
-                return writer.ToString();
-            }
+            return writer.ToString();
+        }
 
         internal string CreateXmlErrorReport(string errorContent)
         {
@@ -1325,10 +1307,14 @@ td.right { text-align: right; }";
             string delimiter = "/" ?? "-";
             List<string> argList = [.. args];
             string[] comArgs = [.. args.Where(a => a.Equals($"{delimiter}WR", StringComparison.CurrentCultureIgnoreCase) || a.Equals("-WR", StringComparison.CurrentCultureIgnoreCase))];
-            foreach (string a in comArgs) argList.Remove(a);
+            foreach (string a in comArgs)
+            {
+                argList.Remove(a);
+            }
 
             if (argList.Count < 2)
             {
+                // this terminates the application.
                 Environment.Exit(2);
             }
 
@@ -1348,55 +1334,44 @@ td.right { text-align: right; }";
             }
 
             ResourceReportModel model = new();
-            WorldResource world;
-            string errorInformation;
 
             if (Directory.Exists(findSession))
             {
-                if (!SelectWorldModel.LoadSession(findSession, out world, out errorInformation))
+                if (!SelectWorldModel.LoadSession(findSession, out WorldResource world, out string errorInformation) ||
+                    !SelectWorldModel.FindSaveSession(SpaceEngineersConsts.BaseLocalPath.SavesPath, findSession, out world, out errorInformation))
                 {
-                    SConsole.WriteLine(errorInformation);
 
-                    File.WriteAllText(reportFile, model.CreateErrorReport(reportType, errorInformation));
+                    Log.WriteLine(errorInformation);
 
+                    //File.WriteAllText(reportFile, model.CreateErrorReport(reportType, errorInformation));
+                    SConsole.WriteLine(reportFile, model.CreateErrorReport(reportType, errorInformation));
                     Environment.Exit(3);
                 }
-            }
-            else
-            {
-                if (!SelectWorldModel.FindSaveSession(SpaceEngineersConsts.BaseLocalPath.SavesPath, findSession, out world, out errorInformation))
+
+                baseModel.ActiveWorld = world;
+                baseModel.ActiveWorld.LoadDefinitionsAndMods();
+                if (!baseModel.ActiveWorld.LoadSector(out errorInformation, true))
                 {
-                    SConsole.WriteLine(errorInformation);
                     File.WriteAllText(reportFile, model.CreateErrorReport(reportType, errorInformation));
 
                     // this terminates the application.
                     Environment.Exit(3);
                 }
+                baseModel.ParseSandBox();
+
+                model.Load(baseModel.ActiveWorld.SaveName, baseModel.Structures);
+                model.GenerateReport();
+                if (VRage.Plugins.MyPlugins.Loaded)
+                {
+                    VRage.Plugins.MyPlugins.Unload();
+                }
+                TempFileUtil.Dispose();
+
+                File.WriteAllText(reportFile, model.CreateReport(reportType));
+
+                // no errors returned.
+                Environment.Exit(0);
             }
-
-            baseModel.ActiveWorld = world;
-            baseModel.ActiveWorld.LoadDefinitionsAndMods();
-            if (!baseModel.ActiveWorld.LoadSector(out errorInformation, true))
-            {
-                File.WriteAllText(reportFile, model.CreateErrorReport(reportType, errorInformation));
-
-                // this terminates the application.
-                Environment.Exit(3);
-            }
-            baseModel.ParseSandBox();
-
-            model.Load(baseModel.ActiveWorld.SaveName, baseModel.Structures);
-            model.GenerateReport();
-            if (VRage.Plugins.MyPlugins.Loaded)
-            {
-                VRage.Plugins.MyPlugins.Unload();
-            }
-            TempFileUtil.Dispose();
-
-            File.WriteAllText(reportFile, model.CreateReport(reportType));
-
-            // no errors returned.
-            Environment.Exit(0);
         }
 
         #endregion
@@ -1423,9 +1398,8 @@ td.right { text-align: right; }";
             private string _name;
             public string Name
             {
-                get => _name ?? string.Empty;
-                set => baseModel.SetProperty(ref _name, value, nameof(Name), () => 
-
+                get => _name;
+                set => baseModel.SetProperty(ref _name, value, nameof(Name), () =>
                        FriendlyName = SpaceEngineersApi.GetResourceName(Name));
             }
 

@@ -5,8 +5,6 @@ using System.Windows.Input;
 using SEToolbox.Interfaces;
 using SEToolbox.Models;
 using SEToolbox.Services;
-
-
 using VRageMath;
 
 namespace SEToolbox.ViewModels

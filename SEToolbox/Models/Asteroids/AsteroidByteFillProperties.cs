@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace SEToolbox.Models.Asteroids
 {
@@ -11,20 +12,15 @@ namespace SEToolbox.Models.Asteroids
         private GenerateVoxelDetailModel _voxelFile;
         private MaterialSelectionModel _mainMaterial;
         private MaterialSelectionModel _secondMaterial;
-        private int _secondPercent;
         private MaterialSelectionModel _thirdMaterial;
-        private int _thirdPercent;
         private MaterialSelectionModel _fourthMaterial;
-        private int _fourthPercent;
         private MaterialSelectionModel _fifthMaterial;
-        private int _fifthPercent;
         private MaterialSelectionModel _sixthMaterial;
-        private int _sixthPercent;
         private MaterialSelectionModel _seventhMaterial;
-        private int _seventhPercent;
-        public ObservableCollection<AsteroidByteFillProperties> _voxelCollection;
-        //private ObservableCollection<MaterialSelectionModel> _materialsCollection;
         
+        public ObservableCollection<AsteroidByteFillProperties> _voxelCollection;
+        private ObservableCollection<MaterialSelectionModel> _materialsCollection;
+        private int[] _percentages = new int[6];
         public ObservableCollection<AsteroidByteFillProperties> VoxelCollection
         {
             get => _voxelCollection;
@@ -59,6 +55,12 @@ namespace SEToolbox.Models.Asteroids
             set => SetProperty(ref _voxelFile, value, nameof(VoxelFile));
         }
 
+        public ObservableCollection<MaterialSelectionModel> MaterialsCollection
+        {
+            get => _materialsCollection;
+            set => SetProperty(ref _materialsCollection, value, nameof(MaterialsCollection));
+        }
+     
         public MaterialSelectionModel MainMaterial
         {
             get => _mainMaterial;
@@ -73,8 +75,8 @@ namespace SEToolbox.Models.Asteroids
 
         public int SecondPercent
         {
-            get => _secondPercent;
-            set => SetProperty(ref _secondPercent, value, nameof(SecondPercent), () => 
+            get => _percentages[1];
+            set => SetProperty(ref _percentages[1], value, nameof(SecondPercent), () => 
                    UpdateTotal());
         }
 
@@ -86,8 +88,8 @@ namespace SEToolbox.Models.Asteroids
 
         public int ThirdPercent
         {
-            get => _thirdPercent;
-            set => SetProperty(ref _thirdPercent, value, nameof(ThirdPercent), () =>
+            get => _percentages[2];
+            set => SetProperty(ref _percentages[2], value, nameof(ThirdPercent), () =>
                    UpdateTotal());
         }
 
@@ -99,8 +101,8 @@ namespace SEToolbox.Models.Asteroids
 
         public int FourthPercent
         {
-            get => _fourthPercent;
-            set => SetProperty(ref _fourthPercent, value, nameof(FourthPercent), () => 
+            get => _percentages[3];
+            set => SetProperty(ref _percentages[3], value, nameof(FourthPercent), () => 
                    UpdateTotal());
         }
 
@@ -112,8 +114,8 @@ namespace SEToolbox.Models.Asteroids
 
         public int FifthPercent
         {
-            get => _fifthPercent;
-            set => SetProperty(ref _fifthPercent, value, nameof(FifthPercent), () => 
+            get => _percentages[4];
+            set => SetProperty(ref _percentages[4], value, nameof(FifthPercent), () => 
                    UpdateTotal());
         }
 
@@ -125,8 +127,8 @@ namespace SEToolbox.Models.Asteroids
 
         public int SixthPercent
         {
-            get => _sixthPercent;
-            set => SetProperty(ref _sixthPercent, value, nameof(SixthPercent), () =>
+            get => _percentages[5];
+            set => SetProperty(ref _percentages[5], value, nameof(SixthPercent), () =>
                    UpdateTotal());
         }
 
@@ -138,8 +140,8 @@ namespace SEToolbox.Models.Asteroids
 
         public int SeventhPercent
         {
-            get => _seventhPercent;
-            set => SetProperty(ref _seventhPercent, value, nameof(SeventhPercent), () => 
+            get => _percentages[6];
+            set => SetProperty(ref _percentages[6], value, nameof(SeventhPercent), () => 
                    UpdateTotal());
         }
 
@@ -147,25 +149,24 @@ namespace SEToolbox.Models.Asteroids
 
         public IMyVoxelFillProperties Clone()
         {
-            return new AsteroidByteFillProperties
-            {
-                Index = Index,
-                TotalPercent = TotalPercent,
-                VoxelFile = VoxelFile,
-                MainMaterial = MainMaterial,
-                SecondMaterial = SecondMaterial,
-                SecondPercent = SecondPercent,
-                ThirdMaterial = ThirdMaterial,
-                ThirdPercent = ThirdPercent,
-                FourthMaterial = FourthMaterial,
-                FourthPercent = FourthPercent,
-                FifthMaterial = FifthMaterial,
-                FifthPercent = FifthPercent,
-                SixthMaterial = SixthMaterial,
-                SixthPercent = SixthPercent,
-                SeventhMaterial = SeventhMaterial,
-                SeventhPercent = SeventhPercent,
-            };
+            AsteroidByteFillProperties clone = (AsteroidByteFillProperties)MemberwiseClone();
+            clone.Index = Index;
+            clone.TotalPercent = TotalPercent;
+            clone.VoxelFile = VoxelFile.Clone();
+            clone.MainMaterial = MainMaterial.Clone();
+            clone.SecondMaterial = SecondMaterial.Clone();
+            clone.SecondPercent = SecondPercent;
+            clone.ThirdMaterial = ThirdMaterial.Clone();
+            clone.ThirdPercent = ThirdPercent;
+            clone.FourthMaterial = FourthMaterial.Clone();
+            clone.FourthPercent = FourthPercent;
+            clone.FifthMaterial = FifthMaterial.Clone();
+            clone.FifthPercent = FifthPercent;
+            clone.SixthMaterial = SixthMaterial.Clone();
+            clone.SixthPercent = SixthPercent;
+            clone.SeventhMaterial = SeventhMaterial.Clone();
+            clone.SeventhPercent = SeventhPercent;
+            return clone;
         }
 
         private void UpdateTotal()

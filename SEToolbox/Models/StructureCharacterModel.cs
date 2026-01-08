@@ -38,17 +38,14 @@ namespace SEToolbox.Models
         [XmlIgnore]
         public MyObjectBuilder_Character Character
         {
-            get
-            {
-                return EntityBase as MyObjectBuilder_Character;
-            }
+            get => EntityBase as MyObjectBuilder_Character;
         }
 
         [XmlIgnore]
         public SerializableVector3 Color
         {
             get => Character.ColorMaskHSV;
-            set => SetProperty(Character?.ColorMaskHSV, value, nameof(Color), () => 
+            set => SetProperty(Character?.ColorMaskHSV, value, nameof(Color), () =>
                    UpdateGeneralFromEntityBase());
 
         }
@@ -77,7 +74,7 @@ namespace SEToolbox.Models
         [XmlIgnore]
         public float BatteryCapacity // Character.Battery.CurrentCapacity ?? 0;
         {
-            get => Character.Battery.CurrentCapacity ;
+            get => Character.Battery.CurrentCapacity;
             set => SetProperty(Character.Battery.CurrentCapacity, value, nameof(BatteryCapacity));
         }
 
@@ -101,24 +98,16 @@ namespace SEToolbox.Models
         public float OxygenLevel
         {
             get => Character.StoredGases.FirstOrDefault(e => e.Id.SubtypeName == "Oxygen").FillLevel;
-
-            set 
-            { 
-                if (ReplaceGasValue("Oxygen", value)) 
-                    OnPropertyChanged(nameof(OxygenLevel));
-            }
+            set => SetProperty(Character.StoredGases.FirstOrDefault(e => e.Id.SubtypeName == "Oxygen").FillLevel, value, nameof(OxygenLevel));
+       
         }
 
         [XmlIgnore]
         public float HydrogenLevel
         {
             get => Character.StoredGases.FirstOrDefault(e => e.Id.SubtypeName == "Hydrogen").FillLevel;
-
-            set
-            {
-                if (ReplaceGasValue("Hydrogen", value))
-                    OnPropertyChanged(nameof(HydrogenLevel));
-            }
+            set => SetProperty(Character.StoredGases.FirstOrDefault(e => e.Id.SubtypeName == "Hydrogen").FillLevel, value, nameof(HydrogenLevel));
+           
         }
 
         [XmlIgnore]
@@ -134,13 +123,11 @@ namespace SEToolbox.Models
             get => Character.LinearVelocity.ToVector3().LinearVector();
         }
 
-
         [XmlIgnore]
         public bool IsPilot
         {
             get => _isPilot;
             set => SetProperty(ref _isPilot, value, nameof(IsPilot));
-           
         }
 
         [XmlIgnore]
@@ -174,7 +161,7 @@ namespace SEToolbox.Models
             if (string.IsNullOrEmpty(Character.DisplayName))
             {
                 Description = Res.ClsCharacterNPC;
-                DisplayName = (Character.CharacterModel ?? "Unknown Model") + dead;
+                DisplayName = Character.CharacterModel + dead;
                 Mass = SpaceEngineersConsts.PlayerMass; // no idea what an npc body weighs.
             }
             else
@@ -187,7 +174,7 @@ namespace SEToolbox.Models
             if (Inventory == null)
             {
                 System.Collections.ObjectModel.ObservableCollection<InventoryEditorModel> inventories = Character.ComponentContainer.GetInventory();
-                if (inventories?.Count > 0)
+                if (inventories.Count > 0)
                 {
                     Inventory = inventories[0];
                     Mass += Inventory.TotalMass;
@@ -207,7 +194,7 @@ namespace SEToolbox.Models
 
         public void ReverseVelocity()
         {
-            Character.LinearVelocity = new VRageMath.Vector3(Character.LinearVelocity.X * -1, 
+            Character.LinearVelocity = new VRageMath.Vector3(Character.LinearVelocity.X * -1,
                                                              Character.LinearVelocity.Y * -1,
                                                              Character.LinearVelocity.Z * -1);
             OnPropertyChanged(nameof(LinearVelocity));
@@ -216,20 +203,20 @@ namespace SEToolbox.Models
         private bool ReplaceGasValue(string gasName, float value)
         {
             if (Character.StoredGases == null)
+            {
                 Character.StoredGases = [];
+            }
 
             // Find the existing gas value.
             for (int i = 0; i < Character.StoredGases.Count; i++)
             {
                 MyObjectBuilder_Character.StoredGas gas = Character.StoredGases[i];
-                if (gas.Id.SubtypeName == gasName)
+                if (gas.Id.SubtypeName == gasName && value != gas.FillLevel)
                 {
-                    if (value != gas.FillLevel)
-                    {
-                        gas.FillLevel = value;
-                        Character.StoredGases[i] = gas;
-                        return true;
-                    }
+                    gas.FillLevel = value;
+                    Character.StoredGases[i] = gas;
+                    return true;
+
                 }
             }
 

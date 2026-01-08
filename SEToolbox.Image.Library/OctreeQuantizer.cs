@@ -30,16 +30,18 @@ namespace SEToolbox.ImageLibrary
         public OctreeQuantizer(int maxColors, int maxColorBits)
             : base(false)
         {
-            if (maxColors > 255)
-                throw new ArgumentOutOfRangeException("maxColors", maxColors, "The number of colors should be less than 256");
-
-            if ((maxColorBits < 1) | (maxColorBits > 8))
-                throw new ArgumentOutOfRangeException("maxColorBits", maxColorBits, "This should be between 1 and 8");
-
+            ;
+            Exception e = maxColors switch
+            {
+                _ when maxColors > 255 => throw new ArgumentException($"maxColors:{maxColors} The number of colors should be less than 256"),
+                _ when maxColorBits < 1 || maxColorBits > 8 => throw new ArgumentException($"maxColorBits:{maxColorBits} This should be between 1 and 8"),
+                _ => null
+            };
             // Construct the octree
             _octree = new Octree(maxColorBits);
 
             _maxColors = maxColors;
+
         }
 
         /// <summary>
@@ -63,13 +65,11 @@ namespace SEToolbox.ImageLibrary
         /// <returns>The quantized value</returns>
         protected override byte QuantizePixel(Color32* pixel)
         {
-            byte paletteIndex = (byte)_maxColors;	// The color at [_maxColors] is set to transparent
+            byte paletteIndex = (byte)_maxColors;   // The color at [_maxColors] is set to transparent
 
             // Get the palette index if this non-transparent
-            if (pixel->Alpha > 0)
-                paletteIndex = (byte)_octree.GetPaletteIndex(pixel);
+            return paletteIndex = pixel->Alpha > 0 ? paletteIndex = (byte)_octree.GetPaletteIndex(pixel) : paletteIndex;
 
-            return paletteIndex;
         }
 
         /// <summary>
@@ -77,14 +77,23 @@ namespace SEToolbox.ImageLibrary
         /// </summary>
         /// <param name="original">Any old palette, this is overrwritten</param>
         /// <returns>The new color palette</returns>
-        protected override ColorPalette GetPalette(ColorPalette original)
+        protected override ColorPalette GetPalette(ColorPalette original, bool clearPalette)
         {
+            if (clearPalette)
+            {
+                for (int i = 0; i < original.Entries.Length; i++)
+                {
+                    original.Entries[i] = Color.FromArgb(0, 0, 0, 0);
+                }
+            }
             // First off convert the octree to _maxColors colors
             ArrayList palette = _octree.Palletize(_maxColors - 1);
 
             // Then convert the palette based on those colors
             for (int index = 0; index < palette.Count; index++)
+            {
                 original.Entries[index] = (Color)palette[index];
+            }
 
             // Add the transparent color
             original.Entries[_maxColors] = Color.FromArgb(0, 0, 0, 0);
@@ -92,21 +101,34 @@ namespace SEToolbox.ImageLibrary
             return original;
         }
 
+        protected override ColorPalette CLearPalette(ColorPalette original)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Stores the tree
         /// </summary>
-        private Octree _octree;
+        private readonly Octree _octree;
 
         /// <summary>
         /// Maximum allowed color depth
         /// </summary>
-        private int _maxColors;
+        private readonly int _maxColors;
 
         /// <summary>
         /// Class which does the actual quantization
         /// </summary>
         private class Octree
-        {
+        {  
+             
+            private int _maxColorBits;
+            private int _leafCount;
+            private OctreeNode[] _reducibleNodes;
+            private OctreeNode _root;
+
+            private OctreeNode _previousNode;
+            private int _previousColor;
             /// <summary>
             /// Construct the octree
             /// </summary>
@@ -128,23 +150,15 @@ namespace SEToolbox.ImageLibrary
             public void AddColor(Color32* pixel)
             {
                 // Check if this request is for the same color as the last
-                if (_previousColor == pixel->ARGB)
+                if (_previousColor == pixel->Argb && _previousNode == null)
                 {
-                    // If so, check if I have a previous node setup. This will only ocurr if the first color in the image
-                    // happens to be black, with an alpha component of zero.
-                    if (null == _previousNode)
-                    {
-                        _previousColor = pixel->ARGB;
-                        _root.AddColor(pixel, _maxColorBits, 0, this);
-                    }
-                    else
-                        // Just update the previous node
-                        _previousNode.Increment(pixel);
+                    _previousColor = pixel->Argb;
+                    _root.AddColor(pixel, _maxColorBits, 0, this);
+
                 }
                 else
                 {
-                    _previousColor = pixel->ARGB;
-                    _root.AddColor(pixel, _maxColorBits, 0, this);
+                    _previousNode.Increment(pixel);
                 }
             }
 
@@ -156,18 +170,19 @@ namespace SEToolbox.ImageLibrary
                 int index;
 
                 // Find the deepest level containing at least one reducible node
-                for (index = _maxColorBits - 1; (index > 0) && (null == _reducibleNodes[index]); index--) ;
+                for (index = _maxColorBits - 1; (index > 0) && (_reducibleNodes[index] == null); index--)
+                {
+                    // Reduce the node most recently added to the list at level 'index'
+                    OctreeNode node = _reducibleNodes[index];
+                    _reducibleNodes[index] = node.NextReducible;
 
-                // Reduce the node most recently added to the list at level 'index'
-                OctreeNode node = _reducibleNodes[index];
-                _reducibleNodes[index] = node.NextReducible;
+                    // Decrement the leaf count after reducing the node
+                    _leafCount -= node.Reduce();
 
-                // Decrement the leaf count after reducing the node
-                _leafCount -= node.Reduce();
-
-                // And just in case I've reduced the last color to be added, and the next color to
-                // be added is the same, invalidate the previousNode...
-                _previousNode = null;
+                    // If this was the last color to be added, and the next color to
+                    // be added is the same, invalidate the previousNode.
+                    _previousNode = null;
+                }
             }
 
             /// <summary>
@@ -175,8 +190,8 @@ namespace SEToolbox.ImageLibrary
             /// </summary>
             public int Leaves
             {
-                get { return _leafCount; }
-                set { _leafCount = value; }
+                get => _leafCount;
+                set => _leafCount = value;
             }
 
             /// <summary>
@@ -184,7 +199,7 @@ namespace SEToolbox.ImageLibrary
             /// </summary>
             protected OctreeNode[] ReducibleNodes
             {
-                get { return _reducibleNodes; }
+                get => _reducibleNodes;
             }
 
             /// <summary>
@@ -204,10 +219,12 @@ namespace SEToolbox.ImageLibrary
             public ArrayList Palletize(int colorCount)
             {
                 while (Leaves > colorCount)
+                {
                     Reduce();
+                }
 
                 // Now palettize the nodes
-                ArrayList palette = new ArrayList(Leaves);
+                ArrayList palette = new(Leaves);
                 int paletteIndex = 0;
                 _root.ConstructPalette(palette, ref paletteIndex);
 
@@ -226,45 +243,19 @@ namespace SEToolbox.ImageLibrary
             }
 
             /// <summary>
-            /// Mask used when getting the appropriate pixels for a given node
-            /// </summary>
-            private static int[] mask = new int[8] { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
-
-            /// <summary>
-            /// The root of the octree
-            /// </summary>
-            private OctreeNode _root;
-
-            /// <summary>
-            /// Number of leaves in the tree
-            /// </summary>
-            private int _leafCount;
-
-            /// <summary>
-            /// Array of reducible nodes
-            /// </summary>
-            private OctreeNode[] _reducibleNodes;
-
-            /// <summary>
-            /// Maximum number of significant bits in the image
-            /// </summary>
-            private int _maxColorBits;
-
-            /// <summary>
-            /// Store the last node quantized
-            /// </summary>
-            private OctreeNode _previousNode;
-
-            /// <summary>
-            /// Cache the previous color quantized
-            /// </summary>
-            private int _previousColor;
-
-            /// <summary>
             /// Class which encapsulates each node in the tree
             /// </summary>
             protected class OctreeNode
             {
+                private bool _leaf;
+                private int _pixelCount;
+                private int _red;
+                private int _green;
+                private int _blue;
+                private OctreeNode[] _children;
+                private OctreeNode _nextReducible;
+                private int _paletteIndex;
+
                 /// <summary>
                 /// Construct the node
                 /// </summary>
@@ -274,8 +265,7 @@ namespace SEToolbox.ImageLibrary
                 public OctreeNode(int level, int colorBits, Octree octree)
                 {
                     // Construct the new node
-                    _leaf = (level == colorBits);
-
+                    _leaf = level == colorBits;
                     _red = _green = _blue = 0;
                     _pixelCount = 0;
 
@@ -294,7 +284,8 @@ namespace SEToolbox.ImageLibrary
                         _children = new OctreeNode[8];
                     }
                 }
-
+                
+                private static readonly int[] mask = [0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01];
                 /// <summary>
                 /// Add a color into the tree
                 /// </summary>
@@ -315,13 +306,13 @@ namespace SEToolbox.ImageLibrary
                     {
                         // Go to the next level down in the tree
                         int shift = 7 - level;
-                        int index = ((pixel->Red & mask[level]) >> (shift - 2)) |
-                                    ((pixel->Green & mask[level]) >> (shift - 1)) |
-                                    ((pixel->Blue & mask[level]) >> (shift));
+                        int index = (pixel->Red & mask[level]) >> (shift - 2) |
+                                    (pixel->Green & mask[level]) >> (shift - 1) |
+                                    (pixel->Blue & mask[level]) >> shift;
 
                         OctreeNode child = _children[index];
 
-                        if (null == child)
+                        if (child == null)
                         {
                             // Create a new child node & store in the array
                             child = new OctreeNode(level + 1, colorBits, octree);
@@ -331,7 +322,6 @@ namespace SEToolbox.ImageLibrary
                         // Add the color to the child node
                         child.AddColor(pixel, colorBits, level + 1, octree);
                     }
-
                 }
 
                 /// <summary>
@@ -339,8 +329,8 @@ namespace SEToolbox.ImageLibrary
                 /// </summary>
                 public OctreeNode NextReducible
                 {
-                    get { return _nextReducible; }
-                    set { _nextReducible = value; }
+                    get => _nextReducible;
+                    set => _nextReducible = value;
                 }
 
                 /// <summary>
@@ -348,11 +338,11 @@ namespace SEToolbox.ImageLibrary
                 /// </summary>
                 public OctreeNode[] Children
                 {
-                    get { return _children; }
+                    get => _children;
                 }
 
                 /// <summary>
-                /// Reduce this node by removing all of its children
+                /// Reduce this node by removing all of its children 
                 /// </summary>
                 /// <returns>The number of leaves removed</returns>
                 public int Reduce()
@@ -363,22 +353,21 @@ namespace SEToolbox.ImageLibrary
                     // Loop through all children and add their information to this node
                     for (int index = 0; index < 8; index++)
                     {
-                        if (null != _children[index])
-                        {
-                            _red += _children[index]._red;
-                            _green += _children[index]._green;
-                            _blue += _children[index]._blue;
-                            _pixelCount += _children[index]._pixelCount;
+                        if (_children[index] != null)
+                        {   int[] colors = [_children[index]._red,_children[index]._green, _children[index]._blue];
+
+                            Increment(colors, _children[index]._pixelCount);
+
                             ++children;
                             _children[index] = null;
+                            _children[index]._nextReducible = null;
                         }
                     }
-
                     // Now change this to a leaf node
                     _leaf = true;
 
                     // Return the number of nodes to decrement the leaf count by
-                    return (children - 1);
+                    return children - 1;
                 }
 
                 /// <summary>
@@ -392,7 +381,6 @@ namespace SEToolbox.ImageLibrary
                     {
                         // Consume the next palette index
                         _paletteIndex = paletteIndex++;
-
                         // And set the color of the palette entry
                         palette.Add(Color.FromArgb(_red / _pixelCount, _green / _pixelCount, _blue / _pixelCount));
                     }
@@ -401,8 +389,7 @@ namespace SEToolbox.ImageLibrary
                         // Loop through children looking for leaves
                         for (int index = 0; index < 8; index++)
                         {
-                            if (null != _children[index])
-                                _children[index].ConstructPalette(palette, ref paletteIndex);
+                            _children[index]?.ConstructPalette(palette, ref paletteIndex);
                         }
                     }
                 }
@@ -419,12 +406,9 @@ namespace SEToolbox.ImageLibrary
                         int shift = 7 - level;
                         int index = ((pixel->Red & mask[level]) >> (shift - 2)) |
                                     ((pixel->Green & mask[level]) >> (shift - 1)) |
-                                    ((pixel->Blue & mask[level]) >> (shift));
+                                    ((pixel->Blue & mask[level]) >> shift);
 
-                        if (null != _children[index])
-                            paletteIndex = _children[index].GetPaletteIndex(pixel, level + 1);
-                        else
-                            throw new Exception("Didn't expect this!");
+                        paletteIndex = _children[index] != null ? _children[index].GetPaletteIndex(pixel, level + 1) : throw new Exception("Palette index not found"); ;
                     }
 
                     return paletteIndex;
@@ -442,48 +426,17 @@ namespace SEToolbox.ImageLibrary
                 }
 
                 /// <summary>
-                /// Flag indicating that this is a leaf node
+                /// Increment the pixel count and add to the color information
                 /// </summary>
-                private bool _leaf;
+                public void Increment(int[] colors, int pixelCount)
+                {
 
-                /// <summary>
-                /// Number of pixels in this node
-                /// </summary>
-                private int _pixelCount;
-
-                /// <summary>
-                /// Red component
-                /// </summary>
-                private int _red;
-
-                /// <summary>
-                /// Green Component
-                /// </summary>
-                private int _green;
-
-                /// <summary>
-                /// Blue component
-                /// </summary>
-                private int _blue;
-
-                /// <summary>
-                /// Pointers to any child nodes
-                /// </summary>
-                private OctreeNode[] _children;
-
-                /// <summary>
-                /// Pointer to next reducible node
-                /// </summary>
-                private OctreeNode _nextReducible;
-
-                /// <summary>
-                /// The index of this node in the palette
-                /// </summary>
-                private int _paletteIndex;
-
+                    _red += colors[0];
+                    _green += colors[1];
+                    _blue += colors[2];
+                    _pixelCount += pixelCount;
+                }
             }
         }
-
-
     }
 }

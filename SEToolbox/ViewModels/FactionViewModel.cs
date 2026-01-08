@@ -137,7 +137,10 @@ namespace SEToolbox.ViewModels
         public Vector3 IconColor => _faction.IconColor;
         public int MemberCount => _faction.Members.Count;
 
-        private bool SetFounderCanExecute() => _factionModel.SelectedFaction != null;
+        private bool SetFounderCanExecute() 
+        {
+            return _factionModel.SelectedFaction != null;
+         }
 
         private void SetFounderExecuted()
         {
@@ -147,9 +150,10 @@ namespace SEToolbox.ViewModels
             }
         }
 
-
-
-        private bool SetTagCanExecute() => _factionModel.SelectedFaction != null;
+        private bool SetTagCanExecute() 
+        {
+            return _factionModel.SelectedFaction != null;
+        }
 
         private void SetTagExecuted()
         {
@@ -267,7 +271,7 @@ namespace SEToolbox.ViewModels
                     }
                     catch (Exception ex)
                     {
-                        SConsole.WriteLine($"Error updating faction name: {ex.Message}");
+                        Log.WriteLine($"Error updating faction name: {ex.Message}");
                     }
                 }
                 OnPropertyChanged(nameof(_factionModel.Name));
@@ -339,7 +343,6 @@ namespace SEToolbox.ViewModels
 
         private void CreateFactionExecuted()
         {
-
             if (IsFactionCreated)
             {
 

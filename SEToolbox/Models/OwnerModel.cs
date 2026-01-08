@@ -21,7 +21,6 @@ namespace SEToolbox.Models
         public string Name
         {
             get => _name;
-            
             set => SetProperty(ref _name, value, nameof(Name), nameof(DisplayName));
         }
 

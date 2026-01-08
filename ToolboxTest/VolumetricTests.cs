@@ -45,8 +45,7 @@ namespace ToolboxTest
 
             Dictionary<CubeType, int> cubicCount = Modelling.CountCubic(cubic);
 
-           
-           ModelAssertions(cubic,168480, 54, 26, 120);
+            ModelAssertions(cubic, 168480, 54, 26, 120);
 
             Assert.AreEqual(12540, cubicCount[CubeType.Cube], "Cube count must match.");
             Assert.AreEqual(20651, cubicCount[CubeType.Interior], "Interior count must match.");
@@ -60,6 +59,7 @@ namespace ToolboxTest
             CubeType[][][] cubic = Modelling.ReadVolumetricModel(modelFile, 0, null, ModelTraceVoxel.Thin);
 
             Dictionary<CubeType, int> cubicCount = Modelling.CountCubic(cubic);
+
             ModelAssertions(cubic, 72, 4, 6, 3);
 
             Assert.AreEqual(36, cubicCount[CubeType.Cube], "Cube count must match.");
@@ -75,8 +75,8 @@ namespace ToolboxTest
 
             Dictionary<CubeType, int> cubicCount = Modelling.CountCubic(cubic);
 
-            
-           ModelAssertions(cubic, 72, 4, 6, 3);
+            ModelAssertions(cubic, 72, 4, 6, 3);
+
             Assert.AreEqual(36, cubicCount[CubeType.Cube], "Cube count must match.");
             Assert.AreEqual(4, cubicCount[CubeType.Interior], "Interior count must match.");
         }
@@ -90,7 +90,6 @@ namespace ToolboxTest
 
             Dictionary<CubeType, int> cubicCount = Modelling.CountCubic(cubic);
 
-            
             ModelAssertions(cubic, 72, 4, 6, 3);
 
             Assert.AreEqual(58, cubicCount[CubeType.Cube], "Cube count must match.");
@@ -120,7 +119,7 @@ namespace ToolboxTest
             var cubicCount = Modelling.CountCubic(cubic);
 
 
-            ModelAssertions(cubic,480, 8, 12, 5);
+            ModelAssertions(cubic, 480, 8, 12, 5);
 
             Assert.AreEqual(168, cubicCount[CubeType.Cube], "Cube count must match.");
             Assert.AreEqual(48, cubicCount[CubeType.Interior], "Interior count must match.");
@@ -133,7 +132,7 @@ namespace ToolboxTest
 
             var cubic = Modelling.ReadVolumetricModelAlt(modelFile);
 
-             ModelAssertions(cubic, 480, 8, 12, 5);
+            ModelAssertions(cubic, 480, 8, 12, 5);
         }
 
         [TestMethod, TestCategory("UnitTest")]
@@ -143,19 +142,18 @@ namespace ToolboxTest
             CubeType[][][] cubic = Modelling.ReadVolumetricModel(modelFile, 1, null, ModelTraceVoxel.Thin);
             ModelAssertions(cubic, 480, 8, 12, 5);
         }
-        
+
         public void ModelAssertions(CubeType[][][] cubic, params int[] sizes)
         {
-           
             int size = cubic.Length * cubic[0].Length * cubic[0][0].Length;
             var input = sizes ?? [.. cubic.Select(x => x.Length)];
             foreach (var item in sizes)
-            {   
+            {
                 Assert.AreEqual(item, input[0], "Array  size must match.");
             }
 
         }
-        
+
         private static long _counter;
         private static long _maximumProgress;
         private static int _percent;
@@ -170,70 +168,94 @@ namespace ToolboxTest
         {
             _counter++;
 
-            int p = (int)((double)_counter / _maximumProgress * 100);
-            if (_percent < p)
+            int progress = (int)((double)_counter / _maximumProgress * 100);
+            if (_percent < progress)
             {
-                _percent = p;
-                SConsole.WriteLine($"{_percent}%");
+                _percent = progress;
+                Log.WriteLine($"{_percent}%");
             }
         }
 
         [TestMethod, TestCategory("UnitTest")]
         public void IntersectionTestPoint0()
         {
-            RayChecker(new(0, 0, 0), new(10.999, 0, 0), new(0, 10.999, -15.999), new(0, 0, -10), new(0, 0, +10), out Point3D intersection, out int normal, false, new Point3D(0, 0, 0),1);
-          
+            Point3D p1 = new(0, 0, 0),
+                p2 = new(10.999, 0, 0),
+                p3 = new(0, 10.999, -15.999);
+            Point3D roundPointA = new(0, 0, -10),
+            roundPointB = new(0, 0, +10);
+            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false, new Point3D(0, 0, 0), 1);
         }
 
         [TestMethod, TestCategory("UnitTest")]
         public void IntersectionTestPoint1()
         {
-        List<Point3D> rays =
-                [
-                    new(1, 1, -10), new(1, 1, +10)
-                ];
-            RayChecker(new(1, 1, 0), new(10, 1, 0), new(1, 10, 0), rays, out Point3D intersection, out int normal, false, new Point3D(1, 1, 0),1);  
+            Point3D p1 = new(1, 1, 0),
+                    p2 = new(10, 1, 0),
+                    p3 = new(1, 10, 0);
+
+            List<Point3D> rays = [
+                        new(1, 1, -10),
+                        new(1, 1, +10)
+                    ];
+            RayChecker(p1, p2, p3, rays, out Point3D intersection, out int normal, false, new Point3D(1, 1, 0), 1);
         }
 
         [TestMethod, TestCategory("UnitTest")]
         public void RayTestFace()
         {
-            RayChecker( new(10, 10, 10), new(15, 15, 11), new(20, 10, 12),new(15, 12, 0), new(15, 12, 20), out Point3D intersection, out int normal, false, new Point3D(15, 12, 11));
+            Point3D p1 = new(10, 10, 10),
+                    p2 = new(15, 15, 11),
+                    p3 = new(20, 10, 12);
+            Point3D roundPointA = new(15, 12, 0),
+                    roundPointB = new(15, 12, 20);
+            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false, new Point3D(15, 12, 11));
         }
 
         [TestMethod, TestCategory("UnitTest")]
         public void RayTestFaceReverse()
         {
-            RayChecker(new(20, 10, 12), new(15,15,11), new(10, 10, 10), new(15, 12, 0), new(15, 12, 20) , out Point3D intersection, out int normal, false, new Point3D(15, 12, 11));
+            Point3D p1 = new(10, 10, 10),
+                    p2 = new(15, 15, 11),
+                    p3 = new(20, 10, 12);
+            Point3D roundPointA = new(15, 12, 0),
+                    roundPointB = new(15, 12, 20);
+            RayChecker(p3, p2, p1, roundPointA, roundPointB, out Point3D intersection, out int normal, false, new Point3D(15, 12, 11));
         }
 
         [TestMethod, TestCategory("UnitTest")]
         public void RayTestEdge()
         {
-
-           
-            RayChecker(new(10, 10, 10), new(15, 15, 11),  new(20, 10, 12), new(14, 14, 0), new(14, 14, 20), out Point3D intersection, out int normal, false, new Point3D(14, 14, 10.8));
+            Point3D p1 = new(10, 10, 10),
+                    p2 = new(15, 15, 11),
+                    p3 = new(20, 10, 12);
+            Point3D roundPointA = new(14, 14, 0),
+                    roundPointB = new(14, 14, 20);
+            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false, new Point3D(14, 14, 10.8));
         }
 
         [TestMethod, TestCategory("UnitTest")]
         public void RayTestEdgeReverse()
         {
-
-           
-            RayChecker(new(20, 10, 12), new(15, 15, 11), new(10, 10, 10), new(14, 14, 0), new(14, 14, 20) , out Point3D intersection, out int normal, false, new Point3D(14, 14, 10.8));
+            Point3D p1 = new(20, 10, 12),
+                    p2 = new(15, 15, 11),
+                    p3 = new(10, 10, 10);
+            Point3D roundPointA = new(14, 14, 0),
+                    roundPointB = new(14, 14, 20);
+            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false, new Point3D(14, 14, 10.8));
         }
 
         [TestMethod, TestCategory("UnitTest")]
         public void RayTestVertex1()
         {
 
-            Point3D p1 = new(10, 10, 10), 
-                    p2 = new(15, 15, 11), 
+            Point3D p1 = new(10, 10, 10),
+                    p2 = new(15, 15, 11),
                     p3 = new(20, 10, 12);
-            Point3D roundPointA = new(p1.X, p1.Y, 0), 
+            Point3D roundPointA = new(p1.X, p1.Y, 0),
                     roundPointB = new(p1.X, p1.Y, 20);
 
-            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false, p1);
+            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false, false, p1);
         }
 
         [TestMethod, TestCategory("UnitTest")]
@@ -243,142 +265,152 @@ namespace ToolboxTest
             Point3D p1 = new(10, 10, 10),
                     p2 = new(15, 15, 11),
                     p3 = new(20, 10, 12);
-                    Point3D roundPointA = new(p2.X, p2.Y, 0), 
-                            roundPointB = new(p2.X, p2.Y, 20);
-            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false,p2);
+            Point3D roundPointA = new(p2.X, p2.Y, 0),
+                    roundPointB = new(p2.X, p2.Y, 20);
+            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false, p2);
         }
 
         [TestMethod, TestCategory("UnitTest")]
         public void RayTestVertex3()
         {
-
             Point3D p1 = new(10, 10, 10),
                     p2 = new(15, 15, 11),
                     p3 = new(20, 10, 12);
             Point3D roundPointA = new(p3.X, p3.Y, 0),
                     roundPointB = new(p3.X, p3.Y, 20);
-            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false,p3);
+            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false, p3);
         }
 
         [TestMethod, TestCategory("UnitTest")]
         public void RayTestVertexReverse1()
         {
 
-            Point3D p1 = new(20, 10, 12), 
-                    p2 = new(15, 15, 11), 
+            Point3D p1 = new(20, 10, 12),
+                    p2 = new(15, 15, 11),
                     p3 = new(10, 10, 10);
-            Point3D roundPointA = new(p1.X, p1.Y, 0), 
+            Point3D roundPointA = new(p1.X, p1.Y, 0),
                     roundPointB = new(p1.X, p1.Y, 20);
-            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false,p1);
+            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false, p1);
         }
 
         [TestMethod, TestCategory("UnitTest")]
         public void RayTestVertexReverse2()
         {
 
-            Point3D p1 = new(20, 10, 12), 
-                    p2 = new(15, 15, 11), 
+            Point3D p1 = new(20, 10, 12),
+                    p2 = new(15, 15, 11),
                     p3 = new(10, 10, 10);
-            Point3D roundPointA = new(p2.X, p2.Y, 0), 
+            Point3D roundPointA = new(p2.X, p2.Y, 0),
                     roundPointB = new(p2.X, p2.Y, 20);
-            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false,p2);
+            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false, p2);
         }
 
         [TestMethod, TestCategory("UnitTest")]
         public void RayTestVertexReverse3()
         {
-
-            Point3D p1 = new(20, 10, 12), 
-                    p2 = new(15, 15, 11), 
+            Point3D p1 = new(20, 10, 12),
+                    p2 = new(15, 15, 11),
                     p3 = new(10, 10, 10);
-            Point3D roundPointA = new(p3.X, p3.Y, 0), 
+            Point3D roundPointA = new(p3.X, p3.Y, 0),
                     roundPointB = new(p3.X, p3.Y, 20);
 
-            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false,p3);
+            RayChecker(p1, p2, p3, roundPointA, roundPointB, out Point3D intersection, out int normal, false, p3);
         }
 
         [TestMethod, TestCategory("UnitTest")]
         public void RayTestNormalCheck()
-        {  
-            Point3D roundPointA = new(15, 12, 2000), 
+        {
+            Point3D roundPointA = new(15, 12, 2000),
                     roundPointB = new(15, 12, -2000);
             //bool ret;
-			
-            RayChecker(new(10, 10, 10), new(15,15,11), new(20,10,12), roundPointA, roundPointB,  out Point3D intersection, out int normal,false,1);
-            RayChecker(new(10, 10, -990), new(15, 15, 11), new(20, 10, 1012), roundPointA, roundPointB, out intersection, out normal, false,1);
-            RayChecker(new(10, 10, 1010), new(15, 15, 11), new(20, 10, -990), roundPointA, roundPointB, out intersection, out normal, false,1);
-           
-            // reverse ray
-            roundPointA = new Point3D(15, 12, -2000);
-            roundPointB = new Point3D(15, 12, 2000);
+            List<(Point3D, Point3D, Point3D)> rayList =
+            [
+                new(new(10, 10, 10), new(15, 15, 11), new(20, 10, 12)),
+                new(new(10, 10, -990), new(15, 15, 11), new(20, 10, 1012)),
+                new(new(10, 10, 1010), new(15, 15, 11), new(20, 10, -990))
+            ]
+            ;
+            foreach (var ray in rayList)
+            {
+                RayChecker(ray.Item1, ray.Item2, ray.Item3, roundPointA, roundPointB, out Point3D intersection, out int normal, false, 1);
+
+                // reverse ray
+                RayChecker(ray.Item1, ray.Item2, ray.Item3, roundPointA, roundPointB, out intersection, out normal, true, false, 1);
+            }
+
+
 
             // reverse normal
-                        //p3, p2, p1
-            RayChecker(new(10, 10, 10), new(15, 15, 11), new(20, 10, 12), roundPointA, roundPointB, out intersection, out normal, true,1);
-            RayChecker(new(10, 10, -990), new(15, 15, 11) , new(20, 10, 1012), roundPointA, roundPointB,out intersection, out normal, true,1);
-            RayChecker(new(10, 10, 1010), new(15, 15, 11), new(20, 10, -990), roundPointA, roundPointB, out intersection, out normal, true,1);
-         
+
+
         }
 
         [TestMethod, TestCategory("UnitTest")]
         public void RayTestNormalInverseCheck()
-        {           
-      
-             Point3D roundPointA = new(15, 12, 2000), 
-                     roundPointB = new(15, 12, -2000);
+        {
+            List<(Point3D, Point3D, Point3D)> rayList =
+            [
+                new(new(10, 10, 10), new(15, 15, 11), new(20, 10, 12)),
+                new(new(10, 10, -990), new(15, 15, 11), new(20, 10, 1012)),
+                new(new(10, 10, 1010), new(15, 15, 11), new(20, 10, -990))
+            ];
+            Point3D roundPointA = new(15, 12, 2000),
+                    roundPointB = new(15, 12, -2000);
             //bool ret;
-              //point 1, point 2, point 3
-            RayChecker(new Point3D(10, 10, 10), new Point3D(15, 15, 11), new Point3D(20, 10, 12), roundPointA, roundPointB, out Point3D intersection, out int normal,  false,-1);    
-            RayChecker(new(10, 10, -990), new(15, 15, 11), new(20, 10, 1012), roundPointA, roundPointB, out intersection, out normal, false,-1);
-            RayChecker(new(10, 10, 1010), new(15, 15, 11), new(20, 10, -990), roundPointA, roundPointB, out intersection, out normal, false,-1);
+            //point 1, point 2, point 3
+            foreach (var item in rayList)
+            {
+                RayChecker(item.Item1, item.Item2, item.Item3, roundPointA, roundPointB, out Point3D intersection, out int normal, false, -1);
+                // reverse ray 
+                RayChecker(item.Item1, item.Item2, item.Item3, roundPointB, roundPointA, out intersection, out normal, true, -1);
+            }
 
-            // reverse ray
-            roundPointA = new Point3D(15, 12, 2000);
-            roundPointB = new Point3D(15, 12, -2000);
-            
-                // reverse normal
-                        // Point1, Point2, Point3, RoundPointA, RoundPointB
-            RayChecker(new(10, 10, 10), new(15, 15, 11), new(20, 10, 12), roundPointA, roundPointB,out intersection, out normal, true,-1);
-            RayChecker(new(10, 10, -990), new( 15, 15, 11), new(20, 10, 1012), roundPointA, roundPointB,out intersection, out normal,  true,-1);
-            RayChecker(new (10, 10, 10), new(15, 15, 11), new(20, 10, -990), roundPointA, roundPointB, out intersection, out normal, true,-1);
-          
         }
 
-        public void RayChecker(Point3D p1, Point3D p2, Point3D p3, Point3D roundPointA, Point3D roundPointB, out Point3D intersection, out int normal, bool reverse = false, params object[] parameters)
-        {    Point3DCollection points;
-             points = [p1, p2, p3];
-            
-            if (reverse)
+        public void RayChecker(Point3D p1, Point3D p2, Point3D p3, Point3D roundPointA, Point3D roundPointB, out Point3D intersection, out int normal, bool reverseRays = false, params object[] parameters)
+        {
+            Point3DCollection points = [p1, p2, p3];
+            Point3D roundPoint1 = roundPointA,
+                    roundPoint2 = roundPointB;
+            // if (reversePoints)
+            // {
+            //     points = [p3, p2, p1];
+              
+            // } 
+            if (reverseRays)
             {
-                points = [p3, p2, p1];
+                roundPoint1 = roundPointB;
+                roundPoint2 = roundPointA;
+                
+                //points = [p3, p2, p1];
             }
-            bool ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out intersection, out normal);
+            bool ret = MeshHelper.RayIntersectTriangleRound(points, roundPoint1, roundPoint2, out intersection, out normal);
             Assert.IsTrue(ret, "ret must be true.");
-            Assert.AreEqual( normal, parameters[0],$"normal must match input {parameters[0]}.");
+            Assert.AreEqual(normal, parameters[0], $"normal must match input {parameters[0]}.");
 
-            if(roundPointA.Z == 0 && roundPointB.Z == 20)
+            if (roundPoint1.Z == 0 && roundPoint2.Z == 20)
             {
-            ret = MeshHelper.RayIntersectTriangleRound(points, roundPointA, roundPointB, out  intersection, out normal);
-            Assert.IsTrue(ret, "ret must be true.");
-            Assert.AreEqual(parameters[0], intersection, "intersection must match input.");
+                ret = MeshHelper.RayIntersectTriangleRound(points, roundPoint1, roundPoint2, out intersection, out normal);
+                Assert.IsTrue(ret, "ret must be true.");
+                Assert.AreEqual(parameters[0], intersection, "intersection must match input.");
 
             }
         }
-            public void RayChecker(Point3D p1, Point3D p2, Point3D p3, List<Point3D> rays, out Point3D intersection, out int normal, bool reverse = false, params object[] parameters)
-        {    Point3DCollection points;
-             points = [p1, p2, p3];
-            
-            if (reverse)
+        public void RayChecker(Point3D p1, Point3D p2, Point3D p3, List<Point3D> rays, out Point3D intersection, out int normal, bool reverseRays = false, params object[] parameters)
+        {
+            Point3DCollection points = [p1, p2, p3];
+
+            if (reverseRays)
             {
-                points = [p3, p2, p1];
+                rays.Reverse();
+                //points = [p3, p2, p1];
             }
+
             bool ret = MeshHelper.RayIntersectTriangleRound(points, rays, out intersection, out normal);
             Assert.IsTrue(ret, "ret must be true.");
-            Assert.AreEqual(parameters[0], normal ,$"normal must match input {parameters[0]}.");
+            Assert.AreEqual(parameters[0], normal, $"normal must match input {parameters[0]}.");
 
-          
-
-            }         
         }
     }
+}
 

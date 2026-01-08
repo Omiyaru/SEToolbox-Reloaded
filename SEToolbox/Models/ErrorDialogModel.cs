@@ -36,8 +36,8 @@
 
         public void Load(string errorDescription, string errorText, bool canContinue)
         {
-            ErrorDescription = errorDescription ?? string.Empty;
-            ErrorText = errorText ?? string.Empty;
+            ErrorDescription = errorDescription;
+            ErrorText = errorText;
             CanContinue = canContinue;
         }
 

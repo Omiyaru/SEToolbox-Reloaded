@@ -8,14 +8,17 @@ namespace SEToolbox.Support
     public static class TempFileUtil
     {
         private static readonly List<string> TempFiles;
-        public static readonly string TempPath;
+        public static string TempPath;
 
         static TempFileUtil()
         {
             TempFiles = [];
-            TempPath = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location));
+            string assemblyName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location);
+            TempPath = Path.Combine(Path.GetTempPath(), assemblyName);
             if (!Directory.Exists(TempPath))
+            {
                 Directory.CreateDirectory(TempPath);
+            }
         }
 
         /// <summary>
@@ -34,17 +37,8 @@ namespace SEToolbox.Support
         /// <returns></returns>
         public static string NewFileName(string fileExtension)
         {
-            string fileName;
-
-            if (string.IsNullOrEmpty(fileExtension))
-            {
-               fileName = Path.Combine(TempPath, Guid.NewGuid() + ".tmp");
-            }
-            else
-            {
-               fileName = Path.Combine(TempPath, Guid.NewGuid() + fileExtension);
-            }
-
+            string ext = string.IsNullOrEmpty(fileExtension) ? ".tmp" : fileExtension;
+            string fileName = Path.Combine(TempPath,$"{Guid.NewGuid()}{ext}");
             TempFiles.Add(fileName);
 
             return fileName;
@@ -65,7 +59,7 @@ namespace SEToolbox.Support
                     }
                     catch
                     {
-                        // Unable to dispose file
+                        // Unable to delete any locked files.
                     }
                 }
             }
@@ -84,7 +78,6 @@ namespace SEToolbox.Support
                 }
                 catch
                 {
-                    
                 }
             }
 
@@ -96,7 +89,6 @@ namespace SEToolbox.Support
                 }
                 catch
                 {
-                    
                 }
             }
         }

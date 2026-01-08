@@ -106,7 +106,6 @@ namespace SEToolbox.Models
         public MyPositionAndOrientation? PositionAndOrientation
         {
             get => _entityBase.PositionAndOrientation;
-
             set => SetProperty(ref _entityBase.PositionAndOrientation, value, nameof(PositionAndOrientation));
         }
 
@@ -119,7 +118,6 @@ namespace SEToolbox.Models
                 var pos = _entityBase.PositionAndOrientation.Value;
                 pos.Position.X = value;
                 _entityBase.PositionAndOrientation = pos;
-
             }, nameof(PositionX));
         }
 
@@ -128,11 +126,11 @@ namespace SEToolbox.Models
         {
             get => _entityBase.PositionAndOrientation.Value.Position.Y;
             set => SetProperty(_entityBase.PositionAndOrientation.Value.Position.Y, value, () =>
-              {
-                  var pos = _entityBase.PositionAndOrientation.Value;
-                  pos.Position.Y = value;
-                  _entityBase.PositionAndOrientation = pos;
-              }, nameof(PositionY));
+            {
+                var pos = _entityBase.PositionAndOrientation.Value;
+                pos.Position.Y = value;
+                _entityBase.PositionAndOrientation = pos;
+            }, nameof(PositionY));
         }
 
         [XmlIgnore]
@@ -149,21 +147,15 @@ namespace SEToolbox.Models
 
         public SerializableVector3D Position
         {
-            get => new Vector3D(
-                    _entityBase.PositionAndOrientation.Value.Position.Z,
-                    _entityBase.PositionAndOrientation.Value.Position.Y,
-                    _entityBase.PositionAndOrientation.Value.Position.X);
+            get => new Vector3D(_entityBase.PositionAndOrientation.Value.Position.Z,
+                                _entityBase.PositionAndOrientation.Value.Position.Y,
+                                _entityBase.PositionAndOrientation.Value.Position.X);
             set => SetProperty(_entityBase.PositionAndOrientation.Value.Position, value, () =>
             {
-                if (_entityBase.PositionAndOrientation.HasValue
-                    && value.X != _entityBase.PositionAndOrientation.Value.Position.X
-                    && value.Y != _entityBase.PositionAndOrientation.Value.Position.Y
-                    && value.Z != _entityBase.PositionAndOrientation.Value.Position.Z)
+                var currentPos = _entityBase.PositionAndOrientation.Value.Position;
+                if (_entityBase.PositionAndOrientation.HasValue && !value.Equals(currentPos))
                 {
-                    MyPositionAndOrientation pos = _entityBase.PositionAndOrientation.Value;
-                    pos.Position.X = value.X;
-                    pos.Position.Y = value.Y;
-                    pos.Position.Z = value.Z;
+                    var pos = _entityBase.PositionAndOrientation.Value;
 
                     _entityBase.PositionAndOrientation = pos;
                 }
@@ -182,7 +174,6 @@ namespace SEToolbox.Models
         {
             get => _name;
             set => SetProperty(ref _name, value, nameof(DisplayName));
-
         }
 
         [XmlIgnore]
@@ -197,7 +188,6 @@ namespace SEToolbox.Models
         {
             get => _playerDistance;
             set => SetProperty(ref _playerDistance, value, nameof(PlayerDistance));
-
         }
 
         [XmlIgnore]
@@ -264,14 +254,12 @@ namespace SEToolbox.Models
         public bool IsValid
         {
             get => _isValid;
-
             set => SetProperty(ref _isValid, value, nameof(IsValid));
         }
 
         // public double PlayerLocationX
         // {
         //     get => _playerPosition.X;
-
         //     set => SetProperty(ref _playerPosition.X, value, nameof(PlayerLocationX), nameof(PlayerPosition));
 
         // }
@@ -279,7 +267,6 @@ namespace SEToolbox.Models
         // public double PlayerLocationY
         // {
         //     get => _playerPosition.Y;
-
         //     set => SetProperty(ref _playerPosition.Y, value, nameof(PlayerLocationY), nameof(PlayerPosition));
 
         // }

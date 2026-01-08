@@ -144,16 +144,18 @@ namespace SEToolbox.Models
             BaseMaterial = MaterialsCollection.FirstOrDefault(m => m.IsRare == false) ?? MaterialsCollection.FirstOrDefault();
 
             // Voxel Map Storage, includes stock and mod asteroids.
-            var vms = SpaceEngineersResources.VoxelMapStorageDefinitions;
+            var voxelMapStorage= SpaceEngineersResources.VoxelMapStorageDefinitions;
             var contentPath = ToolboxUpdater.GetApplicationContentPath();
             var list = new List<GenerateVoxelDetailModel>();
 
-            foreach (MyVoxelMapStorageDefinition voxelMap in vms)
+            foreach (MyVoxelMapStorageDefinition voxelMap in voxelMapStorage)
             {
                 string fileName = SpaceEngineersCore.GetDataPathOrDefault(voxelMap.StorageFile, Path.Combine(contentPath, voxelMap.StorageFile));
 
                 if (!File.Exists(fileName))
+                {
                     continue;
+                }
 
                 GenerateVoxelDetailModel voxel = new()
                 {
@@ -195,16 +197,17 @@ namespace SEToolbox.Models
 
                 foreach (var item in VoxelStore)
                 {
-                    AsteroidByteFillProperties v1 = (AsteroidByteFillProperties)item.Clone();
-                    v1.VoxelFile = voxelFileLookup.TryGetValue(v1.VoxelFile.Name, out var voxelFile) ? voxelFile : null;
-                    v1.MainMaterial = materialLookup.TryGetValue(v1.MainMaterial.DisplayName, out var mainMaterial) ? mainMaterial : null;
-                    v1.SecondMaterial = materialLookup.TryGetValue(v1.SecondMaterial.DisplayName, out var secondMaterial) ? secondMaterial : null;
-                    v1.ThirdMaterial = materialLookup.TryGetValue(v1.ThirdMaterial.DisplayName, out var thirdMaterial) ? thirdMaterial : null;
-                    v1.FourthMaterial = materialLookup.TryGetValue(v1.FourthMaterial.DisplayName, out var fourthMaterial) ? fourthMaterial : null;
-                    v1.FifthMaterial = materialLookup.TryGetValue(v1.FifthMaterial.DisplayName, out var fifthMaterial) ? fifthMaterial : null;
-                    v1.SixthMaterial = materialLookup.TryGetValue(v1.SixthMaterial.DisplayName, out var sixthMaterial) ? sixthMaterial : null;
-                    v1.SeventhMaterial = materialLookup.TryGetValue(v1.SeventhMaterial.DisplayName, out var seventhMaterial) ? seventhMaterial : null;
-                    VoxelCollection.Add(v1);
+                    AsteroidByteFillProperties bfp = (AsteroidByteFillProperties)item.Clone();
+                    var materialsList = new List<MaterialSelectionModel>();
+
+                    bfp.VoxelFile = voxelFileLookup.TryGetValue(bfp.VoxelFile.Name, out var voxelFile) ? voxelFile : null;
+                    foreach (var material in MaterialsCollection)
+                    {   
+                        var m = new MaterialSelectionModel { Value = material.Value, DisplayName = material.DisplayName};
+                         m = bfp.MaterialsCollection.FirstOrDefault(v => v.DisplayName == material.Value) ?? MaterialsCollection.FirstOrDefault();
+                    }
+                    VoxelCollection.Add(bfp);
+                
                 }
                 RenumberCollection();
 
@@ -223,19 +226,21 @@ namespace SEToolbox.Models
 
         public AsteroidByteFillProperties NewDefaultVoxel(int index)
         {
+
             return new AsteroidByteFillProperties
             {
                 Index = index,
-                VoxelFile = VoxelFileList.FirstOrDefault(),
-                MainMaterial = MaterialsCollection.FirstOrDefault(),
-                SecondMaterial = MaterialsCollection.FirstOrDefault(),
-                ThirdMaterial = MaterialsCollection.FirstOrDefault(),
-                FourthMaterial = MaterialsCollection.FirstOrDefault(),
-                FifthMaterial = MaterialsCollection.FirstOrDefault(),
-                SixthMaterial = MaterialsCollection.FirstOrDefault(),
-                SeventhMaterial = MaterialsCollection.FirstOrDefault(),
+                VoxelFile = VoxelFileList[0],
+                MainMaterial = MaterialsCollection[0],
+                SecondMaterial = MaterialsCollection[0],
+                ThirdMaterial = MaterialsCollection[0],
+                FourthMaterial = MaterialsCollection[0],
+                FifthMaterial = MaterialsCollection[0],
+                SixthMaterial = MaterialsCollection[0],
+                SeventhMaterial = MaterialsCollection[0],
             };
         }
+
 
         public void RenumberCollection()
         {

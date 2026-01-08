@@ -207,9 +207,10 @@ namespace SEToolbox
 
         private static string GetWorldDirectory(string path)
         {
-            return Path.GetFileName(path).Equals(Consts.SandBoxCheckpointFileName, StringComparison.InvariantCultureIgnoreCase)
-                ? Path.GetDirectoryName(path)
-                : Path.GetDirectoryName(Path.GetDirectoryName(path) ?? throw new InvalidOperationException("Unable to get world directory from path: " + path + Environment.NewLine + Environment.StackTrace));
+            return Path.GetFileName(path).Equals(Consts.SandBoxCheckpointFileName, StringComparison.InvariantCultureIgnoreCase) ? 
+                   Path.GetDirectoryName(path) :
+                   Path.GetDirectoryName(Path.GetDirectoryName(path) ?? 
+                   throw new InvalidOperationException("Unable to get world directory from path: " + path + Environment.NewLine + Environment.StackTrace));
         }
 
         public bool InitializeExplorerModel(string[] args)

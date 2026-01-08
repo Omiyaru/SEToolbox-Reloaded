@@ -1,6 +1,7 @@
 ﻿using Octokit;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -12,25 +13,28 @@ namespace SEToolbox.Support
     /// </summary>
     public class CodeRepositoryReleases
     {
-
-     public static ApplicationRelease CheckForUpdates(Version currentVersion, bool dontIgnore = false)
+        public static ApplicationRelease CheckForUpdates(Version currentVersion, bool dontIgnore = false)
         {
             if (!dontIgnore)
             {
                 if (GlobalSettings.Default.AlwaysCheckForUpdates.HasValue && !GlobalSettings.Default.AlwaysCheckForUpdates.Value)
+                {
                     return null;
+                }
 
-        #if DEBUG
+#if DEBUG
                 // Skip the load check, as it may take a few seconds during development.
                 if (Debugger.IsAttached)
+                {
                     return null;
-        #endif
+                }
+#endif
             }
 
             // Accessing GitHub API directly for updates.
             GitHubClient client = new(new ProductHeaderValue("SEToolbox-Updater"));
 
-            Release latest;
+            Release latest = null;
 
             try
             {
@@ -42,7 +46,7 @@ namespace SEToolbox.Support
                 if (ex?.InnerException is HttpRequestException ||
                     ex?.InnerException?.InnerException is WebException)
                 {
-                    SConsole.WriteLine($"An error occurred while checking for updates: {ex.Message}");
+                    Log.WriteLine($"An error occurred while checking for updates: {ex.Message}");
                     return null;
                 }
 
@@ -59,29 +63,22 @@ namespace SEToolbox.Support
 
             Version.TryParse(GlobalSettings.Default.IgnoreUpdateVersion, out Version ignoreVersion);
 
-            if (item.Version > currentVersion && item.Version != ignoreVersion || dontIgnore)
-                return item;
-
-            return null;
+            return item.Version > currentVersion && item.Version != ignoreVersion || dontIgnore ? item : null;
         }
 
 
         private static Version GetVersion(string version)
         {
-            Match match = Regex.Match(version, @"v?(?<v1>\d+)\.(?<v2>\d+)\.(?<v3>\d+)\sRelease\s(?<v4>\d+)");
-
+            var matchString = @"v?(?<v1>\d+)\.(?<v2>\d+)\.(?<v3>\d+)\sRelease\s(?<v4>\d+)"?? @"v?(?<v1>\d+)\.(?<v2>\d+)\.(?<v3>\d+)\sRelease\s(?<v4>\d+)";
+            Match match = Regex.Match(version, matchString);
+            string[] matchGroups = ["v1", "v2", "v3", "v4"];
+            int i = 0;
+            string matchGroup = matchGroups[i] + ".";
             if (match.Success)
             {
-                return new Version(match.Groups["v1"].Value + "." + match.Groups["v2"].Value + "." + match.Groups["v3"].Value + "." + match.Groups["v4"].Value);
+                var versionParts = match.Groups.Cast<string>().Where(g => g != null).Select(g => match.Groups[g].Value).ToArray();
+                return new Version(string.Join(".", versionParts));
             }
-
-            match = Regex.Match(version, @"v?(?<v1>\d+)\.(?<v2>\d+)\.(?<v3>\d+).(?<v4>\d+)");
-
-            if (match.Success)
-            {
-                return new Version(match.Groups["v1"].Value + "." + match.Groups["v2"].Value + "." + match.Groups["v3"].Value + "." + match.Groups["v4"].Value);
-            }
-
             return new Version(0, 0, 0, 0);
         }
     }
@@ -89,11 +86,8 @@ namespace SEToolbox.Support
     public class ApplicationRelease
     {
         public string Name { get; set; }
-        
         public string Link { get; set; }
-        
         public Version Version { get; set; }
-        
         public string Notes { get; set; }
     }
 }

@@ -176,7 +176,6 @@ namespace SEToolbox.ViewModels
                     }
                     catch
                     {
-                        
                     }
                 }
 

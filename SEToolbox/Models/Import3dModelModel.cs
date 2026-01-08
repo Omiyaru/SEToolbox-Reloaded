@@ -82,7 +82,6 @@ namespace SEToolbox.Models
         {
             get => _isValidModel;
             set => SetProperty(ref _isValidModel, value, nameof(IsValidModel));
-
         }
 
         public BindableSize3DModel OriginalModelSize
@@ -154,7 +153,7 @@ namespace SEToolbox.Models
         {
             get => _characterPosition;
             //unable to check for equivalence and is mostly unnecessary
-            set => SetProperty(ref _characterPosition, value, nameof(CharacterPosition));
+            set => SetValue(ref _characterPosition, value, nameof(CharacterPosition));
         }
 
         public double MultipleScale
@@ -192,7 +191,6 @@ namespace SEToolbox.Models
             get => _outsideMaterialsCollection;
         }
 
-
         public ObservableCollection<MaterialSelectionModel> InsideMaterialsCollection
         {
             get => _insideMaterialsCollection;
@@ -216,7 +214,7 @@ namespace SEToolbox.Models
             set => SetProperty(ref _sourceFile, value, nameof(SourceFile));
         }
 
-        public bool FillObject 
+        public bool FillObject
         {
             get => _fillObject;
             set => SetProperty(ref _fillObject, value, nameof(FillObject));

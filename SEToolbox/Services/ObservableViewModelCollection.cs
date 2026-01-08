@@ -38,6 +38,7 @@ namespace SEToolbox.Services
         {
             int newIndex = e.NewStartingIndex;
             int oldIndex = e.OldStartingIndex;
+           
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
@@ -46,6 +47,11 @@ namespace SEToolbox.Services
                     break;
 
                 case NotifyCollectionChangedAction.Move:
+                    if (e.OldItems.Count == 1)
+                    {
+                        Move(oldIndex, newIndex);
+                    }
+
                     var itemsToMove = this.Skip(oldIndex).Take(e.OldItems.Count).ToList();
                     RemoveOldIndex(oldIndex, e);
                     InsertNewIndex(newIndex, itemsToMove);
@@ -68,30 +74,38 @@ namespace SEToolbox.Services
                     break;
             }
         }
-
+ 
         private void RemoveOldIndex(int oldIndex, NotifyCollectionChangedEventArgs e)
         {
             for (int i = 0; i < e.OldItems.Count; i++)
+            {
                 RemoveAt(oldIndex);
+            }
         }
 
         private void InsertNewIndex(int newIndex, IEnumerable<TViewModel> viewModels)
         {
             foreach (var viewModel in viewModels)
+            {
                 Insert(newIndex++, viewModel);
+            }
         }
 
         private void AddViewModel(IEnumerable<TViewModel> viewModels)
         {
             foreach (var viewModel in viewModels)
-                    Add(viewModel);
+            {
+                Add(viewModel);
+            }
         }
 
         private void Reset(IEnumerable<TViewModel> viewModels, NotifyCollectionChangedEventArgs e)
         {
             Clear();
             if (e.NewItems.Count > 0)
+            {
                 AddViewModel(viewModels);
+            }
         }
     }
 }

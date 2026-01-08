@@ -10,7 +10,7 @@ namespace SEToolbox.Models.Asteroids
     // Otherwise, it will have to remain generic.
     // TODO: possibly allow users to create their own fill methods using new methods aand parameters
 
-    public class AsteroidFiller : BaseModel
+    public class AsteroidFiller : BaseModel//, IMyVoxelFiller
     {
         #region Fields
 
@@ -23,7 +23,7 @@ namespace SEToolbox.Models.Asteroids
 
         public AsteroidFiller()
         {
-            FillMethod = new AsteroidByteFiller();
+           // FillMethod = new AsteroidByteFiller();
         }
 
         #region Properties
@@ -66,7 +66,7 @@ namespace SEToolbox.Models.Asteroids
             VoxelCollection.Insert(VoxelCollection.IndexOf(SelectedRow) + 1, newFillProperties);
         }
 
-        public void RandomizeFillProperties( AsteroidByteFillProperties SelectedRow, ObservableCollection<AsteroidByteFillProperties> VoxelCollection, GenerateVoxelFieldModel dataModel, ObservableCollection<MaterialSelectionModel> MaterialsCollection, ObservableCollection<GenerateVoxelDetailModel> VoxelFileList)
+        public void RandomizeFillProperties(AsteroidByteFillProperties SelectedRow, ObservableCollection<AsteroidByteFillProperties> VoxelCollection, GenerateVoxelFieldModel dataModel, ObservableCollection<MaterialSelectionModel> MaterialsCollection, ObservableCollection<GenerateVoxelDetailModel> VoxelFileList)
         {
             var filler = new AsteroidByteFiller();
             var randomModel = filler.CreateRandom(VoxelCollection.Count + 1, dataModel.BaseMaterial, MaterialsCollection, VoxelFileList) as AsteroidByteFillProperties;
@@ -84,6 +84,11 @@ namespace SEToolbox.Models.Asteroids
         public void FillAsteroid(MyVoxelMapBase asteroid, IMyVoxelFillProperties fillProperties)
         {
             _fillMethod.FillAsteroid(asteroid, fillProperties);
+        }
+
+        public IMyVoxelFillProperties CreateRandom(int index, MaterialSelectionModel defaultMaterial, IEnumerable<MaterialSelectionModel> materialsCollection, IEnumerable<GenerateVoxelDetailModel> voxelCollection)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

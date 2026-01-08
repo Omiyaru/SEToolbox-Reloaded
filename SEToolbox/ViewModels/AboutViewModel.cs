@@ -44,14 +44,10 @@ namespace SEToolbox.ViewModels
 
         public static string Company
         {
-            get
-            {
-                var company = Assembly.GetExecutingAssembly()
-                     .GetCustomAttributes(typeof(AssemblyCompanyAttribute), false)
-                     .OfType<AssemblyCompanyAttribute>()
-                     .FirstOrDefault();
-                return company.Company;
-            }
+            get => Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCompanyAttribute), false)
+                            .OfType<AssemblyCompanyAttribute>()
+                            .FirstOrDefault().Company;
+
         }
 
         public Version Version
