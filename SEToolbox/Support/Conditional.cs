@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-
 namespace SEToolbox.Support
 {
     public static class Conditional
@@ -12,9 +11,8 @@ namespace SEToolbox.Support
         public static bool All(params object[] values) => (bool)All(values[0], values);
         public static bool AllNull(params object[] values) => (bool)All(null, values);
         public static bool AllNullOrDefault(params object[] values) => (bool)All((object)null ?? default, values);
-
         public static bool All(object condition = null, params IEnumerable<object> values) => (bool)All(condition, [.. values]);
-        
+
         //public static bool Any<T>(this IEnumerable<T> values) => values.Any( v => v != null);
         public static bool AnyNull(params object[] values) => (bool)Any(null, values);
 
@@ -34,12 +32,11 @@ namespace SEToolbox.Support
             {
                 if (predicate(value))
                 {
-                        return true;  
+                    return true;
                 }
             }
             return false;
         }
-        
 
         /// <summary>
         /// Returns true if the condition matches any of the values.
@@ -50,20 +47,19 @@ namespace SEToolbox.Support
         /// <returns>true if the condition matches any of the values; otherwise, false.</returns>
         public static object Any<T>(object condition = null, params T[] values)
         {
-            condition ??= values.Any(v => v != null);
-
+            condition ??= values.Any(v => v != null) ? values[0] : null;
+            ForEach(v => v != null, values);
             var conditionType = condition.GetType();
             return values.Any(v => v != null &&
                              (conditionType.IsInstanceOfType(v.GetType()) ||
                               conditionType.IsAssignableFrom(v.GetType())));
         }
+
         public static object All(object condition = null, params object[] values)
         {
             condition ??= values.All(v => v != null);
 
             var conditionType = condition.GetType();
-            // condition ??= values.Any(v => v != null) ? values[0] : null;
-           // ForEach(v => v != null, values);
             return values.All(v => v != null &&
                              (conditionType.IsInstanceOfType(v.GetType()) ||
                               conditionType.IsAssignableFrom(v.GetType())));
@@ -97,7 +93,7 @@ namespace SEToolbox.Support
                     return value ?? default;
                 }
             }
-            return Coalesced(valuePairs.All(v => !v.Value.Equals(condition)), default, value);
+            return Coalesced(valuePairs.All(v => !v.Value.Equals(condition)), default,  value);
         }
 
         public static object NotNullCoalesced(params object[] values) => Coalesced<object>(values[0] != null, values.Skip(1).ToArray());
@@ -105,7 +101,6 @@ namespace SEToolbox.Support
         public static object NullCoalesced(params object[] values) => Coalesced<object>(values[0] == null, values.Skip(1).ToArray());
 
         //public static object NullCoalesced(object condition, params object[] values) => Coalesced(condition, values);
-
         /// <summary>
         /// Conditionally coalesce values based on the condition and value.
         /// If the condition matches any of the values, return the value.
@@ -117,17 +112,12 @@ namespace SEToolbox.Support
 
             bool conditionMatchesValues = (bool)Any(condition, values);
             object result = conditionMatchesValues ? default : value ?? swap ?? condition ?? Any(condition, values);
-
-            if (conditionMatchesValues == true)
+            _ = true switch
             {
-                return coalesced;
-            }
-
-            if (values.Length == 0)
-            {
-                return coalesced;
-            }
-
+                true when conditionMatchesValues == true => coalesced,
+                true when values.Length == 0 => coalesced,
+                _ => result
+            };
             return result;
         }
 
@@ -145,6 +135,9 @@ namespace SEToolbox.Support
             };
             return result;
         }
+
+
+
 
         public static object ForEach<T>(object obj, params T[] values)
         {
@@ -172,7 +165,10 @@ namespace SEToolbox.Support
 
             containerTypes.ToList().ForEach(value => action(value));
         }
+
+
     }
+
 }
 
 
