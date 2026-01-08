@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-
 namespace SEToolbox.Support
 {
     public static class Conditional
     {
 
+
         public static bool All(params object[] values) => (bool)All(values[0], values);
         public static bool AllNull(params object[] values) => (bool)All(null, values);
         public static bool AllNullOrDefault(params object[] values) => (bool)All((object)null ?? default, values);
+
         public static bool All(object condition = null, params IEnumerable<object> values) => (bool)All(condition, [.. values]);
 
         //public static bool Any<T>(this IEnumerable<T> values) => values.Any( v => v != null);
@@ -81,9 +82,7 @@ namespace SEToolbox.Support
             Dictionary<T, T> valuePairs = [];
             if (conditionPairs.Length == 0 || valuePairs.Count == 0)
             {
-            {
                 return null;
-            }
             }
 
             T condition = default, value = default;
@@ -139,11 +138,14 @@ namespace SEToolbox.Support
             return result;
         }
 
+
+
+
         public static object ForEach<T>(object obj, params T[] values)
         {
             var containerTypes = values.Select(v => v.GetType()).ToArray() as IEnumerable<T>;
 
-            containerTypes.ToList().ForEach(value => object.Equals(obj, value));
+            containerTypes.ForEach(value => object.Equals(obj, value));
 
             return default;
         }
@@ -154,7 +156,7 @@ namespace SEToolbox.Support
         {
             var containerTypes = values.Select(v => v.GetType()).ToArray() as IEnumerable<T>;
 
-            containerTypes.ToList().ForEach(value => action(value));
+            containerTypes.ForEach(value => action(value));
 
             return default;
         }
@@ -163,8 +165,10 @@ namespace SEToolbox.Support
 
             var containerTypes = values.Select(v => v.GetType()).ToArray() as IEnumerable<T>;
 
-            containerTypes.ToList().ForEach(value => action(value));
+            containerTypes.ForEach(value => action(value));
         }
+
+
     }
 
 }
