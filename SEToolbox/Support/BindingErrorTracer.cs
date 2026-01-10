@@ -87,7 +87,6 @@ namespace SEToolbox.Support
             }
         }
 
-
         public static readonly IReadOnlyList<Type> WPFFeatures = new List<Type>
         {
             typeof(FrameworkPropertyMetadata),
