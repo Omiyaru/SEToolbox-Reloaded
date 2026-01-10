@@ -214,11 +214,11 @@
     </None>
     <Content Include="$(BinPath)\steam_api64.dll">
       <Link>steam_api64.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="$(BinPath)\VRage.Native.dll">
       <Link>VRage.Native.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
