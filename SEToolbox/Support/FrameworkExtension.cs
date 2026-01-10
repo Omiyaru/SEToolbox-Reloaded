@@ -40,7 +40,6 @@ namespace SEToolbox.Support
                 foreach (var child in LogicalTreeHelper.GetChildren(element).OfType<FrameworkElement>())
                 {
                     queue.Enqueue(child);
-
                 }
             }
         }
@@ -91,11 +90,10 @@ namespace SEToolbox.Support
             where T : DependencyObject
         {
             var parentObject = VisualTreeHelper.GetParent(child);
-
-            // get parent item                  // we’ve reached the end of the tree
-                parentObject ??= null;
                 // get parent item                  // we’ve reached the end of the tree
-                return parentObject is T pO ? pO : FindVisualParent<T>(parentObject);
+                return parentObject is not null and not T ? parentObject is T pObj 
+                                                          ? pObj : FindVisualParent<T>(parentObject)
+                                                          : null;
 
         }
 

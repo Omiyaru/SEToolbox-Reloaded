@@ -74,18 +74,16 @@ namespace SEToolbox.Support
             RuntimeMethodHandle handle = GetDynamicMethodRuntimeHandle(method);
             byte* ptr = (byte*)handle.Value.ToPointer();
 
-            if (IntPtr.Size == 8)
+            int* address;
+            switch (IntPtr.Size)
             {
-                ulong* address = (ulong*)ptr;
-                address += 6;
-                return new IntPtr(address);
-            }
-            else
-            {
-                uint* address = (uint*)ptr;
-                address += 6;
-                return new IntPtr(address);
-            }
+                case 8:
+                default:
+                    address = (int*)ptr;
+                    address += 6;
+                    return new IntPtr(address); 
+                 
+                }
         }
 
         private static RuntimeMethodHandle GetDynamicMethodRuntimeHandle(MethodBase method)
@@ -124,18 +122,8 @@ namespace SEToolbox.Support
         private static Type GetMethodReturnType(MethodBase method)
         {
             MethodInfo methodInfo = method as MethodInfo;
-
-            if (methodInfo != null)
-            {
-                return methodInfo.ReturnType;
-            }
-
-            ConstructorInfo constructorInfo = method as ConstructorInfo;
-
-            if (constructorInfo != null)
-            {
-                return typeof(void);
-            }
+            ConstructorInfo constructorInfo = method as ConstructorInfo;    
+            return methodInfo?.ReturnType ?? (constructorInfo != null ? typeof(void) : throw new ArgumentException("Unsupported MethodBase : " + method.GetType().Name, nameof(method)));
 
             throw new ArgumentException("Unsupported MethodBase : " + method.GetType().Name, nameof(method));
         }
@@ -207,7 +195,8 @@ namespace SEToolbox.Support
         }
 
         public static void ConstructField(object obj, string fieldName)
-        {     Type objectType = obj.GetType();
+        {     
+            Type objectType = obj.GetType();
             FieldInfo field = objectType.GetField(fieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
 
             if (obj == null|| field == null)
@@ -302,14 +291,14 @@ namespace SEToolbox.Support
 
         //instance
     
-         public static object Createinstof<T>(string typeName, params object[] parameters)
+         public static object CreateInstof<T>(string typeName, params object[] parameters)
         {
             Type assemblyType = typeof(T).Assembly.GetType(typeName);
             object result = assemblyType != null ? Activator.CreateInstance(assemblyType, parameters) : null;
             return result;
         }
 
-        public static object Createinstof(Type type, string typeName, params object[] parameters)
+        public static object CreateInstof(Type type, string typeName, params object[] parameters)
         {
             Type assemblyType = type.Assembly.GetType(typeName);
             return assemblyType != null ? Activator.CreateInstance(assemblyType, parameters) : null;

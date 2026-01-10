@@ -11,28 +11,29 @@ using System.Windows.Markup;
 using System.Windows.Input;
 using System.ComponentModel;
 using System.IO;
+using System.Windows.Forms;
 
 
 
 namespace SEToolbox.Support
 {
     public class BindingErrorTraceListener : DefaultTraceListener
-    {   
-        
-        private static  BindingErrorTraceListener Listener = new();
-        
+    {
+
+        private static BindingErrorTraceListener Listener = new();
+        private bool includeXaml;
+
         public static void SetTrace()
         {
-            SetTrace(SourceLevels.Error, TraceOptions.None);
+            SetTrace(SourceLevels.Error, TraceOptions.Callstack);
         }
 
-        public static void SetTrace(SourceLevels level, TraceOptions options)
+        public static void SetTrace(SourceLevels level, TraceOptions options, bool includeXaml = false)
         {
-            if (Listener == null)
-            {               
-                Listener = new BindingErrorTraceListener();
-                PresentationTraceSources.DataBindingSource.Listeners.Add(Listener);
-            }
+
+            Listener ??= new BindingErrorTraceListener() { includeXaml = includeXaml };
+            PresentationTraceSources.DataBindingSource.Listeners.Add(Listener);
+
             Listener.TraceOutputOptions = options;
             PresentationTraceSources.DataBindingSource.Switch.Level = level;
             Console.WriteLine("Binding Error Trace Set");
@@ -52,7 +53,7 @@ namespace SEToolbox.Support
         }
 
         private readonly StringBuilder _Message = new();
-     
+
         public BindingErrorTraceListener()
         {
             _Message = new StringBuilder();
@@ -70,11 +71,11 @@ namespace SEToolbox.Support
             {
                 string bindingError = _Message.ToString();
                 _Message.Clear();
-                Application.Current.Dispatcher.BeginInvoke(
+                _ = System.Windows.Application.Current.Dispatcher.BeginInvoke(
                     new Action(() =>
                     {
                         GetBindingError(new object(), new RoutedEventArgs());
-                        //MessageBox.Show(bindingError, "Binding Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        //System.Windows.MessageBox.Show(bindingError, "Binding Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         Debug.WriteLine(bindingError, "Binding Error");
                         Console.WriteLine(bindingError, "Binding Error");
                     }), DispatcherPriority.Normal, null, bindingError, "Binding Error");
@@ -85,29 +86,31 @@ namespace SEToolbox.Support
                 _Message.AppendLine(message);
             }
         }
-    
-       
-        public static readonly List<Type> WPFFeatures =
-        [
+
+
+        public static readonly IReadOnlyList<Type> WPFFeatures = new List<Type>
+        {
             typeof(FrameworkPropertyMetadata),
             typeof(FrameworkElementFactory),
             typeof(FrameworkContentElement),
             typeof(HeaderedContentControl),
             typeof(BindingExpressionBase),
             typeof(DataTemplateSelector),
-            //typeof(HeaderedItemsControl),
             typeof(UIElementCollection),
             typeof(InheritanceBehavior),
             typeof(XamlParseException),
             typeof(ResourceDictionary),
             typeof(DependencyProperty),
             typeof(RoutedEventHandler),
-            
+            typeof(RoutedEvent),
+            typeof(RoutedEventArgs),
+            typeof(PresentationSource),
             typeof(BindableAttribute),
             typeof(BindingExpression),
             typeof(FrameworkTemplate),
             typeof(FrameworkElement),
             typeof(PropertyMetadata),
+            typeof(ButtonBase),
             typeof(DependencyObject),
             typeof(DispatcherObject),
             typeof(ControlTemplate),
@@ -122,8 +125,6 @@ namespace SEToolbox.Support
             typeof(BindingExpression),
             typeof(ItemsControl),
             typeof(EventHandler),
-            //typeof(MultiBinding),
-            //typeof(MultiTrigger),
             typeof(RoutedEvent),
             typeof(BindingBase),
             typeof(TriggerBase),
@@ -132,12 +133,22 @@ namespace SEToolbox.Support
             typeof(Attribute),
             typeof(IAddChild),
             typeof(EventArgs),
-            typeof(Binding),
-            typeof(System.Windows.Controls.Control),
-            //typeof(Trigger),
+            typeof(IComponent),
+            typeof(IContainer),
+            typeof(INotifyPropertyChanged),
+            typeof(INotifyPropertyChanging),
+            typeof(IProvideValueTarget),
+            typeof(ResourceDictionary),
+            typeof(Window),
             typeof(Style),
-
-        ];
+            typeof(DependencyProperty),
+            typeof(DependencyObject),
+            typeof(DispatcherObject),
+            typeof(FrameworkElement),
+            typeof(FrameworkContentElement),
+            typeof(ContentControl),
+            typeof(ContentElement),
+        }.AsReadOnly();
 
         public void GetBindingError(object sender, RoutedEventArgs e)
         {
@@ -155,6 +166,7 @@ namespace SEToolbox.Support
             if (dataContext == null)
             {
                 Debug.WriteLine($"Binding Error: {dataContext}" + " " + Environment.NewLine + new StackTrace());
+            
             }
 
             var bindingExpression = BindingOperations.GetBindingExpression(dependencyObject, (DependencyProperty)dataContext);
@@ -164,15 +176,15 @@ namespace SEToolbox.Support
                 {
                     var errorFeature = WPFFeatures.FirstOrDefault(fn => error.ErrorContent.ToString().Contains(fn.Name));
                     LogValidationError(error.ErrorContent as string);
-                    Log.WriteLine($"Binding Error: {error.ErrorContent} {errorFeature?.Name} {dataContext} " + (error.ErrorContent as string));
+                    Debug.WriteLine($"Binding Error: {error.ErrorContent} {errorFeature?.Name} {dataContext} " + (error.ErrorContent as string));
                 }
             }
         }
-        
+
 
 
         private object GetDataContext(DependencyObject dependencyObject)
-        {   
+        {
             return dependencyObject is FrameworkElement frameworkElement
                 ? frameworkElement.GetValue(FrameworkElement.DataContextProperty)
                 : DependencyProperty.UnsetValue;
@@ -184,13 +196,25 @@ namespace SEToolbox.Support
             var errorMessage = errorFeature != null
                 ? $"WPF Error: {errorFeature.Name}"
                 : validationError;
-
-            Debug.WriteLine(errorMessage + Environment.NewLine + new StackTrace());
-            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BindingErrors.log");
-            var content = $"Binding Error: {errorMessage} {DateTime.Now}{Environment.NewLine}{new StackTrace()}{Environment.NewLine}";
-            File.AppendAllText(path, content);
+              Window root = null;  
+                var xaml = "";
+            if (includeXaml && System.Windows.Application.Current != null && root != null && root.Content is FrameworkElement frameworkElement) 
+            {   
+                root = System.Windows.Application.Current.MainWindow;
+                xaml = XamlWriter.Save(root.Content);
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BindingErrors.log");
+                var content = $"Binding Error: {errorMessage} {DateTime.Now}{Environment.NewLine}{new StackTrace()}{Environment.NewLine}{xaml}{Environment.NewLine}";
+                File.AppendAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BindingErrors.log"),
+                    $"Binding Error: {errorMessage} {DateTime.Now}{Environment.NewLine}{new StackTrace()}{Environment.NewLine}{xaml}{Environment.NewLine}");
+            }
+            else
+            {
+                Debug.WriteLine(errorMessage + Environment.NewLine + new StackTrace());
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BindingErrors.log");
+                var content = $"Binding Error: {errorMessage} {DateTime.Now}{Environment.NewLine}{new StackTrace()}{Environment.NewLine}";
+                File.AppendAllText(path, content);
+            }
         }
-
     }
 }
 
